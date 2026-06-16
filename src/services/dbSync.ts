@@ -23,7 +23,7 @@ const DB_PATH = 'src/data/medications-db.json';
 // ─────────────────────────────────────────────────────────────────────────────
 
 const CACHE_KEY = 'medications_db_v1';
-const CACHE_TTL_DAYS = 7;
+const CACHE_TTL_DAYS = 1;
 
 const JSDELIVR_URL =
   `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/${DB_PATH}`;
@@ -64,10 +64,16 @@ export async function syncMedicationsDb(): Promise<void> {
 async function fetchAndUpdate(): Promise<void> {
   if (GITHUB_USER === 'SEU_USUARIO') return; // not configured yet
 
-  // Respect cache TTL: skip network if cache is fresh
+  // Skip network only if cache is very fresh AND already has plenty of entries
   try {
     const age = await getKVAge(CACHE_KEY);
-    if (age < CACHE_TTL_DAYS) return;
+    if (age < CACHE_TTL_DAYS) {
+      const cached = await getKV(CACHE_KEY);
+      if (cached) {
+        const parsed: MedsDb = JSON.parse(cached);
+        if (parsed.medications.length >= 600) return;
+      }
+    }
   } catch { /* proceed */ }
 
   try {
@@ -77,10 +83,8 @@ async function fetchAndUpdate(): Promise<void> {
     const data: MedsDb = await res.json();
     if (!data?.medications?.length) return;
 
-    // Persist to cache
+    // Always update cache and memory if remote has more entries
     await setKV(CACHE_KEY, JSON.stringify(data));
-
-    // Update in-memory DB (only if richer than current)
     loadExternalDb(data);
   } catch {
     // Network error, timeout, JSON parse error — silently ignore

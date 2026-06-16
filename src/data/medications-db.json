@@ -5,6 +5,8 @@
     {
       "genericName": "Metformina",
       "brands": [
+        "Metformin",
+        "Cloridrato de Metformina",
         "Glifage",
         "Glifage XR",
         "Glucoformin"
@@ -53,6 +55,7 @@
     {
       "genericName": "Metformina + Sitagliptina",
       "brands": [
+        "Cloridrato de Metformina",
         "Janumet",
         "Janumet XR"
       ],
@@ -68,6 +71,7 @@
     {
       "genericName": "Metformina + Vildagliptina",
       "brands": [
+        "Cloridrato de Metformina",
         "Galvus Met",
         "Vildamet"
       ],
@@ -83,6 +87,7 @@
     {
       "genericName": "Metformina + Empagliflozina",
       "brands": [
+        "Cloridrato de Metformina",
         "Jardiance Duo",
         "Synjardy"
       ],
@@ -98,6 +103,7 @@
     {
       "genericName": "Metformina + Dapagliflozina",
       "brands": [
+        "Cloridrato de Metformina",
         "Xigduo",
         "Xigduo XR"
       ],
@@ -113,6 +119,7 @@
     {
       "genericName": "Metformina + Saxagliptina",
       "brands": [
+        "Cloridrato de Metformina",
         "Kombiglyze XR",
         "Kombiglyze"
       ],
@@ -129,6 +136,7 @@
     {
       "genericName": "Metformina + Linagliptina",
       "brands": [
+        "Cloridrato de Metformina",
         "Jentadueto",
         "Jentadueto XR"
       ],
@@ -207,6 +215,7 @@
     {
       "genericName": "Losartana",
       "brands": [
+        "Losartana Potássica",
         "Cozaar",
         "Aradois",
         "Losacor",
@@ -219,13 +228,15 @@
       "brands": [
         "Hyzaar",
         "Aradois H",
-        "Cozaar Comp"
+        "Cozaar Comp",
+        "Losartana Potássica"
       ],
       "category": "Anti-hipertensivo"
     },
     {
       "genericName": "Valsartana",
       "brands": [
+        "Valsartana Sódica",
         "Diovan",
         "Valtan",
         "Valsacor"
@@ -284,6 +295,7 @@
     {
       "genericName": "Candesartana",
       "brands": [
+        "Cilexetila de Candesartana",
         "Atacand",
         "Blopress"
       ],
@@ -300,6 +312,7 @@
     {
       "genericName": "Irbesartana",
       "brands": [
+        "Irbesartana",
         "Avapro",
         "Aprovel"
       ],
@@ -316,6 +329,7 @@
     {
       "genericName": "Enalapril",
       "brands": [
+        "Maleato de Enalapril",
         "Vasotec",
         "Renitec",
         "Enacard"
@@ -333,6 +347,8 @@
     {
       "genericName": "Captopril",
       "brands": [
+        "Captopril EMS",
+        "Captopril Merck",
         "Capoten",
         "Captoplex",
         "Captopress"
@@ -400,6 +416,9 @@
     {
       "genericName": "Amlodipino",
       "brands": [
+        "Anlodipino",
+        "Besilato de Amlodipino",
+        "Besilato de Anlodipino",
         "Norvasc",
         "Amlor",
         "Pressat",
@@ -428,6 +447,7 @@
     {
       "genericName": "Diltiazem",
       "brands": [
+        "Cloridrato de Diltiazem",
         "Cardizem",
         "Balcor"
       ],
@@ -436,6 +456,7 @@
     {
       "genericName": "Verapamil",
       "brands": [
+        "Cloridrato de Verapamil",
         "Isoptin",
         "Dilacoron"
       ],
@@ -444,6 +465,8 @@
     {
       "genericName": "Metoprolol",
       "brands": [
+        "Succinato de Metoprolol",
+        "Tartarato de Metoprolol",
         "Seloken",
         "Selozok"
       ],
@@ -452,6 +475,7 @@
     {
       "genericName": "Atenolol",
       "brands": [
+        "Cloridrato de Atenolol",
         "Tenormin",
         "Atenol"
       ],
@@ -460,6 +484,7 @@
     {
       "genericName": "Propranolol",
       "brands": [
+        "Cloridrato de Propranolol",
         "Inderal",
         "Propranol"
       ],
@@ -468,6 +493,7 @@
     {
       "genericName": "Carvedilol",
       "brands": [
+        "Mesilato de Carvedilol",
         "Coreg",
         "Divelol"
       ],
@@ -476,6 +502,7 @@
     {
       "genericName": "Bisoprolol",
       "brands": [
+        "Fumarato de Bisoprolol",
         "Concor",
         "Bisobloc"
       ],
@@ -484,6 +511,7 @@
     {
       "genericName": "Nebivolol",
       "brands": [
+        "Cloridrato de Nebivolol",
         "Nebilet"
       ],
       "category": "Anti-hipertensivo"
@@ -491,6 +519,7 @@
     {
       "genericName": "Atorvastatina",
       "brands": [
+        "Atorvastatina Cálcica",
         "Lipitor",
         "Citalor",
         "Torvacard",
@@ -504,6 +533,7 @@
     {
       "genericName": "Sinvastatina",
       "brands": [
+        "Sinvastatina EMS",
         "Zocor",
         "Sinvacor",
         "Vaslip",
@@ -516,6 +546,7 @@
     {
       "genericName": "Rosuvastatina",
       "brands": [
+        "Rosuvastatina Cálcica",
         "Crestor",
         "Zinpass",
         "Arlin",
@@ -533,6 +564,7 @@
     {
       "genericName": "Pravastatina",
       "brands": [
+        "Pravastatina Sódica",
         "Pravacol",
         "Mevalotin"
       ],
@@ -614,6 +646,8 @@
     {
       "genericName": "Hidroclorotiazida",
       "brands": [
+        "HCTZ",
+        "Hidroclorotiazida EMS",
         "Clorana",
         "Moduretic"
       ],
@@ -629,6 +663,8 @@
     {
       "genericName": "Furosemida",
       "brands": [
+        "Furosemida EMS",
+        "Furosemide",
         "Lasix",
         "Furosil"
       ],
@@ -637,6 +673,7 @@
     {
       "genericName": "Espironolactona",
       "brands": [
+        "Espironolactona EMS",
         "Aldactone",
         "Espironol"
       ],
@@ -659,6 +696,8 @@
     {
       "genericName": "Omeprazol",
       "brands": [
+        "Omeprazol Magnésio",
+        "Omeprazol Sódico",
         "Losec",
         "Peprazol",
         "Omepral"
@@ -668,6 +707,7 @@
     {
       "genericName": "Pantoprazol",
       "brands": [
+        "Pantoprazol Sódico",
         "Pantozol",
         "Pantoc"
       ],
@@ -676,6 +716,8 @@
     {
       "genericName": "Esomeprazol",
       "brands": [
+        "Esomeprazol Sódico",
+        "Esomeprazol Magnésio",
         "Nexium"
       ],
       "category": "Gastroprotetor"
@@ -752,6 +794,7 @@
     {
       "genericName": "Ciprofloxacino",
       "brands": [
+        "Cloridrato de Ciprofloxacino",
         "Cipro",
         "Ciproflox",
         "Bacquinor"
@@ -761,6 +804,7 @@
     {
       "genericName": "Levofloxacino",
       "brands": [
+        "Cloridrato de Levofloxacino",
         "Tavanic",
         "Levaquin"
       ],
@@ -776,6 +820,7 @@
     {
       "genericName": "Moxifloxacino",
       "brands": [
+        "Cloridrato de Moxifloxacino",
         "Avelox"
       ],
       "category": "Antibiótico"
@@ -872,6 +917,7 @@
     {
       "genericName": "Fluoxetina",
       "brands": [
+        "Cloridrato de Fluoxetina",
         "Prozac",
         "Daforin",
         "Eufor"
@@ -881,6 +927,7 @@
     {
       "genericName": "Sertralina",
       "brands": [
+        "Cloridrato de Sertralina",
         "Zoloft",
         "Tolrest",
         "Assert"
@@ -890,6 +937,7 @@
     {
       "genericName": "Paroxetina",
       "brands": [
+        "Cloridrato de Paroxetina",
         "Pondera",
         "Aropax"
       ],
@@ -913,6 +961,7 @@
     {
       "genericName": "Venlafaxina",
       "brands": [
+        "Cloridrato de Venlafaxina",
         "Effexor",
         "Venlift",
         "Efexor"
@@ -922,6 +971,7 @@
     {
       "genericName": "Duloxetina",
       "brands": [
+        "Cloridrato de Duloxetina",
         "Cymbalta",
         "Dual"
       ],
@@ -937,6 +987,7 @@
     {
       "genericName": "Amitriptilina",
       "brands": [
+        "Cloridrato de Amitriptilina",
         "Tryptanol"
       ],
       "category": "Antidepressivo Tricíclico"
@@ -944,6 +995,7 @@
     {
       "genericName": "Nortriptilina",
       "brands": [
+        "Cloridrato de Nortriptilina",
         "Pamelor"
       ],
       "category": "Antidepressivo Tricíclico"
@@ -951,6 +1003,7 @@
     {
       "genericName": "Imipramina",
       "brands": [
+        "Cloridrato de Imipramina",
         "Tofranil"
       ],
       "category": "Antidepressivo Tricíclico"
@@ -958,6 +1011,7 @@
     {
       "genericName": "Clomipramina",
       "brands": [
+        "Cloridrato de Clomipramina",
         "Anafranil"
       ],
       "category": "Antidepressivo Tricíclico"
@@ -973,6 +1027,7 @@
     {
       "genericName": "Clonazepam",
       "brands": [
+        "Cloridrato de Clonazepam",
         "Rivotril",
         "Clonotril"
       ],
@@ -1004,6 +1059,7 @@
     {
       "genericName": "Ibuprofeno",
       "brands": [
+        "Ibuprofeno Sódico",
         "Advil",
         "Ibupirac",
         "Alivium"
@@ -1013,6 +1069,7 @@
     {
       "genericName": "Naproxeno",
       "brands": [
+        "Naproxeno Sódico",
         "Aleve",
         "Flanax",
         "Naprosyn"
@@ -1022,6 +1079,9 @@
     {
       "genericName": "Diclofenaco",
       "brands": [
+        "Diclofenaco de Dietilamônio",
+        "Diclofenaco Potássico",
+        "Diclofenaco de Sódio",
         "Voltaren",
         "Cataflam",
         "Diclofar"
@@ -1080,6 +1140,7 @@
     {
       "genericName": "AAS (Ácido Acetilsalicílico)",
       "brands": [
+        "AAS",
         "Aspirina",
         "AAS Prevent",
         "Cardioaspirina"
@@ -1089,6 +1150,7 @@
     {
       "genericName": "Tramadol",
       "brands": [
+        "Cloridrato de Tramadol",
         "Tramal",
         "Sylador"
       ],
@@ -1097,6 +1159,8 @@
     {
       "genericName": "Codeína",
       "brands": [
+        "Cloridrato de Codeína",
+        "Fosfato de Codeína",
         "Tylex",
         "Codein"
       ],
@@ -1105,6 +1169,8 @@
     {
       "genericName": "Morfina",
       "brands": [
+        "Cloridrato de Morfina",
+        "Sulfato de Morfina",
         "MST",
         "Dimorf"
       ],
@@ -1136,6 +1202,7 @@
     {
       "genericName": "Varfarina",
       "brands": [
+        "Varfarina Sódica",
         "Coumadin",
         "Marevan"
       ],
@@ -1216,6 +1283,7 @@
     {
       "genericName": "Amiodarona",
       "brands": [
+        "Cloridrato de Amiodarona",
         "Ancoron",
         "Cordarone"
       ],
@@ -1241,6 +1309,7 @@
     {
       "genericName": "Vardenafila",
       "brands": [
+        "Cloridrato de Vardenafila",
         "Levitra"
       ],
       "category": "Urológico"
@@ -1273,6 +1342,7 @@
     {
       "genericName": "Levotiroxina",
       "brands": [
+        "Levotiroxina Sódica",
         "Puran T4",
         "Euthyrox",
         "Synthroid"
@@ -1296,6 +1366,7 @@
     {
       "genericName": "Prednisona",
       "brands": [
+        "Prednisona EMS",
         "Meticorten",
         "Predsin"
       ],
@@ -1304,6 +1375,8 @@
     {
       "genericName": "Prednisolona",
       "brands": [
+        "Succinato de Prednisolona",
+        "Acetato de Prednisolona",
         "Prelone",
         "Predsim"
       ],
@@ -1312,6 +1385,8 @@
     {
       "genericName": "Dexametasona",
       "brands": [
+        "Dexametasona Fosfato",
+        "Acetato de Dexametasona",
         "Decadron",
         "Dexoflan"
       ],
@@ -1406,6 +1481,7 @@
     {
       "genericName": "Lítio",
       "brands": [
+        "Carbonato de Lítio",
         "Carbolitium",
         "Carbolim"
       ],
@@ -1414,6 +1490,7 @@
     {
       "genericName": "Quetiapina",
       "brands": [
+        "Fumarato de Quetiapina",
         "Seroquel",
         "Quetros"
       ],
@@ -1422,6 +1499,7 @@
     {
       "genericName": "Risperidona",
       "brands": [
+        "Cloridrato de Risperidona",
         "Risperdal",
         "Risperin"
       ],
@@ -1430,6 +1508,7 @@
     {
       "genericName": "Olanzapina",
       "brands": [
+        "Cloridrato de Olanzapina",
         "Zyprexa",
         "Olanzin"
       ],
@@ -1438,6 +1517,8 @@
     {
       "genericName": "Haloperidol",
       "brands": [
+        "Decanoato de Haloperidol",
+        "Cloridrato de Haloperidol",
         "Haldol"
       ],
       "category": "Antipsicótico"
@@ -1445,6 +1526,7 @@
     {
       "genericName": "Aripiprazol",
       "brands": [
+        "Cloridrato de Aripiprazol",
         "Abilify",
         "Aristab"
       ],
@@ -1453,6 +1535,7 @@
     {
       "genericName": "Clozapina",
       "brands": [
+        "Cloridrato de Clozapina",
         "Leponex",
         "Clozaril"
       ],
@@ -1486,6 +1569,7 @@
     {
       "genericName": "Alopurinol",
       "brands": [
+        "Alopurinol EMS",
         "Zyloprim",
         "Alopurinol MK"
       ],
@@ -1549,6 +1633,7 @@
     {
       "genericName": "Formoterol",
       "brands": [
+        "Fumarato de Formoterol",
         "Foradil",
         "Oxis"
       ],
@@ -1669,6 +1754,8 @@
     {
       "genericName": "Donepezila",
       "brands": [
+        "Cloridrato de Donepezil",
+        "Cloridrato de Donepezila",
         "Aricept",
         "Aldomer"
       ],
@@ -1685,6 +1772,8 @@
     {
       "genericName": "Galantamina",
       "brands": [
+        "Bromidrato de Galantamina",
+        "Cloridrato de Galantamina",
         "Reminyl",
         "Razadyne"
       ],
@@ -1693,6 +1782,7 @@
     {
       "genericName": "Memantina",
       "brands": [
+        "Cloridrato de Memantina",
         "Ebixa",
         "Ebixor"
       ],
@@ -1749,6 +1839,7 @@
     {
       "genericName": "Dexclorfeniramina",
       "brands": [
+        "Maleato de Dexclorfeniramina",
         "Polaramine"
       ],
       "category": "Anti-histamínico"
@@ -1877,6 +1968,7 @@
     {
       "genericName": "Mirtazapina",
       "brands": [
+        "Cloridrato de Mirtazapina",
         "Remeron",
         "Mirtazol",
         "Mirtaz"
@@ -1886,6 +1978,7 @@
     {
       "genericName": "Bupropiona",
       "brands": [
+        "Cloridrato de Bupropiona",
         "Wellbutrin",
         "Zyban",
         "Bup",
@@ -1896,6 +1989,7 @@
     {
       "genericName": "Trazodona",
       "brands": [
+        "Cloridrato de Trazodona",
         "Trittico",
         "Trazodil"
       ],
@@ -2173,6 +2267,7 @@
     {
       "genericName": "Metilfenidato",
       "brands": [
+        "Cloridrato de Metilfenidato",
         "Ritalina",
         "Ritalina LA",
         "Concerta",
@@ -2184,6 +2279,7 @@
     {
       "genericName": "Lisdexanfetamina",
       "brands": [
+        "Dimesilato de Lisdexanfetamina",
         "Vyvanse",
         "Elvanse"
       ],
@@ -2192,6 +2288,7 @@
     {
       "genericName": "Atomoxetina",
       "brands": [
+        "Cloridrato de Atomoxetina",
         "Strattera",
         "Tomoxetina"
       ],
@@ -2200,6 +2297,7 @@
     {
       "genericName": "Guanfacina",
       "brands": [
+        "Cloridrato de Guanfacina",
         "Intuniv",
         "Tenex"
       ],
@@ -2208,6 +2306,7 @@
     {
       "genericName": "Ciclobenzaprina",
       "brands": [
+        "Cloridrato de Ciclobenzaprina",
         "Miosan",
         "Flexeril",
         "Tensodox"
@@ -2234,6 +2333,7 @@
     {
       "genericName": "Tizanidina",
       "brands": [
+        "Cloridrato de Tizanidina",
         "Sirdalud",
         "Ternelin"
       ],
@@ -2242,6 +2342,8 @@
     {
       "genericName": "Orfenadrina",
       "brands": [
+        "Citrato de Orfenadrina",
+        "Cloridrato de Orfenadrina",
         "Norflex",
         "Dorflex"
       ],
@@ -2288,6 +2390,8 @@
     {
       "genericName": "Pramipexol",
       "brands": [
+        "Dicloridrato de Pramipexol",
+        "Cloridrato de Pramipexol",
         "Mirapex",
         "Sifrol",
         "Pramipexol EMS"
@@ -2297,6 +2401,7 @@
     {
       "genericName": "Ropinirol",
       "brands": [
+        "Cloridrato de Ropinirol",
         "Requip",
         "Adartrel"
       ],
@@ -2334,6 +2439,7 @@
     {
       "genericName": "Amantadina",
       "brands": [
+        "Cloridrato de Amantadina",
         "Mantidan",
         "Symmetrel"
       ],
@@ -2342,6 +2448,7 @@
     {
       "genericName": "Biperideno",
       "brands": [
+        "Cloridrato de Biperideno",
         "Akineton"
       ],
       "category": "Antiparkinsoniano"
@@ -2617,6 +2724,7 @@
     {
       "genericName": "Ambroxol",
       "brands": [
+        "Cloridrato de Ambroxol",
         "Mucosolvan",
         "Mucovit",
         "Ambrol"
@@ -2626,6 +2734,7 @@
     {
       "genericName": "Bromexina",
       "brands": [
+        "Cloridrato de Bromexina",
         "Bisolvon",
         "Bisolbrume"
       ],
@@ -2687,6 +2796,7 @@
     {
       "genericName": "Ondansetrona",
       "brands": [
+        "Cloridrato de Ondansetrona",
         "Zofran",
         "Vonau",
         "Odansetron"
@@ -2696,6 +2806,7 @@
     {
       "genericName": "Granisetrona",
       "brands": [
+        "Cloridrato de Granisetrona",
         "Kytril",
         "Granisetron"
       ],
@@ -2711,6 +2822,7 @@
     {
       "genericName": "Metoclopramida",
       "brands": [
+        "Cloridrato de Metoclopramida",
         "Plasil",
         "Reglan"
       ],
@@ -2719,6 +2831,7 @@
     {
       "genericName": "Domperidona",
       "brands": [
+        "Cloridrato de Domperidona",
         "Motilium",
         "Motildon"
       ],
@@ -2727,6 +2840,7 @@
     {
       "genericName": "Bromoprida",
       "brands": [
+        "Cloridrato de Bromoprida",
         "Digesan",
         "Bromoprida EMS"
       ],
@@ -2735,6 +2849,7 @@
     {
       "genericName": "Dimenidrinato",
       "brands": [
+        "Cloridrato de Dimenidrinato",
         "Dramin",
         "Dramin B6"
       ],
@@ -3011,6 +3126,8 @@
     {
       "genericName": "Doxiciclina",
       "brands": [
+        "Monoiydrato de Doxiciclina",
+        "Cloridrato de Doxiciclina",
         "Vibramicina",
         "Doxitrat",
         "Doxiciclina EMS"
@@ -3020,6 +3137,7 @@
     {
       "genericName": "Minociclina",
       "brands": [
+        "Cloridrato de Minociclina",
         "Minomycin",
         "Minocin"
       ],
@@ -3300,6 +3418,7 @@
     {
       "genericName": "Aciclovir",
       "brands": [
+        "Aciclovir Sódico",
         "Zovirax",
         "Aciclovir EMS",
         "Herpevir"
@@ -3309,6 +3428,7 @@
     {
       "genericName": "Valaciclovir",
       "brands": [
+        "Cloridrato de Valaciclovir",
         "Valtrex",
         "Valaciclovir EMS"
       ],
@@ -3511,6 +3631,8 @@
     {
       "genericName": "Metronidazol (antiparasitário)",
       "brands": [
+        "Benzoato de Metronidazol",
+        "Metronidazol",
         "Flagyl",
         "Metronix"
       ],
@@ -3519,6 +3641,7 @@
     {
       "genericName": "Cloroquina",
       "brands": [
+        "Difosfato de Cloroquina",
         "Reuquinol",
         "Cloroquina EMS"
       ],
@@ -3527,6 +3650,7 @@
     {
       "genericName": "Hidroxicloroquina",
       "brands": [
+        "Sulfato de Hidroxicloroquina",
         "Plaquinol",
         "Quinerva"
       ],
@@ -3588,6 +3712,7 @@
     {
       "genericName": "Timolol Ocular",
       "brands": [
+        "Maleato de Timolol",
         "Timoptol",
         "Timolol EMS"
       ],
@@ -3721,6 +3846,7 @@
     {
       "genericName": "Solifenacina",
       "brands": [
+        "Succinato de Solifenacina",
         "Vesicare",
         "Solifen"
       ],
@@ -3729,6 +3855,7 @@
     {
       "genericName": "Tolterodina",
       "brands": [
+        "Tartarato de Tolterodina",
         "Detrol",
         "Uroton"
       ],
@@ -3737,6 +3864,7 @@
     {
       "genericName": "Oxibutinina",
       "brands": [
+        "Cloridrato de Oxibutinina",
         "Ditropan",
         "Oxibutinina EMS"
       ],
@@ -3745,6 +3873,7 @@
     {
       "genericName": "Fesoterodina",
       "brands": [
+        "Fumarato de Fesoterodina",
         "Toviaz"
       ],
       "category": "Urológico (bexiga hiperativa)"
@@ -3767,6 +3896,7 @@
     {
       "genericName": "Doxazosina",
       "brands": [
+        "Mesilato de Doxazosina",
         "Cardura",
         "Doxazomed"
       ],
@@ -3775,6 +3905,7 @@
     {
       "genericName": "Terazosina",
       "brands": [
+        "Cloridrato de Terazosina",
         "Hytrin",
         "Itrin"
       ],
@@ -3783,6 +3914,7 @@
     {
       "genericName": "Alfuzosina",
       "brands": [
+        "Cloridrato de Alfuzosina",
         "Xatral",
         "Alfuzosin"
       ],
@@ -4006,6 +4138,8 @@
     {
       "genericName": "Carbonato de Cálcio",
       "brands": [
+        "Cal",
+        "Cálcio",
         "Caltrate",
         "Calcigenol",
         "Os-Cal"
@@ -4015,6 +4149,7 @@
     {
       "genericName": "Carbonato de Cálcio + Vitamina D",
       "brands": [
+        "Cálcio + Vitamina D",
         "Cálcio + D",
         "Caltrate D",
         "Os-Cal D"
@@ -4157,6 +4292,8 @@
     {
       "genericName": "Colchicina (gota)",
       "brands": [
+        "Colchicum",
+        "Colchicina",
         "Colchimed",
         "Colchicina EMS"
       ],
@@ -4379,6 +4516,7 @@
     {
       "genericName": "Cetorolaco",
       "brands": [
+        "Trometamina de Cetorolaco",
         "Toradol",
         "Toragesic"
       ],
@@ -4394,6 +4532,8 @@
     {
       "genericName": "Fentanila",
       "brands": [
+        "Fentanyl",
+        "Citrato de Fentanila",
         "Durogesic",
         "Fentanest"
       ],
@@ -4402,6 +4542,7 @@
     {
       "genericName": "Buprenorfina",
       "brands": [
+        "Cloridrato de Buprenorfina",
         "Temgesic",
         "Buprenex",
         "Belbuca"
@@ -4411,6 +4552,7 @@
     {
       "genericName": "Metadona",
       "brands": [
+        "Cloridrato de Metadona",
         "Metadona EMS",
         "Methadone"
       ],
@@ -4434,6 +4576,7 @@
     {
       "genericName": "Naloxona",
       "brands": [
+        "Cloridrato de Naloxona",
         "Narcan",
         "Kloxxado"
       ],
@@ -4442,6 +4585,7 @@
     {
       "genericName": "Naltrexona",
       "brands": [
+        "Cloridrato de Naltrexona",
         "Revia",
         "Vivitrol"
       ],
@@ -4450,6 +4594,7 @@
     {
       "genericName": "Tapentadol",
       "brands": [
+        "Cloridrato de Tapentadol",
         "Palexia",
         "Nucynta"
       ],
@@ -4473,6 +4618,7 @@
     {
       "genericName": "Propafenona",
       "brands": [
+        "Cloridrato de Propafenona",
         "Rytmonorm",
         "Ritmonorm"
       ],
@@ -4481,6 +4627,7 @@
     {
       "genericName": "Sotalol",
       "brands": [
+        "Cloridrato de Sotalol",
         "Sotacor",
         "Betapace"
       ],
@@ -4489,6 +4636,7 @@
     {
       "genericName": "Flecainida",
       "brands": [
+        "Acetato de Flecainida",
         "Tambocor"
       ],
       "category": "Antiarrítmico"
@@ -4540,6 +4688,8 @@
     {
       "genericName": "Sildenafila (HP)",
       "brands": [
+        "Citrato de Sildenafila",
+        "Sildenafila",
         "Revatio",
         "Viagra"
       ],
@@ -4548,6 +4698,7 @@
     {
       "genericName": "Tadalafila (HP)",
       "brands": [
+        "Tadalafila",
         "Adcirca",
         "Cialis"
       ],
@@ -4563,6 +4714,7 @@
     {
       "genericName": "Metoprolol Succinato",
       "brands": [
+        "Succinato de Metoprolol",
         "Selozok",
         "Toprol-XL"
       ],
@@ -4671,6 +4823,7 @@
     {
       "genericName": "Hidralazina",
       "brands": [
+        "Cloridrato de Hidralazina",
         "Apresolina",
         "Nepresol"
       ],
@@ -4679,6 +4832,8 @@
     {
       "genericName": "Metildopa",
       "brands": [
+        "Cloridrato de Metildopa",
+        "Alfa-Metildopa",
         "Aldomet",
         "Metildopa EMS"
       ],
@@ -4687,6 +4842,7 @@
     {
       "genericName": "Clonidina",
       "brands": [
+        "Cloridrato de Clonidina",
         "Atensina",
         "Catapres"
       ],
@@ -4718,6 +4874,8 @@
     {
       "genericName": "Vitamina C (Ácido Ascórbico)",
       "brands": [
+        "Ácido Ascórbico",
+        "Vitamina C",
         "Cebion",
         "Redoxon",
         "Vigor-C"
@@ -4736,6 +4894,9 @@
     {
       "genericName": "Vitamina K (Fitomenadiona)",
       "brands": [
+        "Vitamina K1",
+        "Fitomenadiona",
+        "Vitamina K",
         "Kanakion",
         "Mephyton"
       ],
@@ -4753,6 +4914,9 @@
     {
       "genericName": "Vitamina D3 (Colecalciferol)",
       "brands": [
+        "Vitamina D",
+        "Colecalciferol",
+        "Vitamina D3",
         "Addera D3",
         "Depura",
         "Bio-D"
@@ -4762,6 +4926,8 @@
     {
       "genericName": "Zinco",
       "brands": [
+        "Gluconato de Zinco",
+        "Sulfato de Zinco",
         "Zincovit",
         "Zinc Suplements"
       ],
@@ -4770,6 +4936,10 @@
     {
       "genericName": "Ômega-3",
       "brands": [
+        "Óleo de Peixe",
+        "DHA",
+        "EPA",
+        "Ômega 3",
         "Ômega Heart",
         "Omegafort"
       ],
@@ -4778,6 +4948,8 @@
     {
       "genericName": "Ferro Polimaltosado",
       "brands": [
+        "Ferro (III) Polimaltosado",
+        "Complexo de Hidróxido de Ferro",
         "Noripurum",
         "Hemfer",
         "Uniferon"
@@ -4810,6 +4982,7 @@
     {
       "genericName": "Isotretinoína",
       "brands": [
+        "Ácido 13-cis-Retinoico",
         "Roacutan",
         "Neotrex",
         "Acnova"
