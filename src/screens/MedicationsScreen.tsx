@@ -83,7 +83,12 @@ export default function MedicationsScreen() {
   }
 
   function applySuggestion(s: DrugSuggestion) {
-    setForm(f => ({ ...f, generic_name: s.genericName }));
+    const commercial = s.brandName ?? s.firstBrand;
+    setForm(f => ({
+      ...f,
+      generic_name: s.genericName,
+      commercial_name: f.commercial_name.trim() ? f.commercial_name : (commercial ?? ''),
+    }));
     setSuggestions([]);
     setInteractions(checkInteractions(s.genericName, medications.map(m => m.generic_name)));
   }

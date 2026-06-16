@@ -62,8 +62,6 @@ export async function syncMedicationsDb(): Promise<void> {
 }
 
 async function fetchAndUpdate(): Promise<void> {
-  if (GITHUB_USER === 'SEU_USUARIO') return; // not configured yet
-
   // Skip network only if cache is very fresh AND already has plenty of entries
   try {
     const age = await getKVAge(CACHE_KEY);

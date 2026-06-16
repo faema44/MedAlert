@@ -22,6 +22,7 @@ export interface DrugSuggestion {
   label: string;        // text shown in chip
   genericName: string;  // fills the generic name field
   brandName?: string;   // fills the commercial name field (when isBrand)
+  firstBrand?: string;  // first real commercial brand (for generic-match suggestions)
   category: string;
   bulaUrl: string;
   isBrand?: boolean;    // matched via brand name
@@ -50,6 +51,21 @@ export function getBulaUrl(genericName: string): string {
   );
 }
 
+// Salt/descriptor prefixes that are NOT commercial brand names
+const SALT_PREFIXES = [
+  'maleato', 'besilato', 'cloridrato', 'fumarato', 'tartarato', 'succinato',
+  'mesilato', 'acetato', 'citrato', 'fosfato', 'sulfato', 'carbonato',
+  'gluconato', 'dicloridrato', 'bromidrato', 'dimesilato', 'monoidrato',
+  'monoiydrato', 'ácido', 'alfa-', 'óxido', 'complexo',
+];
+
+function getFirstCommercialBrand(brands: string[]): string | undefined {
+  return brands.find(b => {
+    const bl = b.toLowerCase();
+    return !SALT_PREFIXES.some(p => bl.startsWith(p));
+  });
+}
+
 // ─── Local suggestions ────────────────────────────────────────────────────────
 
 export function getSuggestions(input: string, max = 7): DrugSuggestion[] {
@@ -67,7 +83,13 @@ export function getSuggestions(input: string, max = 7): DrugSuggestion[] {
 
     // Match on generic name
     if (gNorm.includes(q)) {
-      results.push({ label: entry.genericName, genericName: entry.genericName, category: entry.category, bulaUrl });
+      results.push({
+        label: entry.genericName,
+        genericName: entry.genericName,
+        firstBrand: getFirstCommercialBrand(entry.brands),
+        category: entry.category,
+        bulaUrl,
+      });
       addedGenerics.add(gNorm);
       continue;
     }
