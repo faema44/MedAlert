@@ -9,6 +9,9 @@ import {
   getMedications, addMedication, updateMedication, deleteMedication,
   getRemindersForMedication, addReminder, deleteReminder, toggleReminderActive,
 } from '../database/db';
+import {
+  scheduleReminderWeekly, scheduleReminderMonthly, scheduleReminderYearly,
+} from '../services/notifications';
 import { getProfile } from '../database/db';
 import {
   updateEmergencyNotification,
@@ -32,6 +35,22 @@ const EMPTY_MED: Omit<Medication, 'id'> = {
 };
 
 const TIMES_PER_DAY_OPTIONS = [1, 2, 3, 4, 6];
+type ReminderPeriod = 'day' | 'week' | 'month' | 'year';
+const WEEKDAYS = [
+  { label: 'Dom', value: 1 }, { label: 'Seg', value: 2 }, { label: 'Ter', value: 3 },
+  { label: 'Qua', value: 4 }, { label: 'Qui', value: 5 }, { label: 'Sex', value: 6 },
+  { label: 'Sáb', value: 7 },
+];
+function periodLabel(period: string, time: string): string {
+  if (!period || period === 'day') return time;
+  if (period.startsWith('week:')) {
+    const wd = WEEKDAYS.find(w => w.value === Number(period.split(':')[1]));
+    return `${time} · toda ${wd?.label ?? ''}`;
+  }
+  if (period.startsWith('month:')) return `${time} · dia ${period.split(':')[1]}/mês`;
+  if (period.startsWith('year:')) return `${time} · ${period.split(':')[1]} anual`;
+  return time;
+}
 
 function computeTimes(startTime: string, timesPerDay: number): string[] {
   const parts = startTime.split(':');
@@ -64,7 +83,12 @@ export default function MedicationsScreen() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [startTime, setStartTime] = useState('08:00');
   const [timesPerDay, setTimesPerDay] = useState(1);
+  const [customTimes, setCustomTimes] = useState('');
   const [withSound, setWithSound] = useState(true);
+  const [reminderPeriod, setReminderPeriod] = useState<ReminderPeriod>('day');
+  const [weekday, setWeekday] = useState(2);        // 2 = Segunda-feira
+  const [dayOfMonth, setDayOfMonth] = useState('1');
+  const [yearDate, setYearDate] = useState('01/01'); // DD/MM
 
   const computedTimes = useMemo(
     () => computeTimes(startTime, timesPerDay),
@@ -208,27 +232,70 @@ export default function MedicationsScreen() {
     setShowAddForm(false);
     setStartTime('08:00');
     setTimesPerDay(1);
+    setCustomTimes('');
     setWithSound(true);
+    setReminderPeriod('day');
+    setWeekday(2);
+    setDayOfMonth('1');
+    setYearDate('01/01');
     setShowReminderModal(true);
   }
 
   async function handleSaveReminder() {
-    if (!reminderMed || computedTimes.length === 0) return;
+    if (!reminderMed) return;
     try {
-      for (const time of computedTimes) {
-        const [h, m] = time.split(':').map(Number);
-        await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, withSound);
-        await addReminder({ medication_id: reminderMed.id, time, with_sound: withSound, is_active: true });
+      if (reminderPeriod === 'day') {
+        let times: string[] = [];
+        if (customTimes.trim()) {
+          const raw = customTimes.trim();
+          const num = parseInt(raw, 10);
+          if (!isNaN(num) && /^\d+$/.test(raw)) {
+            times = computeTimes(startTime, num);
+          } else {
+            times = raw.split(/[,\s]+/).map(t => t.trim()).filter(t => /^\d{1,2}:\d{2}$/.test(t));
+          }
+        } else {
+          times = computedTimes;
+        }
+        if (times.length === 0) { Alert.alert('Erro', 'Nenhum horário válido informado.'); return; }
+        for (const time of times) {
+          const [h, m] = time.split(':').map(Number);
+          await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, withSound);
+          await addReminder({ medication_id: reminderMed.id, time, period: 'day', with_sound: withSound, is_active: true });
+        }
+      } else if (reminderPeriod === 'week') {
+        const [h, m] = startTime.split(':').map(Number);
+        if (isNaN(h) || isNaN(m)) { Alert.alert('Erro', 'Horário inválido.'); return; }
+        await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, weekday, h, m, withSound);
+        await addReminder({ medication_id: reminderMed.id, time: startTime, period: `week:${weekday}`, with_sound: withSound, is_active: true });
+      } else if (reminderPeriod === 'month') {
+        const dom = parseInt(dayOfMonth, 10);
+        const [h, m] = startTime.split(':').map(Number);
+        if (isNaN(dom) || dom < 1 || dom > 28) { Alert.alert('Erro', 'Dia do mês deve ser entre 1 e 28.'); return; }
+        if (isNaN(h) || isNaN(m)) { Alert.alert('Erro', 'Horário inválido.'); return; }
+        await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, dom, h, m, withSound);
+        await addReminder({ medication_id: reminderMed.id, time: startTime, period: `month:${dom}`, with_sound: withSound, is_active: true });
+      } else if (reminderPeriod === 'year') {
+        const parts = yearDate.split('/');
+        const dd = parseInt(parts[0] ?? '1', 10);
+        const mm = parseInt(parts[1] ?? '1', 10);
+        const [h, mi] = startTime.split(':').map(Number);
+        if (isNaN(dd) || isNaN(mm) || dd < 1 || dd > 31 || mm < 1 || mm > 12) { Alert.alert('Erro', 'Data inválida. Use formato DD/MM.'); return; }
+        if (isNaN(h) || isNaN(mi)) { Alert.alert('Erro', 'Horário inválido.'); return; }
+        await scheduleReminderYearly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, mm, dd, h, mi, withSound);
+        await addReminder({ medication_id: reminderMed.id, time: startTime, period: `year:${String(dd).padStart(2,'0')}/${String(mm).padStart(2,'0')}`, with_sound: withSound, is_active: true });
       }
       setReminders(await getRemindersForMedication(reminderMed.id));
       setShowAddForm(false);
+      setCustomTimes('');
+      setReminderPeriod('day');
     } catch {
       Alert.alert('Erro', 'Não foi possível salvar o lembrete.');
     }
   }
 
   async function handleDeleteReminder(r: MedicationReminder) {
-    await cancelReminderByTime(r.medication_id, r.time).catch(() => {});
+    await cancelReminderByTime(r.medication_id, r.time, r.period).catch(() => {});
     await deleteReminder(r.id);
     setReminders(await getRemindersForMedication(r.medication_id));
   }
@@ -238,9 +305,21 @@ export default function MedicationsScreen() {
     await toggleReminderActive(r.id, newActive);
     if (newActive && reminderMed) {
       const [h, m] = r.time.split(':').map(Number);
-      await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, r.with_sound).catch(() => {});
+      const p = r.period ?? 'day';
+      if (p === 'day') {
+        await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, r.with_sound).catch(() => {});
+      } else if (p.startsWith('week:')) {
+        const wd = Number(p.split(':')[1]);
+        await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, wd, h, m, r.with_sound).catch(() => {});
+      } else if (p.startsWith('month:')) {
+        const dom = Number(p.split(':')[1]);
+        await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, dom, h, m, r.with_sound).catch(() => {});
+      } else if (p.startsWith('year:')) {
+        const [dd, mm2] = p.split(':')[1].split('/').map(Number);
+        await scheduleReminderYearly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, mm2, dd, h, m, r.with_sound).catch(() => {});
+      }
     } else {
-      await cancelReminderByTime(r.medication_id, r.time).catch(() => {});
+      await cancelReminderByTime(r.medication_id, r.time, r.period).catch(() => {});
     }
     setReminders(await getRemindersForMedication(r.medication_id));
   }
@@ -468,7 +547,7 @@ export default function MedicationsScreen() {
 
             {reminders.map(r => (
               <View key={r.id} style={styles.reminderRow}>
-                <Text style={styles.reminderTime}>{r.time}</Text>
+                <Text style={styles.reminderTime}>{periodLabel(r.period, r.time)}</Text>
                 <Text style={styles.reminderSound}>{r.with_sound ? '🔊' : '🔇'}</Text>
                 <Switch
                   value={r.is_active}
@@ -487,7 +566,72 @@ export default function MedicationsScreen() {
               <View style={styles.addForm}>
                 <Text style={styles.addFormTitle}>Novo lembrete</Text>
 
-                <Text style={styles.fieldLabel}>Horário inicial</Text>
+                <Text style={styles.fieldLabel}>Período</Text>
+                <View style={styles.periodRow}>
+                  {(['day', 'week', 'month', 'year'] as ReminderPeriod[]).map(p => {
+                    const labels: Record<ReminderPeriod, string> = { day: 'Dia', week: 'Semana', month: 'Mês', year: 'Ano' };
+                    return (
+                      <TouchableOpacity
+                        key={p}
+                        style={[styles.periodBtn, reminderPeriod === p && styles.periodBtnActive]}
+                        onPress={() => setReminderPeriod(p)}
+                      >
+                        <Text style={[styles.periodBtnText, reminderPeriod === p && styles.periodBtnTextActive]}>
+                          {labels[p]}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+
+                {reminderPeriod === 'week' && (
+                  <>
+                    <Text style={styles.fieldLabel}>Dia da semana</Text>
+                    <View style={styles.weekdayRow}>
+                      {WEEKDAYS.map(wd => (
+                        <TouchableOpacity
+                          key={wd.value}
+                          style={[styles.weekdayBtn, weekday === wd.value && styles.weekdayBtnActive]}
+                          onPress={() => setWeekday(wd.value)}
+                        >
+                          <Text style={[styles.weekdayBtnText, weekday === wd.value && styles.weekdayBtnTextActive]}>
+                            {wd.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </>
+                )}
+
+                {reminderPeriod === 'month' && (
+                  <>
+                    <Text style={styles.fieldLabel}>Dia do mês (1–28)</Text>
+                    <TextInput
+                      style={styles.fieldInput}
+                      value={dayOfMonth}
+                      onChangeText={setDayOfMonth}
+                      placeholder="1"
+                      keyboardType="number-pad"
+                      maxLength={2}
+                    />
+                  </>
+                )}
+
+                {reminderPeriod === 'year' && (
+                  <>
+                    <Text style={styles.fieldLabel}>Data (DD/MM)</Text>
+                    <TextInput
+                      style={styles.fieldInput}
+                      value={yearDate}
+                      onChangeText={setYearDate}
+                      placeholder="01/01"
+                      keyboardType="numbers-and-punctuation"
+                      maxLength={5}
+                    />
+                  </>
+                )}
+
+                <Text style={styles.fieldLabel}>Horário</Text>
                 <TextInput
                   style={styles.fieldInput}
                   value={startTime}
@@ -497,24 +641,36 @@ export default function MedicationsScreen() {
                   maxLength={5}
                 />
 
-                <Text style={styles.fieldLabel}>Vezes por dia</Text>
-                <View style={styles.timesRow}>
-                  {TIMES_PER_DAY_OPTIONS.map(n => (
-                    <TouchableOpacity
-                      key={n}
-                      style={[styles.timesBtn, timesPerDay === n && styles.timesBtnActive]}
-                      onPress={() => setTimesPerDay(n)}
-                    >
-                      <Text style={[styles.timesBtnText, timesPerDay === n && styles.timesBtnTextActive]}>{n}x</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
+                {reminderPeriod === 'day' && (
+                  <>
+                    <Text style={styles.fieldLabel}>Vezes por dia</Text>
+                    <View style={styles.timesRow}>
+                      {TIMES_PER_DAY_OPTIONS.map(n => (
+                        <TouchableOpacity
+                          key={n}
+                          style={[styles.timesBtn, timesPerDay === n && !customTimes.trim() && styles.timesBtnActive]}
+                          onPress={() => { setTimesPerDay(n); setCustomTimes(''); }}
+                        >
+                          <Text style={[styles.timesBtnText, timesPerDay === n && !customTimes.trim() && styles.timesBtnTextActive]}>{n}x</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
 
-                {computedTimes.length > 0 && (
-                  <View style={styles.timesPreview}>
-                    <Text style={styles.timesPreviewLabel}>Horários dos avisos:</Text>
-                    <Text style={styles.timesPreviewValue}>{computedTimes.join('  •  ')}</Text>
-                  </View>
+                    <Text style={styles.fieldLabel}>Outro valor ou horários específicos</Text>
+                    <TextInput
+                      style={styles.fieldInput}
+                      value={customTimes}
+                      onChangeText={setCustomTimes}
+                      placeholder="Ex: 5  ou  08:00, 13:00, 20:00"
+                    />
+
+                    {!customTimes.trim() && computedTimes.length > 0 && (
+                      <View style={styles.timesPreview}>
+                        <Text style={styles.timesPreviewLabel}>Horários dos avisos:</Text>
+                        <Text style={styles.timesPreviewValue}>{computedTimes.join('  •  ')}</Text>
+                      </View>
+                    )}
+                  </>
                 )}
 
                 <View style={styles.soundRow}>
@@ -534,7 +690,7 @@ export default function MedicationsScreen() {
                   <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowAddForm(false)}>
                     <Text style={styles.cancelBtnText}>Cancelar</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={[styles.saveBtn, computedTimes.length === 0 && styles.saveBtnDisabled]} onPress={handleSaveReminder} disabled={computedTimes.length === 0}>
+                  <TouchableOpacity style={styles.saveBtn} onPress={handleSaveReminder}>
                     <Text style={styles.saveBtnText}>Salvar</Text>
                   </TouchableOpacity>
                 </View>
@@ -659,7 +815,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', paddingVertical: 10,
     borderBottomWidth: 1, borderBottomColor: '#f0f0f0',
   },
-  reminderTime: { fontSize: 20, fontWeight: '700', color: '#1a3a6b', width: 70 },
+  reminderTime: { fontSize: 15, fontWeight: '700', color: '#1a3a6b', flex: 1 },
   reminderSound: { fontSize: 18, marginHorizontal: 8 },
   reminderSwitch: { flex: 1 },
   reminderDeleteBtn: { padding: 8 },
@@ -672,6 +828,22 @@ const styles = StyleSheet.create({
   // Add form
   addForm: { marginTop: 16, borderTopWidth: 1, borderTopColor: '#f0f0f0', paddingTop: 16 },
   addFormTitle: { fontSize: 16, fontWeight: '700', color: '#222', marginBottom: 4 },
+  periodRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
+  periodBtn: {
+    flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 8,
+    paddingVertical: 10, alignItems: 'center',
+  },
+  periodBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
+  periodBtnText: { fontSize: 13, color: '#555', fontWeight: '600' },
+  periodBtnTextActive: { color: '#fff' },
+  weekdayRow: { flexDirection: 'row', gap: 4, marginTop: 4, flexWrap: 'wrap' },
+  weekdayBtn: {
+    borderWidth: 1.5, borderColor: '#ddd', borderRadius: 8,
+    paddingVertical: 8, paddingHorizontal: 10, alignItems: 'center', minWidth: 44,
+  },
+  weekdayBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
+  weekdayBtnText: { fontSize: 12, color: '#555', fontWeight: '600' },
+  weekdayBtnTextActive: { color: '#fff' },
   timesRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
   timesBtn: {
     flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 8,
