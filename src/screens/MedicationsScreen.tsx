@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
-  Modal, TextInput, Switch, Alert, ScrollView, Linking,
+  Modal, TextInput, Switch, Alert, ScrollView, Linking, Share,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,6 +16,16 @@ import {
 } from '../services/notifications';
 import { Medication, MedicationReminder, DrugInteraction } from '../types';
 import { DrugSuggestion, getSuggestions, getBulaUrl, checkInteractions } from '../utils/drugSearch';
+
+function buildDoctorMessage(drugName: string, interactions: DrugInteraction[]): string {
+  const pairs = interactions
+    .map(i => `• ${i.drug1} + ${i.drug2}: ${i.risk_description}`)
+    .join('\n');
+  return (
+    `Olá, estou iniciando o uso de ${drugName} e identifiquei interações medicamentosas com outros remédios que já tomo:\n\n${pairs}\n\n` +
+    `Poderia avaliar se há riscos para o meu tratamento e orientar sobre o uso concomitante?`
+  );
+}
 
 const EMPTY_MED: Omit<Medication, 'id'> = {
   generic_name: '', commercial_name: '', dose: '', frequency: '', is_critical: false, notes: '',
@@ -305,9 +315,38 @@ export default function MedicationsScreen() {
                   <Text style={[styles.interactionBadge, { color }]}>⚡ {label}</Text>
                   <Text style={styles.interactionDrugs}>{i.drug1}  +  {i.drug2}</Text>
                   <Text style={styles.interactionDesc}>{i.risk_description}</Text>
+                  {(isC || isH) && !form.is_critical && (
+                    <TouchableOpacity
+                      style={[styles.markCriticalBtn, { borderColor: color }]}
+                      onPress={() => setForm(f => ({ ...f, is_critical: true }))}
+                    >
+                      <Text style={[styles.markCriticalBtnText, { color }]}>
+                        ⚠️ Marcar como Crítico
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  {(isC || isH) && form.is_critical && (
+                    <Text style={[styles.criticalConfirmed, { color }]}>✓ Marcado como crítico</Text>
+                  )}
                 </View>
               );
             })}
+            {interactions.some(i => i.risk_level === 'critical' || i.risk_level === 'high') && (
+              <View style={styles.doctorAdviceBox}>
+                <Text style={styles.doctorAdviceTitle}>Avise seu médico</Text>
+                <Text style={styles.doctorAdviceText}>
+                  Você já usa medicamentos com interação conhecida com{' '}
+                  <Text style={{ fontWeight: '700' }}>{form.generic_name || 'este medicamento'}</Text>.
+                  Informe seu médico antes de iniciar.
+                </Text>
+                <TouchableOpacity
+                  style={styles.doctorShareBtn}
+                  onPress={() => Share.share({ message: buildDoctorMessage(form.generic_name, interactions) })}
+                >
+                  <Text style={styles.doctorShareBtnText}>Compartilhar aviso com médico</Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
             <Text style={styles.fieldLabel}>Nome comercial</Text>
             <TextInput
@@ -365,7 +404,11 @@ export default function MedicationsScreen() {
 
             {form.is_critical && (
               <View style={styles.criticalInfo}>
-                <Text style={styles.criticalInfoText}>⚠️ Marque como crítico medicamentos que interagem com procedimentos comuns de emergência (ex: Metformina com contraste, Varfarina com cirurgias).</Text>
+                <Text style={styles.criticalInfoText}>
+                  {interactions.some(i => i.risk_level === 'critical' || i.risk_level === 'high')
+                    ? '✓ Marcado como crítico pela interação detectada. Lembre-se de informar seu médico sobre o uso concomitante.'
+                    : '⚠️ Marque como crítico medicamentos que interagem com procedimentos de emergência (ex: Metformina com contraste, Varfarina com cirurgias).'}
+                </Text>
               </View>
             )}
 
@@ -559,6 +602,23 @@ const styles = StyleSheet.create({
   interactionBadge: { fontSize: 11, fontWeight: '700', marginBottom: 3, letterSpacing: 0.5 },
   interactionDrugs: { fontSize: 13, fontWeight: '700', color: '#222', marginBottom: 2 },
   interactionDesc: { fontSize: 12, color: '#555', fontStyle: 'italic' },
+  markCriticalBtn: {
+    marginTop: 8, borderWidth: 1.5, borderRadius: 8,
+    paddingVertical: 7, paddingHorizontal: 12, alignSelf: 'flex-start',
+  },
+  markCriticalBtnText: { fontSize: 12, fontWeight: '700' },
+  criticalConfirmed: { fontSize: 12, fontWeight: '700', marginTop: 8 },
+  doctorAdviceBox: {
+    backgroundColor: '#f0f4ff', borderRadius: 10, padding: 12, marginTop: 10,
+    borderWidth: 1, borderColor: '#c0ccdf',
+  },
+  doctorAdviceTitle: { fontSize: 13, fontWeight: '700', color: '#1a3a6b', marginBottom: 4 },
+  doctorAdviceText: { fontSize: 12, color: '#444', lineHeight: 17, marginBottom: 10 },
+  doctorShareBtn: {
+    backgroundColor: '#1a3a6b', borderRadius: 8, paddingVertical: 9,
+    paddingHorizontal: 14, alignSelf: 'flex-start',
+  },
+  doctorShareBtnText: { fontSize: 13, color: '#fff', fontWeight: '700' },
   // Reminder modal
   reminderMedName: { fontSize: 14, color: '#888', marginBottom: 16 },
   reminderEmpty: { fontSize: 14, color: '#bbb', textAlign: 'center', marginVertical: 16 },
