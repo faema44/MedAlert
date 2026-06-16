@@ -20,8 +20,6 @@ export async function getDb(): Promise<SQLite.SQLiteDatabase> {
 
 async function initSchema(database: SQLite.SQLiteDatabase): Promise<void> {
   await database.execAsync(`
-    PRAGMA journal_mode = WAL;
-
     CREATE TABLE IF NOT EXISTS profile (
       id INTEGER PRIMARY KEY DEFAULT 1,
       name TEXT NOT NULL DEFAULT '',
