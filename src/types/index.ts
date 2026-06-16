@@ -38,9 +38,8 @@ export interface DrugInteraction {
 export interface MedicationReminder {
   id: number;
   medication_id: number;
-  medication_name: string;
-  time: string;
-  days: string[];
+  time: string;        // "HH:MM"
+  with_sound: boolean;
   is_active: boolean;
 }
 

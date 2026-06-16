@@ -13,6 +13,7 @@ import InteractionsScreen from './src/screens/InteractionsScreen';
 
 import { setupNotificationChannels, requestPermissions } from './src/services/notifications';
 import { getDb } from './src/database/db';
+import { syncMedicationsDb } from './src/services/dbSync';
 
 const Tab = createBottomTabNavigator();
 
@@ -54,6 +55,7 @@ function AppNavigator() {
       await getDb();
       await setupNotificationChannels();
       await requestPermissions();
+      syncMedicationsDb(); // fire-and-forget: não bloqueia o startup
     }
     init();
   }, []);

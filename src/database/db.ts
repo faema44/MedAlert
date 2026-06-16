@@ -1,5 +1,5 @@
 import * as SQLite from 'expo-sqlite';
-import { Profile, Medication, EmergencyContact } from '../types';
+import { Profile, Medication, EmergencyContact, MedicationReminder } from '../types';
 
 let db: SQLite.SQLiteDatabase | null = null;
 
@@ -7,6 +7,7 @@ export async function getDb(): Promise<SQLite.SQLiteDatabase> {
   if (!db) {
     db = await SQLite.openDatabaseAsync('medalert.db');
     await initSchema(db);
+    await runMigrations(db);
   }
   return db;
 }
@@ -52,7 +53,19 @@ async function initSchema(database: SQLite.SQLiteDatabase): Promise<void> {
       is_active INTEGER DEFAULT 1,
       FOREIGN KEY (medication_id) REFERENCES medications(id) ON DELETE CASCADE
     );
+
+    CREATE TABLE IF NOT EXISTS kv_store (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
   `);
+}
+
+async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
+  try {
+    await database.execAsync('ALTER TABLE medication_reminders ADD COLUMN with_sound INTEGER DEFAULT 1');
+  } catch {}
 }
 
 // Profile
@@ -130,4 +143,69 @@ export async function addContact(contact: Omit<EmergencyContact, 'id'>): Promise
 export async function deleteContact(id: number): Promise<void> {
   const database = await getDb();
   await database.runAsync('DELETE FROM emergency_contacts WHERE id=?', [id]);
+}
+
+// Medication Reminders
+type ReminderRow = { id: number; medication_id: number; time: string; with_sound: number; is_active: number };
+
+export async function getRemindersForMedication(medicationId: number): Promise<MedicationReminder[]> {
+  const database = await getDb();
+  const rows = await database.getAllAsync<ReminderRow>(
+    'SELECT * FROM medication_reminders WHERE medication_id=? ORDER BY time ASC',
+    [medicationId]
+  );
+  return rows.map(r => ({ ...r, with_sound: Boolean(r.with_sound), is_active: Boolean(r.is_active) }));
+}
+
+export async function addReminder(r: Omit<MedicationReminder, 'id'>): Promise<void> {
+  const database = await getDb();
+  await database.runAsync(
+    'INSERT INTO medication_reminders (medication_id, time, with_sound, is_active) VALUES (?, ?, ?, 1)',
+    [r.medication_id, r.time, r.with_sound ? 1 : 0]
+  );
+}
+
+export async function deleteReminder(id: number): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('DELETE FROM medication_reminders WHERE id=?', [id]);
+}
+
+export async function toggleReminderActive(id: number, isActive: boolean): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('UPDATE medication_reminders SET is_active=? WHERE id=?', [isActive ? 1 : 0, id]);
+}
+
+export async function countReminders(medicationId: number): Promise<number> {
+  const database = await getDb();
+  const row = await database.getFirstAsync<{ n: number }>(
+    'SELECT COUNT(*) AS n FROM medication_reminders WHERE medication_id=? AND is_active=1',
+    [medicationId]
+  );
+  return row?.n ?? 0;
+}
+
+// Key-Value store (used by dbSync)
+export async function getKV(key: string): Promise<string | null> {
+  const database = await getDb();
+  const row = await database.getFirstAsync<{ value: string; updated_at: string }>(
+    'SELECT value, updated_at FROM kv_store WHERE key = ?', [key]
+  );
+  return row?.value ?? null;
+}
+
+export async function setKV(key: string, value: string): Promise<void> {
+  const database = await getDb();
+  await database.runAsync(
+    'INSERT OR REPLACE INTO kv_store (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)',
+    [key, value]
+  );
+}
+
+export async function getKVAge(key: string): Promise<number> {
+  const database = await getDb();
+  const row = await database.getFirstAsync<{ days: number }>(
+    "SELECT CAST((julianday('now') - julianday(updated_at)) AS INTEGER) AS days FROM kv_store WHERE key = ?",
+    [key]
+  );
+  return row?.days ?? 999;
 }

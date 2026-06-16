@@ -5,7 +5,8 @@ import { postMedNotification, cancelMedNotification } from './medNotification';
 
 const CHANNEL_ID = 'medalert_emergency_v3';
 const NOTIF_ID = 'emergency';
-const REMINDER_CHANNEL_ID = 'medalert_reminder';
+const REMINDER_SOUND_CHANNEL = 'medalert_reminder_sound';
+const REMINDER_SILENT_CHANNEL = 'medalert_reminder_silent';
 
 export async function setupNotificationChannels(): Promise<void> {
   if (Platform.OS !== 'android') return;
@@ -26,10 +27,17 @@ export async function setupNotificationChannels(): Promise<void> {
     showBadge: false,
   });
 
-  await Notifications.setNotificationChannelAsync(REMINDER_CHANNEL_ID, {
-    name: 'Lembrete de Medicamento',
+  await Notifications.setNotificationChannelAsync(REMINDER_SOUND_CHANNEL, {
+    name: 'Lembrete com Som',
     importance: Notifications.AndroidImportance.HIGH,
     lockscreenVisibility: Notifications.AndroidNotificationVisibility.PRIVATE,
+  });
+
+  await Notifications.setNotificationChannelAsync(REMINDER_SILENT_CHANNEL, {
+    name: 'Lembrete Silencioso',
+    importance: Notifications.AndroidImportance.DEFAULT,
+    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PRIVATE,
+    sound: null,
   });
 }
 
@@ -88,43 +96,48 @@ export async function scheduleReminder(
   dose: string,
   hour: number,
   minute: number,
-  weekdays: number[]
-): Promise<string[]> {
-  const ids: string[] = [];
-  for (const weekday of weekdays) {
-    const id = `reminder_${medicationId}_day${weekday}`;
-    await Notifications.scheduleNotificationAsync({
-      identifier: id,
-      content: {
-        title: '💊 Hora do medicamento',
-        body: `${medicationName}${dose ? ' — ' + dose : ''}`,
-        data: { type: 'reminder', medicationId },
-      },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
-        weekday, hour, minute,
-        channelId: REMINDER_CHANNEL_ID,
-      },
-    });
-    ids.push(id);
-  }
-  return ids;
+  withSound: boolean,
+): Promise<void> {
+  const id = `reminder_${medicationId}_${String(hour).padStart(2,'0')}${String(minute).padStart(2,'0')}`;
+  await Notifications.scheduleNotificationAsync({
+    identifier: id,
+    content: {
+      title: '💊 Hora do medicamento',
+      body: `${medicationName}${dose ? ' — ' + dose : ''}`,
+      data: { type: 'reminder', medicationId },
+    },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.DAILY,
+      hour,
+      minute,
+      channelId: withSound ? REMINDER_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+    },
+  });
 }
 
-export async function cancelReminder(medicationId: number): Promise<void> {
+export async function cancelReminderByTime(medicationId: number, time: string): Promise<void> {
+  const [h, m] = time.split(':');
+  const id = `reminder_${medicationId}_${h.padStart(2,'0')}${m.padStart(2,'0')}`;
+  await Notifications.cancelScheduledNotificationAsync(id).catch(() => {});
+}
+
+export async function cancelAllRemindersForMedication(medicationId: number): Promise<void> {
   const scheduled = await Notifications.getAllScheduledNotificationsAsync();
   await Promise.all(
     scheduled
       .filter(n => n.identifier.startsWith(`reminder_${medicationId}_`))
-      .map(n => Notifications.cancelScheduledNotificationAsync(n.identifier))
+      .map(n => Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {}))
   );
 }
 
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-    shouldShowList: true,
-  }),
+  handleNotification: async (notification) => {
+    const isReminder = notification.request.content.data?.type === 'reminder';
+    return {
+      shouldShowBanner: true,
+      shouldPlaySound: isReminder,
+      shouldSetBadge: false,
+      shouldShowList: true,
+    };
+  },
 });

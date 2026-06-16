@@ -1,0 +1,49 @@
+name: 🔄 Atualizar Banco de Medicamentos
+
+on:
+  schedule:
+    # Toda segunda-feira às 4h UTC (1h Brasília)
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+    # Permite disparar manualmente pela aba Actions do GitHub
+
+permissions:
+  contents: write   # necessário para fazer commit e push
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          # Não faz npm install — o script usa apenas built-ins do Node.js
+
+      - name: Executar agente de atualização
+        run: node scripts/update-medications.js
+        env:
+          # Desativa verificação SSL se necessário (ANVISA tem cert inconsistente)
+          NODE_TLS_REJECT_UNAUTHORIZED: '0'
+
+      - name: Commit e push se houver mudanças
+        run: |
+          git config user.name  "MedAlert Bot"
+          git config user.email "bot@medalert.app"
+          git add src/data/medications-db.json
+          if git diff --staged --quiet; then
+            echo "✅ Banco já está atualizado. Nenhuma mudança."
+          else
+            ADDED=$(git diff --staged --stat | grep -oP '\d+(?= insertion)')
+            git commit -m "chore(data): atualização automática — banco de medicamentos [skip ci]
+
+Medicamentos adicionados/atualizados: ${ADDED:-?} linhas
+Fonte: ANVISA Dados Abertos + Bulário BVS"
+            git push
+            echo "✅ Banco atualizado e publicado."
+          fi
