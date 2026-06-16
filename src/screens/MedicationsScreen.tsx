@@ -283,16 +283,16 @@ export default function MedicationsScreen() {
             })}
 
             <Text style={styles.fieldLabel}>Nome comercial</Text>
-            <TextInput style={styles.fieldInput} value={form.commercial_name} onChangeText={v => setForm(f => ({ ...f, commercial_name: v }))} placeholder="Ex: Glifage" autoCapitalize="words" />
+            <TextInput style={styles.fieldInput} value={form.commercial_name} onChangeText={v => setForm(f => ({ ...f, commercial_name: v }))} onFocus={() => setSuggestions([])} placeholder="Ex: Glifage" autoCapitalize="words" />
 
             <Text style={styles.fieldLabel}>Dose</Text>
-            <TextInput style={styles.fieldInput} value={form.dose} onChangeText={v => setForm(f => ({ ...f, dose: v }))} placeholder="Ex: 850 mg" />
+            <TextInput style={styles.fieldInput} value={form.dose} onChangeText={v => setForm(f => ({ ...f, dose: v }))} onFocus={() => setSuggestions([])} placeholder="Ex: 850 mg" />
 
             <Text style={styles.fieldLabel}>Frequência</Text>
-            <TextInput style={styles.fieldInput} value={form.frequency} onChangeText={v => setForm(f => ({ ...f, frequency: v }))} placeholder="Ex: 2x ao dia com as refeições" />
+            <TextInput style={styles.fieldInput} value={form.frequency} onChangeText={v => setForm(f => ({ ...f, frequency: v }))} onFocus={() => setSuggestions([])} placeholder="Ex: 2x ao dia com as refeições" />
 
             <Text style={styles.fieldLabel}>Observações</Text>
-            <TextInput style={[styles.fieldInput, { minHeight: 60, textAlignVertical: 'top' }]} value={form.notes} onChangeText={v => setForm(f => ({ ...f, notes: v }))} placeholder="Informações adicionais para socorristas..." multiline />
+            <TextInput style={[styles.fieldInput, { minHeight: 60, textAlignVertical: 'top' }]} value={form.notes} onChangeText={v => setForm(f => ({ ...f, notes: v }))} onFocus={() => setSuggestions([])} placeholder="Informações adicionais para socorristas..." multiline />
 
             <View style={styles.criticalRow}>
               <View>
