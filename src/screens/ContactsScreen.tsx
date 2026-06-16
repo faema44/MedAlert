@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getContacts, addContact, deleteContact } from '../database/db';
+import { getContacts, addContact, updateContact, deleteContact } from '../database/db';
 import { EmergencyContact } from '../types';
 
 const EMPTY: Omit<EmergencyContact, 'id'> = {
@@ -17,6 +17,7 @@ export default function ContactsScreen() {
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(EMPTY);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     setContacts(await getContacts());
@@ -24,12 +25,28 @@ export default function ContactsScreen() {
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
+  function openNew() {
+    setForm(EMPTY);
+    setEditingId(null);
+    setShowModal(true);
+  }
+
+  function openEdit(item: EmergencyContact) {
+    setForm({ name: item.name, phone: item.phone, relationship: item.relationship, is_primary: item.is_primary });
+    setEditingId(item.id);
+    setShowModal(true);
+  }
+
   async function handleSave() {
     if (!form.name.trim() || !form.phone.trim()) {
       Alert.alert('Campos obrigatórios', 'Informe nome e telefone do contato.');
       return;
     }
-    await addContact({ ...form, name: form.name.trim(), phone: form.phone.trim(), relationship: form.relationship.trim() });
+    if (editingId !== null) {
+      await updateContact({ ...form, id: editingId, name: form.name.trim(), phone: form.phone.trim(), relationship: form.relationship.trim() });
+    } else {
+      await addContact({ ...form, name: form.name.trim(), phone: form.phone.trim(), relationship: form.relationship.trim() });
+    }
     setContacts(await getContacts());
     setShowModal(false);
   }
@@ -74,6 +91,9 @@ export default function ContactsScreen() {
               <TouchableOpacity style={styles.callBtn} onPress={() => handleCall(item.phone)}>
                 <Text style={styles.callBtnText}>📞</Text>
               </TouchableOpacity>
+              <TouchableOpacity style={styles.editBtn} onPress={() => openEdit(item)}>
+                <Text style={styles.editBtnText}>✏️</Text>
+              </TouchableOpacity>
               <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.id, item.name)}>
                 <Text style={styles.deleteBtnText}>✕</Text>
               </TouchableOpacity>
@@ -82,14 +102,14 @@ export default function ContactsScreen() {
         )}
       />
 
-      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={() => { setForm(EMPTY); setShowModal(true); }}>
+      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={openNew}>
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 
       <Modal visible={showModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalBox, { paddingBottom: insets.bottom + 32 }]}>
-            <Text style={styles.modalTitle}>Contato de Emergência</Text>
+            <Text style={styles.modalTitle}>{editingId !== null ? 'Editar Contato' : 'Contato de Emergência'}</Text>
 
             <Text style={styles.fieldLabel}>Nome *</Text>
             <TextInput
@@ -132,7 +152,7 @@ export default function ContactsScreen() {
                 <Text style={styles.cancelBtnText}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-                <Text style={styles.saveBtnText}>Salvar</Text>
+                <Text style={styles.saveBtnText}>{editingId !== null ? 'Atualizar' : 'Salvar'}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -159,10 +179,12 @@ const styles = StyleSheet.create({
   contactName: { fontSize: 16, fontWeight: '600', color: '#222' },
   contactRelation: { fontSize: 13, color: '#888', marginTop: 1 },
   contactPhone: { fontSize: 14, color: '#444', marginTop: 4 },
-  cardActions: { flexDirection: 'row', gap: 4 },
-  callBtn: { padding: 10 },
+  cardActions: { flexDirection: 'row', gap: 4, alignItems: 'center' },
+  callBtn: { padding: 8 },
   callBtnText: { fontSize: 20 },
-  deleteBtn: { padding: 10 },
+  editBtn: { padding: 8 },
+  editBtnText: { fontSize: 17 },
+  deleteBtn: { padding: 8 },
   deleteBtnText: { fontSize: 16, color: '#ccc' },
   fab: {
     position: 'absolute', bottom: 24, right: 24, width: 56, height: 56, borderRadius: 28,

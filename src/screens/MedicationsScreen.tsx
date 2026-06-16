@@ -6,7 +6,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  getMedications, addMedication, deleteMedication,
+  getMedications, addMedication, updateMedication, deleteMedication,
   getRemindersForMedication, addReminder, deleteReminder, toggleReminderActive,
 } from '../database/db';
 import { getProfile } from '../database/db';
@@ -55,6 +55,7 @@ export default function MedicationsScreen() {
   const [suggestions, setSuggestions] = useState<DrugSuggestion[]>([]);
   const [commercialSuggestions, setCommercialSuggestions] = useState<DrugSuggestion[]>([]);
   const [interactions, setInteractions] = useState<DrugInteraction[]>([]);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   // Reminder state
   const [showReminderModal, setShowReminderModal] = useState(false);
@@ -89,7 +90,9 @@ export default function MedicationsScreen() {
     setForm(f => ({ ...f, generic_name: v }));
     setSuggestions(getSuggestions(v));
     setCommercialSuggestions([]);
-    setInteractions(checkInteractions(v, medications.map(m => m.generic_name)));
+    // Exclude the medication being edited from the interaction check
+    const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
+    setInteractions(checkInteractions(v, others));
   }
 
   function applySuggestion(s: DrugSuggestion) {
@@ -100,7 +103,8 @@ export default function MedicationsScreen() {
       commercial_name: f.commercial_name.trim() ? f.commercial_name : (commercial ?? ''),
     }));
     setSuggestions([]);
-    setInteractions(checkInteractions(s.genericName, medications.map(m => m.generic_name)));
+    const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
+    setInteractions(checkInteractions(s.genericName, others));
   }
 
   function handleCommercialNameChange(v: string) {
@@ -124,12 +128,19 @@ export default function MedicationsScreen() {
 
   async function doSave() {
     try {
-      await addMedication({ ...form, generic_name: form.generic_name.trim(), commercial_name: form.commercial_name.trim() });
+      const data = { ...form, generic_name: form.generic_name.trim(), commercial_name: form.commercial_name.trim() };
+      if (editingId !== null) {
+        await updateMedication({ ...data, id: editingId });
+      } else {
+        await addMedication(data);
+      }
       const updated = await getMedications();
       setMedications(updated);
       setShowModal(false);
       setSuggestions([]);
+      setCommercialSuggestions([]);
       setInteractions([]);
+      setEditingId(null);
       await syncNotification(updated);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -157,6 +168,23 @@ export default function MedicationsScreen() {
       return;
     }
     await doSave();
+  }
+
+  function openEdit(item: Medication) {
+    setForm({
+      generic_name: item.generic_name,
+      commercial_name: item.commercial_name,
+      dose: item.dose,
+      frequency: item.frequency,
+      is_critical: item.is_critical,
+      notes: item.notes,
+    });
+    setEditingId(item.id);
+    setSuggestions([]);
+    setCommercialSuggestions([]);
+    const others = medications.filter(m => m.id !== item.id).map(m => m.generic_name);
+    setInteractions(checkInteractions(item.generic_name, others));
+    setShowModal(true);
   }
 
   async function handleDelete(id: number, name: string) {
@@ -244,6 +272,9 @@ export default function MedicationsScreen() {
             <TouchableOpacity style={styles.bellBtn} onPress={() => openReminders(item)}>
               <Text style={styles.bellBtnText}>🔔</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.editBtn} onPress={() => openEdit(item)}>
+              <Text style={styles.editBtnText}>✏️</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.id, item.generic_name)}>
               <Text style={styles.deleteBtnText}>✕</Text>
             </TouchableOpacity>
@@ -251,7 +282,7 @@ export default function MedicationsScreen() {
         )}
       />
 
-      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={() => { setForm(EMPTY_MED); setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setShowModal(true); }}>
+      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={() => { setForm(EMPTY_MED); setEditingId(null); setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setShowModal(true); }}>
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 
@@ -259,7 +290,7 @@ export default function MedicationsScreen() {
       <Modal visible={showModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <ScrollView style={styles.modalBox} contentContainerStyle={[styles.modalContent, { paddingBottom: insets.bottom + 32 }]} keyboardShouldPersistTaps="handled">
-            <Text style={styles.modalTitle}>Novo Medicamento</Text>
+            <Text style={styles.modalTitle}>{editingId !== null ? 'Editar Medicamento' : 'Novo Medicamento'}</Text>
 
             <Text style={styles.fieldLabel}>Nome genérico *</Text>
             <TextInput
@@ -417,7 +448,7 @@ export default function MedicationsScreen() {
                 <Text style={styles.cancelBtnText}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-                <Text style={styles.saveBtnText}>Salvar</Text>
+                <Text style={styles.saveBtnText}>{editingId !== null ? 'Atualizar' : 'Salvar'}</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -545,6 +576,8 @@ const styles = StyleSheet.create({
   medNotes: { fontSize: 12, color: '#888', marginTop: 4, fontStyle: 'italic' },
   bellBtn: { padding: 8, marginLeft: 4 },
   bellBtnText: { fontSize: 18 },
+  editBtn: { padding: 8, marginLeft: 4 },
+  editBtnText: { fontSize: 16 },
   deleteBtn: { padding: 8, marginLeft: 4 },
   deleteBtnText: { fontSize: 16, color: '#ccc' },
   fab: {

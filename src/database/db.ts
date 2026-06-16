@@ -144,6 +144,17 @@ export async function addContact(contact: Omit<EmergencyContact, 'id'>): Promise
   );
 }
 
+export async function updateContact(contact: EmergencyContact): Promise<void> {
+  const database = await getDb();
+  if (contact.is_primary) {
+    await database.runAsync('UPDATE emergency_contacts SET is_primary=0 WHERE id != ?', [contact.id]);
+  }
+  await database.runAsync(
+    `UPDATE emergency_contacts SET name=?, phone=?, relationship=?, is_primary=? WHERE id=?`,
+    [contact.name, contact.phone, contact.relationship, contact.is_primary ? 1 : 0, contact.id]
+  );
+}
+
 export async function deleteContact(id: number): Promise<void> {
   const database = await getDb();
   await database.runAsync('DELETE FROM emergency_contacts WHERE id=?', [id]);
