@@ -2,12 +2,15 @@ import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, NavigationProp } from '@react-navigation/native';
 import { getProfile, getMedications, getContacts } from '../database/db';
+
+type RootTabs = { Home: undefined; Profile: undefined; Medications: undefined; Contacts: undefined; Interactions: undefined };
 import { updateEmergencyNotification, cancelEmergencyNotification } from '../services/notifications';
 import { Profile, Medication, EmergencyContact } from '../types';
 
 export default function HomeScreen() {
+  const navigation = useNavigation<NavigationProp<RootTabs>>();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [medications, setMedications] = useState<Medication[]>([]);
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
@@ -62,8 +65,11 @@ export default function HomeScreen() {
       </View>
 
       {profile ? (
-        <View style={styles.summaryCard}>
-          <Text style={styles.cardTitle}>📋 Perfil Médico</Text>
+        <TouchableOpacity style={styles.summaryCard} activeOpacity={0.8} onPress={() => navigation.navigate('Profile')}>
+          <View style={styles.cardRow}>
+            <Text style={styles.cardTitle}>📋 Perfil Médico</Text>
+            <Text style={styles.cardChevron}>›</Text>
+          </View>
           <Text style={styles.name}>{profile.name}</Text>
           {profile.blood_type !== 'Desconhecido' && (
             <Text style={styles.detail}>🩸 {profile.blood_type}</Text>
@@ -71,37 +77,40 @@ export default function HomeScreen() {
           {profile.allergies ? (
             <Text style={styles.detail}>🚫 Alergias: {profile.allergies}</Text>
           ) : null}
-        </View>
+        </TouchableOpacity>
       ) : (
-        <View style={styles.warningCard}>
-          <Text style={styles.warningText}>⚠️ Perfil não preenchido — acesse a aba Perfil para cadastrar seus dados.</Text>
-        </View>
+        <TouchableOpacity style={styles.warningCard} activeOpacity={0.8} onPress={() => navigation.navigate('Profile')}>
+          <Text style={styles.warningText}>⚠️ Perfil não preenchido — toque para cadastrar seus dados.</Text>
+        </TouchableOpacity>
       )}
 
       {criticalMeds.length > 0 && (
-        <View style={styles.criticalCard}>
-          <Text style={styles.cardTitle}>⚠️ Medicamentos Críticos</Text>
+        <TouchableOpacity style={styles.criticalCard} activeOpacity={0.8} onPress={() => navigation.navigate('Medications')}>
+          <View style={styles.cardRow}>
+            <Text style={styles.cardTitle}>⚠️ Medicamentos Críticos</Text>
+            <Text style={styles.cardChevron}>›</Text>
+          </View>
           {criticalMeds.map(med => (
             <Text key={med.id} style={styles.criticalMed}>
-              • {med.generic_name}{med.commercial_name ? ` (${med.commercial_name})` : ''} — {med.dose}
+              • {med.generic_name}{med.commercial_name ? ` (${med.commercial_name})` : ''}{med.dose ? ` — ${med.dose}` : ''}
             </Text>
           ))}
-        </View>
+        </TouchableOpacity>
       )}
 
       <View style={styles.statsRow}>
-        <View style={styles.statBox}>
+        <TouchableOpacity style={styles.statBox} activeOpacity={0.8} onPress={() => navigation.navigate('Medications')}>
           <Text style={styles.statNum}>{medications.length}</Text>
           <Text style={styles.statLabel}>Medicamentos</Text>
-        </View>
-        <View style={styles.statBox}>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.statBox} activeOpacity={0.8} onPress={() => navigation.navigate('Contacts')}>
           <Text style={styles.statNum}>{contacts.length}</Text>
           <Text style={styles.statLabel}>Contatos</Text>
-        </View>
-        <View style={styles.statBox}>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.statBox} activeOpacity={0.8} onPress={() => navigation.navigate('Interactions')}>
           <Text style={styles.statNum}>{criticalMeds.length}</Text>
           <Text style={styles.statLabel}>Críticos</Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
       {!profileComplete && (
@@ -140,7 +149,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 12,
     elevation: 2, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4,
   },
-  cardTitle: { fontSize: 13, color: '#666', marginBottom: 8 },
+  cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  cardTitle: { fontSize: 13, color: '#666' },
+  cardChevron: { fontSize: 22, color: '#bbb', lineHeight: 24 },
   name: { fontSize: 20, fontWeight: '700', color: '#222', marginBottom: 4 },
   detail: { fontSize: 14, color: '#444', marginTop: 2 },
   warningCard: {
