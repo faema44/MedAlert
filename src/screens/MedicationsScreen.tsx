@@ -43,6 +43,7 @@ export default function MedicationsScreen() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(EMPTY_MED);
   const [suggestions, setSuggestions] = useState<DrugSuggestion[]>([]);
+  const [commercialSuggestions, setCommercialSuggestions] = useState<DrugSuggestion[]>([]);
   const [interactions, setInteractions] = useState<DrugInteraction[]>([]);
 
   // Reminder state
@@ -77,6 +78,7 @@ export default function MedicationsScreen() {
   function handleGenericNameChange(v: string) {
     setForm(f => ({ ...f, generic_name: v }));
     setSuggestions(getSuggestions(v));
+    setCommercialSuggestions([]);
     setInteractions(checkInteractions(v, medications.map(m => m.generic_name)));
   }
 
@@ -84,6 +86,25 @@ export default function MedicationsScreen() {
     setForm(f => ({ ...f, generic_name: s.genericName }));
     setSuggestions([]);
     setInteractions(checkInteractions(s.genericName, medications.map(m => m.generic_name)));
+  }
+
+  function handleCommercialNameChange(v: string) {
+    setForm(f => ({ ...f, commercial_name: v }));
+    setSuggestions([]);
+    const all = getSuggestions(v);
+    setCommercialSuggestions(all.filter(s => s.isBrand));
+  }
+
+  function applyCommercialSuggestion(s: DrugSuggestion) {
+    setForm(f => ({
+      ...f,
+      commercial_name: s.brandName ?? s.genericName,
+      generic_name: f.generic_name.trim() ? f.generic_name : s.genericName,
+    }));
+    setCommercialSuggestions([]);
+    if (!form.generic_name.trim()) {
+      setInteractions(checkInteractions(s.genericName, medications.map(m => m.generic_name)));
+    }
   }
 
   async function doSave() {
@@ -215,7 +236,7 @@ export default function MedicationsScreen() {
         )}
       />
 
-      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={() => { setForm(EMPTY_MED); setSuggestions([]); setInteractions([]); setShowModal(true); }}>
+      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={() => { setForm(EMPTY_MED); setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setShowModal(true); }}>
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 
@@ -284,16 +305,50 @@ export default function MedicationsScreen() {
             })}
 
             <Text style={styles.fieldLabel}>Nome comercial</Text>
-            <TextInput style={styles.fieldInput} value={form.commercial_name} onChangeText={v => setForm(f => ({ ...f, commercial_name: v }))} onFocus={() => setSuggestions([])} placeholder="Ex: Glifage" autoCapitalize="words" />
+            <TextInput
+              style={styles.fieldInput}
+              value={form.commercial_name}
+              onChangeText={handleCommercialNameChange}
+              onFocus={() => setSuggestions([])}
+              placeholder="Ex: Glifage"
+              autoCapitalize="words"
+            />
+            {commercialSuggestions.length > 0 && (
+              <View style={styles.suggestionsBox}>
+                {commercialSuggestions.map(s => (
+                  <View key={s.label} style={styles.suggestionRow}>
+                    <TouchableOpacity
+                      style={[styles.suggestionChip, styles.suggestionChipBrand]}
+                      onPress={() => applyCommercialSuggestion(s)}
+                    >
+                      <Text style={[styles.suggestionChipText, styles.suggestionChipTextBrand]} numberOfLines={1}>
+                        {s.brandName}
+                      </Text>
+                      {s.category ? (
+                        <Text style={[styles.suggestionCategory, styles.suggestionCategoryBrand]}>
+                          {s.genericName} · {s.category}
+                        </Text>
+                      ) : null}
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.bulaBtn}
+                      onPress={() => Linking.openURL(s.bulaUrl)}
+                    >
+                      <Text style={styles.bulaBtnText}>📋</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            )}
 
             <Text style={styles.fieldLabel}>Dose</Text>
-            <TextInput style={styles.fieldInput} value={form.dose} onChangeText={v => setForm(f => ({ ...f, dose: v }))} onFocus={() => setSuggestions([])} placeholder="Ex: 850 mg" />
+            <TextInput style={styles.fieldInput} value={form.dose} onChangeText={v => setForm(f => ({ ...f, dose: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} placeholder="Ex: 850 mg" />
 
             <Text style={styles.fieldLabel}>Frequência</Text>
-            <TextInput style={styles.fieldInput} value={form.frequency} onChangeText={v => setForm(f => ({ ...f, frequency: v }))} onFocus={() => setSuggestions([])} placeholder="Ex: 2x ao dia com as refeições" />
+            <TextInput style={styles.fieldInput} value={form.frequency} onChangeText={v => setForm(f => ({ ...f, frequency: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} placeholder="Ex: 2x ao dia com as refeições" />
 
             <Text style={styles.fieldLabel}>Observações</Text>
-            <TextInput style={[styles.fieldInput, { minHeight: 60, textAlignVertical: 'top' }]} value={form.notes} onChangeText={v => setForm(f => ({ ...f, notes: v }))} onFocus={() => setSuggestions([])} placeholder="Informações adicionais para socorristas..." multiline />
+            <TextInput style={[styles.fieldInput, { minHeight: 60, textAlignVertical: 'top' }]} value={form.notes} onChangeText={v => setForm(f => ({ ...f, notes: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} placeholder="Informações adicionais para socorristas..." multiline />
 
             <View style={styles.criticalRow}>
               <View>

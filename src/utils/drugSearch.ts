@@ -20,7 +20,8 @@ const ALL_INTERACTIONS = interactionsData as DrugInteraction[];
 
 export interface DrugSuggestion {
   label: string;        // text shown in chip
-  genericName: string;  // fills the input field
+  genericName: string;  // fills the generic name field
+  brandName?: string;   // fills the commercial name field (when isBrand)
   category: string;
   bulaUrl: string;
   isBrand?: boolean;    // matched via brand name
@@ -77,6 +78,7 @@ export function getSuggestions(input: string, max = 7): DrugSuggestion[] {
       results.push({
         label: `${matchedBrand}  →  ${entry.genericName}`,
         genericName: entry.genericName,
+        brandName: matchedBrand,
         category: entry.category,
         bulaUrl,
         isBrand: true,
