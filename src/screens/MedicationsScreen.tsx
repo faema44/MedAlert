@@ -75,6 +75,7 @@ export default function MedicationsScreen() {
   const [commercialSuggestions, setCommercialSuggestions] = useState<DrugSuggestion[]>([]);
   const [interactions, setInteractions] = useState<DrugInteraction[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [cardInteractions, setCardInteractions] = useState<Map<number, DrugInteraction[]>>(new Map());
 
   // Reminder state
   const [showReminderModal, setShowReminderModal] = useState(false);
@@ -97,7 +98,15 @@ export default function MedicationsScreen() {
 
   const load = useCallback(async () => {
     try {
-      setMedications(await getMedications());
+      const meds = await getMedications();
+      setMedications(meds);
+      const map = new Map<number, DrugInteraction[]>();
+      meds.forEach(med => {
+        const others = meds.filter(m => m.id !== med.id).map(m => m.generic_name);
+        const ints = checkInteractions(med.generic_name, others);
+        if (ints.length > 0) map.set(med.id, ints);
+      });
+      setCardInteractions(map);
     } catch {}
   }, []);
 
@@ -108,6 +117,13 @@ export default function MedicationsScreen() {
       const profile = await getProfile();
       if (profile?.name) await updateEmergencyNotification(profile, meds);
     } catch {}
+    const map = new Map<number, DrugInteraction[]>();
+    meds.forEach(med => {
+      const others = meds.filter(m => m.id !== med.id).map(m => m.generic_name);
+      const ints = checkInteractions(med.generic_name, others);
+      if (ints.length > 0) map.set(med.id, ints);
+    });
+    setCardInteractions(map);
   }
 
   function handleGenericNameChange(v: string) {
@@ -347,6 +363,18 @@ export default function MedicationsScreen() {
               {item.dose ? <Text style={styles.medDetail}>💊 {item.dose}</Text> : null}
               {item.frequency ? <Text style={styles.medDetail}>🕐 {item.frequency}</Text> : null}
               {item.notes ? <Text style={styles.medNotes}>{item.notes}</Text> : null}
+              {(cardInteractions.get(item.id) ?? []).map(i => {
+                const isC = i.risk_level === 'critical';
+                const isH = i.risk_level === 'high';
+                const color = isC ? '#CC0000' : isH ? '#e65c00' : '#b58900';
+                const label = isC ? '⚡ CRÍTICO' : isH ? '⚡ ALTO' : '⚡ MODERADO';
+                return (
+                  <View key={i.id} style={[styles.cardInteractionBox, { borderLeftColor: color }]}>
+                    <Text style={[styles.cardInteractionBadge, { color }]}>{label} · {i.drug1} + {i.drug2}</Text>
+                    <Text style={styles.cardInteractionDesc}>{i.risk_description}</Text>
+                  </View>
+                );
+              })}
             </View>
             <TouchableOpacity style={styles.bellBtn} onPress={() => openReminders(item)}>
               <Text style={styles.bellBtnText}>🔔</Text>
@@ -376,7 +404,6 @@ export default function MedicationsScreen() {
               style={styles.fieldInput}
               value={form.generic_name}
               onChangeText={handleGenericNameChange}
-              placeholder="Ex: Metformina"
               autoCapitalize="words"
             />
             {suggestions.length > 0 && (
@@ -464,7 +491,6 @@ export default function MedicationsScreen() {
               value={form.commercial_name}
               onChangeText={handleCommercialNameChange}
               onFocus={() => setSuggestions([])}
-              placeholder="Ex: Glifage"
               autoCapitalize="words"
             />
             {commercialSuggestions.length > 0 && (
@@ -496,13 +522,13 @@ export default function MedicationsScreen() {
             )}
 
             <Text style={styles.fieldLabel}>Dose</Text>
-            <TextInput style={styles.fieldInput} value={form.dose} onChangeText={v => setForm(f => ({ ...f, dose: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} placeholder="Ex: 850 mg" />
+            <TextInput style={styles.fieldInput} value={form.dose} onChangeText={v => setForm(f => ({ ...f, dose: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} />
 
             <Text style={styles.fieldLabel}>Frequência</Text>
-            <TextInput style={styles.fieldInput} value={form.frequency} onChangeText={v => setForm(f => ({ ...f, frequency: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} placeholder="Ex: 2x ao dia com as refeições" />
+            <TextInput style={styles.fieldInput} value={form.frequency} onChangeText={v => setForm(f => ({ ...f, frequency: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} />
 
             <Text style={styles.fieldLabel}>Observações</Text>
-            <TextInput style={[styles.fieldInput, { minHeight: 60, textAlignVertical: 'top' }]} value={form.notes} onChangeText={v => setForm(f => ({ ...f, notes: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} placeholder="Informações adicionais para socorristas..." multiline />
+            <TextInput style={[styles.fieldInput, { minHeight: 60, textAlignVertical: 'top' }]} value={form.notes} onChangeText={v => setForm(f => ({ ...f, notes: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} multiline />
 
             <View style={styles.criticalRow}>
               <View>
@@ -661,7 +687,6 @@ export default function MedicationsScreen() {
                       style={styles.fieldInput}
                       value={customTimes}
                       onChangeText={setCustomTimes}
-                      placeholder="Ex: 5  ou  08:00, 13:00, 20:00"
                     />
 
                     {!customTimes.trim() && computedTimes.length > 0 && (
@@ -730,6 +755,12 @@ const styles = StyleSheet.create({
   medCommercial: { fontSize: 13, color: '#888', marginBottom: 4 },
   medDetail: { fontSize: 13, color: '#555', marginTop: 2 },
   medNotes: { fontSize: 12, color: '#888', marginTop: 4, fontStyle: 'italic' },
+  cardInteractionBox: {
+    borderLeftWidth: 3, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 5,
+    marginTop: 6, backgroundColor: '#fff8f8',
+  },
+  cardInteractionBadge: { fontSize: 11, fontWeight: '700', marginBottom: 1 },
+  cardInteractionDesc: { fontSize: 11, color: '#555', fontStyle: 'italic' },
   bellBtn: { padding: 8, marginLeft: 4 },
   bellBtnText: { fontSize: 18 },
   editBtn: { padding: 8, marginLeft: 4 },
