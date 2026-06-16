@@ -1,0 +1,162 @@
+[
+  {
+    "id": "int_001",
+    "drug1": "Metformina",
+    "drug2": "Contraste Iodado",
+    "risk_level": "critical",
+    "risk_description": "Risco de acidose lática potencialmente fatal",
+    "mechanism": "O contraste iodado reduz a função renal transitoriamente, levando ao acúmulo de metformina e produção excessiva de lactato. Suspender metformina 48h antes e após o uso de contraste."
+  },
+  {
+    "id": "int_002",
+    "drug1": "Varfarina",
+    "drug2": "AINEs (Ibuprofeno, Diclofenaco, Naproxeno)",
+    "risk_level": "critical",
+    "risk_description": "Risco elevado de hemorragia grave",
+    "mechanism": "AINEs inibem a agregação plaquetária e irritam a mucosa gástrica; combinados com varfarina aumentam drasticamente o risco de sangramento digestivo e intracraniano."
+  },
+  {
+    "id": "int_003",
+    "drug1": "IMAOs (Fenelzina, Tranilcipromina)",
+    "drug2": "Simpaticomiméticos (Efedrina, Pseudoefedrina)",
+    "risk_level": "critical",
+    "risk_description": "Risco de crise hipertensiva com risco de vida",
+    "mechanism": "IMAOs impedem a degradação de catecolaminas; simpaticomiméticos amplificam a liberação de noradrenalina, podendo causar PA >220/130 mmHg, AVC hemorrágico e morte."
+  },
+  {
+    "id": "int_004",
+    "drug1": "Digoxina",
+    "drug2": "Amiodarona",
+    "risk_level": "critical",
+    "risk_description": "Risco de toxicidade digitálica grave",
+    "mechanism": "Amiodarona inibe a eliminação renal e hepática da digoxina, podendo dobrar os níveis séricos. Sinais: náusea, visão amarelada, bradiarritmias fatais."
+  },
+  {
+    "id": "int_005",
+    "drug1": "Lítio",
+    "drug2": "Diuréticos Tiazídicos (Hidroclorotiazida)",
+    "risk_level": "critical",
+    "risk_description": "Risco de toxicidade por lítio",
+    "mechanism": "Tiazídicos reduzem a reabsorção de sódio; o rim compensa reabsorvendo lítio no lugar do sódio, elevando os níveis séricos de lítio para faixa tóxica (tremores, confusão, convulsões)."
+  },
+  {
+    "id": "int_006",
+    "drug1": "Sildenafila (Viagra)",
+    "drug2": "Nitratos (Isossorbida, Nitroglicerina)",
+    "risk_level": "critical",
+    "risk_description": "Hipotensão grave potencialmente fatal",
+    "mechanism": "Ambos potencializam o efeito vasodilatador via cGMP, causando queda brusca da PA. Contraindicação absoluta — pode causar colapso cardiovascular."
+  },
+  {
+    "id": "int_007",
+    "drug1": "IMAOs",
+    "drug2": "Tramadol",
+    "risk_level": "critical",
+    "risk_description": "Síndrome serotoninérgica com risco de vida",
+    "mechanism": "Tramadol inibe recaptação de serotonina; IMAOs impedem sua degradação. Resultado: excesso de serotonina causando hipertermia, rigidez muscular, agitação, podendo ser fatal."
+  },
+  {
+    "id": "int_008",
+    "drug1": "IMAOs",
+    "drug2": "Triptanos (Sumatriptano, Rizatriptano)",
+    "risk_level": "critical",
+    "risk_description": "Síndrome serotoninérgica",
+    "mechanism": "Triptanos são agonistas serotoninérgicos; IMAOs aumentam os níveis de serotonina. A combinação pode desencadear síndrome serotoninérgica grave."
+  },
+  {
+    "id": "int_009",
+    "drug1": "Metotrexato",
+    "drug2": "AINEs",
+    "risk_level": "critical",
+    "risk_description": "Toxicidade grave por metotrexato",
+    "mechanism": "AINEs reduzem a eliminação renal do metotrexato, elevando seus níveis séricos a patamares tóxicos (supressão medular, mucosite, hepatotoxicidade)."
+  },
+  {
+    "id": "int_010",
+    "drug1": "Clopidogrel",
+    "drug2": "Omeprazol / Esomeprazol (IBPs)",
+    "risk_level": "high",
+    "risk_description": "Redução significativa do efeito antiagregante",
+    "mechanism": "IBPs inibem o CYP2C19, enzima que ativa o clopidogrel. Pantoprazol é o IBP com menor interação; deve ser preferido em pacientes com stents coronarianos."
+  },
+  {
+    "id": "int_011",
+    "drug1": "Metronidazol (Flagyl)",
+    "drug2": "Álcool etílico",
+    "risk_level": "high",
+    "risk_description": "Reação tipo Dissulfiram (efeito antabuse)",
+    "mechanism": "Metronidazol inibe a aldeído-desidrogenase. O consumo de álcool leva ao acúmulo de acetaldeído, causando rubor, vômitos, taquicardia e hipotensão. Evitar álcool até 48h após o término do tratamento."
+  },
+  {
+    "id": "int_012",
+    "drug1": "Claritromicina",
+    "drug2": "Estatinas (Sinvastatina, Atorvastatina)",
+    "risk_level": "high",
+    "risk_description": "Risco de miopatia e rabdomiólise",
+    "mechanism": "Claritromicina inibe o CYP3A4, elevando os níveis de estatinas até 10x. Pode causar dor muscular grave e rabdomiólise com insuficiência renal aguda."
+  },
+  {
+    "id": "int_013",
+    "drug1": "Fluconazol",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Potencialização do efeito anticoagulante — risco de hemorragia",
+    "mechanism": "Fluconazol inibe o CYP2C9, responsável pela metabolização da varfarina. Pode aumentar o INR dramaticamente. Monitorar INR com frequência durante e após o tratamento."
+  },
+  {
+    "id": "int_014",
+    "drug1": "Gentamicina",
+    "drug2": "Furosemida",
+    "risk_level": "high",
+    "risk_description": "Risco de ototoxicidade e nefrotoxicidade",
+    "mechanism": "Furosemida potencializa a ototoxicidade e nefrotoxicidade dos aminoglicosídeos. O dano auditivo pode ser irreversível. Monitorar função renal e audição."
+  },
+  {
+    "id": "int_015",
+    "drug1": "Fenitoína",
+    "drug2": "Ácido Valpróico",
+    "risk_level": "high",
+    "risk_description": "Alteração imprevisível dos níveis séricos de fenitoína",
+    "mechanism": "Ácido valpróico desloca a fenitoína da ligação proteica e inibe seu metabolismo — os níveis livres de fenitoína podem aumentar mesmo com nível total normal, causando toxicidade ou perda de controle das crises."
+  },
+  {
+    "id": "int_016",
+    "drug1": "Captopril / Enalapril (IECA)",
+    "drug2": "Espironolactona / Amilorida (Poupadores de K+)",
+    "risk_level": "high",
+    "risk_description": "Hipercalemia grave",
+    "mechanism": "IECAs reduzem a secreção de aldosterona; poupadores de potássio retêm K+. A combinação pode elevar o potássio a níveis cardiotóxicos (>6,5 mEq/L), causando arritmias fatais."
+  },
+  {
+    "id": "int_017",
+    "drug1": "Rivaroxabana / Apixabana (NOAC)",
+    "drug2": "AAS (Aspirina) em doses > 100mg",
+    "risk_level": "high",
+    "risk_description": "Risco elevado de hemorragia",
+    "mechanism": "A combinação de anticoagulante oral direto com antiagregante plaquetário aumenta significativamente o risco de sangramento maior, especialmente gastrointestinal e intracraniano."
+  },
+  {
+    "id": "int_018",
+    "drug1": "Insulina",
+    "drug2": "Betabloqueadores (Propranolol, Atenolol)",
+    "risk_level": "moderate",
+    "risk_description": "Mascaramento dos sintomas de hipoglicemia",
+    "mechanism": "Betabloqueadores suprimem a taquicardia e tremores que alertam sobre hipoglicemia. O paciente pode entrar em coma hipoglicêmico sem sintomas prévios de aviso. Sudorese é o único sinal que persiste."
+  },
+  {
+    "id": "int_019",
+    "drug1": "Carbamazepina",
+    "drug2": "Anticoncepcional Oral (Etinilestradiol)",
+    "risk_level": "moderate",
+    "risk_description": "Falha contraceptiva — risco de gravidez indesejada",
+    "mechanism": "Carbamazepina induz o CYP3A4, acelerando o metabolismo dos hormônios do anticoncepcional oral, reduzindo seus níveis a ponto de ineficácia contraceptiva. Usar método adicional de barreira."
+  },
+  {
+    "id": "int_020",
+    "drug1": "Quinolonas (Ciprofloxacino, Levofloxacino)",
+    "drug2": "Antiácidos com Alumínio/Magnésio / Suplementos de Ferro/Zinco",
+    "risk_level": "moderate",
+    "risk_description": "Redução da absorção da quinolona — falha terapêutica",
+    "mechanism": "Íons polivalentes (Al³⁺, Mg²⁺, Fe²⁺, Zn²⁺) formam quelatos insolúveis com quinolonas no trato gastrointestinal, reduzindo a absorção em até 90%. Tomar a quinolona 2h antes ou 4h após esses produtos."
+  }
+]
