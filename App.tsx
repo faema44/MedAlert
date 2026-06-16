@@ -55,7 +55,7 @@ function AppNavigator() {
       await getDb();
       await setupNotificationChannels();
       await requestPermissions();
-      syncMedicationsDb(); // fire-and-forget: não bloqueia o startup
+      syncMedicationsDb().catch(() => {}); // fire-and-forget: não bloqueia o startup
     }
     init();
   }, []);

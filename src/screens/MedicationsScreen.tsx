@@ -60,7 +60,9 @@ export default function MedicationsScreen() {
   );
 
   const load = useCallback(async () => {
-    setMedications(await getMedications());
+    try {
+      setMedications(await getMedications());
+    } catch {}
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));

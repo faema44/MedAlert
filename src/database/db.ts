@@ -2,14 +2,20 @@ import * as SQLite from 'expo-sqlite';
 import { Profile, Medication, EmergencyContact, MedicationReminder } from '../types';
 
 let db: SQLite.SQLiteDatabase | null = null;
+let dbInitPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
 export async function getDb(): Promise<SQLite.SQLiteDatabase> {
-  if (!db) {
-    db = await SQLite.openDatabaseAsync('medalert.db');
-    await initSchema(db);
-    await runMigrations(db);
+  if (db) return db;
+  if (!dbInitPromise) {
+    dbInitPromise = (async () => {
+      const database = await SQLite.openDatabaseAsync('medalert.db');
+      await initSchema(database);
+      await runMigrations(database);
+      db = database;
+      return database;
+    })();
   }
-  return db;
+  return dbInitPromise;
 }
 
 async function initSchema(database: SQLite.SQLiteDatabase): Promise<void> {
@@ -103,7 +109,7 @@ export async function addMedication(med: Omit<Medication, 'id'>): Promise<void> 
   const database = await getDb();
   await database.runAsync(
     `INSERT INTO medications (generic_name, commercial_name, dose, frequency, is_critical, notes) VALUES (?, ?, ?, ?, ?, ?)`,
-    [med.generic_name, med.commercial_name, med.dose, med.frequency, med.is_critical ? 1 : 0, med.notes]
+    [med.generic_name ?? '', med.commercial_name ?? '', med.dose ?? '', med.frequency ?? '', med.is_critical ? 1 : 0, med.notes ?? '']
   );
 }
 
