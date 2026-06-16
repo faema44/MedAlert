@@ -45,7 +45,16 @@
     {
       "genericName": "Sitagliptina",
       "brands": [
-        "Januvia"
+        "Januvia",
+        "Janumet"
+      ],
+      "category": "Antidiabético"
+    },
+    {
+      "genericName": "Metformina + Sitagliptina",
+      "brands": [
+        "Janumet",
+        "Janumet XR"
       ],
       "category": "Antidiabético"
     },
@@ -57,6 +66,14 @@
       "category": "Antidiabético"
     },
     {
+      "genericName": "Metformina + Vildagliptina",
+      "brands": [
+        "Galvus Met",
+        "Vildamet"
+      ],
+      "category": "Antidiabético"
+    },
+    {
       "genericName": "Empagliflozina",
       "brands": [
         "Jardiance"
@@ -64,9 +81,63 @@
       "category": "Antidiabético"
     },
     {
+      "genericName": "Metformina + Empagliflozina",
+      "brands": [
+        "Jardiance Duo",
+        "Synjardy"
+      ],
+      "category": "Antidiabético"
+    },
+    {
       "genericName": "Dapagliflozina",
       "brands": [
         "Forxiga"
+      ],
+      "category": "Antidiabético"
+    },
+    {
+      "genericName": "Metformina + Dapagliflozina",
+      "brands": [
+        "Xigduo",
+        "Xigduo XR"
+      ],
+      "category": "Antidiabético"
+    },
+    {
+      "genericName": "Saxagliptina",
+      "brands": [
+        "Onglyza"
+      ],
+      "category": "Antidiabético"
+    },
+    {
+      "genericName": "Metformina + Saxagliptina",
+      "brands": [
+        "Kombiglyze XR",
+        "Kombiglyze"
+      ],
+      "category": "Antidiabético"
+    },
+    {
+      "genericName": "Linagliptina",
+      "brands": [
+        "Trayenta",
+        "Trajenta"
+      ],
+      "category": "Antidiabético"
+    },
+    {
+      "genericName": "Metformina + Linagliptina",
+      "brands": [
+        "Jentadueto",
+        "Jentadueto XR"
+      ],
+      "category": "Antidiabético"
+    },
+    {
+      "genericName": "Canagliflozina",
+      "brands": [
+        "Invokana"
       ],
       "category": "Antidiabético"
     },
@@ -137,7 +208,18 @@
       "genericName": "Losartana",
       "brands": [
         "Cozaar",
-        "Aradois"
+        "Aradois",
+        "Losacor",
+        "Lortaan"
+      ],
+      "category": "Anti-hipertensivo"
+    },
+    {
+      "genericName": "Losartana + Hidroclorotiazida",
+      "brands": [
+        "Hyzaar",
+        "Aradois H",
+        "Cozaar Comp"
       ],
       "category": "Anti-hipertensivo"
     },
@@ -145,7 +227,32 @@
       "genericName": "Valsartana",
       "brands": [
         "Diovan",
-        "Valtan"
+        "Valtan",
+        "Valsacor"
+      ],
+      "category": "Anti-hipertensivo"
+    },
+    {
+      "genericName": "Valsartana + Hidroclorotiazida",
+      "brands": [
+        "Diovan HCT",
+        "Co-Diovan"
+      ],
+      "category": "Anti-hipertensivo"
+    },
+    {
+      "genericName": "Valsartana + Amlodipino",
+      "brands": [
+        "Exforge",
+        "Vamloset"
+      ],
+      "category": "Anti-hipertensivo"
+    },
+    {
+      "genericName": "Valsartana + Amlodipino + Hidroclorotiazida",
+      "brands": [
+        "Exforge HCT",
+        "Triplixam"
       ],
       "category": "Anti-hipertensivo"
     },
@@ -153,7 +260,24 @@
       "genericName": "Olmesartana",
       "brands": [
         "Benicar",
-        "Olmetec"
+        "Olmetec",
+        "Olmecip"
+      ],
+      "category": "Anti-hipertensivo"
+    },
+    {
+      "genericName": "Olmesartana + Hidroclorotiazida",
+      "brands": [
+        "Benicar HCT",
+        "Olmetec Plus"
+      ],
+      "category": "Anti-hipertensivo"
+    },
+    {
+      "genericName": "Olmesartana + Amlodipino",
+      "brands": [
+        "Azor",
+        "Sevikar"
       ],
       "category": "Anti-hipertensivo"
     },
@@ -166,6 +290,14 @@
       "category": "Anti-hipertensivo"
     },
     {
+      "genericName": "Candesartana + Hidroclorotiazida",
+      "brands": [
+        "Atacand Plus",
+        "Blopress Plus"
+      ],
+      "category": "Anti-hipertensivo"
+    },
+    {
       "genericName": "Irbesartana",
       "brands": [
         "Avapro",
@@ -174,10 +306,27 @@
       "category": "Anti-hipertensivo"
     },
     {
+      "genericName": "Irbesartana + Hidroclorotiazida",
+      "brands": [
+        "Avalide",
+        "CoAprovel"
+      ],
+      "category": "Anti-hipertensivo"
+    },
+    {
       "genericName": "Enalapril",
       "brands": [
         "Vasotec",
-        "Renitec"
+        "Renitec",
+        "Enacard"
+      ],
+      "category": "Anti-hipertensivo"
+    },
+    {
+      "genericName": "Enalapril + Hidroclorotiazida",
+      "brands": [
+        "Vaseretic",
+        "Renitec Plus"
       ],
       "category": "Anti-hipertensivo"
     },
@@ -185,7 +334,8 @@
       "genericName": "Captopril",
       "brands": [
         "Capoten",
-        "Captoplex"
+        "Captoplex",
+        "Captopress"
       ],
       "category": "Anti-hipertensivo"
     },
@@ -193,7 +343,16 @@
       "genericName": "Ramipril",
       "brands": [
         "Tritace",
-        "Altace"
+        "Altace",
+        "Ramipress"
+      ],
+      "category": "Anti-hipertensivo"
+    },
+    {
+      "genericName": "Ramipril + Amlodipino",
+      "brands": [
+        "Triapin",
+        "Ramicard"
       ],
       "category": "Anti-hipertensivo"
     },
@@ -201,7 +360,16 @@
       "genericName": "Lisinopril",
       "brands": [
         "Zestril",
-        "Prinivil"
+        "Prinivil",
+        "Lisopril"
+      ],
+      "category": "Anti-hipertensivo"
+    },
+    {
+      "genericName": "Lisinopril + Hidroclorotiazida",
+      "brands": [
+        "Zestoretic",
+        "Prinzide"
       ],
       "category": "Anti-hipertensivo"
     },
@@ -210,6 +378,33 @@
       "brands": [
         "Coversyl",
         "Prexanil"
+      ],
+      "category": "Anti-hipertensivo"
+    },
+    {
+      "genericName": "Perindopril + Amlodipino",
+      "brands": [
+        "Coveram",
+        "Prestalia"
+      ],
+      "category": "Anti-hipertensivo"
+    },
+    {
+      "genericName": "Perindopril + Indapamida",
+      "brands": [
+        "Preterax",
+        "Coversyl Plus"
+      ],
+      "category": "Anti-hipertensivo"
+    },
+    {
+      "genericName": "Amlodipino",
+      "brands": [
+        "Norvasc",
+        "Amlor",
+        "Pressat",
+        "Amlocor",
+        "Anlodipina"
       ],
       "category": "Anti-hipertensivo"
     },
@@ -298,7 +493,11 @@
       "brands": [
         "Lipitor",
         "Citalor",
-        "Torvacard"
+        "Torvacard",
+        "Atorlan",
+        "Vastatin",
+        "Atorgen",
+        "Atocard"
       ],
       "category": "Hipolipemiante"
     },
@@ -307,7 +506,10 @@
       "brands": [
         "Zocor",
         "Sinvacor",
-        "Vaslip"
+        "Vaslip",
+        "Sinvastacor",
+        "Liponorm",
+        "Simcard"
       ],
       "category": "Hipolipemiante"
     },
@@ -315,22 +517,40 @@
       "genericName": "Rosuvastatina",
       "brands": [
         "Crestor",
+        "Zinpass",
+        "Arlin",
+        "Bross",
+        "Coleste",
+        "Creste",
+        "Rosvast",
+        "RosuvaCor",
         "Vita",
-        "Rosuvast"
+        "Rosumed",
+        "Provisacor"
       ],
       "category": "Hipolipemiante"
     },
     {
       "genericName": "Pravastatina",
       "brands": [
-        "Pravacol"
+        "Pravacol",
+        "Mevalotin"
       ],
       "category": "Hipolipemiante"
     },
     {
       "genericName": "Lovastatina",
       "brands": [
-        "Mevacor"
+        "Mevacor",
+        "Lovacor"
+      ],
+      "category": "Hipolipemiante"
+    },
+    {
+      "genericName": "Pitavastatina",
+      "brands": [
+        "Livalo",
+        "Pivast"
       ],
       "category": "Hipolipemiante"
     },
@@ -338,7 +558,56 @@
       "genericName": "Ezetimiba",
       "brands": [
         "Zetia",
-        "Ezetrol"
+        "Ezetrol",
+        "Ezetgen"
+      ],
+      "category": "Hipolipemiante"
+    },
+    {
+      "genericName": "Rosuvastatina + Ezetimiba",
+      "brands": [
+        "Nobratin Duo",
+        "Duovast",
+        "Zinpass + Ezetimibe",
+        "Crestor + Zetia",
+        "RosuZet",
+        "Ezetimiba + Rosuvastatina"
+      ],
+      "category": "Hipolipemiante"
+    },
+    {
+      "genericName": "Sinvastatina + Ezetimiba",
+      "brands": [
+        "Vytorin",
+        "Zetuvit",
+        "Ezetimiba + Sinvastatina"
+      ],
+      "category": "Hipolipemiante"
+    },
+    {
+      "genericName": "Atorvastatina + Ezetimiba",
+      "brands": [
+        "Atozet",
+        "Liptruzet",
+        "Ezetimiba + Atorvastatina"
+      ],
+      "category": "Hipolipemiante"
+    },
+    {
+      "genericName": "Fenofibrato",
+      "brands": [
+        "Triglide",
+        "Lipanon",
+        "Tricor",
+        "Fenotrat"
+      ],
+      "category": "Hipolipemiante"
+    },
+    {
+      "genericName": "Genfibrozila",
+      "brands": [
+        "Lopid",
+        "Fibralax"
       ],
       "category": "Hipolipemiante"
     },
