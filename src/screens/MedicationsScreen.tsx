@@ -95,8 +95,9 @@ export default function MedicationsScreen() {
       setSuggestions([]);
       setInteractions([]);
       await syncNotification(updated);
-    } catch {
-      Alert.alert('Erro', 'Não foi possível salvar o medicamento. Tente novamente.');
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      Alert.alert('Erro ao salvar', msg);
     }
   }
 
