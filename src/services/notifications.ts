@@ -90,6 +90,18 @@ export async function cancelEmergencyNotification(): Promise<void> {
   await clearEmergency();
 }
 
+function reminderContent(medicationName: string, dose: string, medicationId: number) {
+  return {
+    title: '💊 Hora do medicamento',
+    body: `${medicationName}${dose ? ' — ' + dose : ''}`,
+    data: { type: 'reminder', medicationId },
+  };
+}
+
+function timePart(hour: number, minute: number) {
+  return `${String(hour).padStart(2,'0')}${String(minute).padStart(2,'0')}`;
+}
+
 export async function scheduleReminder(
   medicationId: number,
   medicationName: string,
@@ -98,14 +110,10 @@ export async function scheduleReminder(
   minute: number,
   withSound: boolean,
 ): Promise<void> {
-  const id = `reminder_${medicationId}_${String(hour).padStart(2,'0')}${String(minute).padStart(2,'0')}`;
+  const id = `reminder_${medicationId}_${timePart(hour, minute)}`;
   await Notifications.scheduleNotificationAsync({
     identifier: id,
-    content: {
-      title: '💊 Hora do medicamento',
-      body: `${medicationName}${dose ? ' — ' + dose : ''}`,
-      data: { type: 'reminder', medicationId },
-    },
+    content: reminderContent(medicationName, dose, medicationId),
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
       hour,
@@ -115,10 +123,115 @@ export async function scheduleReminder(
   });
 }
 
-export async function cancelReminderByTime(medicationId: number, time: string): Promise<void> {
-  const [h, m] = time.split(':');
-  const id = `reminder_${medicationId}_${h.padStart(2,'0')}${m.padStart(2,'0')}`;
-  await Notifications.cancelScheduledNotificationAsync(id).catch(() => {});
+export async function scheduleReminderWeekly(
+  medicationId: number,
+  medicationName: string,
+  dose: string,
+  weekdays: number[],  // array: 1=Dom, 2=Seg … 7=Sáb
+  hour: number,
+  minute: number,
+  withSound: boolean,
+): Promise<void> {
+  for (const wd of weekdays) {
+    await Notifications.scheduleNotificationAsync({
+      identifier: `reminder_${medicationId}_w${wd}_${timePart(hour, minute)}`,
+      content: reminderContent(medicationName, dose, medicationId),
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+        weekday: wd,
+        hour,
+        minute,
+        channelId: withSound ? REMINDER_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+      },
+    });
+  }
+}
+
+export async function scheduleReminderMonthly(
+  medicationId: number,
+  medicationName: string,
+  dose: string,
+  days: number[],  // array of days-of-month (1-28)
+  hour: number,
+  minute: number,
+  withSound: boolean,
+): Promise<void> {
+  for (const day of days) {
+    await Notifications.scheduleNotificationAsync({
+      identifier: `reminder_${medicationId}_m${day}_${timePart(hour, minute)}`,
+      content: reminderContent(medicationName, dose, medicationId),
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
+        repeats: true,
+        day,
+        hour,
+        minute,
+        channelId: withSound ? REMINDER_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+      } as any,
+    });
+  }
+}
+
+export async function scheduleReminderEveryNMonths(
+  medicationId: number,
+  medicationName: string,
+  dose: string,
+  intervalMonths: number,
+  dayOfMonth: number,
+  hour: number,
+  minute: number,
+  withSound: boolean,
+): Promise<void> {
+  const tp = timePart(hour, minute);
+  const now = new Date();
+  let next = new Date(now.getFullYear(), now.getMonth(), dayOfMonth, hour, minute, 0, 0);
+  if (next <= now) next.setMonth(next.getMonth() + intervalMonths);
+  for (let i = 0; i < 12; i++) {
+    const dateStr = `${next.getFullYear()}${String(next.getMonth() + 1).padStart(2, '0')}${String(next.getDate()).padStart(2, '0')}`;
+    await Notifications.scheduleNotificationAsync({
+      identifier: `reminder_${medicationId}_nm_${dateStr}_${tp}`,
+      content: reminderContent(medicationName, dose, medicationId),
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
+        repeats: false,
+        year: next.getFullYear(),
+        month: next.getMonth() + 1,
+        day: next.getDate(),
+        hour,
+        minute,
+        channelId: withSound ? REMINDER_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+      } as any,
+    });
+    next.setMonth(next.getMonth() + intervalMonths);
+  }
+}
+
+export async function cancelReminderByTime(
+  medicationId: number,
+  time: string,
+  period: string = 'day',
+): Promise<void> {
+  const [hh, mm] = time.split(':');
+  const tp = `${hh.padStart(2, '0')}${mm.padStart(2, '0')}`;
+
+  if (period === 'day') {
+    await Notifications.cancelScheduledNotificationAsync(`reminder_${medicationId}_${tp}`).catch(() => {});
+  } else if (period.startsWith('week:')) {
+    for (const wd of period.split(':')[1].split(',').map(Number)) {
+      await Notifications.cancelScheduledNotificationAsync(`reminder_${medicationId}_w${wd}_${tp}`).catch(() => {});
+    }
+  } else if (period.startsWith('month:')) {
+    for (const d of period.split(':')[1].split(',').map(Number)) {
+      await Notifications.cancelScheduledNotificationAsync(`reminder_${medicationId}_m${d}_${tp}`).catch(() => {});
+    }
+  } else if (period.startsWith('nmonths:')) {
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    await Promise.all(
+      scheduled
+        .filter(n => n.identifier.startsWith(`reminder_${medicationId}_nm_`) && n.identifier.endsWith(`_${tp}`))
+        .map(n => Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {}))
+    );
+  }
 }
 
 export async function cancelAllRemindersForMedication(medicationId: number): Promise<void> {

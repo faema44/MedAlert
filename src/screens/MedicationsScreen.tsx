@@ -10,7 +10,7 @@ import {
   getRemindersForMedication, addReminder, deleteReminder, toggleReminderActive,
 } from '../database/db';
 import {
-  scheduleReminderWeekly, scheduleReminderMonthly, scheduleReminderYearly,
+  scheduleReminderWeekly, scheduleReminderMonthly, scheduleReminderEveryNMonths,
 } from '../services/notifications';
 import { getProfile } from '../database/db';
 import {
@@ -44,11 +44,14 @@ const WEEKDAYS = [
 function periodLabel(period: string, time: string): string {
   if (!period || period === 'day') return time;
   if (period.startsWith('week:')) {
-    const wd = WEEKDAYS.find(w => w.value === Number(period.split(':')[1]));
-    return `${time} · toda ${wd?.label ?? ''}`;
+    const labels = period.split(':')[1].split(',').map(v => WEEKDAYS.find(w => w.value === Number(v))?.label ?? '').join(', ');
+    return `${time} · ${labels}`;
   }
-  if (period.startsWith('month:')) return `${time} · dia ${period.split(':')[1]}/mês`;
-  if (period.startsWith('year:')) return `${time} · ${period.split(':')[1]} anual`;
+  if (period.startsWith('month:')) return `${time} · dias ${period.split(':')[1]}/mês`;
+  if (period.startsWith('nmonths:')) {
+    const [, n, d] = period.split(':');
+    return `${time} · dia ${d}, a cada ${n} mês${Number(n) > 1 ? 'es' : ''}`;
+  }
   return time;
 }
 
@@ -87,9 +90,10 @@ export default function MedicationsScreen() {
   const [customTimes, setCustomTimes] = useState('');
   const [withSound, setWithSound] = useState(true);
   const [reminderPeriod, setReminderPeriod] = useState<ReminderPeriod>('day');
-  const [weekday, setWeekday] = useState(2);        // 2 = Segunda-feira
-  const [dayOfMonth, setDayOfMonth] = useState('1');
-  const [yearDate, setYearDate] = useState('01/01'); // DD/MM
+  const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([2]);
+  const [selectedMonthDays, setSelectedMonthDays] = useState<number[]>([1]);
+  const [nMonths, setNMonths] = useState('1');
+  const [monthDay, setMonthDay] = useState('1');
 
   const computedTimes = useMemo(
     () => computeTimes(startTime, timesPerDay),
@@ -251,9 +255,10 @@ export default function MedicationsScreen() {
     setCustomTimes('');
     setWithSound(true);
     setReminderPeriod('day');
-    setWeekday(2);
-    setDayOfMonth('1');
-    setYearDate('01/01');
+    setSelectedWeekdays([2]);
+    setSelectedMonthDays([1]);
+    setNMonths('1');
+    setMonthDay('1');
     setShowReminderModal(true);
   }
 
@@ -280,26 +285,26 @@ export default function MedicationsScreen() {
           await addReminder({ medication_id: reminderMed.id, time, period: 'day', with_sound: withSound, is_active: true });
         }
       } else if (reminderPeriod === 'week') {
+        if (selectedWeekdays.length === 0) { Alert.alert('Erro', 'Selecione ao menos um dia da semana.'); return; }
         const [h, m] = startTime.split(':').map(Number);
         if (isNaN(h) || isNaN(m)) { Alert.alert('Erro', 'Horário inválido.'); return; }
-        await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, weekday, h, m, withSound);
-        await addReminder({ medication_id: reminderMed.id, time: startTime, period: `week:${weekday}`, with_sound: withSound, is_active: true });
+        await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, selectedWeekdays, h, m, withSound);
+        await addReminder({ medication_id: reminderMed.id, time: startTime, period: `week:${selectedWeekdays.sort((a,b)=>a-b).join(',')}`, with_sound: withSound, is_active: true });
       } else if (reminderPeriod === 'month') {
-        const dom = parseInt(dayOfMonth, 10);
+        if (selectedMonthDays.length === 0) { Alert.alert('Erro', 'Selecione ao menos um dia do mês.'); return; }
         const [h, m] = startTime.split(':').map(Number);
-        if (isNaN(dom) || dom < 1 || dom > 28) { Alert.alert('Erro', 'Dia do mês deve ser entre 1 e 28.'); return; }
         if (isNaN(h) || isNaN(m)) { Alert.alert('Erro', 'Horário inválido.'); return; }
-        await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, dom, h, m, withSound);
-        await addReminder({ medication_id: reminderMed.id, time: startTime, period: `month:${dom}`, with_sound: withSound, is_active: true });
+        await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, selectedMonthDays, h, m, withSound);
+        await addReminder({ medication_id: reminderMed.id, time: startTime, period: `month:${selectedMonthDays.sort((a,b)=>a-b).join(',')}`, with_sound: withSound, is_active: true });
       } else if (reminderPeriod === 'year') {
-        const parts = yearDate.split('/');
-        const dd = parseInt(parts[0] ?? '1', 10);
-        const mm = parseInt(parts[1] ?? '1', 10);
+        const n = parseInt(nMonths, 10);
+        const d = parseInt(monthDay, 10);
         const [h, mi] = startTime.split(':').map(Number);
-        if (isNaN(dd) || isNaN(mm) || dd < 1 || dd > 31 || mm < 1 || mm > 12) { Alert.alert('Erro', 'Data inválida. Use formato DD/MM.'); return; }
+        if (isNaN(n) || n < 1) { Alert.alert('Erro', 'Informe o intervalo em meses (mínimo 1).'); return; }
+        if (isNaN(d) || d < 1 || d > 28) { Alert.alert('Erro', 'Dia do mês deve ser entre 1 e 28.'); return; }
         if (isNaN(h) || isNaN(mi)) { Alert.alert('Erro', 'Horário inválido.'); return; }
-        await scheduleReminderYearly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, mm, dd, h, mi, withSound);
-        await addReminder({ medication_id: reminderMed.id, time: startTime, period: `year:${String(dd).padStart(2,'0')}/${String(mm).padStart(2,'0')}`, with_sound: withSound, is_active: true });
+        await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, n, d, h, mi, withSound);
+        await addReminder({ medication_id: reminderMed.id, time: startTime, period: `nmonths:${n}:${d}`, with_sound: withSound, is_active: true });
       }
       setReminders(await getRemindersForMedication(reminderMed.id));
       setShowAddForm(false);
@@ -325,14 +330,14 @@ export default function MedicationsScreen() {
       if (p === 'day') {
         await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, r.with_sound).catch(() => {});
       } else if (p.startsWith('week:')) {
-        const wd = Number(p.split(':')[1]);
-        await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, wd, h, m, r.with_sound).catch(() => {});
+        const wds = p.split(':')[1].split(',').map(Number);
+        await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, wds, h, m, r.with_sound).catch(() => {});
       } else if (p.startsWith('month:')) {
-        const dom = Number(p.split(':')[1]);
-        await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, dom, h, m, r.with_sound).catch(() => {});
-      } else if (p.startsWith('year:')) {
-        const [dd, mm2] = p.split(':')[1].split('/').map(Number);
-        await scheduleReminderYearly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, mm2, dd, h, m, r.with_sound).catch(() => {});
+        const days = p.split(':')[1].split(',').map(Number);
+        await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, days, h, m, r.with_sound).catch(() => {});
+      } else if (p.startsWith('nmonths:')) {
+        const [, n, d] = p.split(':');
+        await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(n), Number(d), h, m, r.with_sound).catch(() => {});
       }
     } else {
       await cancelReminderByTime(r.medication_id, r.time, r.period).catch(() => {});
@@ -595,7 +600,7 @@ export default function MedicationsScreen() {
                 <Text style={styles.fieldLabel}>Período</Text>
                 <View style={styles.periodRow}>
                   {(['day', 'week', 'month', 'year'] as ReminderPeriod[]).map(p => {
-                    const labels: Record<ReminderPeriod, string> = { day: 'Dia', week: 'Semana', month: 'Mês', year: 'Ano' };
+                    const labels: Record<ReminderPeriod, string> = { day: 'Dia', week: 'Semana', month: 'Mês', year: 'Periódico' };
                     return (
                       <TouchableOpacity
                         key={p}
@@ -612,47 +617,69 @@ export default function MedicationsScreen() {
 
                 {reminderPeriod === 'week' && (
                   <>
-                    <Text style={styles.fieldLabel}>Dia da semana</Text>
+                    <Text style={styles.fieldLabel}>Dias da semana (selecione um ou mais)</Text>
                     <View style={styles.weekdayRow}>
-                      {WEEKDAYS.map(wd => (
-                        <TouchableOpacity
-                          key={wd.value}
-                          style={[styles.weekdayBtn, weekday === wd.value && styles.weekdayBtnActive]}
-                          onPress={() => setWeekday(wd.value)}
-                        >
-                          <Text style={[styles.weekdayBtnText, weekday === wd.value && styles.weekdayBtnTextActive]}>
-                            {wd.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
+                      {WEEKDAYS.map(wd => {
+                        const sel = selectedWeekdays.includes(wd.value);
+                        return (
+                          <TouchableOpacity
+                            key={wd.value}
+                            style={[styles.weekdayBtn, sel && styles.weekdayBtnActive]}
+                            onPress={() => setSelectedWeekdays(prev =>
+                              sel ? prev.filter(v => v !== wd.value) : [...prev, wd.value]
+                            )}
+                          >
+                            <Text style={[styles.weekdayBtnText, sel && styles.weekdayBtnTextActive]}>
+                              {wd.label}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
                     </View>
                   </>
                 )}
 
                 {reminderPeriod === 'month' && (
                   <>
-                    <Text style={styles.fieldLabel}>Dia do mês (1–28)</Text>
-                    <TextInput
-                      style={styles.fieldInput}
-                      value={dayOfMonth}
-                      onChangeText={setDayOfMonth}
-                      placeholder="1"
-                      keyboardType="number-pad"
-                      maxLength={2}
-                    />
+                    <Text style={styles.fieldLabel}>Dias do mês (selecione um ou mais)</Text>
+                    <View style={styles.monthGrid}>
+                      {Array.from({ length: 28 }, (_, i) => i + 1).map(d => {
+                        const sel = selectedMonthDays.includes(d);
+                        return (
+                          <TouchableOpacity
+                            key={d}
+                            style={[styles.monthDayBtn, sel && styles.monthDayBtnActive]}
+                            onPress={() => setSelectedMonthDays(prev =>
+                              sel ? prev.filter(v => v !== d) : [...prev, d]
+                            )}
+                          >
+                            <Text style={[styles.monthDayBtnText, sel && styles.monthDayBtnTextActive]}>
+                              {d}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
                   </>
                 )}
 
                 {reminderPeriod === 'year' && (
                   <>
-                    <Text style={styles.fieldLabel}>Data (DD/MM)</Text>
+                    <Text style={styles.fieldLabel}>Repetir a cada quantos meses</Text>
                     <TextInput
                       style={styles.fieldInput}
-                      value={yearDate}
-                      onChangeText={setYearDate}
-                      placeholder="01/01"
-                      keyboardType="numbers-and-punctuation"
-                      maxLength={5}
+                      value={nMonths}
+                      onChangeText={setNMonths}
+                      keyboardType="number-pad"
+                      maxLength={2}
+                    />
+                    <Text style={styles.fieldLabel}>No dia do mês (1–28)</Text>
+                    <TextInput
+                      style={styles.fieldInput}
+                      value={monthDay}
+                      onChangeText={setMonthDay}
+                      keyboardType="number-pad"
+                      maxLength={2}
                     />
                   </>
                 )}
@@ -875,6 +902,14 @@ const styles = StyleSheet.create({
   weekdayBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
   weekdayBtnText: { fontSize: 12, color: '#555', fontWeight: '600' },
   weekdayBtnTextActive: { color: '#fff' },
+  monthGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 4 },
+  monthDayBtn: {
+    width: 40, height: 36, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 8,
+    justifyContent: 'center', alignItems: 'center',
+  },
+  monthDayBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
+  monthDayBtnText: { fontSize: 13, color: '#555', fontWeight: '600' },
+  monthDayBtnTextActive: { color: '#fff' },
   timesRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
   timesBtn: {
     flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 8,
