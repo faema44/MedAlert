@@ -10,6 +10,7 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import MedicationsScreen from './src/screens/MedicationsScreen';
 import ContactsScreen from './src/screens/ContactsScreen';
 import InteractionsScreen from './src/screens/InteractionsScreen';
+import HelpScreen from './src/screens/HelpScreen';
 
 import { setupNotificationChannels, requestPermissions } from './src/services/notifications';
 import { getDb } from './src/database/db';
@@ -23,6 +24,7 @@ const TITLES: Record<string, string> = {
   Medications: 'Medicamentos',
   Contacts: 'Contatos',
   Interactions: 'Interações',
+  Help: 'Ajuda',
 };
 
 function HeaderTitle({ route }: { route: { name: string } }) {
@@ -116,6 +118,14 @@ function AppNavigator() {
           options={{
             tabBarLabel: 'Interações',
             tabBarIcon: ({ focused }) => <TabIcon emoji="⚡" focused={focused} />,
+          }}
+        />
+        <Tab.Screen
+          name="Help"
+          component={HelpScreen}
+          options={{
+            tabBarLabel: 'Ajuda',
+            tabBarIcon: ({ focused }) => <TabIcon emoji="❓" focused={focused} />,
           }}
         />
       </Tab.Navigator>

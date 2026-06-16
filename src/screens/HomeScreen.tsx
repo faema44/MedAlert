@@ -59,7 +59,7 @@ export default function HomeScreen() {
           onPress={handleToggleNotification}
         >
           <Text style={styles.toggleBtnText}>
-            {notifActive ? 'Desativar Alerta' : 'Ativar Alerta de Emergência'}
+            {notifActive ? 'Desativar Alerta' : 'Ícone na Tela de Bloqueio (Emergência)'}
           </Text>
         </TouchableOpacity>
       </View>
