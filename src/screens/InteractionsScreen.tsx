@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { getMedications } from '../database/db';
-import { checkInteractions, getAllInteractions } from '../utils/drugSearch';
+import { checkInteractions, getAllInteractions, isPhytotherapicInteraction } from '../utils/drugSearch';
 import { DrugInteraction, Medication } from '../types';
 
 const RISK_CONFIG = {
@@ -15,6 +15,7 @@ const RISK_CONFIG = {
 
 type Tab = 'mine' | 'db';
 type RiskFilter = 'all' | 'critical' | 'high' | 'moderate';
+type DbTypeFilter = 'all' | 'meds' | 'phyto';
 
 function InteractionCard({ item, expanded, onToggle }: {
   item: DrugInteraction;
@@ -53,6 +54,7 @@ export default function InteractionsScreen() {
   const [myMeds, setMyMeds] = useState<Medication[]>([]);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<RiskFilter>('all');
+  const [dbType, setDbType] = useState<DbTypeFilter>('all');
   const [expanded, setExpanded] = useState<string | null>(null);
 
   useFocusEffect(useCallback(() => {
@@ -80,9 +82,11 @@ export default function InteractionsScreen() {
     return getAllInteractions().filter(i => {
       const matchSearch = !q || i.drug1.toLowerCase().includes(q) || i.drug2.toLowerCase().includes(q);
       const matchFilter = filter === 'all' || i.risk_level === filter;
-      return matchSearch && matchFilter;
+      const isPhyto = isPhytotherapicInteraction(i);
+      const matchType = dbType === 'all' || (dbType === 'phyto' ? isPhyto : !isPhyto);
+      return matchSearch && matchFilter && matchType;
     });
-  }, [search, filter]);
+  }, [search, filter, dbType]);
 
   function toggle(id: string) {
     setExpanded(prev => (prev === id ? null : id));
@@ -182,12 +186,27 @@ export default function InteractionsScreen() {
       ) : (
         // ── Base de Dados ────────────────────────────────────────────────────
         <>
+          <View style={styles.dbTypeRow}>
+            {([
+              { key: 'all', label: 'Todas' },
+              { key: 'meds', label: '💊 Medicamentos' },
+              { key: 'phyto', label: '🌿 Fitoterápicos' },
+            ] as const).map(({ key, label }) => (
+              <TouchableOpacity
+                key={key}
+                style={[styles.dbTypeBtn, dbType === key && (key === 'phyto' ? styles.dbTypeBtnPhyto : styles.dbTypeBtnActive)]}
+                onPress={() => setDbType(key)}
+              >
+                <Text style={[styles.dbTypeBtnText, dbType === key && styles.dbTypeBtnTextActive]}>{label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
           <View style={styles.searchBar}>
             <TextInput
               style={styles.searchInput}
               value={search}
               onChangeText={setSearch}
-              placeholder="🔍 Buscar medicamento..."
+              placeholder="🔍 Buscar..."
               clearButtonMode="while-editing"
             />
           </View>
@@ -258,8 +277,15 @@ const styles = StyleSheet.create({
   interactionSummary: { flexDirection: 'row', gap: 8, marginTop: 4 },
   summaryBadge: { borderRadius: 6, paddingHorizontal: 10, paddingVertical: 4 },
   summaryBadgeText: { fontSize: 12, fontWeight: '700', letterSpacing: 0.5 },
+  // DB type selector
+  dbTypeRow: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 4 },
+  dbTypeBtn: { flex: 1, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 7, backgroundColor: '#e0e0e0', alignItems: 'center' },
+  dbTypeBtnActive: { backgroundColor: '#1a3a6b' },
+  dbTypeBtnPhyto: { backgroundColor: '#1a6b3a' },
+  dbTypeBtnText: { fontSize: 12, color: '#555', fontWeight: '600' },
+  dbTypeBtnTextActive: { color: '#fff' },
   // Search / filter (db tab)
-  searchBar: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8 },
+  searchBar: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 8 },
   searchInput: {
     backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10,
     fontSize: 15, borderWidth: 1, borderColor: '#e0e0e0',

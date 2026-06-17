@@ -18,7 +18,7 @@ import {
   scheduleReminder, cancelReminderByTime, cancelAllRemindersForMedication,
 } from '../services/notifications';
 import { Medication, MedicationReminder, DrugInteraction } from '../types';
-import { DrugSuggestion, getSuggestions, getBulaUrl, checkInteractions, checkSubstanceInteractions, isPhytotherapic } from '../utils/drugSearch';
+import { DrugSuggestion, getSuggestions, getBulaUrl, checkInteractions, checkSubstanceInteractions, isPhytotherapic, getPhytotherapics } from '../utils/drugSearch';
 import { reportMissingDrug } from '../services/reportMissing';
 
 function buildDoctorMessage(drugName: string, interactions: DrugInteraction[]): string {
@@ -447,6 +447,25 @@ export default function MedicationsScreen() {
                 >
                   <Text style={[styles.typeBtnText, entryType === 'fitoterapico' && styles.typeBtnTextActive]}>🌿 Fitoterápico</Text>
                 </TouchableOpacity>
+              </View>
+            )}
+
+            {entryType === 'fitoterapico' && form.generic_name.length === 0 && (
+              <View style={styles.phytoGrid}>
+                {getPhytotherapics().map(p => {
+                  const popular = p.firstBrand ?? p.genericName;
+                  const scientific = p.genericName.replace(/\s*\(.*\)/, '').trim();
+                  return (
+                    <TouchableOpacity
+                      key={p.genericName}
+                      style={styles.phytoCard}
+                      onPress={() => applySuggestion(p)}
+                    >
+                      <Text style={styles.phytoCardName} numberOfLines={2}>{popular}</Text>
+                      <Text style={styles.phytoCardScientific} numberOfLines={1}>{scientific}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
             )}
 
@@ -1007,4 +1026,13 @@ const styles = StyleSheet.create({
   typeBtnActiveGreen: { backgroundColor: '#1a6b3a', borderColor: '#1a6b3a' },
   typeBtnText: { fontSize: 13, color: '#555', fontWeight: '600' },
   typeBtnTextActive: { color: '#fff' },
+  phytoGrid: {
+    flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10, marginBottom: 4,
+  },
+  phytoCard: {
+    width: '47%', backgroundColor: '#f0f7f0', borderRadius: 10,
+    borderWidth: 1, borderColor: '#a8d5a8', padding: 10,
+  },
+  phytoCardName: { fontSize: 13, fontWeight: '700', color: '#1a6b3a', marginBottom: 2 },
+  phytoCardScientific: { fontSize: 10, color: '#5a9a6a', fontStyle: 'italic' },
 });

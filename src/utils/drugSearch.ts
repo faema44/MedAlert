@@ -117,6 +117,28 @@ export function isPhytotherapic(name: string): boolean {
   return DB.some(e => e.category === 'Fitoterápico' && (normalize(e.genericName).includes(n) || e.brands.some(b => normalize(b).includes(n))));
 }
 
+export function getPhytotherapics(): DrugSuggestion[] {
+  return DB
+    .filter(e => e.category === 'Fitoterápico')
+    .map(e => {
+      const fb = getFirstCommercialBrand(e.brands, e.genericName) ?? e.brands[0];
+      return {
+        label: e.genericName,
+        genericName: e.genericName,
+        firstBrand: fb,
+        category: e.category,
+        bulaUrl: getBulaUrl(e.genericName, fb),
+      };
+    });
+}
+
+export function isPhytotherapicInteraction(i: DrugInteraction): boolean {
+  const phytoNorms = DB
+    .filter(e => e.category === 'Fitoterápico')
+    .map(e => normalize(e.genericName).split(' ')[0]);
+  return phytoNorms.some(p => normalize(i.drug1).startsWith(p) || normalize(i.drug2).startsWith(p));
+}
+
 export function getSuggestions(input: string, max = 7, categoryFilter?: string): DrugSuggestion[] {
   const q = normalize(input);
   if (q.length < 2) return [];
