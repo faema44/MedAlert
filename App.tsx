@@ -23,7 +23,7 @@ const TITLES: Record<string, string> = {
   Profile: 'Perfil Médico',
   Medications: 'Medicamentos',
   Contacts: 'Contatos',
-  Interactions: 'Interações',
+  Interactions: 'Tabelas',
   Help: 'Ajuda',
 };
 
@@ -122,8 +122,8 @@ function AppNavigator() {
           name="Interactions"
           component={InteractionsScreen}
           options={{
-            tabBarLabel: 'Interações',
-            tabBarIcon: ({ focused }) => <TabIcon emoji="⚡" focused={focused} />,
+            tabBarLabel: 'Tabelas',
+            tabBarIcon: ({ focused }) => <TabIcon emoji="📋" focused={focused} />,
           }}
         />
         <Tab.Screen

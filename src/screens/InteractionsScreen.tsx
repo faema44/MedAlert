@@ -4,7 +4,10 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { getMedications } from '../database/db';
-import { checkInteractions, getAllInteractions, isPhytotherapicInteraction } from '../utils/drugSearch';
+import {
+  checkInteractions, getAllInteractions, isPhytotherapicInteraction,
+  getAllMedsList, getAllPhytoList, DbEntry,
+} from '../utils/drugSearch';
 import { DrugInteraction, Medication } from '../types';
 
 const RISK_CONFIG = {
@@ -13,22 +16,16 @@ const RISK_CONFIG = {
   moderate: { label: 'MODERADO',color: '#b58900', bg: '#fffaf0' },
 };
 
-type Tab = 'mine' | 'db';
+type Tab = 'interactions' | 'meds' | 'phyto';
 type RiskFilter = 'all' | 'critical' | 'high' | 'moderate';
 type DbTypeFilter = 'all' | 'meds' | 'phyto';
 
 function InteractionCard({ item, expanded, onToggle }: {
-  item: DrugInteraction;
-  expanded: boolean;
-  onToggle: () => void;
+  item: DrugInteraction; expanded: boolean; onToggle: () => void;
 }) {
   const risk = RISK_CONFIG[item.risk_level];
   return (
-    <TouchableOpacity
-      style={[styles.card, { borderLeftColor: risk.color }]}
-      onPress={onToggle}
-      activeOpacity={0.8}
-    >
+    <TouchableOpacity style={[styles.card, { borderLeftColor: risk.color }]} onPress={onToggle} activeOpacity={0.8}>
       <View style={styles.cardHeader}>
         <View style={[styles.riskBadge, { backgroundColor: risk.bg }]}>
           <Text style={[styles.riskBadgeText, { color: risk.color }]}>{risk.label}</Text>
@@ -49,35 +46,33 @@ function InteractionCard({ item, expanded, onToggle }: {
   );
 }
 
+function MedCard({ item, isPhyto }: { item: DbEntry; isPhyto?: boolean }) {
+  const accent = isPhyto ? '#1a6b3a' : '#1a3a6b';
+  const bgAccent = isPhyto ? '#f0f7f0' : '#f0f4ff';
+  const borderColor = isPhyto ? '#a8d5a8' : '#c0ccdf';
+  const popularNames = item.brands.slice(0, 3).join(' · ');
+  return (
+    <View style={[styles.medCard, { borderLeftColor: accent, backgroundColor: '#fff' }]}>
+      <Text style={[styles.medGenericName, { color: accent }]}>{item.genericName}</Text>
+      {popularNames ? <Text style={styles.medBrands} numberOfLines={1}>{popularNames}</Text> : null}
+      <View style={[styles.catChip, { backgroundColor: bgAccent, borderColor }]}>
+        <Text style={[styles.catChipText, { color: accent }]}>{item.category}</Text>
+      </View>
+    </View>
+  );
+}
+
 export default function InteractionsScreen() {
-  const [tab, setTab] = useState<Tab>('mine');
-  const [myMeds, setMyMeds] = useState<Medication[]>([]);
+  const [tab, setTab] = useState<Tab>('interactions');
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<RiskFilter>('all');
   const [dbType, setDbType] = useState<DbTypeFilter>('all');
+  const [medSearch, setMedSearch] = useState('');
+  const [phytoSearch, setPhytoSearch] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  useFocusEffect(useCallback(() => {
-    getMedications().then(setMyMeds).catch(() => {});
-  }, []));
-
-  // All pairwise interactions among the user's medications
-  const myInteractions = useMemo<DrugInteraction[]>(() => {
-    const seen = new Set<string>();
-    const results: DrugInteraction[] = [];
-    for (let i = 0; i < myMeds.length; i++) {
-      const drug = myMeds[i].generic_name;
-      const rest = myMeds.slice(i + 1).map(m => m.generic_name);
-      for (const hit of checkInteractions(drug, rest)) {
-        if (!seen.has(hit.id)) { seen.add(hit.id); results.push(hit); }
-      }
-    }
-    const order: Record<string, number> = { critical: 0, high: 1, moderate: 2 };
-    return results.sort((a, b) => order[a.risk_level] - order[b.risk_level]);
-  }, [myMeds]);
-
-  // Database tab: filter ALL_INTERACTIONS
-  const dbFiltered = useMemo(() => {
+  // Interactions tab
+  const intFiltered = useMemo(() => {
     const q = search.toLowerCase().trim();
     return getAllInteractions().filter(i => {
       const matchSearch = !q || i.drug1.toLowerCase().includes(q) || i.drug2.toLowerCase().includes(q);
@@ -88,116 +83,69 @@ export default function InteractionsScreen() {
     });
   }, [search, filter, dbType]);
 
-  function toggle(id: string) {
-    setExpanded(prev => (prev === id ? null : id));
-  }
+  // Medications tab
+  const medsList = useMemo(() => {
+    const q = medSearch.toLowerCase().trim();
+    const all = getAllMedsList();
+    if (!q) return all;
+    return all.filter(m =>
+      m.genericName.toLowerCase().includes(q) || m.brands.some(b => b.toLowerCase().includes(q))
+    );
+  }, [medSearch]);
 
-  const criticalCount = myInteractions.filter(i => i.risk_level === 'critical').length;
-  const highCount     = myInteractions.filter(i => i.risk_level === 'high').length;
+  // Phytotherapics tab
+  const phytoList = useMemo(() => {
+    const q = phytoSearch.toLowerCase().trim();
+    const all = getAllPhytoList();
+    if (!q) return all;
+    return all.filter(m =>
+      m.genericName.toLowerCase().includes(q) || m.brands.some(b => b.toLowerCase().includes(q))
+    );
+  }, [phytoSearch]);
+
+  function toggle(id: string) { setExpanded(prev => (prev === id ? null : id)); }
+
+  const tabs: { key: Tab; label: string; emoji: string }[] = [
+    { key: 'interactions', label: 'Interações', emoji: '⚡' },
+    { key: 'meds',         label: 'Medicamentos', emoji: '💊' },
+    { key: 'phyto',        label: 'Fitoterápicos', emoji: '🌿' },
+  ];
 
   return (
     <View style={styles.container}>
       {/* Tab selector */}
       <View style={styles.tabRow}>
-        <TouchableOpacity
-          style={[styles.tabBtn, tab === 'mine' && styles.tabBtnActive]}
-          onPress={() => setTab('mine')}
-        >
-          <Text style={[styles.tabBtnText, tab === 'mine' && styles.tabBtnTextActive]}>
-            Meus Medicamentos
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tabBtn, tab === 'db' && styles.tabBtnActive]}
-          onPress={() => setTab('db')}
-        >
-          <Text style={[styles.tabBtnText, tab === 'db' && styles.tabBtnTextActive]}>
-            Base de Dados
-          </Text>
-        </TouchableOpacity>
+        {tabs.map(t => (
+          <TouchableOpacity
+            key={t.key}
+            style={[styles.tabBtn, tab === t.key && styles.tabBtnActive]}
+            onPress={() => setTab(t.key)}
+          >
+            <Text style={[styles.tabBtnText, tab === t.key && styles.tabBtnTextActive]}>
+              {t.emoji} {t.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
-      {tab === 'mine' ? (
-        // ── Meus Medicamentos ────────────────────────────────────────────────
-        <FlatList
-          data={myInteractions}
-          keyExtractor={item => item.id}
-          contentContainerStyle={styles.list}
-          ListHeaderComponent={
-            myMeds.length === 0 ? null : (
-              <View style={styles.myMedsSummary}>
-                <Text style={styles.myMedsTitle}>
-                  {myMeds.length} medicamento{myMeds.length !== 1 ? 's' : ''} na sua lista
-                </Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillsRow}>
-                  {myMeds.map(m => (
-                    <View key={m.id} style={[styles.medPill, m.is_critical && styles.medPillCritical]}>
-                      <Text style={[styles.medPillText, m.is_critical && styles.medPillTextCritical]} numberOfLines={1}>
-                        {m.generic_name}
-                      </Text>
-                    </View>
-                  ))}
-                </ScrollView>
-                {myInteractions.length > 0 && (
-                  <View style={styles.interactionSummary}>
-                    {criticalCount > 0 && (
-                      <View style={[styles.summaryBadge, { backgroundColor: '#fff0f0' }]}>
-                        <Text style={[styles.summaryBadgeText, { color: '#CC0000' }]}>
-                          {criticalCount} CRÍTICA{criticalCount !== 1 ? 'S' : ''}
-                        </Text>
-                      </View>
-                    )}
-                    {highCount > 0 && (
-                      <View style={[styles.summaryBadge, { backgroundColor: '#fff5f0' }]}>
-                        <Text style={[styles.summaryBadgeText, { color: '#e65c00' }]}>
-                          {highCount} ALTA{highCount !== 1 ? 'S' : ''}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                )}
-              </View>
-            )
-          }
-          ListEmptyComponent={
-            <View style={styles.empty}>
-              {myMeds.length === 0 ? (
-                <>
-                  <Text style={styles.emptyText}>Nenhum medicamento cadastrado.</Text>
-                  <Text style={styles.emptyHint}>Adicione seus medicamentos na aba Medicamentos.</Text>
-                </>
-              ) : (
-                <>
-                  <Text style={styles.emptyIcon}>✅</Text>
-                  <Text style={styles.emptyText}>Nenhuma interação detectada</Text>
-                  <Text style={styles.emptyHint}>Seus medicamentos atuais não têm interações conhecidas entre si.</Text>
-                </>
-              )}
-            </View>
-          }
-          renderItem={({ item }) => (
-            <InteractionCard
-              item={item}
-              expanded={expanded === item.id}
-              onToggle={() => toggle(item.id)}
-            />
-          )}
-        />
-      ) : (
-        // ── Base de Dados ────────────────────────────────────────────────────
+      {tab === 'interactions' && (
         <>
+          {/* Type filter */}
           <View style={styles.dbTypeRow}>
             {([
-              { key: 'all', label: 'Todas' },
+              { key: 'all',  label: 'Todas' },
               { key: 'meds', label: '💊 Medicamentos' },
-              { key: 'phyto', label: '🌿 Fitoterápicos' },
+              { key: 'phyto',label: '🌿 Fitoterápicos' },
             ] as const).map(({ key, label }) => (
               <TouchableOpacity
                 key={key}
-                style={[styles.dbTypeBtn, dbType === key && (key === 'phyto' ? styles.dbTypeBtnPhyto : styles.dbTypeBtnActive)]}
+                style={[styles.dbTypeBtn,
+                  dbType === key && (key === 'phyto' ? styles.dbTypeBtnPhyto : styles.dbTypeBtnActive)]}
                 onPress={() => setDbType(key)}
               >
-                <Text style={[styles.dbTypeBtnText, dbType === key && styles.dbTypeBtnTextActive]}>{label}</Text>
+                <Text style={[styles.dbTypeBtnText, dbType === key && styles.dbTypeBtnTextActive]}>
+                  {label}
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -224,21 +172,57 @@ export default function InteractionsScreen() {
             ))}
           </View>
           <FlatList
-            data={dbFiltered}
+            data={intFiltered}
             keyExtractor={item => item.id}
             contentContainerStyle={styles.list}
-            ListEmptyComponent={
-              <View style={styles.empty}>
-                <Text style={styles.emptyText}>Nenhuma interação encontrada.</Text>
-              </View>
-            }
+            ListEmptyComponent={<View style={styles.empty}><Text style={styles.emptyText}>Nenhuma interação encontrada.</Text></View>}
             renderItem={({ item }) => (
-              <InteractionCard
-                item={item}
-                expanded={expanded === item.id}
-                onToggle={() => toggle(item.id)}
-              />
+              <InteractionCard item={item} expanded={expanded === item.id} onToggle={() => toggle(item.id)} />
             )}
+          />
+        </>
+      )}
+
+      {tab === 'meds' && (
+        <>
+          <View style={styles.searchBar}>
+            <TextInput
+              style={styles.searchInput}
+              value={medSearch}
+              onChangeText={setMedSearch}
+              placeholder="🔍 Buscar medicamento..."
+              clearButtonMode="while-editing"
+            />
+          </View>
+          <Text style={styles.countLabel}>{medsList.length} medicamentos</Text>
+          <FlatList
+            data={medsList}
+            keyExtractor={item => item.genericName}
+            contentContainerStyle={styles.list}
+            ListEmptyComponent={<View style={styles.empty}><Text style={styles.emptyText}>Nenhum medicamento encontrado.</Text></View>}
+            renderItem={({ item }) => <MedCard item={item} />}
+          />
+        </>
+      )}
+
+      {tab === 'phyto' && (
+        <>
+          <View style={styles.searchBar}>
+            <TextInput
+              style={styles.searchInput}
+              value={phytoSearch}
+              onChangeText={setPhytoSearch}
+              placeholder="🔍 Buscar fitoterápico..."
+              clearButtonMode="while-editing"
+            />
+          </View>
+          <Text style={styles.countLabel}>{phytoList.length} fitoterápicos</Text>
+          <FlatList
+            data={phytoList}
+            keyExtractor={item => item.genericName}
+            contentContainerStyle={styles.list}
+            ListEmptyComponent={<View style={styles.empty}><Text style={styles.emptyText}>Nenhum fitoterápico encontrado.</Text></View>}
+            renderItem={({ item }) => <MedCard item={item} isPhyto />}
           />
         </>
       )}
@@ -254,54 +238,36 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1, borderBottomColor: '#e8e8e8',
   },
   tabBtn: {
-    flex: 1, paddingVertical: 13, alignItems: 'center',
+    flex: 1, paddingVertical: 11, alignItems: 'center',
     borderBottomWidth: 3, borderBottomColor: 'transparent',
   },
   tabBtnActive: { borderBottomColor: '#1a3a6b' },
-  tabBtnText: { fontSize: 13, color: '#888', fontWeight: '600' },
+  tabBtnText: { fontSize: 11, color: '#888', fontWeight: '600' },
   tabBtnTextActive: { color: '#1a3a6b' },
-  // My meds header
-  myMedsSummary: {
-    backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 12,
-    elevation: 1, shadowColor: '#000', shadowOpacity: 0.07, shadowRadius: 3,
-  },
-  myMedsTitle: { fontSize: 13, color: '#666', marginBottom: 8 },
-  pillsRow: { flexDirection: 'row', marginBottom: 8 },
-  medPill: {
-    backgroundColor: '#e8edf7', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4,
-    marginRight: 6, borderWidth: 1, borderColor: '#c0ccdf',
-  },
-  medPillCritical: { backgroundColor: '#fff0f0', borderColor: '#CC0000' },
-  medPillText: { fontSize: 12, color: '#1a3a6b', fontWeight: '600' },
-  medPillTextCritical: { color: '#CC0000' },
-  interactionSummary: { flexDirection: 'row', gap: 8, marginTop: 4 },
-  summaryBadge: { borderRadius: 6, paddingHorizontal: 10, paddingVertical: 4 },
-  summaryBadgeText: { fontSize: 12, fontWeight: '700', letterSpacing: 0.5 },
   // DB type selector
   dbTypeRow: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 4 },
   dbTypeBtn: { flex: 1, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 7, backgroundColor: '#e0e0e0', alignItems: 'center' },
   dbTypeBtnActive: { backgroundColor: '#1a3a6b' },
   dbTypeBtnPhyto: { backgroundColor: '#1a6b3a' },
-  dbTypeBtnText: { fontSize: 12, color: '#555', fontWeight: '600' },
+  dbTypeBtnText: { fontSize: 11, color: '#555', fontWeight: '600' },
   dbTypeBtnTextActive: { color: '#fff' },
-  // Search / filter (db tab)
-  searchBar: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 8 },
+  // Search / filter
+  searchBar: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 4 },
   searchInput: {
     backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10,
-    fontSize: 15, borderWidth: 1, borderColor: '#e0e0e0',
+    fontSize: 14, borderWidth: 1, borderColor: '#e0e0e0',
   },
-  filterRow: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingBottom: 10 },
+  filterRow: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingBottom: 8 },
   filterBtn: { borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: '#e0e0e0' },
   filterBtnActive: { backgroundColor: '#1a3a6b' },
-  filterBtnText: { fontSize: 12, color: '#555', fontWeight: '600' },
+  filterBtnText: { fontSize: 11, color: '#555', fontWeight: '600' },
   filterBtnTextActive: { color: '#fff' },
+  countLabel: { fontSize: 12, color: '#999', paddingHorizontal: 18, paddingBottom: 4 },
   // List
-  list: { padding: 16, paddingTop: 12, paddingBottom: 32 },
+  list: { padding: 16, paddingTop: 8, paddingBottom: 32 },
   empty: { alignItems: 'center', marginTop: 48, paddingHorizontal: 32 },
-  emptyIcon: { fontSize: 40, marginBottom: 12 },
-  emptyText: { fontSize: 15, color: '#999', textAlign: 'center', marginBottom: 6 },
-  emptyHint: { fontSize: 13, color: '#bbb', textAlign: 'center', lineHeight: 18 },
-  // Card
+  emptyText: { fontSize: 15, color: '#999', textAlign: 'center' },
+  // Interaction card
   card: {
     backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10,
     borderLeftWidth: 4, elevation: 1, shadowColor: '#000', shadowOpacity: 0.07, shadowRadius: 3,
@@ -317,4 +283,16 @@ const styles = StyleSheet.create({
   mechanismBox: { borderRadius: 8, padding: 10, marginTop: 10 },
   mechanismTitle: { fontSize: 12, fontWeight: '700', color: '#444', marginBottom: 4 },
   mechanismText: { fontSize: 13, color: '#333', lineHeight: 19 },
+  // Med / phyto card
+  medCard: {
+    borderRadius: 10, padding: 12, marginBottom: 8,
+    borderLeftWidth: 3, elevation: 1, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 2,
+  },
+  medGenericName: { fontSize: 14, fontWeight: '700', marginBottom: 2 },
+  medBrands: { fontSize: 12, color: '#777', marginBottom: 5 },
+  catChip: {
+    alignSelf: 'flex-start', borderRadius: 12, paddingHorizontal: 8, paddingVertical: 3,
+    borderWidth: 1,
+  },
+  catChipText: { fontSize: 10, fontWeight: '600' },
 });

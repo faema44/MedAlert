@@ -110,6 +110,16 @@ function getFirstCommercialBrand(brands: string[], genericName: string): string 
   });
 }
 
+export interface DbEntry { genericName: string; brands: string[]; category: string; }
+
+export function getAllMedsList(): DbEntry[] {
+  return DB.filter(e => e.category !== 'Fitoterápico');
+}
+
+export function getAllPhytoList(): DbEntry[] {
+  return DB.filter(e => e.category === 'Fitoterápico');
+}
+
 // ─── Local suggestions ────────────────────────────────────────────────────────
 
 export function isPhytotherapic(name: string): boolean {
