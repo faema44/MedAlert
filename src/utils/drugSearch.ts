@@ -180,6 +180,26 @@ function entryMatchesName(entry: string, name: string): boolean {
   return false;
 }
 
+export function checkSubstanceInteractions(drugName: string, userMedNames: string[]): DrugInteraction[] {
+  if (drugName.trim().length < 3) return [];
+  const seen = new Set<string>();
+  const results: DrugInteraction[] = [];
+  for (const interaction of ALL_INTERACTIONS) {
+    if (seen.has(interaction.id)) continue;
+    const m1 = entryMatchesName(interaction.drug1, drugName);
+    const m2 = entryMatchesName(interaction.drug2, drugName);
+    if (m1) {
+      const otherIsMed = userMedNames.some(m => entryMatchesName(interaction.drug2, m));
+      if (!otherIsMed) { seen.add(interaction.id); results.push(interaction); }
+    } else if (m2) {
+      const otherIsMed = userMedNames.some(m => entryMatchesName(interaction.drug1, m));
+      if (!otherIsMed) { seen.add(interaction.id); results.push(interaction); }
+    }
+  }
+  const order: Record<string, number> = { critical: 0, high: 1, moderate: 2 };
+  return results.sort((a, b) => (order[a.risk_level] ?? 3) - (order[b.risk_level] ?? 3));
+}
+
 export function checkInteractions(
   newDrug: string,
   existingMedNames: string[],

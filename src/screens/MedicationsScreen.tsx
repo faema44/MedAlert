@@ -18,7 +18,7 @@ import {
   scheduleReminder, cancelReminderByTime, cancelAllRemindersForMedication,
 } from '../services/notifications';
 import { Medication, MedicationReminder, DrugInteraction } from '../types';
-import { DrugSuggestion, getSuggestions, getBulaUrl, checkInteractions } from '../utils/drugSearch';
+import { DrugSuggestion, getSuggestions, getBulaUrl, checkInteractions, checkSubstanceInteractions } from '../utils/drugSearch';
 import { reportMissingDrug } from '../services/reportMissing';
 
 function buildDoctorMessage(drugName: string, interactions: DrugInteraction[]): string {
@@ -81,6 +81,7 @@ export default function MedicationsScreen() {
   const [knownDrug, setKnownDrug] = useState<boolean>(false);
   const [commercialSuggestions, setCommercialSuggestions] = useState<DrugSuggestion[]>([]);
   const [interactions, setInteractions] = useState<DrugInteraction[]>([]);
+  const [substanceInteractions, setSubstanceInteractions] = useState<DrugInteraction[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [cardInteractions, setCardInteractions] = useState<Map<number, DrugInteraction[]>>(new Map());
 
@@ -144,6 +145,7 @@ export default function MedicationsScreen() {
     // Exclude the medication being edited from the interaction check
     const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
     setInteractions(checkInteractions(v, others));
+    setSubstanceInteractions(checkSubstanceInteractions(v, others));
   }
 
   function applySuggestion(s: DrugSuggestion) {
@@ -157,6 +159,7 @@ export default function MedicationsScreen() {
     setKnownDrug(true);
     const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
     setInteractions(checkInteractions(s.genericName, others));
+    setSubstanceInteractions(checkSubstanceInteractions(s.genericName, others));
   }
 
   function handleCommercialNameChange(v: string) {
@@ -180,7 +183,8 @@ export default function MedicationsScreen() {
 
   async function doSave() {
     try {
-      const data = { ...form, generic_name: form.generic_name.trim(), commercial_name: form.commercial_name.trim() };
+      const isCritical = interactions.some(i => i.risk_level === 'critical' || i.risk_level === 'high');
+      const data = { ...form, generic_name: form.generic_name.trim(), commercial_name: form.commercial_name.trim(), is_critical: isCritical };
       if (editingId !== null) {
         await updateMedication({ ...data, id: editingId });
       } else {
@@ -192,6 +196,7 @@ export default function MedicationsScreen() {
       setSuggestions([]);
       setCommercialSuggestions([]);
       setInteractions([]);
+      setSubstanceInteractions([]);
       setEditingId(null);
       setKnownDrug(false);
       setReportedDrug('');
@@ -241,6 +246,7 @@ export default function MedicationsScreen() {
     setReportedDrug('');
     const others = medications.filter(m => m.id !== item.id).map(m => m.generic_name);
     setInteractions(checkInteractions(item.generic_name, others));
+    setSubstanceInteractions(checkSubstanceInteractions(item.generic_name, others));
     setShowModal(true);
   }
 
@@ -370,18 +376,21 @@ export default function MedicationsScreen() {
             <Text style={styles.emptyHint}>Toque em + para adicionar.</Text>
           </View>
         }
-        renderItem={({ item }) => (
-          <View style={[styles.medCard, item.is_critical && styles.medCardCritical]}>
+        renderItem={({ item }) => {
+          const itemInteractions = cardInteractions.get(item.id) ?? [];
+          const hasHighRisk = itemInteractions.some(i => i.risk_level === 'critical' || i.risk_level === 'high');
+          return (
+          <View style={[styles.medCard, hasHighRisk && styles.medCardCritical]}>
             <TouchableOpacity style={styles.medInfo} activeOpacity={0.6} onPress={() => openEdit(item)}>
               <View style={styles.medHeader}>
-                {item.is_critical && <Text style={styles.criticalTag}>⚠️ CRÍTICO</Text>}
+                {hasHighRisk && <Text style={styles.criticalIcon}>⚠️</Text>}
                 <Text style={styles.medGeneric}>{item.generic_name}</Text>
               </View>
               {item.commercial_name ? <Text style={styles.medCommercial}>{item.commercial_name}</Text> : null}
               {item.dose ? <Text style={styles.medDetail}>💊 {item.dose}</Text> : null}
               {item.frequency ? <Text style={styles.medDetail}>🕐 {item.frequency}</Text> : null}
               {item.notes ? <Text style={styles.medNotes}>{item.notes}</Text> : null}
-              {(cardInteractions.get(item.id) ?? []).map(i => {
+              {itemInteractions.map(i => {
                 const isC = i.risk_level === 'critical';
                 const isH = i.risk_level === 'high';
                 const color = isC ? '#CC0000' : isH ? '#e65c00' : '#b58900';
@@ -404,10 +413,11 @@ export default function MedicationsScreen() {
               <Text style={styles.deleteBtnText}>✕</Text>
             </TouchableOpacity>
           </View>
-        )}
+          );
+        }}
       />
 
-      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={() => { setForm(EMPTY_MED); setEditingId(null); setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setKnownDrug(false); setReportedDrug(''); setReportingName(null); setShowModal(true); }}>
+      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={() => { setForm(EMPTY_MED); setEditingId(null); setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setSubstanceInteractions([]); setKnownDrug(false); setReportedDrug(''); setReportingName(null); setShowModal(true); }}>
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 
@@ -508,19 +518,22 @@ export default function MedicationsScreen() {
                   <Text style={[styles.interactionBadge, { color }]}>⚡ {label}</Text>
                   <Text style={styles.interactionDrugs}>{i.drug1}  +  {i.drug2}</Text>
                   <Text style={styles.interactionDesc}>{i.risk_description}</Text>
-                  {(isC || isH) && !form.is_critical && (
-                    <TouchableOpacity
-                      style={[styles.markCriticalBtn, { borderColor: color }]}
-                      onPress={() => setForm(f => ({ ...f, is_critical: true }))}
-                    >
-                      <Text style={[styles.markCriticalBtnText, { color }]}>
-                        ⚠️ Marcar como Crítico
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                  {(isC || isH) && form.is_critical && (
-                    <Text style={[styles.criticalConfirmed, { color }]}>✓ Marcado como crítico</Text>
-                  )}
+                </View>
+              );
+            })}
+            {substanceInteractions.map(i => {
+              const isC = i.risk_level === 'critical';
+              const isH = i.risk_level === 'high';
+              const color = isC ? '#CC0000' : isH ? '#e65c00' : '#b58900';
+              const bg = isC ? '#fff0f0' : isH ? '#fff5f0' : '#fffaf0';
+              const label = isC ? 'CRÍTICO' : isH ? 'ALTO' : 'MODERADO';
+              const substance = i.drug1.toLowerCase().includes(form.generic_name.toLowerCase().slice(0, 4)) ? i.drug2 : i.drug1;
+              return (
+                <View key={i.id} style={[styles.interactionCard, { borderLeftColor: color, backgroundColor: bg }]}>
+                  <Text style={[styles.interactionBadge, { color }]}>⚠️ {label} · Substância</Text>
+                  <Text style={styles.interactionDrugs}>{i.drug1}  +  {i.drug2}</Text>
+                  <Text style={styles.interactionDesc}>{i.risk_description}</Text>
+                  <Text style={[styles.substanceWarning, { color }]}>Evite {substance} durante o tratamento</Text>
                 </View>
               );
             })}
@@ -585,24 +598,6 @@ export default function MedicationsScreen() {
 
             <Text style={styles.fieldLabel}>Observações</Text>
             <TextInput style={[styles.fieldInput, { minHeight: 60, textAlignVertical: 'top' }]} value={form.notes} onChangeText={v => setForm(f => ({ ...f, notes: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} multiline />
-
-            <View style={styles.criticalRow}>
-              <View>
-                <Text style={styles.criticalLabel}>Medicamento crítico ⚠️</Text>
-                <Text style={styles.criticalHint}>Aparecerá em destaque no alerta</Text>
-              </View>
-              <Switch value={form.is_critical} onValueChange={v => setForm(f => ({ ...f, is_critical: v }))} trackColor={{ true: '#1a3a6b', false: '#ccc' }} thumbColor="#fff" />
-            </View>
-
-            {form.is_critical && (
-              <View style={styles.criticalInfo}>
-                <Text style={styles.criticalInfoText}>
-                  {interactions.some(i => i.risk_level === 'critical' || i.risk_level === 'high')
-                    ? '✓ Marcado como crítico pela interação detectada. Lembre-se de informar seu médico sobre o uso concomitante.'
-                    : '⚠️ Marque como crítico medicamentos que interagem com procedimentos de emergência (ex: Metformina com contraste, Varfarina com cirurgias).'}
-                </Text>
-              </View>
-            )}
 
             <View style={styles.modalActions}>
               <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowModal(false)}>
@@ -828,7 +823,7 @@ const styles = StyleSheet.create({
   medCardCritical: { borderLeftWidth: 4, borderLeftColor: '#CC0000' },
   medInfo: { flex: 1 },
   medHeader: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginBottom: 2 },
-  criticalTag: { fontSize: 11, color: '#CC0000', fontWeight: '700', backgroundColor: '#fff0f0', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
+  criticalIcon: { fontSize: 16 },
   medGeneric: { fontSize: 16, fontWeight: '600', color: '#222' },
   medCommercial: { fontSize: 13, color: '#888', marginBottom: 4 },
   medDetail: { fontSize: 13, color: '#555', marginTop: 2 },
@@ -860,14 +855,6 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: '#ddd', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10,
     fontSize: 15, color: '#222', backgroundColor: '#fafafa',
   },
-  criticalRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    marginTop: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f0f0f0',
-  },
-  criticalLabel: { fontSize: 15, fontWeight: '600', color: '#333' },
-  criticalHint: { fontSize: 12, color: '#999', marginTop: 2 },
-  criticalInfo: { backgroundColor: '#fff8f0', borderRadius: 8, padding: 10, marginTop: 10 },
-  criticalInfoText: { fontSize: 12, color: '#cc6600', lineHeight: 17 },
   modalActions: { flexDirection: 'row', gap: 10, marginTop: 20 },
   cancelBtn: { flex: 1, borderWidth: 1.5, borderColor: '#ccc', borderRadius: 10, padding: 14, alignItems: 'center' },
   cancelBtnText: { fontSize: 15, color: '#666', fontWeight: '600' },
@@ -913,12 +900,7 @@ const styles = StyleSheet.create({
   interactionBadge: { fontSize: 11, fontWeight: '700', marginBottom: 3, letterSpacing: 0.5 },
   interactionDrugs: { fontSize: 13, fontWeight: '700', color: '#222', marginBottom: 2 },
   interactionDesc: { fontSize: 12, color: '#555', fontStyle: 'italic' },
-  markCriticalBtn: {
-    marginTop: 8, borderWidth: 1.5, borderRadius: 8,
-    paddingVertical: 7, paddingHorizontal: 12, alignSelf: 'flex-start',
-  },
-  markCriticalBtnText: { fontSize: 12, fontWeight: '700' },
-  criticalConfirmed: { fontSize: 12, fontWeight: '700', marginTop: 8 },
+  substanceWarning: { fontSize: 12, fontWeight: '600', marginTop: 5 },
   doctorAdviceBox: {
     backgroundColor: '#f0f4ff', borderRadius: 10, padding: 12, marginTop: 10,
     borderWidth: 1, borderColor: '#c0ccdf',
