@@ -16,6 +16,10 @@ import { getDb, getKV, setKV, getKVAge } from '../database/db';
 import { loadExternalDb, loadExternalInteractions } from '../utils/drugSearch';
 import { DrugInteraction } from '../types';
 
+// Seed local — sempre disponível, não depende de rede
+const bundledMeds = require('../data/medications-db.json');
+const bundledInts: DrugInteraction[] = require('../data/interactions.json');
+
 // ─── Configure aqui ──────────────────────────────────────────────────────────
 const GITHUB_USER = 'faema44';
 const GITHUB_REPO = 'MedAlert';
@@ -53,6 +57,9 @@ async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Respons
 export async function syncMedicationsDb(): Promise<void> {
   // Ensure DB is initialised before we touch kv_store
   await getDb();
+
+  // Step 0 — seed from bundled JSON (offline-safe, sempre tem os dados mais recentes do build)
+  loadExternalDb(bundledMeds);
 
   // Step 1 — load from SQLite cache (fast, synchronous-ish)
   try {
@@ -99,6 +106,9 @@ async function fetchAndUpdate(): Promise<void> {
 
 export async function syncInteractionsDb(): Promise<void> {
   await getDb();
+
+  // Step 0 — seed from bundled JSON
+  loadExternalInteractions(bundledInts);
 
   try {
     const cached = await getKV(INT_CACHE_KEY);

@@ -113,11 +113,13 @@ function getFirstCommercialBrand(brands: string[], genericName: string): string 
 export interface DbEntry { genericName: string; brands: string[]; category: string; }
 
 export function getAllMedsList(): DbEntry[] {
-  return DB.filter(e => e.category !== 'Fitoterápico');
+  return DB.filter(e => e.category !== 'Fitoterápico')
+    .sort((a, b) => a.genericName.localeCompare(b.genericName, 'pt-BR'));
 }
 
 export function getAllPhytoList(): DbEntry[] {
-  return DB.filter(e => e.category === 'Fitoterápico');
+  return DB.filter(e => e.category === 'Fitoterápico')
+    .sort((a, b) => a.genericName.localeCompare(b.genericName, 'pt-BR'));
 }
 
 // ─── Local suggestions ────────────────────────────────────────────────────────
