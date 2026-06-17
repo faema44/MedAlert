@@ -5430,6 +5430,119 @@
         "Zingiber"
       ],
       "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Cynara scolymus (Alcachofra)",
+      "brands": [
+        "Alcachofra",
+        "Cynara"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Matricaria recutita (Camomila)",
+      "brands": [
+        "Camomila",
+        "Camomila Sachê"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Rhamnus purshiana (Cáscara Sagrada)",
+      "brands": [
+        "Cáscara Sagrada"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Aesculus hippocastanum (Castanha da Índia)",
+      "brands": [
+        "Castanha da Índia",
+        "Escina"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Centella asiatica (Centella Asiática)",
+      "brands": [
+        "Centella Asiática",
+        "Centella"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Cimicifuga racemosa (Cimicífuga)",
+      "brands": [
+        "Cimicífuga",
+        "Black Cohosh",
+        "Remifemin"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Pimpinella anisum (Erva-doce)",
+      "brands": [
+        "Erva-doce",
+        "Anis"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Eucalyptus globulus (Eucalipto)",
+      "brands": [
+        "Eucalipto",
+        "Óleo de Eucalipto"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Paullinia cupana (Guaraná)",
+      "brands": [
+        "Guaraná",
+        "Guaraná em Pó"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Mentha piperita (Hortelã-pimenta)",
+      "brands": [
+        "Hortelã",
+        "Hortelã-pimenta"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Salix alba (Salgueiro)",
+      "brands": [
+        "Salgueiro",
+        "Casca de Salgueiro"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Senna alexandrina (Sene)",
+      "brands": [
+        "Sene",
+        "Sen",
+        "Sene Folhas"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Tanacetum parthenium (Tanaceto)",
+      "brands": [
+        "Tanaceto",
+        "Feverfew"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Arctostaphylos uva-ursi (Uva-ursi)",
+      "brands": [
+        "Uva-ursi",
+        "Uva Ursi"
+      ],
+      "category": "Fitoterápico"
     }
   ],
   "updatedAt": "2026-06-16"
