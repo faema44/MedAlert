@@ -5236,6 +5236,200 @@
         "Dexdor"
       ],
       "category": "Sedativo"
+    },
+    {
+      "genericName": "Hypericum perforatum (Erva de São João)",
+      "brands": [
+        "Erva de São João",
+        "Hipérico",
+        "Hipericão",
+        "St. John's Wort",
+        "Remotiv",
+        "Jarsin",
+        "Hypericum"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Passiflora incarnata (Maracujá)",
+      "brands": [
+        "Maracujá",
+        "Passiflora",
+        "Pasalix",
+        "Kromaflor"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Camellia sinensis (Chá verde)",
+      "brands": [
+        "Chá verde",
+        "Green Tea",
+        "Camellia"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Echinacea purpurea (Equinácea)",
+      "brands": [
+        "Equinácea",
+        "Echinacea",
+        "Echinaforce"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Glycyrrhiza glabra (Alcaçuz)",
+      "brands": [
+        "Alcaçuz",
+        "Licorice",
+        "Extrato de Alcaçuz"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Curcuma longa (Cúrcuma)",
+      "brands": [
+        "Cúrcuma",
+        "Açafrão da terra",
+        "Turmeric",
+        "Curcumina"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Ginkgo biloba",
+      "brands": [
+        "Ginkgo",
+        "Ginkobi",
+        "Tebonin",
+        "Bilobil",
+        "Ginkoba"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Panax ginseng (Ginseng)",
+      "brands": [
+        "Ginseng",
+        "Ginseng coreano",
+        "Ginseng americano",
+        "Ginsana",
+        "Panax"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Valeriana officinalis (Valeriana)",
+      "brands": [
+        "Valeriana",
+        "Valdispert",
+        "Valeriol",
+        "Valerien"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Allium sativum (Alho medicinal)",
+      "brands": [
+        "Alho medicinal",
+        "Alho",
+        "Alimax",
+        "Alicin",
+        "Kwai"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Piper methysticum (Kava Kava)",
+      "brands": [
+        "Kava Kava",
+        "Kava",
+        "Kavatrol",
+        "Laitan"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Silybum marianum (Silimarina)",
+      "brands": [
+        "Silimarina",
+        "Cardo Mariano",
+        "Legalon",
+        "Silimarin"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Uncaria tomentosa (Unha de Gato)",
+      "brands": [
+        "Unha de Gato",
+        "Cat's Claw",
+        "Uncaria",
+        "Vilcacora"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Serenoa repens (Saw Palmetto)",
+      "brands": [
+        "Saw Palmetto",
+        "Serenoa repens",
+        "Permixon"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Melissa officinalis (Erva Cidreira)",
+      "brands": [
+        "Erva Cidreira",
+        "Melissa",
+        "Lemon Balm"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Arnica montana",
+      "brands": [
+        "Arnica",
+        "Arnica montana",
+        "Arnicaflor"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Peumus boldus (Boldo)",
+      "brands": [
+        "Boldo",
+        "Boldus",
+        "Boldo do Chile"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Maytenus ilicifolia (Espinheira Santa)",
+      "brands": [
+        "Espinheira Santa",
+        "Ulcerazol"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Mikania glomerata (Guaco)",
+      "brands": [
+        "Guaco",
+        "Xarope de Guaco"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Zingiber officinale (Gengibre)",
+      "brands": [
+        "Gengibre",
+        "Ginger",
+        "Zingiber"
+      ],
+      "category": "Fitoterápico"
     }
   ],
   "updatedAt": "2026-06-16"

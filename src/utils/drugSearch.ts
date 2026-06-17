@@ -112,7 +112,12 @@ function getFirstCommercialBrand(brands: string[], genericName: string): string 
 
 // ─── Local suggestions ────────────────────────────────────────────────────────
 
-export function getSuggestions(input: string, max = 7): DrugSuggestion[] {
+export function isPhytotherapic(name: string): boolean {
+  const n = normalize(name);
+  return DB.some(e => e.category === 'Fitoterápico' && (normalize(e.genericName).includes(n) || e.brands.some(b => normalize(b).includes(n))));
+}
+
+export function getSuggestions(input: string, max = 7, categoryFilter?: string): DrugSuggestion[] {
   const q = normalize(input);
   if (q.length < 2) return [];
 
@@ -121,6 +126,7 @@ export function getSuggestions(input: string, max = 7): DrugSuggestion[] {
 
   for (const entry of DB) {
     if (results.length >= max) break;
+    if (categoryFilter && entry.category !== categoryFilter) continue;
 
     const gNorm = normalize(entry.genericName);
     const fb = getFirstCommercialBrand(entry.brands, entry.genericName);

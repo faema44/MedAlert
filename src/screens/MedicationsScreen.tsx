@@ -18,7 +18,7 @@ import {
   scheduleReminder, cancelReminderByTime, cancelAllRemindersForMedication,
 } from '../services/notifications';
 import { Medication, MedicationReminder, DrugInteraction } from '../types';
-import { DrugSuggestion, getSuggestions, getBulaUrl, checkInteractions, checkSubstanceInteractions } from '../utils/drugSearch';
+import { DrugSuggestion, getSuggestions, getBulaUrl, checkInteractions, checkSubstanceInteractions, isPhytotherapic } from '../utils/drugSearch';
 import { reportMissingDrug } from '../services/reportMissing';
 
 function buildDoctorMessage(drugName: string, interactions: DrugInteraction[]): string {
@@ -82,6 +82,7 @@ export default function MedicationsScreen() {
   const [commercialSuggestions, setCommercialSuggestions] = useState<DrugSuggestion[]>([]);
   const [interactions, setInteractions] = useState<DrugInteraction[]>([]);
   const [substanceInteractions, setSubstanceInteractions] = useState<DrugInteraction[]>([]);
+  const [entryType, setEntryType] = useState<'medicamento' | 'fitoterapico'>('medicamento');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [cardInteractions, setCardInteractions] = useState<Map<number, DrugInteraction[]>>(new Map());
 
@@ -137,7 +138,7 @@ export default function MedicationsScreen() {
 
   function handleGenericNameChange(v: string) {
     setForm(f => ({ ...f, generic_name: v }));
-    setSuggestions(getSuggestions(v));
+    setSuggestions(getSuggestions(v, 7, entryType === 'fitoterapico' ? 'Fitoterápico' : undefined));
     setCommercialSuggestions([]);
     setKnownDrug(false);
     if (reportedDrug && v !== reportedDrug) setReportedDrug('');
@@ -244,6 +245,7 @@ export default function MedicationsScreen() {
     setCommercialSuggestions([]);
     setKnownDrug(true);
     setReportedDrug('');
+    setEntryType(isPhytotherapic(item.generic_name) ? 'fitoterapico' : 'medicamento');
     const others = medications.filter(m => m.id !== item.id).map(m => m.generic_name);
     setInteractions(checkInteractions(item.generic_name, others));
     setSubstanceInteractions(checkSubstanceInteractions(item.generic_name, others));
@@ -417,7 +419,7 @@ export default function MedicationsScreen() {
         }}
       />
 
-      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={() => { setForm(EMPTY_MED); setEditingId(null); setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setSubstanceInteractions([]); setKnownDrug(false); setReportedDrug(''); setReportingName(null); setShowModal(true); }}>
+      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={() => { setForm(EMPTY_MED); setEditingId(null); setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setSubstanceInteractions([]); setEntryType('medicamento'); setKnownDrug(false); setReportedDrug(''); setReportingName(null); setShowModal(true); }}>
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 
@@ -425,9 +427,30 @@ export default function MedicationsScreen() {
       <Modal visible={showModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <ScrollView style={styles.modalBox} contentContainerStyle={[styles.modalContent, { paddingBottom: insets.bottom + 32 }]} keyboardShouldPersistTaps="handled">
-            <Text style={styles.modalTitle}>{editingId !== null ? 'Editar Medicamento' : 'Novo Medicamento'}</Text>
+            <Text style={styles.modalTitle}>
+              {editingId !== null
+                ? (entryType === 'fitoterapico' ? 'Editar Fitoterápico' : 'Editar Medicamento')
+                : (entryType === 'fitoterapico' ? 'Novo Fitoterápico' : 'Novo Medicamento')}
+            </Text>
 
-            <Text style={styles.fieldLabel}>Nome genérico *</Text>
+            {editingId === null && (
+              <View style={styles.typeRow}>
+                <TouchableOpacity
+                  style={[styles.typeBtn, entryType === 'medicamento' && styles.typeBtnActive]}
+                  onPress={() => { setEntryType('medicamento'); setSuggestions([]); setForm(f => ({ ...f, generic_name: '' })); }}
+                >
+                  <Text style={[styles.typeBtnText, entryType === 'medicamento' && styles.typeBtnTextActive]}>💊 Medicamento</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.typeBtn, entryType === 'fitoterapico' && styles.typeBtnActiveGreen]}
+                  onPress={() => { setEntryType('fitoterapico'); setSuggestions([]); setForm(f => ({ ...f, generic_name: '' })); }}
+                >
+                  <Text style={[styles.typeBtnText, entryType === 'fitoterapico' && styles.typeBtnTextActive]}>🌿 Fitoterápico</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            <Text style={styles.fieldLabel}>{entryType === 'fitoterapico' ? 'Nome do fitoterápico / planta *' : 'Nome genérico *'}</Text>
             <TextInput
               style={styles.fieldInput}
               value={form.generic_name}
@@ -975,4 +998,13 @@ const styles = StyleSheet.create({
   },
   soundLabel: { fontSize: 15, fontWeight: '600', color: '#333' },
   soundHint: { fontSize: 12, color: '#999', marginTop: 2 },
+  typeRow: { flexDirection: 'row', gap: 8, marginTop: 12, marginBottom: 4 },
+  typeBtn: {
+    flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 10,
+    paddingVertical: 10, alignItems: 'center',
+  },
+  typeBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
+  typeBtnActiveGreen: { backgroundColor: '#1a6b3a', borderColor: '#1a6b3a' },
+  typeBtnText: { fontSize: 13, color: '#555', fontWeight: '600' },
+  typeBtnTextActive: { color: '#fff' },
 });

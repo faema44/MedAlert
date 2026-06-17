@@ -654,5 +654,293 @@
     "risk_level": "moderate",
     "risk_description": "Aumento da concentração plasmática de metformina",
     "mechanism": "A trimetoprima compete com a metformina pela secreção tubular renal (via transportador OCT2), reduzindo sua eliminação e elevando sua concentração plasmática. Em pacientes com disfunção renal, aumenta o risco de acidose lática. Monitorar função renal e glicemia durante o tratamento."
+  },
+  {
+    "id": "int_083",
+    "drug1": "Hypericum perforatum (Erva de São João)",
+    "drug2": "Fluoxetina",
+    "risk_level": "critical",
+    "risk_description": "Síndrome serotoninérgica potencialmente fatal",
+    "mechanism": "Hypericum inibe a recaptação de serotonina. Combinado com ISRS como fluoxetina, causa acúmulo excessivo de serotonina. Pode resultar em síndrome serotoninérgica com agitação, tremores, hipertermia, taquicardia e, nos casos graves, convulsões e óbito. Uso concomitante contraindicado. Aguardar pelo menos 14 dias entre as terapias."
+  },
+  {
+    "id": "int_084",
+    "drug1": "Hypericum perforatum (Erva de São João)",
+    "drug2": "Sertralina",
+    "risk_level": "critical",
+    "risk_description": "Síndrome serotoninérgica potencialmente fatal",
+    "mechanism": "Hypericum combinado com sertralina (ISRS) potencializa excessivamente a neurotransmissão serotoninérgica. Casos relatados de síndrome serotoninérgica com mioclonias, hipertermia e instabilidade autonômica. Contraindicado. Suspender o fitoterápico antes de iniciar ISRS."
+  },
+  {
+    "id": "int_085",
+    "drug1": "Hypericum perforatum (Erva de São João)",
+    "drug2": "Paroxetina",
+    "risk_level": "critical",
+    "risk_description": "Síndrome serotoninérgica — contraindicado",
+    "mechanism": "Hypericum possui atividade inibitória da recaptação de serotonina. Combinado com paroxetina (ISRS potente), o risco de síndrome serotoninérgica é elevado. Uso concomitante contraindicado."
+  },
+  {
+    "id": "int_086",
+    "drug1": "Hypericum perforatum (Erva de São João)",
+    "drug2": "Ciclosporina",
+    "risk_level": "critical",
+    "risk_description": "Risco de rejeição de órgão transplantado",
+    "mechanism": "Hypericum induz fortemente a glicoproteína-P e o CYP3A4, reduzindo drasticamente os níveis de ciclosporina. Casos de perda de enxerto descritos na literatura. Uso absolutamente contraindicado em transplantados."
+  },
+  {
+    "id": "int_087",
+    "drug1": "Hypericum perforatum (Erva de São João)",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Redução da anticoagulação — risco de trombose",
+    "mechanism": "Hypericum induz o CYP2C9, aumentando o clearance da varfarina. O INR pode cair abruptamente, levando a eventos tromboembólicos. Monitorar o INR de perto ou evitar a combinação."
+  },
+  {
+    "id": "int_088",
+    "drug1": "Hypericum perforatum (Erva de São João)",
+    "drug2": "Digoxina",
+    "risk_level": "high",
+    "risk_description": "Redução do nível sérico de digoxina — falha terapêutica cardíaca",
+    "mechanism": "Hypericum induz a glicoproteína-P intestinal e renal, aumentando a eliminação da digoxina. Pode causar queda de até 25% nos níveis séricos, levando à perda do controle da frequência cardíaca. Monitorar nível de digoxina ou substituir o fitoterápico."
+  },
+  {
+    "id": "int_089",
+    "drug1": "Hypericum perforatum (Erva de São João)",
+    "drug2": "Etinilestradiol (Anticoncepcional oral)",
+    "risk_level": "high",
+    "risk_description": "Falha contraceptiva — risco de gravidez não planejada",
+    "mechanism": "Hypericum induz o CYP3A4 e a glicoproteína-P, acelerando o metabolismo dos anticoncepcionais hormonais. Casos de gravidez não planejada foram relatados. Usar método contraceptivo adicional de barreira durante e por pelo menos 4 semanas após o uso."
+  },
+  {
+    "id": "int_090",
+    "drug1": "Hypericum perforatum (Erva de São João)",
+    "drug2": "Efavirenz",
+    "risk_level": "high",
+    "risk_description": "Redução da eficácia antirretroviral — risco de falha virológica",
+    "mechanism": "Hypericum induz o CYP3A4 e a glicoproteína-P, reduzindo os níveis de antirretrovirais em até 57%. Pode levar à falha virológica e resistência. Uso contraindicado em pacientes em terapia antirretroviral (TARV)."
+  },
+  {
+    "id": "int_091",
+    "drug1": "Ginkgo biloba",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Aumento do risco de sangramento grave",
+    "mechanism": "Ginkgo inibe o fator ativador de plaquetas e prolonga o tempo de sangramento. Combinado com varfarina, potencializa o efeito anticoagulante. Relatos de hemorragias intracranianas graves. Suspender o Ginkgo 36–72h antes de procedimentos cirúrgicos."
+  },
+  {
+    "id": "int_092",
+    "drug1": "Ginkgo biloba",
+    "drug2": "Ácido Acetilsalicílico",
+    "risk_level": "moderate",
+    "risk_description": "Aumento do risco de sangramento",
+    "mechanism": "Ginkgo possui efeito antiagregante plaquetário. Combinado com AAS, o efeito antiagregante é somado, aumentando o risco de sangramento gastrointestinal. Usar com cautela em idosos ou doses altas de AAS."
+  },
+  {
+    "id": "int_093",
+    "drug1": "Ginkgo biloba",
+    "drug2": "Ibuprofeno",
+    "risk_level": "moderate",
+    "risk_description": "Aumento do risco de sangramento gastrointestinal",
+    "mechanism": "Ginkgo inibe a agregação plaquetária. AINEs como ibuprofeno prejudicam a função plaquetária e a mucosa gástrica. A combinação aumenta o risco de sangramento GI. Preferir paracetamol como analgésico."
+  },
+  {
+    "id": "int_094",
+    "drug1": "Panax ginseng (Ginseng)",
+    "drug2": "Varfarina",
+    "risk_level": "moderate",
+    "risk_description": "Alteração do efeito anticoagulante",
+    "mechanism": "Ginseng pode interferir no INR de forma bidirecional via CYP2C9. Monitorar o INR com mais frequência ao iniciar ou suspender o ginseng."
+  },
+  {
+    "id": "int_095",
+    "drug1": "Panax ginseng (Ginseng)",
+    "drug2": "Insulina",
+    "risk_level": "moderate",
+    "risk_description": "Risco de hipoglicemia",
+    "mechanism": "Ginseng possui propriedades hipoglicemiantes (estimula secreção de insulina e melhora sensibilidade periférica). Combinado com insulina, pode causar hipoglicemia. Monitorar a glicemia com maior frequência."
+  },
+  {
+    "id": "int_096",
+    "drug1": "Panax ginseng (Ginseng)",
+    "drug2": "Metformina",
+    "risk_level": "moderate",
+    "risk_description": "Risco de hipoglicemia",
+    "mechanism": "Ginseng reduz a glicemia por mecanismos próprios. Combinado com metformina, pode potencializar o efeito hipoglicemiante. Monitorar glicemia e ajustar doses se necessário."
+  },
+  {
+    "id": "int_097",
+    "drug1": "Panax ginseng (Ginseng)",
+    "drug2": "Glibenclamida",
+    "risk_level": "moderate",
+    "risk_description": "Risco de hipoglicemia grave",
+    "mechanism": "Ginseng combinado com sulfonilureias (glibenclamida), que estimulam a secreção de insulina, pode resultar em hipoglicemia grave. Monitorar intensivamente a glicemia."
+  },
+  {
+    "id": "int_098",
+    "drug1": "Panax ginseng (Ginseng)",
+    "drug2": "Tranilcipromina",
+    "risk_level": "high",
+    "risk_description": "Risco de reação adversa grave (insônia, cefaleia, mania)",
+    "mechanism": "Ginseng pode modular monoaminas no SNC. Combinado com inibidores da MAO (tranilcipromina), pode causar insônia intensa, cefaleia, tremores e episódios maníacos. Uso concomitante contraindicado."
+  },
+  {
+    "id": "int_099",
+    "drug1": "Allium sativum (Alho medicinal)",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Aumento do risco de sangramento",
+    "mechanism": "Alho medicinal em doses terapêuticas inibe a agregação plaquetária e possui propriedades anticoagulantes. Combinado com varfarina, pode elevar o INR e aumentar o risco de sangramento. Suspender 7–10 dias antes de cirurgias."
+  },
+  {
+    "id": "int_100",
+    "drug1": "Allium sativum (Alho medicinal)",
+    "drug2": "Ritonavir",
+    "risk_level": "high",
+    "risk_description": "Redução da eficácia do antirretroviral",
+    "mechanism": "Alho medicinal induz o CYP3A4 e a glicoproteína-P, reduzindo os níveis de antirretrovirais como ritonavir. Pode causar falha virológica. Evitar suplementos de alho em doses terapêuticas em pacientes em TARV."
+  },
+  {
+    "id": "int_101",
+    "drug1": "Glycyrrhiza glabra (Alcaçuz)",
+    "drug2": "Hidroclorotiazida",
+    "risk_level": "high",
+    "risk_description": "Hipocalemia grave — risco de arritmia",
+    "mechanism": "O ácido glicirrízico inibe a 11β-HSD2, causando pseudoaldosteronismo com perda de potássio. Combinado com tiazídicos (que também causam hipocalemia), o risco de arritmia cardíaca é elevado."
+  },
+  {
+    "id": "int_102",
+    "drug1": "Glycyrrhiza glabra (Alcaçuz)",
+    "drug2": "Furosemida",
+    "risk_level": "high",
+    "risk_description": "Hipocalemia grave — risco de arritmia",
+    "mechanism": "Alcaçuz causa pseudoaldosteronismo (perda de potássio). Associado à furosemida, que também depleta potássio, pode causar hipocalemia grave com risco de arritmias ventriculares, especialmente em cardiopatas ou usuários de digoxina."
+  },
+  {
+    "id": "int_103",
+    "drug1": "Glycyrrhiza glabra (Alcaçuz)",
+    "drug2": "Losartana",
+    "risk_level": "high",
+    "risk_description": "Antagonismo do efeito anti-hipertensivo",
+    "mechanism": "Alcaçuz causa retenção de sódio e água por pseudoaldosteronismo, antagonizando o efeito dos anti-hipertensivos (ARA II como losartana, IECAs). Pode resultar em hipertensão resistente ao tratamento."
+  },
+  {
+    "id": "int_104",
+    "drug1": "Glycyrrhiza glabra (Alcaçuz)",
+    "drug2": "Prednisona",
+    "risk_level": "moderate",
+    "risk_description": "Potencialização dos efeitos corticosteroides",
+    "mechanism": "Alcaçuz inibe o metabolismo do cortisol, potencializando o efeito de corticosteroides como prednisona. Pode aumentar efeitos adversos: hiperglicemia, retenção hídrica, osteoporose e supressão adrenal."
+  },
+  {
+    "id": "int_105",
+    "drug1": "Valeriana officinalis (Valeriana)",
+    "drug2": "Diazepam",
+    "risk_level": "high",
+    "risk_description": "Sedação excessiva do sistema nervoso central",
+    "mechanism": "Valeriana possui atividade GABAérgica (potencializa receptores GABA-A), similar aos benzodiazepínicos. A combinação com diazepam produz sedação aditiva ou sinérgica, com risco de depressão respiratória e quedas. Evitar o uso simultâneo."
+  },
+  {
+    "id": "int_106",
+    "drug1": "Valeriana officinalis (Valeriana)",
+    "drug2": "Clonazepam",
+    "risk_level": "high",
+    "risk_description": "Sedação excessiva — risco de depressão respiratória",
+    "mechanism": "Valeriana potencializa a neurotransmissão GABAérgica de forma similar ao clonazepam. A combinação amplifica os efeitos sedativos, com risco de depressão respiratória, especialmente em idosos. Não usar concomitantemente."
+  },
+  {
+    "id": "int_107",
+    "drug1": "Valeriana officinalis (Valeriana)",
+    "drug2": "Alprazolam",
+    "risk_level": "high",
+    "risk_description": "Sedação excessiva — risco de depressão respiratória",
+    "mechanism": "Ação GABAérgica da valeriana somada ao alprazolam (benzodiazepínico de alta potência) pode resultar em sedação intensa e risco de parada respiratória. Evitar a combinação, especialmente em idosos e pacientes com DPOC."
+  },
+  {
+    "id": "int_108",
+    "drug1": "Valeriana officinalis (Valeriana)",
+    "drug2": "Álcool etílico",
+    "risk_level": "moderate",
+    "risk_description": "Potencialização da sedação central",
+    "mechanism": "Valeriana possui efeito depressor do SNC via receptores GABA-A. O álcool amplifica essa depressão, causando sonolência intensa e comprometimento dos reflexos. Evitar bebidas alcoólicas durante o uso de valeriana."
+  },
+  {
+    "id": "int_109",
+    "drug1": "Piper methysticum (Kava Kava)",
+    "drug2": "Álcool etílico",
+    "risk_level": "high",
+    "risk_description": "Hepatotoxicidade grave",
+    "mechanism": "Kava Kava pode causar hepatotoxicidade idiossincrática (casos de hepatite fulminante relatados). O álcool amplifica a toxicidade hepática de forma sinérgica. A combinação está associada a casos de insuficiência hepática grave. Kava Kava está proibido em vários países europeus."
+  },
+  {
+    "id": "int_110",
+    "drug1": "Passiflora incarnata (Maracujá)",
+    "drug2": "Clonazepam",
+    "risk_level": "moderate",
+    "risk_description": "Potencialização da sedação",
+    "mechanism": "Passiflora possui atividade ansiolítica e sedativa via flavonoides GABAérgicos. Combinada com benzodiazepínicos como clonazepam, pode potencializar a sedação e comprometer a atenção e coordenação motora. Evitar ao dirigir."
+  },
+  {
+    "id": "int_111",
+    "drug1": "Passiflora incarnata (Maracujá)",
+    "drug2": "Alprazolam",
+    "risk_level": "moderate",
+    "risk_description": "Potencialização da sedação",
+    "mechanism": "Ação GABAérgica da passiflora pode somar-se ao efeito ansiolítico do alprazolam, causando sedação além do desejado. Monitorar sonolência diurna e evitar atividades que exigem atenção."
+  },
+  {
+    "id": "int_112",
+    "drug1": "Camellia sinensis (Chá verde)",
+    "drug2": "Varfarina",
+    "risk_level": "moderate",
+    "risk_description": "Redução do efeito anticoagulante",
+    "mechanism": "Chá verde contém vitamina K, que antagoniza a varfarina. Consumo excessivo pode reduzir o INR. Manter o consumo constante e monitorar o INR regularmente."
+  },
+  {
+    "id": "int_113",
+    "drug1": "Echinacea purpurea (Equinácea)",
+    "drug2": "Ciclosporina",
+    "risk_level": "high",
+    "risk_description": "Redução da eficácia imunossupressora — risco de rejeição",
+    "mechanism": "Equinácea estimula a resposta imune (linfócitos, citocinas). Esse efeito imunoestimulante é antagonista da ciclosporina, podendo desencadear rejeição em transplantados. Contraindicado em imunossuprimidos."
+  },
+  {
+    "id": "int_114",
+    "drug1": "Echinacea purpurea (Equinácea)",
+    "drug2": "Tacrolimus",
+    "risk_level": "high",
+    "risk_description": "Antagonismo do efeito imunossupressor — risco de rejeição",
+    "mechanism": "Equinácea imunoestimula o organismo por múltiplas vias, contrariando o tacrolimus. Pode causar rejeição de órgão ou agravamento de doença autoimune. Contraindicado em transplantados ou com doenças autoimunes tratadas com imunossupressores."
+  },
+  {
+    "id": "int_115",
+    "drug1": "Uncaria tomentosa (Unha de Gato)",
+    "drug2": "Varfarina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento do risco de sangramento",
+    "mechanism": "Unha de Gato possui propriedades antitrombóticas e antiagregantes. Combinada com varfarina, pode potencializar o efeito anticoagulante. Monitorar INR e suspender antes de cirurgias."
+  },
+  {
+    "id": "int_116",
+    "drug1": "Arnica montana",
+    "drug2": "Varfarina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento do risco de sangramento",
+    "mechanism": "Arnica oral contém helenalina com propriedades antiagregantes plaquetárias. Combinada com varfarina, pode potencializar a anticoagulação. Suspender arnica oral 7 dias antes de cirurgias."
+  },
+  {
+    "id": "int_117",
+    "drug1": "Curcuma longa (Cúrcuma)",
+    "drug2": "Varfarina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento do risco de sangramento",
+    "mechanism": "Curcumina inibe a agregação plaquetária. Em suplementos (doses terapêuticas), combinada com varfarina, pode elevar o INR e aumentar o risco de sangramento. Monitorar INR ao usar suplementos de cúrcuma."
+  },
+  {
+    "id": "int_118",
+    "drug1": "Zingiber officinale (Gengibre)",
+    "drug2": "Varfarina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento do risco de sangramento",
+    "mechanism": "Gengibre em doses terapêuticas (suplementos) inibe a tromboxano sintetase e a agregação plaquetária. Combinado com varfarina, pode elevar o INR. Monitorar INR e suspender suplementos 7–10 dias antes de cirurgias."
   }
 ]
