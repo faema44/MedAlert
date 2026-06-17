@@ -450,17 +450,20 @@ export default function MedicationsScreen() {
               </View>
             )}
 
-            {entryType === 'fitoterapico' && form.generic_name.length === 0 && (
+            <Text style={styles.fieldLabel}>{entryType === 'fitoterapico' ? 'Nome do fitoterápico / planta *' : 'Nome genérico *'}</Text>
+            <TextInput
+              style={styles.fieldInput}
+              value={form.generic_name}
+              onChangeText={handleGenericNameChange}
+              autoCapitalize="words"
+            />
+            {entryType === 'fitoterapico' && form.generic_name.length > 0 && (
               <View style={styles.phytoGrid}>
-                {getPhytotherapics().map(p => {
+                {getSuggestions(form.generic_name, 34, 'Fitoterápico').map(p => {
                   const popular = p.firstBrand ?? p.genericName;
                   const scientific = p.genericName.replace(/\s*\(.*\)/, '').trim();
                   return (
-                    <TouchableOpacity
-                      key={p.genericName}
-                      style={styles.phytoCard}
-                      onPress={() => applySuggestion(p)}
-                    >
+                    <TouchableOpacity key={p.genericName} style={styles.phytoCard} onPress={() => applySuggestion(p)}>
                       <Text style={styles.phytoCardName} numberOfLines={2}>{popular}</Text>
                       <Text style={styles.phytoCardScientific} numberOfLines={1}>{scientific}</Text>
                     </TouchableOpacity>
@@ -469,14 +472,7 @@ export default function MedicationsScreen() {
               </View>
             )}
 
-            <Text style={styles.fieldLabel}>{entryType === 'fitoterapico' ? 'Nome do fitoterápico / planta *' : 'Nome genérico *'}</Text>
-            <TextInput
-              style={styles.fieldInput}
-              value={form.generic_name}
-              onChangeText={handleGenericNameChange}
-              autoCapitalize="words"
-            />
-            {suggestions.length > 0 && (
+            {suggestions.length > 0 && entryType !== 'fitoterapico' && (
               <View style={styles.suggestionsBox}>
                 {suggestions.map(s => (
                   <View key={s.label} style={styles.suggestionRow}>
