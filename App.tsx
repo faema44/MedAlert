@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, View, Image } from 'react-native';
+import { Text, View, Image, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,7 +14,7 @@ import HelpScreen from './src/screens/HelpScreen';
 
 import { setupNotificationChannels, requestPermissions } from './src/services/notifications';
 import { getDb } from './src/database/db';
-import { syncMedicationsDb } from './src/services/dbSync';
+import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
 
 const Tab = createBottomTabNavigator();
 
@@ -57,7 +57,8 @@ function AppNavigator() {
       await getDb();
       await setupNotificationChannels();
       await requestPermissions();
-      syncMedicationsDb().catch(() => {}); // fire-and-forget: não bloqueia o startup
+      syncMedicationsDb().catch(() => {});
+      syncInteractionsDb().catch(() => {}); // fire-and-forget: não bloqueia o startup
     }
     init();
   }, []);
@@ -66,10 +67,15 @@ function AppNavigator() {
     <NavigationContainer>
       <StatusBar style="auto" />
       <Tab.Navigator
-        screenOptions={({ route }) => ({
+        screenOptions={({ route, navigation }) => ({
           headerStyle: { backgroundColor: '#1a3a6b' },
           headerTintColor: '#fff',
           headerTitle: () => <HeaderTitle route={route} />,
+          headerRight: route.name !== 'Help' ? () => (
+            <TouchableOpacity onPress={() => navigation.navigate('Help' as never)} style={{ marginRight: 16, padding: 4 }}>
+              <Text style={{ color: '#fff', fontSize: 20, fontWeight: '700' }}>?</Text>
+            </TouchableOpacity>
+          ) : undefined,
           tabBarActiveTintColor: '#1a3a6b',
           tabBarInactiveTintColor: '#999',
           tabBarStyle: {
@@ -100,7 +106,7 @@ function AppNavigator() {
           name="Medications"
           component={MedicationsScreen}
           options={{
-            tabBarLabel: 'Medicamentos',
+            tabBarLabel: 'Remédios',
             tabBarIcon: ({ focused }) => <TabIcon emoji="💊" focused={focused} />,
           }}
         />
@@ -124,8 +130,7 @@ function AppNavigator() {
           name="Help"
           component={HelpScreen}
           options={{
-            tabBarLabel: 'Ajuda',
-            tabBarIcon: ({ focused }) => <TabIcon emoji="❓" focused={focused} />,
+            tabBarItemStyle: { display: 'none' },
           }}
         />
       </Tab.Navigator>

@@ -39,6 +39,12 @@ export interface MedicationReminder {
   id: number;
   medication_id: number;
   time: string;        // "HH:MM"
+  // period encoding (stored in `days` column):
+  //   'day'        → daily
+  //   'week:N'     → weekly, N = weekday (1=Sun … 7=Sat)
+  //   'month:N'    → monthly, N = day of month
+  //   'year:DD/MM' → yearly
+  period: string;
   with_sound: boolean;
   is_active: boolean;
 }

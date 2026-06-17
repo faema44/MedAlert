@@ -70,6 +70,21 @@ export default function HelpScreen() {
         </Text>
       </Section>
 
+      {/* Configurar tela de bloqueio */}
+      <Section title="⚙️ Como liberar a notificação na tela de bloqueio">
+        <Text style={styles.bodyText}>
+          Para que o conteúdo da notificação apareça na tela de bloqueio (e não apenas um ícone),
+          é necessário ajustar as configurações do Android:
+        </Text>
+        <Step number="1" text='Abra as Configurações do celular' />
+        <Step number="2" text='Vá em Notificações (ou Aplicativos → MedAlert → Notificações)' />
+        <Step number="3" text='Em Tela de Bloqueio, selecione "Mostrar todo o conteúdo"' />
+        <Step number="4" text='Confirme que as notificações do MedAlert estão ativadas' />
+        <Text style={styles.tip}>
+          💡 O caminho exato varia por fabricante. Em Samsung: Configurações → Notificações → Configurações avançadas → Mostrar na tela de bloqueio. Em Motorola: Configurações → Notificações → Privacidade de notificações.
+        </Text>
+      </Section>
+
       {/* Interações */}
       <Section title="⚡ Interações medicamentosas">
         <Text style={styles.bodyText}>

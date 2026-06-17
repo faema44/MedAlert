@@ -158,5 +158,501 @@
     "risk_level": "moderate",
     "risk_description": "Redução da absorção da quinolona — falha terapêutica",
     "mechanism": "Íons polivalentes (Al³⁺, Mg²⁺, Fe²⁺, Zn²⁺) formam quelatos insolúveis com quinolonas no trato gastrointestinal, reduzindo a absorção em até 90%. Tomar a quinolona 2h antes ou 4h após esses produtos."
+  },
+  {
+    "id": "int_021",
+    "drug1": "Metformina",
+    "drug2": "Levotiroxina (Puran T4, Euthyrox)",
+    "risk_level": "moderate",
+    "risk_description": "Redução da absorção da levotiroxina e possível descompensação do hipotireoidismo",
+    "mechanism": "A metformina pode reduzir a absorção intestinal da levotiroxina em até 30%. Tomar levotiroxina em jejum, pelo menos 4 horas antes da metformina. Monitorar TSH periodicamente."
+  },
+  {
+    "id": "int_022",
+    "drug1": "Metformina",
+    "drug2": "Álcool etílico",
+    "risk_level": "moderate",
+    "risk_description": "Aumento do risco de acidose lática",
+    "mechanism": "O álcool potencializa o efeito da metformina sobre o metabolismo do lactato e inibe a gliconeogênese hepática, elevando o risco de acidose lática — especialmente em uso prolongado ou doses elevadas."
+  },
+  {
+    "id": "int_023",
+    "drug1": "Losartana / Valsartana (BRA)",
+    "drug2": "Espironolactona / Amilorida (Poupadores de K+)",
+    "risk_level": "high",
+    "risk_description": "Hipercalemia grave — risco de arritmia cardíaca",
+    "mechanism": "BRAs bloqueiam os receptores de angiotensina II, reduzindo a secreção de aldosterona. Combinados com poupadores de K+, elevam o potássio sérico a níveis cardiotóxicos (>6,5 mEq/L). Monitorar eletrólitos regularmente."
+  },
+  {
+    "id": "int_024",
+    "drug1": "Losartana / Valsartana (BRA)",
+    "drug2": "AINEs (Ibuprofeno, Diclofenaco, Naproxeno)",
+    "risk_level": "moderate",
+    "risk_description": "Redução do efeito anti-hipertensivo e risco de lesão renal",
+    "mechanism": "AINEs inibem a síntese de prostaglandinas, que são necessárias para a vasodilatação renal. Isso antagoniza o efeito dos BRAs e pode causar elevação da pressão e insuficiência renal aguda, especialmente em idosos e diabéticos."
+  },
+  {
+    "id": "int_025",
+    "drug1": "Estatinas (Sinvastatina, Atorvastatina, Rosuvastatina)",
+    "drug2": "Fibratos (Gemfibrozila, Fenofibrato)",
+    "risk_level": "high",
+    "risk_description": "Risco elevado de miopatia e rabdomiólise",
+    "mechanism": "A combinação inibe a mesma via de degradação das estatinas (CYP3A4 e glucuronidação). O Gemfibrozila especialmente eleva os níveis de estatinas em até 5x. Preferir fenofibrato se necessário; monitorar CK e função renal."
+  },
+  {
+    "id": "int_026",
+    "drug1": "Levotiroxina (Puran T4, Euthyrox)",
+    "drug2": "Carbonato de Cálcio / Hidróxido de Alumínio (Antiácidos)",
+    "risk_level": "moderate",
+    "risk_description": "Redução significativa da absorção da levotiroxina",
+    "mechanism": "Cátions divalentes (Ca²⁺, Al³⁺) formam complexos insolúveis com a levotiroxina no intestino, reduzindo sua absorção em até 40%. Tomar levotiroxina em jejum, pelo menos 2 horas antes de antiácidos ou suplementos de cálcio."
+  },
+  {
+    "id": "int_027",
+    "drug1": "Levotiroxina (Puran T4, Euthyrox)",
+    "drug2": "Sulfato Ferroso / Suplementos de Ferro",
+    "risk_level": "moderate",
+    "risk_description": "Redução da absorção da levotiroxina — hipotireoidismo não controlado",
+    "mechanism": "O ferro forma quelatos com a levotiroxina no trato gastrointestinal, reduzindo sua absorção em até 50%. Intervalo mínimo de 2 horas entre os dois medicamentos. Reavaliar dose de levotiroxina se necessário."
+  },
+  {
+    "id": "int_028",
+    "drug1": "Corticosteroides (Prednisona, Dexametasona)",
+    "drug2": "AINEs (Ibuprofeno, Diclofenaco, Naproxeno)",
+    "risk_level": "high",
+    "risk_description": "Risco elevado de úlcera e hemorragia gastrointestinal",
+    "mechanism": "Ambos lesam a mucosa gástrica por mecanismos distintos (corticosteroide reduz prostaglandinas protetoras; AINE inibe COX-1). A combinação multiplica o risco de úlcera péptica e sangramento digestivo. Usar proteção gástrica (IBP)."
+  },
+  {
+    "id": "int_029",
+    "drug1": "Captopril / Enalapril (IECA)",
+    "drug2": "AINEs (Ibuprofeno, Diclofenaco, Naproxeno)",
+    "risk_level": "moderate",
+    "risk_description": "Redução do efeito anti-hipertensivo e risco de lesão renal aguda",
+    "mechanism": "AINEs bloqueiam prostaglandinas vasodilatadoras renais necessárias para o efeito dos IECAs. Pode causar hipertensão refratária e insuficiência renal aguda, especialmente em pacientes desidratados ou idosos."
+  },
+  {
+    "id": "int_030",
+    "drug1": "Amiodarona",
+    "drug2": "Varfarina",
+    "risk_level": "critical",
+    "risk_description": "Potencialização grave do anticoagulante — risco de hemorragia fatal",
+    "mechanism": "Amiodarona inibe o CYP2C9, principal enzima de metabolização da varfarina (S-varfarina). Pode duplicar o INR em 1 a 2 semanas. Reduzir dose da varfarina em 30–50% e monitorar INR semanalmente."
+  },
+  {
+    "id": "int_031",
+    "drug1": "Metformina",
+    "drug2": "Furosemida",
+    "risk_level": "moderate",
+    "risk_description": "Aumento dos níveis plasmáticos de metformina",
+    "mechanism": "A furosemida compete com a metformina pela secreção tubular renal, elevando os níveis de metformina em até 22%. Em pacientes com função renal comprometida, o risco de acidose lática aumenta. Monitorar função renal."
+  },
+  {
+    "id": "int_032",
+    "drug1": "Digoxina",
+    "drug2": "Furosemida / Hidroclorotiazida (Diuréticos)",
+    "risk_level": "high",
+    "risk_description": "Hipocalemia aumenta o risco de toxicidade digitálica",
+    "mechanism": "Diuréticos de alça e tiazídicos causam perda de potássio e magnésio. A hipocalemia aumenta dramaticamente a sensibilidade miocárdica à digoxina, favorecendo arritmias graves mesmo com níveis séricos de digoxina normais."
+  },
+  {
+    "id": "int_033",
+    "drug1": "Lítio",
+    "drug2": "AINEs (Ibuprofeno, Diclofenaco, Naproxeno)",
+    "risk_level": "high",
+    "risk_description": "Elevação dos níveis séricos de lítio — risco de toxicidade",
+    "mechanism": "AINEs reduzem a filtração glomerular e aumentam a reabsorção tubular de lítio, podendo elevar os níveis séricos em 25–60%. Sintomas de toxicidade: tremores grosseiros, confusão, ataxia e convulsões."
+  },
+  {
+    "id": "int_034",
+    "drug1": "Varfarina",
+    "drug2": "Amoxicilina / Azitromicina / Antibióticos em geral",
+    "risk_level": "moderate",
+    "risk_description": "Potencialização do efeito anticoagulante",
+    "mechanism": "Antibióticos alteram a flora intestinal que produz vitamina K, reduzindo seu aporte e potencializando a varfarina. Monitorar INR durante e após qualquer curso de antibiótico."
+  },
+  {
+    "id": "int_035",
+    "drug1": "Insulina / Hipoglicemiantes Orais (Metformina, Glibenclamida)",
+    "drug2": "Corticosteroides (Prednisona, Dexametasona)",
+    "risk_level": "high",
+    "risk_description": "Hiperglicemia — descontrole do diabetes",
+    "mechanism": "Corticosteroides aumentam a resistência à insulina e estimulam a gliconeogênese hepática, elevando a glicemia significativamente. Pacientes diabéticos podem precisar aumentar doses de insulina ou hipoglicemiante durante o tratamento."
+  },
+  {
+    "id": "int_036",
+    "drug1": "Amiodarona",
+    "drug2": "Estatinas (Sinvastatina, Atorvastatina)",
+    "risk_level": "high",
+    "risk_description": "Risco de miopatia e rabdomiólise",
+    "mechanism": "Amiodarona inibe o CYP3A4 e a P-glicoproteína, elevando a concentração plasmática das estatinas. A dose de sinvastatina não deve exceder 20 mg/dia com amiodarona. Monitorar sintomas de dor muscular e CK. Avaliar substituição por estatina de menor interação."
+  },
+  {
+    "id": "int_037",
+    "drug1": "Amiodarona",
+    "drug2": "Betabloqueadores (Metoprolol, Propranolol, Atenolol)",
+    "risk_level": "high",
+    "risk_description": "Bradicardia e hipotensão severa",
+    "mechanism": "Efeito aditivo na depressão da condução cardíaca. A combinação pode causar bradicardia sintomática, bloqueio atrioventricular e hipotensão grave. Monitorar frequência cardíaca e pressão arterial. Considerar substituição por atenolol."
+  },
+  {
+    "id": "int_038",
+    "drug1": "Amiodarona",
+    "drug2": "Azitromicina / Claritromicina (Macrolídeos)",
+    "risk_level": "high",
+    "risk_description": "Prolongamento do intervalo QT — risco de arritmias cardíacas graves",
+    "mechanism": "Ambos prolongam o intervalo QT por mecanismos aditivos. A combinação pode precipitar arritmias ventriculares graves (torsades de pointes). Devem ser usados com bastante cautela; monitorar ECG."
+  },
+  {
+    "id": "int_039",
+    "drug1": "Amiodarona",
+    "drug2": "Fluconazol / Voriconazol (Azóis)",
+    "risk_level": "critical",
+    "risk_description": "Contraindicado — risco de arritmias cardíacas fatais",
+    "mechanism": "Azóis inibem o CYP3A4 e CYP2C8, elevando drasticamente os níveis de amiodarona e prolongando o intervalo QT. Combinação contraindicada — risco de torsades de pointes e fibrilação ventricular. Deve-se evitar o uso concomitante."
+  },
+  {
+    "id": "int_040",
+    "drug1": "Diltiazem / Verapamil",
+    "drug2": "Digoxina",
+    "risk_level": "high",
+    "risk_description": "Toxicidade digitálica — bloqueio atrioventricular grave",
+    "mechanism": "Diltiazem e verapamil inibem a P-glicoproteína e reduzem a depuração renal da digoxina, elevando seus níveis séricos. Podem causar bloqueio AV grave e bradicardia extrema. Monitorar níveis de digoxina e ECG. Avaliar redução da dose de digoxina em 1/3 a 1/2."
+  },
+  {
+    "id": "int_041",
+    "drug1": "Diltiazem / Verapamil",
+    "drug2": "Betabloqueadores (Atenolol, Metoprolol, Propranolol)",
+    "risk_level": "high",
+    "risk_description": "Bradicardia, hipotensão e risco de bloqueio cardíaco",
+    "mechanism": "Efeito aditivo na inibição do nó sinusal e atrioventricular. A combinação de bloqueadores de canal de cálcio não-diidropiridínicos com betabloqueadores pode causar bradicardia grave, hipotensão e bloqueio AV completo. Monitorar frequência cardíaca e sinais de insuficiência cardíaca."
+  },
+  {
+    "id": "int_042",
+    "drug1": "Anlodipino / Nifedipino",
+    "drug2": "Betabloqueadores (Atenolol, Metoprolol, Propranolol)",
+    "risk_level": "moderate",
+    "risk_description": "Hipotensão e bradicardia aditivas",
+    "mechanism": "Combinação potencializa o efeito hipotensor e pode causar bradicardia. Geralmente tolerada, mas monitorar ocorrência de hipotensão arterial, bradicardia ou sinais de insuficiência cardíaca, especialmente no início do tratamento."
+  },
+  {
+    "id": "int_043",
+    "drug1": "Amitriptilina / Antidepressivos Tricíclicos (ATC)",
+    "drug2": "Fluoxetina / Sertralina / Paroxetina / Escitalopram (ISRS)",
+    "risk_level": "critical",
+    "risk_description": "Contraindicado — síndrome serotoninérgica",
+    "mechanism": "A combinação de tricíclicos com ISRS provoca excesso de serotonina: hipertermia, agitação, tremores, rigidez muscular, confusão e instabilidade autonômica. A paroxetina e a fluoxetina também inibem o CYP2D6, elevando os níveis do tricíclico. Combinação contraindicada."
+  },
+  {
+    "id": "int_044",
+    "drug1": "Amitriptilina / Antidepressivos Tricíclicos (ATC)",
+    "drug2": "Tramadol",
+    "risk_level": "critical",
+    "risk_description": "Contraindicado — síndrome serotoninérgica e risco de convulsões",
+    "mechanism": "Tramadol inibe a recaptação de serotonina e noradrenalina; tricíclicos bloqueiam os mesmos transportadores. A combinação eleva drasticamente os níveis de serotonina, podendo causar síndrome serotoninérgica e reduzir o limiar convulsivo. Deve-se evitar essa combinação."
+  },
+  {
+    "id": "int_045",
+    "drug1": "Fluoxetina / Sertralina / Paroxetina (ISRS)",
+    "drug2": "Tramadol",
+    "risk_level": "critical",
+    "risk_description": "Contraindicado — síndrome serotoninérgica e convulsões",
+    "mechanism": "ISRS inibem a recaptação de serotonina; tramadol tem mecanismo serotoninérgico adicional. A combinação pode desencadear síndrome serotoninérgica (agitação, hipertermia, mioclonias) e reduzir significativamente o limiar convulsivo. Deve-se evitar o uso concomitante."
+  },
+  {
+    "id": "int_046",
+    "drug1": "Carbamazepina",
+    "drug2": "Fluconazol / Itraconazol (Azóis)",
+    "risk_level": "high",
+    "risk_description": "Toxicidade por carbamazepina",
+    "mechanism": "Azóis inibem o CYP3A4, principal enzima de metabolização da carbamazepina, elevando seus níveis plasmáticos e risco de toxicidade (ataxia, diplopia, náusea, sonolência). Monitorar concentrações plasmáticas de carbamazepina e ajustar dose."
+  },
+  {
+    "id": "int_047",
+    "drug1": "Carbamazepina",
+    "drug2": "Varfarina",
+    "risk_level": "moderate",
+    "risk_description": "Redução do efeito anticoagulante da varfarina",
+    "mechanism": "Carbamazepina é um potente indutor enzimático (CYP1A2, CYP2C9, CYP3A4), acelerando o metabolismo da varfarina e reduzindo seu efeito anticoagulante. Monitorar parâmetros anticoagulantes e ajustar a dose de varfarina conforme necessário."
+  },
+  {
+    "id": "int_048",
+    "drug1": "Azitromicina",
+    "drug2": "Estatinas (Sinvastatina, Atorvastatina)",
+    "risk_level": "high",
+    "risk_description": "Risco de miopatia e rabdomiólise",
+    "mechanism": "Azitromicina inibe o CYP3A4 (menos que claritromicina, mas ainda significativo), elevando a concentração plasmática das estatinas e o risco de miotoxicidade. Monitorar sintomas musculares (dor, fraqueza). Avaliar substituição por outra classe."
+  },
+  {
+    "id": "int_049",
+    "drug1": "Haloperidol",
+    "drug2": "Metoclopramida",
+    "risk_level": "high",
+    "risk_description": "Reações extrapiramidais graves — discinesia tardia",
+    "mechanism": "Ambos bloqueiam receptores dopaminérgicos D2. A combinação potencializa efeitos antidopaminérgicos, podendo causar reações distônicas agudas, acatisia, parkinsonismo e discinesia tardia. Metoclopramida não deve ser prescrita com outros agentes antidopaminérgicos."
+  },
+  {
+    "id": "int_050",
+    "drug1": "Captopril / Enalapril (IECA)",
+    "drug2": "AAS (Ácido Acetilsalicílico)",
+    "risk_level": "moderate",
+    "risk_description": "Redução do efeito anti-hipertensivo",
+    "mechanism": "AAS inibe a síntese de prostaglandinas vasodilatadoras que potencializam o efeito dos IECAs. Em doses anti-inflamatórias (>150 mg/dia) pode antagonizar significativamente o efeito anti-hipertensivo. Monitorar pressão arterial."
+  },
+  {
+    "id": "int_051",
+    "drug1": "Cefalexina",
+    "drug2": "Metformina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento dos níveis plasmáticos de metformina",
+    "mechanism": "Cefalexina é um fármaco catiônico que compete com a metformina pela secreção tubular renal, reduzindo sua eliminação e elevando a concentração plasmática. Pode potencializar efeitos hipoglicemiantes e, em pacientes com disfunção renal, aumentar o risco de acidose lática. Monitorar glicemia."
+  },
+  {
+    "id": "int_052",
+    "drug1": "Furosemida",
+    "drug2": "AINEs (Diclofenaco, Ibuprofeno, Naproxeno)",
+    "risk_level": "moderate",
+    "risk_description": "Redução do efeito diurético — risco em insuficiência cardíaca",
+    "mechanism": "AINEs inibem as prostaglandinas renais vasodilatadoras que potencializam a ação da furosemida, reduzindo a diurese. Em pacientes com insuficiência cardíaca ou cirrose com ascite, essa interação pode precipitar descompensação clínica. Monitorar diurese e função renal."
+  },
+  {
+    "id": "int_053",
+    "drug1": "Fluconazol",
+    "drug2": "Estatinas (Sinvastatina, Atorvastatina)",
+    "risk_level": "moderate",
+    "risk_description": "Aumento do risco de rabdomiólise",
+    "mechanism": "Fluconazol inibe o CYP3A4 e CYP2C9, elevando os níveis plasmáticos das estatinas. O risco de miopatia e rabdomiólise aumenta. Observar sinais e sintomas de rabdomiólise (dores musculares, fraqueza). Monitorar CK sérica e considerar substituição da estatina."
+  },
+  {
+    "id": "int_054",
+    "drug1": "Ciprofloxacino / Levofloxacino (Quinolonas)",
+    "drug2": "Corticosteroides (Prednisona, Dexametasona, Hidrocortisona)",
+    "risk_level": "high",
+    "risk_description": "Risco elevado de tendinite e ruptura de tendão",
+    "mechanism": "A combinação de fluoroquinolonas com corticosteroides aumenta significativamente o risco de tendinite e ruptura do tendão, especialmente o tendão de Aquiles. O risco é maior em pacientes acima de 60 anos. Uso concomitante deve ser evitado. Monitorar sinais de dor, inchaço ou inflamação nos tendões."
+  },
+  {
+    "id": "int_055",
+    "drug1": "Glibenclamida / Glipizida (Sulfonilureias)",
+    "drug2": "Fluconazol / Itraconazol (Azóis)",
+    "risk_level": "moderate",
+    "risk_description": "Hipoglicemia",
+    "mechanism": "Azóis inibem o CYP2C9, responsável pela metabolização das sulfonilureias, elevando seus níveis plasmáticos e potencializando o efeito hipoglicemiante. Monitorar glicemia com maior frequência durante o tratamento antifúngico e ajustar a dose do hipoglicemiante se necessário."
+  },
+  {
+    "id": "int_056",
+    "drug1": "Fenitoína",
+    "drug2": "Amiodarona",
+    "risk_level": "moderate",
+    "risk_description": "Interação bidirecional — toxicidade de fenitoína e redução da amiodarona",
+    "mechanism": "Amiodarona inibe o CYP2C9, elevando os níveis séricos da fenitoína e o risco de toxicidade (ataxia, nistagmo, sonolência). A fenitoína, por sua vez, pode induzir o CYP3A4, reduzindo a concentração plasmática da amiodarona. Monitorar ambos os níveis e observar sinais de intoxicação."
+  },
+  {
+    "id": "int_057",
+    "drug1": "Fenitoína",
+    "drug2": "Carbamazepina",
+    "risk_level": "moderate",
+    "risk_description": "Interação bidirecional — alteração dos níveis de ambos os anticonvulsivantes",
+    "mechanism": "Carbamazepina pode aumentar o metabolismo da fenitoína (reduzindo seus níveis) ou inibir sua eliminação (elevando-os). A fenitoína também altera os níveis de carbamazepina. Resultado imprevisível — monitorar as concentrações plasmáticas de ambos os fármacos e avaliar ajuste de dose."
+  },
+  {
+    "id": "int_058",
+    "drug1": "Fenitoína",
+    "drug2": "Cetoconazol / Itraconazol (Azóis)",
+    "risk_level": "high",
+    "risk_description": "Fracasso da terapia antifúngica",
+    "mechanism": "Fenitoína é um potente indutor enzimático (CYP3A4, CYP2C), acelerando o metabolismo dos azóis e reduzindo drasticamente seus níveis séricos. O tratamento antifúngico pode falhar completamente. Evitar uso concomitante; utilizar terapia antifúngica alternativa (exceção: Miconazol tópico)."
+  },
+  {
+    "id": "int_059",
+    "drug1": "Fenitoína",
+    "drug2": "Fluoxetina / Sertralina (ISRS)",
+    "risk_level": "moderate",
+    "risk_description": "Aumento dos níveis séricos de fenitoína — risco de toxicidade",
+    "mechanism": "ISRS inibem o CYP2C9 e CYP2C19, responsáveis pela metabolização da fenitoína, elevando seus níveis plasmáticos. Pode causar toxicidade por fenitoína (ataxia, confusão, nistagmo). Avaliar substituição por outro antidepressivo da mesma classe."
+  },
+  {
+    "id": "int_060",
+    "drug1": "Fenitoína",
+    "drug2": "Fluconazol",
+    "risk_level": "moderate",
+    "risk_description": "Aumento dos níveis de fenitoína — toxicidade",
+    "mechanism": "Fluconazol inibe o CYP2C9 e CYP2C19, principais enzimas de metabolização da fenitoína, elevando seus níveis séricos (ataxia, hiperreflexia, tremores). Se possível, evitar a administração concomitante. Caso necessário, monitorar sinais e sintomas de toxicidade da fenitoína."
+  },
+  {
+    "id": "int_061",
+    "drug1": "Fenobarbital",
+    "drug2": "Ácido Valpróico",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da toxicidade do fenobarbital",
+    "mechanism": "Ácido valpróico inibe o metabolismo hepático do fenobarbital, elevando seus níveis plasmáticos e o risco de toxicidade (sedação excessiva, nistagmo, ataxia). Monitorar efeitos tóxicos do barbitúrico e ajustar a dose se necessário."
+  },
+  {
+    "id": "int_062",
+    "drug1": "Fenobarbital",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Redução do efeito anticoagulante da varfarina",
+    "mechanism": "Fenobarbital é um potente indutor enzimático (CYP1A2, CYP2C9, CYP3A4), acelerando o metabolismo da varfarina e reduzindo seu efeito anticoagulante. Monitorar TAP e INR com frequência. Pode ser necessário aumentar a dose de varfarina durante o tratamento e reduzi-la gradualmente ao suspender o fenobarbital."
+  },
+  {
+    "id": "int_063",
+    "drug1": "Fluconazol",
+    "drug2": "Losartana / Valsartana (BRA)",
+    "risk_level": "moderate",
+    "risk_description": "Hipotensão por redução da ativação do losartana",
+    "mechanism": "Fluconazol inibe o CYP2C9, enzima responsável pela conversão do losartana ao seu metabólito ativo (E-3174). Pode reduzir o efeito anti-hipertensivo do BRA. Monitorar a pressão arterial e os efeitos terapêuticos durante o tratamento."
+  },
+  {
+    "id": "int_064",
+    "drug1": "Fluconazol / Diltiazem / Verapamil",
+    "drug2": "Benzodiazepínicos (Diazepam, Midazolam, Clonazepam)",
+    "risk_level": "moderate",
+    "risk_description": "Sedação excessiva e efeitos hipnóticos prolongados",
+    "mechanism": "Inibidores do CYP3A4 (fluconazol, diltiazem, verapamil) elevam as concentrações plasmáticas dos benzodiazepínicos, potencializando sedação e efeitos hipnóticos. Monitorar ocorrência de efeitos tóxicos e considerar redução da dose do benzodiazepínico."
+  },
+  {
+    "id": "int_065",
+    "drug1": "Levofloxacino",
+    "drug2": "Amiodarona / Clorpromazina / Fluconazol / Sotalol (Drogas que prolongam QT)",
+    "risk_level": "critical",
+    "risk_description": "Contraindicado — prolongamento grave do intervalo QT e arritmias fatais",
+    "mechanism": "Efeito aditivo no prolongamento do intervalo QT. A combinação de levofloxacino com outras drogas que prolongam o QT (amiodarona, clorpromazina, fluconazol, sotalol) aumenta drasticamente o risco de torsades de pointes e fibrilação ventricular. Deve-se evitar o uso concomitante."
+  },
+  {
+    "id": "int_066",
+    "drug1": "Fluoxetina / SSRIs (Sertralina, Paroxetina, Escitalopram)",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Toxicidade da carbamazepina e redução do antidepressivo",
+    "mechanism": "Fluoxetina inibe CYP3A4 e CYP2D6, elevando a concentração plasmática da carbamazepina (neurotoxicidade). Por sua vez, a carbamazepina induz enzimas hepáticas, reduzindo os níveis séricos dos ISRS por indução enzimática. Monitorar níveis séricos de carbamazepina e substituir por outra classe de antidepressivo se necessário."
+  },
+  {
+    "id": "int_067",
+    "drug1": "Furosemida",
+    "drug2": "Captopril / Enalapril (IECA)",
+    "risk_level": "moderate",
+    "risk_description": "Hipotensão de primeira dose, hipovolemia e disfunção renal",
+    "mechanism": "A combinação de furosemida com IECAs pode causar hipotensão grave (especialmente na primeira dose), hipovolemia, hiponatremia e sinais de disfunção renal. Monitorar terapia, pressão arterial e níveis de creatinina sérica. Se necessário, considerar redução da dose da furosemida ou do IECA."
+  },
+  {
+    "id": "int_068",
+    "drug1": "Haloperidol",
+    "drug2": "Amiodarona / Eritromicina / Azitromicina / Fluconazol / Fluoxetina (Drogas que prolongam QT)",
+    "risk_level": "critical",
+    "risk_description": "Contraindicado — prolongamento do intervalo QT e arritmias cardíacas graves",
+    "mechanism": "Efeito aditivo no prolongamento do intervalo QT (cardiotoxicidade). Haloperidol combinado com outras drogas que prolongam o QT (amiodarona, macrolídeos, fluconazol, fluoxetina) aumenta drasticamente o risco de torsades de pointes e morte súbita cardíaca. Deve-se evitar o uso concomitante."
+  },
+  {
+    "id": "int_069",
+    "drug1": "Carbamazepina",
+    "drug2": "Haloperidol",
+    "risk_level": "high",
+    "risk_description": "Redução do efeito do haloperidol e aumento dos efeitos da carbamazepina",
+    "mechanism": "Carbamazepina induz o metabolismo hepático do haloperidol, reduzindo seus níveis séricos e efeito antipsicótico. Simultaneamente, o haloperidol pode elevar os efeitos da carbamazepina. Avaliar ajuste de dose de um ou ambos os fármacos se necessário."
+  },
+  {
+    "id": "int_070",
+    "drug1": "Haloperidol",
+    "drug2": "Lítio",
+    "risk_level": "moderate",
+    "risk_description": "Aumento do efeito neurotóxico",
+    "mechanism": "Combinação pode causar efeito neurotóxico aditivo: fraquezas, discinesias, aumento dos sintomas extrapiramidais, encefalopatias e possíveis danos cerebrais irreversíveis. Monitorar atentamente sinais de neurotoxicidade. Se necessário o lítio, usar haloperidol isolado e adicionar lítio em dosagem reduzida."
+  },
+  {
+    "id": "int_071",
+    "drug1": "Hidroclorotiazida",
+    "drug2": "Amiodarona",
+    "risk_level": "high",
+    "risk_description": "Hipopotassemia induzida pelo diurético aumenta toxicidade da amiodarona",
+    "mechanism": "Hidroclorotiazida causa perda de potássio e magnésio. A hipocalemia resultante potencializa os efeitos arritmogênicos da amiodarona, aumentando o risco de arritmias cardíacas graves e toxicidade sobre a digoxina (se em uso). Monitorar eletrólitos séricos, frequência cardíaca e ECG."
+  },
+  {
+    "id": "int_072",
+    "drug1": "Hidroclorotiazida",
+    "drug2": "AINEs (Diclofenaco, Ibuprofeno, Naproxeno)",
+    "risk_level": "high",
+    "risk_description": "Risco de nefropatia aguda e perda do efeito diurético",
+    "mechanism": "AINEs bloqueiam as prostaglandinas vasodilatadoras renais, antagonizando o efeito da hidroclorotiazida e aumentando o risco de lesão renal aguda (insuficiência renal, proteinúria mínima). Monitorar eletrólitos séricos e função renal. Pacientes idosos ou com diabetes têm risco aumentado."
+  },
+  {
+    "id": "int_073",
+    "drug1": "Corticosteroides (Prednisona, Dexametasona, Betametasona)",
+    "drug2": "Claritromicina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento dos níveis plasmáticos dos corticosteroides",
+    "mechanism": "Claritromicina inibe o CYP3A4, reduzindo o metabolismo hepático dos corticosteroides e elevando suas concentrações plasmáticas (edema por retenção de líquidos, cicatrização prejudicada, petéquias e equimoses). Considerar azitromicina como alternativa — não apresenta essa interação."
+  },
+  {
+    "id": "int_074",
+    "drug1": "Corticosteroides (Prednisona, Dexametasona, Betametasona)",
+    "drug2": "Fluconazol",
+    "risk_level": "moderate",
+    "risk_description": "Aumento dos níveis e efeitos tóxicos dos corticosteroides",
+    "mechanism": "Fluconazol inibe o CYP3A4, elevando a concentração plasmática dos corticosteroides e potencializando seus efeitos e toxicidade (retenção de líquidos, hiperglicemia, imunossupressão). Redução gradativa da dose dos corticosteroides e monitoramento clínico são recomendados."
+  },
+  {
+    "id": "int_075",
+    "drug1": "Insulina / Hipoglicemiantes Orais",
+    "drug2": "Ciprofloxacino / Levofloxacino (Quinolonas)",
+    "risk_level": "high",
+    "risk_description": "Variações imprevisíveis da glicemia — hipo ou hiperglicemia",
+    "mechanism": "Quinolonas podem causar tanto hipoglicemia quanto hiperglicemia em pacientes diabéticos em uso de insulina ou hipoglicemiantes orais, por mecanismos ainda não completamente esclarecidos. Monitorar glicemia com frequência durante o tratamento com quinolona e ajustar a dose do hipoglicemiante se necessário."
+  },
+  {
+    "id": "int_076",
+    "drug1": "Levofloxacino",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Potencialização do efeito anticoagulante",
+    "mechanism": "Levofloxacino potencializa os efeitos anticoagulantes da varfarina, provavelmente por inibição da flora intestinal produtora de vitamina K e interação com o CYP2C9. Monitorar o INR com frequência durante e após o curso do antibiótico. Ajuste de dose da varfarina pode ser necessário."
+  },
+  {
+    "id": "int_077",
+    "drug1": "Omeprazol / Esomeprazol / Pantoprazol (IBPs)",
+    "drug2": "Varfarina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento do efeito anticoagulante",
+    "mechanism": "IBPs inibem o CYP2C19, responsável pela metabolização da R-varfarina. Pode elevar os efeitos anticoagulantes e o risco de sangramento. Monitorar o INR periodicamente durante uso concomitante. O pantoprazol apresenta menor interação com o CYP2C19."
+  },
+  {
+    "id": "int_078",
+    "drug1": "Paracetamol (Acetaminofeno)",
+    "drug2": "Varfarina",
+    "risk_level": "moderate",
+    "risk_description": "Potencialização do efeito anticoagulante",
+    "mechanism": "Paracetamol em doses regulares (>1,5 g/dia por mais de alguns dias) pode aumentar o efeito anticoagulante da varfarina, possivelmente por inibição da síntese de fatores de coagulação dependentes de vitamina K. Paracetamol é preferível a AINEs, mas monitorar o INR em uso prolongado."
+  },
+  {
+    "id": "int_079",
+    "drug1": "Rivaroxabana / Apixabana (NOAC)",
+    "drug2": "Amiodarona / Fluconazol / Diltiazem / Verapamil (Inibidores de CYP3A4 e P-gp)",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração plasmática do anticoagulante — risco de sangramento",
+    "mechanism": "Inibidores do CYP3A4 e da P-glicoproteína (amiodarona, fluconazol, diltiazem, verapamil) elevam a concentração plasmática de rivaroxabana e apixabana, aumentando o risco de sangramento. Monitorar sinais de hemorragia e observar a necessidade de ajuste de dose."
+  },
+  {
+    "id": "int_080",
+    "drug1": "Sinvastatina",
+    "drug2": "Diclofenaco",
+    "risk_level": "high",
+    "risk_description": "Risco de rabdomiólise",
+    "mechanism": "Diclofenaco inibe o CYP2C9, principal enzima de metabolização da sinvastatina, elevando seus níveis plasmáticos e o risco de miopatia e rabdomiólise. Monitorar sintomas musculares (dor, sensibilidade, fraqueza). Considerar AINE alternativo ou troca de estatina."
+  },
+  {
+    "id": "int_081",
+    "drug1": "Sulfametoxazol + Trimetoprima (TMP-SMX)",
+    "drug2": "Captopril / Enalapril (IECA)",
+    "risk_level": "moderate",
+    "risk_description": "Hipercalemia grave — especialmente em pacientes com disfunção renal",
+    "mechanism": "A trimetoprima bloqueia canais de potássio no túbulo distal, agindo como poupadora de potássio. Combinada com IECAs (que já reduzem a aldosterona), pode causar hipercalemia grave. Evitar o uso concomitante, principalmente em pacientes com disfunção renal. Monitorar potássio sérico e função renal."
+  },
+  {
+    "id": "int_082",
+    "drug1": "Sulfametoxazol + Trimetoprima (TMP-SMX)",
+    "drug2": "Metformina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração plasmática de metformina",
+    "mechanism": "A trimetoprima compete com a metformina pela secreção tubular renal (via transportador OCT2), reduzindo sua eliminação e elevando sua concentração plasmática. Em pacientes com disfunção renal, aumenta o risco de acidose lática. Monitorar função renal e glicemia durante o tratamento."
   }
 ]

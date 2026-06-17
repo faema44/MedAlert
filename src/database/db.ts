@@ -161,7 +161,7 @@ export async function deleteContact(id: number): Promise<void> {
 }
 
 // Medication Reminders
-type ReminderRow = { id: number; medication_id: number; time: string; with_sound: number; is_active: number };
+type ReminderRow = { id: number; medication_id: number; time: string; days: string; with_sound: number; is_active: number };
 
 export async function getRemindersForMedication(medicationId: number): Promise<MedicationReminder[]> {
   const database = await getDb();
@@ -169,14 +169,19 @@ export async function getRemindersForMedication(medicationId: number): Promise<M
     'SELECT * FROM medication_reminders WHERE medication_id=? ORDER BY time ASC',
     [medicationId]
   );
-  return rows.map(r => ({ ...r, with_sound: Boolean(r.with_sound), is_active: Boolean(r.is_active) }));
+  return rows.map(r => ({
+    ...r,
+    period: r.days ?? 'day',
+    with_sound: Boolean(r.with_sound),
+    is_active: Boolean(r.is_active),
+  }));
 }
 
 export async function addReminder(r: Omit<MedicationReminder, 'id'>): Promise<void> {
   const database = await getDb();
   await database.runAsync(
-    'INSERT INTO medication_reminders (medication_id, time, with_sound, is_active) VALUES (?, ?, ?, 1)',
-    [r.medication_id, r.time, r.with_sound ? 1 : 0]
+    'INSERT INTO medication_reminders (medication_id, time, days, with_sound, is_active) VALUES (?, ?, ?, ?, 1)',
+    [r.medication_id, r.time, r.period ?? 'day', r.with_sound ? 1 : 0]
   );
 }
 

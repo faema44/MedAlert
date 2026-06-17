@@ -16,7 +16,14 @@ export function loadExternalDb(data: { version?: string; medications: MedEntry[]
     DB = data.medications;
   }
 }
-const ALL_INTERACTIONS = interactionsData as DrugInteraction[];
+let ALL_INTERACTIONS: DrugInteraction[] = interactionsData as DrugInteraction[];
+
+export function loadExternalInteractions(data: DrugInteraction[]): void {
+  if (!data?.length) return;
+  if (data.length > ALL_INTERACTIONS.length) {
+    ALL_INTERACTIONS = data;
+  }
+}
 
 export interface DrugSuggestion {
   label: string;        // text shown in chip
@@ -42,27 +49,62 @@ function normalize(s: string): string {
 
 // ─── Bula URL (ANVISA Bulário Eletrônico — fonte oficial brasileira) ───────────
 
-export function getBulaUrl(genericName: string): string {
-  // Use only the first active ingredient for compound names (e.g. "Amoxicilina + Clavulanato")
-  const mainName = genericName.split('+')[0].split('/')[0].trim();
-  return (
-    'https://consultas.anvisa.gov.br/#/bulario/q/?nomeProduto=' +
-    encodeURIComponent(mainName.toUpperCase())
-  );
+function toSlug(name: string): string {
+  return name
+    .split('+')[0].split('/')[0].trim()
+    .toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
 }
 
-// Salt/descriptor prefixes that are NOT commercial brand names
+export function getBulaUrl(genericName: string, brandName?: string): string {
+  const slug = toSlug(brandName ?? genericName);
+  return `https://consultaremedios.com.br/${slug}/bula`;
+}
+
+// Salt/descriptor prefixes (normalized — no accents)
 const SALT_PREFIXES = [
   'maleato', 'besilato', 'cloridrato', 'fumarato', 'tartarato', 'succinato',
   'mesilato', 'acetato', 'citrato', 'fosfato', 'sulfato', 'carbonato',
   'gluconato', 'dicloridrato', 'bromidrato', 'dimesilato', 'monoidrato',
-  'monoiydrato', 'ácido', 'alfa-', 'óxido', 'complexo',
+  'acido', 'alfa-', 'oxido', 'complexo',
+];
+// Salt modifier words that appear inside compound brand names
+const SALT_WORDS = [
+  'sodico', 'sodica', 'potassico', 'potassica', 'magnesio',
+  'calcico', 'calcica', 'dietilamonio', 'estearato',
+];
+// Generic manufacturer labels (not real brand names)
+const MANUFACTURER_SUFFIXES = [
+  ' ems', ' mk', ' merck', ' medley', ' sandoz', ' eurofarma', ' germed', ' generico',
 ];
 
-function getFirstCommercialBrand(brands: string[]): string | undefined {
+function getFirstCommercialBrand(brands: string[], genericName: string): string | undefined {
+  const gl = normalize(genericName);
+  const glFirst = gl.split(' ')[0];
+  const glWords = new Set(gl.split(' '));
+
   return brands.find(b => {
-    const bl = b.toLowerCase();
-    return !SALT_PREFIXES.some(p => bl.startsWith(p));
+    const bln = normalize(b);
+    // 1. Known salt/descriptor prefix
+    if (SALT_PREFIXES.some(p => bln.startsWith(p))) return false;
+    // 2. Salt modifier word embedded in brand name (e.g. "Omeprazol Magnésio", "Naproxeno Sódico")
+    if (SALT_WORDS.some(w => bln.includes(w))) return false;
+    // 3. Generic manufacturer label (e.g. "Furosemida EMS", "Sinvastatina EMS")
+    if (MANUFACTURER_SUFFIXES.some(s => bln.endsWith(s))) return false;
+    // 4. Brand starts with the generic's first word (e.g. "Atorvastatina Cálcica", "Captopril Merck")
+    if (glFirst.length >= 5 && bln.startsWith(glFirst)) return false;
+    // 5. Brand is a distinct word inside the generic name (e.g. "Colecalciferol" in "Vitamina D3 (Colecalciferol)")
+    if (bln.length >= 5 && glWords.has(bln)) return false;
+    // 6. Near-identical INN variant: brand is almost the same length as generic and nearly matches
+    //    (e.g. "Metformin" for "Metformina", "Furosemide" for "Furosemida")
+    if (gl.length >= 6 && bln.length >= gl.length - 4 && gl.includes(bln)) return false;
+    if (gl.length >= 7 && bln.length >= gl.length - 3) {
+      const compareLen = Math.max(5, Math.min(bln.length, gl.length) - 2);
+      if (bln.substring(0, compareLen) === gl.substring(0, compareLen)) return false;
+    }
+    return true;
   });
 }
 
@@ -79,16 +121,16 @@ export function getSuggestions(input: string, max = 7): DrugSuggestion[] {
     if (results.length >= max) break;
 
     const gNorm = normalize(entry.genericName);
-    const bulaUrl = getBulaUrl(entry.genericName);
+    const fb = getFirstCommercialBrand(entry.brands, entry.genericName);
 
     // Match on generic name
     if (gNorm.includes(q)) {
       results.push({
         label: entry.genericName,
         genericName: entry.genericName,
-        firstBrand: getFirstCommercialBrand(entry.brands),
+        firstBrand: fb,
         category: entry.category,
-        bulaUrl,
+        bulaUrl: getBulaUrl(entry.genericName, fb),
       });
       addedGenerics.add(gNorm);
       continue;
@@ -102,7 +144,7 @@ export function getSuggestions(input: string, max = 7): DrugSuggestion[] {
         genericName: entry.genericName,
         brandName: matchedBrand,
         category: entry.category,
-        bulaUrl,
+        bulaUrl: getBulaUrl(entry.genericName, matchedBrand),
         isBrand: true,
       });
       addedGenerics.add(gNorm);

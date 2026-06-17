@@ -19,6 +19,7 @@ import {
 } from '../services/notifications';
 import { Medication, MedicationReminder, DrugInteraction } from '../types';
 import { DrugSuggestion, getSuggestions, getBulaUrl, checkInteractions } from '../utils/drugSearch';
+import { reportMissingDrug } from '../services/reportMissing';
 
 function buildDoctorMessage(drugName: string, interactions: DrugInteraction[]): string {
   const pairs = interactions
@@ -75,6 +76,7 @@ export default function MedicationsScreen() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(EMPTY_MED);
   const [suggestions, setSuggestions] = useState<DrugSuggestion[]>([]);
+  const [reportedDrug, setReportedDrug] = useState<string>('');
   const [commercialSuggestions, setCommercialSuggestions] = useState<DrugSuggestion[]>([]);
   const [interactions, setInteractions] = useState<DrugInteraction[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -134,6 +136,7 @@ export default function MedicationsScreen() {
     setForm(f => ({ ...f, generic_name: v }));
     setSuggestions(getSuggestions(v));
     setCommercialSuggestions([]);
+    if (reportedDrug && v !== reportedDrug) setReportedDrug('');
     // Exclude the medication being edited from the interaction check
     const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
     setInteractions(checkInteractions(v, others));
@@ -359,7 +362,7 @@ export default function MedicationsScreen() {
         }
         renderItem={({ item }) => (
           <View style={[styles.medCard, item.is_critical && styles.medCardCritical]}>
-            <View style={styles.medInfo}>
+            <TouchableOpacity style={styles.medInfo} activeOpacity={0.6} onPress={() => openEdit(item)}>
               <View style={styles.medHeader}>
                 {item.is_critical && <Text style={styles.criticalTag}>⚠️ CRÍTICO</Text>}
                 <Text style={styles.medGeneric}>{item.generic_name}</Text>
@@ -380,12 +383,12 @@ export default function MedicationsScreen() {
                   </View>
                 );
               })}
-            </View>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.bellBtn} onPress={() => openReminders(item)}>
               <Text style={styles.bellBtnText}>🔔</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.editBtn} onPress={() => openEdit(item)}>
-              <Text style={styles.editBtnText}>✏️</Text>
+            <TouchableOpacity style={styles.bulaCardBtn} onPress={() => Linking.openURL(getBulaUrl(item.generic_name, item.commercial_name || undefined))}>
+              <Text style={styles.bulaCardBtnText}>📋</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.id, item.generic_name)}>
               <Text style={styles.deleteBtnText}>✕</Text>
@@ -438,13 +441,23 @@ export default function MedicationsScreen() {
                 ))}
               </View>
             )}
-            {form.generic_name.trim().length >= 3 && suggestions.length === 0 && (
-              <TouchableOpacity
-                style={styles.bulaLinkInline}
-                onPress={() => Linking.openURL(getBulaUrl(form.generic_name))}
-              >
-                <Text style={styles.bulaLinkText}>📋 Ver bula no ANVISA</Text>
-              </TouchableOpacity>
+            {suggestions.length === 0 && form.generic_name.trim().length >= 3 && (
+              reportedDrug === form.generic_name.trim() ? (
+                <Text style={styles.reportedText}>✓ Reportado — obrigado!</Text>
+              ) : (
+                <TouchableOpacity
+                  style={styles.reportMissingBtn}
+                  onPress={async () => {
+                    const name = form.generic_name.trim();
+                    setReportedDrug(name);
+                    await reportMissingDrug(name);
+                  }}
+                >
+                  <Text style={styles.reportMissingText}>
+                    Não encontrado no banco — Reportar faltante
+                  </Text>
+                </TouchableOpacity>
+              )
             )}
             {interactions.map(i => {
               const isC = i.risk_level === 'critical';
@@ -790,8 +803,8 @@ const styles = StyleSheet.create({
   cardInteractionDesc: { fontSize: 11, color: '#555', fontStyle: 'italic' },
   bellBtn: { padding: 8, marginLeft: 4 },
   bellBtnText: { fontSize: 18 },
-  editBtn: { padding: 8, marginLeft: 4 },
-  editBtnText: { fontSize: 16 },
+  bulaCardBtn: { padding: 8, marginLeft: 4 },
+  bulaCardBtnText: { fontSize: 18 },
   deleteBtn: { padding: 8, marginLeft: 4 },
   deleteBtnText: { fontSize: 16, color: '#ccc' },
   fab: {
@@ -840,8 +853,13 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: '#c0ccdf', justifyContent: 'center', alignItems: 'center',
   },
   bulaBtnText: { fontSize: 16 },
-  bulaLinkInline: { marginTop: 6, paddingVertical: 4 },
-  bulaLinkText: { fontSize: 13, color: '#1a6b50', textDecorationLine: 'underline' },
+  reportMissingBtn: {
+    marginTop: 6, paddingVertical: 6, paddingHorizontal: 12,
+    borderRadius: 8, borderWidth: 1, borderColor: '#b0b8c8',
+    alignSelf: 'flex-start',
+  },
+  reportMissingText: { fontSize: 12, color: '#7a8099' },
+  reportedText: { fontSize: 12, color: '#5a9a6a', marginTop: 6 },
   // Interaction warning
   interactionCard: {
     borderLeftWidth: 3, borderRadius: 8, padding: 10, marginTop: 8,

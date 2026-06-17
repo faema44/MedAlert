@@ -13,7 +13,8 @@
  */
 
 import { getDb, getKV, setKV, getKVAge } from '../database/db';
-import { loadExternalDb } from '../utils/drugSearch';
+import { loadExternalDb, loadExternalInteractions } from '../utils/drugSearch';
+import { DrugInteraction } from '../types';
 
 // ─── Configure aqui ──────────────────────────────────────────────────────────
 const GITHUB_USER = 'faema44';
@@ -23,10 +24,15 @@ const DB_PATH = 'src/data/medications-db.json';
 // ─────────────────────────────────────────────────────────────────────────────
 
 const CACHE_KEY = 'medications_db_v1';
+const INT_CACHE_KEY = 'interactions_db_v1';
 const CACHE_TTL_DAYS = 1;
+
+const INT_PATH = 'src/data/interactions.json';
 
 const JSDELIVR_URL =
   `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/${DB_PATH}`;
+const JSDELIVR_INT_URL =
+  `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/${INT_PATH}`;
 
 type MedsDb = { version?: string; medications: { genericName: string; brands: string[]; category: string }[] };
 
@@ -87,4 +93,43 @@ async function fetchAndUpdate(): Promise<void> {
   } catch {
     // Network error, timeout, JSON parse error — silently ignore
   }
+}
+
+// ─── Interactions DB sync ─────────────────────────────────────────────────────
+
+export async function syncInteractionsDb(): Promise<void> {
+  await getDb();
+
+  try {
+    const cached = await getKV(INT_CACHE_KEY);
+    if (cached) {
+      loadExternalInteractions(JSON.parse(cached));
+    }
+  } catch {}
+
+  fetchAndUpdateInteractions().catch(() => {});
+}
+
+async function fetchAndUpdateInteractions(): Promise<void> {
+  try {
+    const age = await getKVAge(INT_CACHE_KEY);
+    if (age < CACHE_TTL_DAYS) {
+      const cached = await getKV(INT_CACHE_KEY);
+      if (cached) {
+        const parsed: DrugInteraction[] = JSON.parse(cached);
+        if (parsed.length >= 80) return;
+      }
+    }
+  } catch {}
+
+  try {
+    const res = await fetchWithTimeout(JSDELIVR_INT_URL, 8000);
+    if (!res.ok) return;
+
+    const data: DrugInteraction[] = await res.json();
+    if (!Array.isArray(data) || !data.length) return;
+
+    await setKV(INT_CACHE_KEY, JSON.stringify(data));
+    loadExternalInteractions(data);
+  } catch {}
 }
