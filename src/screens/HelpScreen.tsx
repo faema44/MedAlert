@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 
 const PRIVACY_URL = 'https://faema44.github.io/MedAlert/privacy.html';
+const CARDIODF_URL = 'https://www.youtube.com/watch?v=lPaP_QgjEW4';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -35,15 +36,32 @@ export default function HelpScreen() {
       <View style={styles.hero}>
         <Text style={styles.heroIcon}>🏥</Text>
         <Text style={styles.heroTitle}>Para que serve o MedAlert?</Text>
+
+        <View style={styles.heroFeatures}>
+          <View style={styles.heroFeatureRow}>
+            <Text style={styles.heroFeatureIcon}>🔒</Text>
+            <Text style={styles.heroFeatureText}>Exibe seus medicamentos e condição de saúde na tela de bloqueio para socorristas</Text>
+          </View>
+          <View style={styles.heroFeatureRow}>
+            <Text style={styles.heroFeatureIcon}>⚡</Text>
+            <Text style={styles.heroFeatureText}>Detecta interações perigosas entre seus medicamentos</Text>
+          </View>
+          <View style={styles.heroFeatureRow}>
+            <Text style={styles.heroFeatureIcon}>🔔</Text>
+            <Text style={styles.heroFeatureText}>Envia lembretes para você não esquecer de tomar seus remédios</Text>
+          </View>
+        </View>
+
+        <View style={styles.heroDivider} />
+
         <Text style={styles.heroText}>
-          Em caso de acidente ou emergência médica, os socorristas e médicos precisam saber
-          rapidamente quais medicamentos você toma — antes de aplicar qualquer tratamento.
-          Certos medicamentos podem interagir perigosamente com anestesias, anticoagulantes
-          e outros procedimentos de urgência.
+          Em caso de acidente ou emergência médica, os socorristas precisam saber rapidamente
+          quais medicamentos você toma antes de aplicar qualquer tratamento — certos remédios
+          podem interagir perigosamente com anestesias, contrastes e procedimentos de urgência.
         </Text>
         <Text style={styles.heroText}>
-          O MedAlert coloca essas informações visíveis na <Text style={styles.bold}>tela de bloqueio do celular</Text>,
-          acessíveis sem precisar desbloqueá-lo — mesmo que você esteja inconsciente.
+          O MedAlert mantém essas informações visíveis na tela de bloqueio do celular,
+          acessíveis sem precisar desbloqueá-lo, mesmo que você esteja inconsciente.
         </Text>
       </View>
 
@@ -114,6 +132,18 @@ export default function HelpScreen() {
         </Text>
       </Section>
 
+      {/* Vídeo educativo */}
+      <TouchableOpacity style={styles.videoCard} onPress={() => Linking.openURL(CARDIODF_URL)}>
+        <View style={styles.videoThumb}>
+          <Text style={styles.videoPlay}>▶</Text>
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.videoTitle}>Por que as interações medicamentosas são perigosas?</Text>
+          <Text style={styles.videoSub}>@CardioDF — Cardiologia e Saúde • YouTube</Text>
+        </View>
+        <Text style={styles.privacyArrow}>›</Text>
+      </TouchableOpacity>
+
       {/* Lembretes */}
       <Section title="🔔 Lembretes de medicamentos">
         <Text style={styles.bodyText}>
@@ -130,16 +160,49 @@ export default function HelpScreen() {
       </Section>
 
       {/* Privacidade */}
-      <Section title="🔐 Privacidade e segurança">
+      <Section title="🔐 Privacidade e segurança (LGPD)">
         <Text style={styles.bodyText}>
-          Todos os seus dados ficam armazenados <Text style={styles.bold}>exclusivamente no seu celular</Text>.
-          O MedAlert não envia informações para servidores externos. A base de interações
-          medicamentosas é embutida no aplicativo e funciona 100% offline.
+          Seus dados de saúde (nome, tipo sanguíneo, medicamentos, contatos) ficam armazenados exclusivamente no seu celular. A Lei Geral de Proteção de Dados (Lei 13.709/2018) classifica dados de saúde como dados sensíveis — e o MedAlert respeita essa exigência.
+        </Text>
+        <Text style={styles.bodyText}>
+          A única exceção é o recurso opcional "Reportar medicamento em falta": ao usá-lo, o
+          nome do medicamento é enviado anonimamente — sem qualquer dado pessoal.
         </Text>
         <Text style={styles.bodyText}>
           A notificação da tela de bloqueio é visível por qualquer pessoa com acesso físico ao
-          aparelho — isso é intencional para situações de emergência, mas lembre-se de desativar
-          o alerta se não quiser que terceiros vejam suas informações médicas.
+          aparelho — isso é intencional para emergências. Desative o alerta se não quiser que
+          terceiros vejam suas informações médicas.
+        </Text>
+      </Section>
+
+      {/* Avisos e limitações */}
+      <Section title="⚠️ Avisos e limitações importantes">
+
+        <Text style={styles.warningLabel}>Desenvolvido com inteligência artificial</Text>
+        <Text style={styles.bodyText}>
+          Este aplicativo foi criado com o auxílio de inteligência artificial e pode conter
+          erros, imprecisões ou omissões. Verifique sempre as informações com seu médico ou
+          farmacêutico antes de tomar qualquer decisão sobre seus medicamentos.
+        </Text>
+
+        <Text style={styles.warningLabel}>Não substitui profissional de saúde</Text>
+        <Text style={styles.bodyText}>
+          As informações sobre interações medicamentosas têm caráter exclusivamente educativo e informativo. Elas não constituem diagnóstico, prescrição ou aconselhamento médico ou farmacêutico. Nos termos da Lei 12.842/2013 e das resoluções do CFM e CFF, apenas profissionais habilitados podem avaliar interações clinicamente. Consulte sempre seu médico.
+        </Text>
+
+        <Text style={styles.warningLabel}>Base de medicamentos e interações</Text>
+        <Text style={styles.bodyText}>
+          A base de dados pode estar incompleta ou desatualizada. Para informações oficiais
+          sobre medicamentos registrados no Brasil, consulte o{' '}
+          <Text style={styles.bold}>Bulário Eletrônico da ANVISA</Text> (bulario.anvisa.gov.br).
+        </Text>
+
+        <Text style={styles.warningLabel}>Funcionamento depende do seu celular</Text>
+        <Text style={styles.bodyText}>
+          A exibição na tela de bloqueio, os lembretes e as notificações dependem das
+          configurações do seu dispositivo. O comportamento pode variar conforme o fabricante,
+          modelo e versão do Android. O MedAlert não garante funcionamento idêntico em todos
+          os aparelhos.
         </Text>
       </Section>
 
@@ -181,6 +244,11 @@ const styles = StyleSheet.create({
   heroTitle: { fontSize: 17, fontWeight: '700', color: '#fff', marginBottom: 12, textAlign: 'center' },
   heroText: { fontSize: 14, color: '#ccd9f0', lineHeight: 21, marginBottom: 8, textAlign: 'center' },
   bold: { fontWeight: '700', color: '#fff' },
+  heroFeatures: { alignSelf: 'stretch', marginBottom: 4 },
+  heroFeatureRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },
+  heroFeatureIcon: { fontSize: 18, marginRight: 10, marginTop: 1 },
+  heroFeatureText: { fontSize: 14, color: '#fff', lineHeight: 20, flex: 1 },
+  heroDivider: { height: 1, backgroundColor: 'rgba(255,255,255,0.15)', alignSelf: 'stretch', marginVertical: 14 },
 
   section: {
     backgroundColor: '#fff',
@@ -232,6 +300,31 @@ const styles = StyleSheet.create({
   privacyBtnText: { fontSize: 15, fontWeight: '600', color: '#1a3a6b' },
   privacyBtnSub: { fontSize: 12, color: '#888', marginTop: 2 },
   privacyArrow: { fontSize: 22, color: '#bbb', lineHeight: 24 },
+
+  videoCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    borderWidth: 1,
+    borderColor: '#ffd0d0',
+  },
+  videoThumb: {
+    width: 52, height: 38, borderRadius: 6, backgroundColor: '#FF0000',
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  videoPlay: { color: '#fff', fontSize: 18 },
+  videoTitle: { fontSize: 13, fontWeight: '600', color: '#1a3a6b', marginBottom: 4, lineHeight: 18 },
+  videoSub: { fontSize: 11, color: '#888' },
+
+  warningLabel: { fontSize: 13, fontWeight: '700', color: '#b05800', marginBottom: 4, marginTop: 8 },
 
   finalCard: {
     backgroundColor: '#e8f4fd',

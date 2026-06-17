@@ -1,5 +1,3 @@
-import dbData from '../data/medications-db.json';
-import interactionsData from '../data/interactions.json';
 import { DrugInteraction } from '../types';
 
 interface MedEntry {
@@ -8,7 +6,7 @@ interface MedEntry {
   category: string;
 }
 
-let DB: MedEntry[] = (dbData as { medications: MedEntry[] }).medications;
+let DB: MedEntry[] = [];
 
 export function loadExternalDb(data: { version?: string; medications: MedEntry[] }): void {
   if (!data?.medications?.length) return;
@@ -16,7 +14,11 @@ export function loadExternalDb(data: { version?: string; medications: MedEntry[]
     DB = data.medications;
   }
 }
-let ALL_INTERACTIONS: DrugInteraction[] = interactionsData as DrugInteraction[];
+let ALL_INTERACTIONS: DrugInteraction[] = [];
+
+export function getAllInteractions(): DrugInteraction[] {
+  return ALL_INTERACTIONS;
+}
 
 export function loadExternalInteractions(data: DrugInteraction[]): void {
   if (!data?.length) return;

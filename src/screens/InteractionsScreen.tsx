@@ -3,12 +3,9 @@ import {
   View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, ScrollView,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import interactionsData from '../data/interactions.json';
 import { getMedications } from '../database/db';
-import { checkInteractions } from '../utils/drugSearch';
+import { checkInteractions, getAllInteractions } from '../utils/drugSearch';
 import { DrugInteraction, Medication } from '../types';
-
-const ALL_INTERACTIONS = interactionsData as DrugInteraction[];
 
 const RISK_CONFIG = {
   critical: { label: 'CRÍTICO', color: '#CC0000', bg: '#fff0f0' },
@@ -80,7 +77,7 @@ export default function InteractionsScreen() {
   // Database tab: filter ALL_INTERACTIONS
   const dbFiltered = useMemo(() => {
     const q = search.toLowerCase().trim();
-    return ALL_INTERACTIONS.filter(i => {
+    return getAllInteractions().filter(i => {
       const matchSearch = !q || i.drug1.toLowerCase().includes(q) || i.drug2.toLowerCase().includes(q);
       const matchFilter = filter === 'all' || i.risk_level === filter;
       return matchSearch && matchFilter;

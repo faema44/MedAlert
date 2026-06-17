@@ -39,3 +39,10 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# documentation / design files (not app assets)
+assets/s_*.png
+assets/screen*.png
+assets/ui.xml
+bulas/
+*.txt

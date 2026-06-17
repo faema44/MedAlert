@@ -110,6 +110,9 @@ export default function ContactsScreen() {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalBox, { paddingBottom: insets.bottom + 32 }]}>
             <Text style={styles.modalTitle}>{editingId !== null ? 'Editar Contato' : 'Contato de Emergência'}</Text>
+            {editingId === null && (
+              <Text style={styles.modalSubtitle}>Aparecerá na tela de bloqueio — acesso sem senha</Text>
+            )}
 
             <Text style={styles.fieldLabel}>Nome *</Text>
             <TextInput
@@ -194,7 +197,8 @@ const styles = StyleSheet.create({
   fabText: { fontSize: 28, color: '#fff', lineHeight: 30 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   modalBox: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20 },
-  modalTitle: { fontSize: 18, fontWeight: '700', color: '#222', marginBottom: 16 },
+  modalTitle: { fontSize: 18, fontWeight: '700', color: '#222', marginBottom: 4 },
+  modalSubtitle: { fontSize: 12, color: '#1a6b3a', marginBottom: 16 },
   fieldLabel: { fontSize: 13, color: '#555', marginBottom: 4, marginTop: 10 },
   fieldInput: {
     borderWidth: 1, borderColor: '#ddd', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10,

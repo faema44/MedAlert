@@ -77,6 +77,8 @@ export default function MedicationsScreen() {
   const [form, setForm] = useState(EMPTY_MED);
   const [suggestions, setSuggestions] = useState<DrugSuggestion[]>([]);
   const [reportedDrug, setReportedDrug] = useState<string>('');
+  const [reportingName, setReportingName] = useState<string | null>(null);
+  const [knownDrug, setKnownDrug] = useState<boolean>(false);
   const [commercialSuggestions, setCommercialSuggestions] = useState<DrugSuggestion[]>([]);
   const [interactions, setInteractions] = useState<DrugInteraction[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -136,7 +138,9 @@ export default function MedicationsScreen() {
     setForm(f => ({ ...f, generic_name: v }));
     setSuggestions(getSuggestions(v));
     setCommercialSuggestions([]);
+    setKnownDrug(false);
     if (reportedDrug && v !== reportedDrug) setReportedDrug('');
+    setReportingName(null);
     // Exclude the medication being edited from the interaction check
     const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
     setInteractions(checkInteractions(v, others));
@@ -150,6 +154,7 @@ export default function MedicationsScreen() {
       commercial_name: f.commercial_name.trim() ? f.commercial_name : (commercial ?? ''),
     }));
     setSuggestions([]);
+    setKnownDrug(true);
     const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
     setInteractions(checkInteractions(s.genericName, others));
   }
@@ -188,6 +193,9 @@ export default function MedicationsScreen() {
       setCommercialSuggestions([]);
       setInteractions([]);
       setEditingId(null);
+      setKnownDrug(false);
+      setReportedDrug('');
+      setReportingName(null);
       await syncNotification(updated);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -229,6 +237,8 @@ export default function MedicationsScreen() {
     setEditingId(item.id);
     setSuggestions([]);
     setCommercialSuggestions([]);
+    setKnownDrug(true);
+    setReportedDrug('');
     const others = medications.filter(m => m.id !== item.id).map(m => m.generic_name);
     setInteractions(checkInteractions(item.generic_name, others));
     setShowModal(true);
@@ -397,7 +407,7 @@ export default function MedicationsScreen() {
         )}
       />
 
-      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={() => { setForm(EMPTY_MED); setEditingId(null); setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setShowModal(true); }}>
+      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={() => { setForm(EMPTY_MED); setEditingId(null); setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setKnownDrug(false); setReportedDrug(''); setReportingName(null); setShowModal(true); }}>
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 
@@ -441,17 +451,45 @@ export default function MedicationsScreen() {
                 ))}
               </View>
             )}
-            {suggestions.length === 0 && form.generic_name.trim().length >= 3 && (
+            {suggestions.length === 0 && !knownDrug && form.generic_name.trim().length >= 3 && (
               reportedDrug === form.generic_name.trim() ? (
                 <Text style={styles.reportedText}>✓ Reportado — obrigado!</Text>
+              ) : reportingName !== null ? (
+                <View style={styles.reportConfirmBox}>
+                  <Text style={styles.reportConfirmLabel}>Nome completo do medicamento:</Text>
+                  <TextInput
+                    style={styles.reportConfirmInput}
+                    value={reportingName}
+                    onChangeText={setReportingName}
+                    autoFocus
+                    autoCapitalize="words"
+                    placeholder="Ex: Amoxicilina Tri-hidratada"
+                  />
+                  <View style={styles.reportConfirmBtns}>
+                    <TouchableOpacity
+                      style={styles.reportCancelBtn}
+                      onPress={() => setReportingName(null)}
+                    >
+                      <Text style={styles.reportCancelText}>Cancelar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.reportSendBtn, !reportingName.trim() && { opacity: 0.4 }]}
+                      disabled={!reportingName.trim()}
+                      onPress={async () => {
+                        const name = reportingName.trim();
+                        setReportingName(null);
+                        setReportedDrug(form.generic_name.trim());
+                        await reportMissingDrug(name);
+                      }}
+                    >
+                      <Text style={styles.reportSendText}>Enviar</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
               ) : (
                 <TouchableOpacity
                   style={styles.reportMissingBtn}
-                  onPress={async () => {
-                    const name = form.generic_name.trim();
-                    setReportedDrug(name);
-                    await reportMissingDrug(name);
-                  }}
+                  onPress={() => setReportingName(form.generic_name.trim())}
                 >
                   <Text style={styles.reportMissingText}>
                     Não encontrado no banco — Reportar faltante
@@ -860,6 +898,14 @@ const styles = StyleSheet.create({
   },
   reportMissingText: { fontSize: 12, color: '#7a8099' },
   reportedText: { fontSize: 12, color: '#5a9a6a', marginTop: 6 },
+  reportConfirmBox: { marginTop: 8, padding: 10, backgroundColor: '#f5f6fa', borderRadius: 8, borderWidth: 1, borderColor: '#dde' },
+  reportConfirmLabel: { fontSize: 12, color: '#555', marginBottom: 6 },
+  reportConfirmInput: { borderWidth: 1, borderColor: '#ccd', borderRadius: 6, padding: 8, fontSize: 14, backgroundColor: '#fff' },
+  reportConfirmBtns: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8, gap: 8 },
+  reportCancelBtn: { paddingVertical: 6, paddingHorizontal: 14 },
+  reportCancelText: { fontSize: 13, color: '#888' },
+  reportSendBtn: { paddingVertical: 6, paddingHorizontal: 14, backgroundColor: '#4a6fa5', borderRadius: 6 },
+  reportSendText: { fontSize: 13, color: '#fff', fontWeight: '600' },
   // Interaction warning
   interactionCard: {
     borderLeftWidth: 3, borderRadius: 8, padding: 10, marginTop: 8,

@@ -183,7 +183,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
       ) : (
         <TouchableOpacity style={styles.warningCard} activeOpacity={0.8} onPress={() => navigation.navigate('Profile')}>
-          <Text style={styles.warningText}>⚠️ Perfil não preenchido — toque para cadastrar seus dados.</Text>
+          <Text style={styles.warningText}>⚠️ Preencha o seu perfil para as informações aparecerem na Tela de Bloqueio</Text>
         </TouchableOpacity>
       )}
 
