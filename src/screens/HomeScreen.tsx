@@ -77,6 +77,9 @@ export default function HomeScreen() {
 
   const criticalMeds = medications.filter(m => m.is_critical);
   const profileComplete = profile?.name && medications.length > 0;
+  const initials = profile?.name
+    ? profile.name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
+    : null;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -90,51 +93,29 @@ export default function HomeScreen() {
               Para que suas informações médicas apareçam na tela de bloqueio sem desbloquear o celular,
               siga os passos abaixo:
             </Text>
-
-            <View style={styles.stepRow}>
-              <View style={styles.stepNum}><Text style={styles.stepNumText}>1</Text></View>
-              <Text style={styles.stepText}>
-                Abra as <Text style={styles.bold}>Configurações</Text> do celular
-              </Text>
-            </View>
-            <View style={styles.stepRow}>
-              <View style={styles.stepNum}><Text style={styles.stepNumText}>2</Text></View>
-              <Text style={styles.stepText}>
-                Vá em <Text style={styles.bold}>Notificações</Text> (ou Aplicativos → MedAlert → Notificações)
-              </Text>
-            </View>
-            <View style={styles.stepRow}>
-              <View style={styles.stepNum}><Text style={styles.stepNumText}>3</Text></View>
-              <Text style={styles.stepText}>
-                Em <Text style={styles.bold}>Tela de Bloqueio</Text>, selecione{' '}
-                <Text style={styles.bold}>"Mostrar todo o conteúdo"</Text>
-              </Text>
-            </View>
-            <View style={styles.stepRow}>
-              <View style={styles.stepNum}><Text style={styles.stepNumText}>4</Text></View>
-              <Text style={styles.stepText}>
-                Certifique-se de que as notificações do <Text style={styles.bold}>MedAlert</Text> estão ativadas
-              </Text>
-            </View>
-
+            {[
+              'Abra as Configurações do celular',
+              'Vá em Notificações (ou Aplicativos → MedAlert → Notificações)',
+              'Em Tela de Bloqueio, selecione "Mostrar todo o conteúdo"',
+              'Certifique-se de que as notificações do MedAlert estão ativadas',
+            ].map((step, i) => (
+              <View key={i} style={styles.stepRow}>
+                <View style={styles.stepNum}><Text style={styles.stepNumText}>{i + 1}</Text></View>
+                <Text style={styles.stepText}>{step}</Text>
+              </View>
+            ))}
             <View style={styles.tipBox}>
               <Text style={styles.tipText}>
                 💡 O caminho exato varia por fabricante (Samsung, Motorola, etc.), mas geralmente está
                 em Configurações → Notificações → Tela de Bloqueio.
               </Text>
             </View>
-
-            <TouchableOpacity
-              style={styles.checkRow}
-              onPress={() => setDontShowAgain(v => !v)}
-              activeOpacity={0.7}
-            >
+            <TouchableOpacity style={styles.checkRow} onPress={() => setDontShowAgain(v => !v)} activeOpacity={0.7}>
               <View style={[styles.checkbox, dontShowAgain && styles.checkboxChecked]}>
                 {dontShowAgain && <Text style={styles.checkmark}>✓</Text>}
               </View>
               <Text style={styles.checkLabel}>Não mostrar novamente</Text>
             </TouchableOpacity>
-
             <View style={styles.modalActions}>
               <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowInstructions(false)}>
                 <Text style={styles.cancelBtnText}>Cancelar</Text>
@@ -147,50 +128,64 @@ export default function HomeScreen() {
         </View>
       </Modal>
 
-      <View style={styles.statusCard}>
-        <Text style={styles.statusTitle}>Status do Alerta</Text>
-        <View style={[styles.statusBadge, notifActive ? styles.badgeActive : styles.badgeInactive]}>
-          <Text style={styles.badgeText}>{notifActive ? '🔔 ATIVO' : '🔕 INATIVO'}</Text>
+      {/* Hero status card */}
+      <View style={styles.heroCard}>
+        <View style={styles.heroRow}>
+          <View style={styles.heroLeft}>
+            <View style={[styles.statusDot, notifActive ? styles.dotActive : styles.dotInactive]} />
+            <Text style={styles.heroStatusText}>
+              {notifActive ? 'Alerta ativo — visível na tela de bloqueio' : 'Alerta inativo'}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={[styles.heroBtn, notifActive ? styles.heroBtnOff : styles.heroBtnOn]}
+            onPress={handleToggleNotification}
+          >
+            <Text style={styles.heroBtnText}>{notifActive ? 'Desativar' : 'Ativar'}</Text>
+          </TouchableOpacity>
         </View>
-        <Text style={styles.statusDesc}>
-          {notifActive
-            ? 'Visível na tela de bloqueio sem desbloquear o celular'
-            : 'Ative para exibir suas informações na tela de bloqueio'}
-        </Text>
-        <TouchableOpacity
-          style={[styles.toggleBtn, notifActive ? styles.btnDeactivate : styles.btnActivate]}
-          onPress={handleToggleNotification}
-        >
-          <Text style={styles.toggleBtnText}>
-            {notifActive ? 'Desativar Alerta' : 'Ícone na Tela de Bloqueio (Emergência)'}
-          </Text>
-        </TouchableOpacity>
       </View>
 
+      {/* Profile card */}
       {profile ? (
         <TouchableOpacity style={styles.summaryCard} activeOpacity={0.8} onPress={() => navigation.navigate('Profile')}>
           <View style={styles.cardRow}>
-            <Text style={styles.cardTitle}>📋 Perfil Médico</Text>
+            <Text style={styles.cardTag}>PERFIL MÉDICO</Text>
             <Text style={styles.cardChevron}>›</Text>
           </View>
-          <Text style={styles.name}>{profile.name}</Text>
-          {profile.blood_type !== 'Desconhecido' && (
-            <Text style={styles.detail}>🩸 {profile.blood_type}</Text>
-          )}
-          {profile.allergies ? (
-            <Text style={styles.detail}>🚫 Alergias: {profile.allergies}</Text>
-          ) : null}
+          <View style={styles.profileRow}>
+            {initials && (
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{initials}</Text>
+              </View>
+            )}
+            <View style={{ flex: 1 }}>
+              <Text style={styles.name}>{profile.name}</Text>
+              <View style={styles.pillsRow}>
+                {profile.blood_type !== 'Desconhecido' && (
+                  <View style={styles.pill}>
+                    <Text style={styles.pillText}>{profile.blood_type}</Text>
+                  </View>
+                )}
+                {profile.allergies ? (
+                  <View style={[styles.pill, styles.pillRed]}>
+                    <Text style={[styles.pillText, styles.pillTextRed]}>{profile.allergies}</Text>
+                  </View>
+                ) : null}
+              </View>
+            </View>
+          </View>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity style={styles.warningCard} activeOpacity={0.8} onPress={() => navigation.navigate('Profile')}>
-          <Text style={styles.warningText}>⚠️ Preencha o seu perfil para as informações aparecerem na Tela de Bloqueio</Text>
+          <Text style={styles.warningText}>⚠️ Preencha o seu perfil para as informações aparecerem na tela de bloqueio</Text>
         </TouchableOpacity>
       )}
 
       {criticalMeds.length > 0 && (
         <TouchableOpacity style={styles.criticalCard} activeOpacity={0.8} onPress={() => navigation.navigate('Medications')}>
           <View style={styles.cardRow}>
-            <Text style={styles.cardTitle}>⚠️ Medicamentos Críticos</Text>
+            <Text style={styles.criticalCardTag}>MEDICAMENTOS CRÍTICOS</Text>
             <Text style={styles.cardChevron}>›</Text>
           </View>
           {criticalMeds.map(med => (
@@ -204,18 +199,21 @@ export default function HomeScreen() {
       {allInteractions.length > 0 && (
         <TouchableOpacity style={styles.interactionCard} activeOpacity={0.8} onPress={() => navigation.navigate('Interactions')}>
           <View style={styles.cardRow}>
-            <Text style={styles.interactionCardTitle}>
-              ⚡ {allInteractions.length} interaç{allInteractions.length > 1 ? 'ões' : 'ão'} detectada{allInteractions.length > 1 ? 's' : ''}
+            <Text style={styles.interactionCardTag}>
+              {allInteractions.length} INTERAÇ{allInteractions.length > 1 ? 'ÕES' : 'ÃO'} DETECTADA{allInteractions.length > 1 ? 'S' : ''}
             </Text>
             <Text style={styles.cardChevron}>›</Text>
           </View>
           {allInteractions.slice(0, 3).map(i => {
             const color = i.risk_level === 'critical' ? '#CC0000' : i.risk_level === 'high' ? '#e65c00' : '#b58900';
-            const label = i.risk_level === 'critical' ? 'CRÍTICO' : i.risk_level === 'high' ? 'ALTO' : 'MODERADO';
+            const label = i.risk_level === 'critical' ? 'Crítico' : i.risk_level === 'high' ? 'Alto' : 'Moderado';
             return (
-              <Text key={i.id} style={[styles.interactionItem, { color }]} numberOfLines={1}>
-                ⚡ {label}: {i.drug1} + {i.drug2}
-              </Text>
+              <View key={i.id} style={styles.interactionRow}>
+                <View style={[styles.interactionBadge, { borderColor: color }]}>
+                  <Text style={[styles.interactionBadgeText, { color }]}>{label}</Text>
+                </View>
+                <Text style={styles.interactionPair} numberOfLines={1}>{i.drug1} + {i.drug2}</Text>
+              </View>
             );
           })}
           {allInteractions.length > 3 && (
@@ -226,6 +224,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
       )}
 
+      {/* Stats row */}
       <View style={styles.statsRow}>
         <TouchableOpacity style={styles.statBox} activeOpacity={0.8} onPress={() => navigation.navigate('Medications')}>
           <Text style={styles.statNum}>{medications.length}</Text>
@@ -235,7 +234,7 @@ export default function HomeScreen() {
           <Text style={styles.statNum}>{contacts.length}</Text>
           <Text style={styles.statLabel}>Contatos</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.statBox} activeOpacity={0.8} onPress={() => navigation.navigate('Interactions')}>
+        <TouchableOpacity style={styles.statBox} activeOpacity={0.8} onPress={() => navigation.navigate('Medications')}>
           <Text style={styles.statNum}>{criticalMeds.length}</Text>
           <Text style={styles.statLabel}>Críticos</Text>
         </TouchableOpacity>
@@ -247,7 +246,7 @@ export default function HomeScreen() {
           <Text style={styles.infoStep}>1. Preencha seu perfil médico (aba Perfil)</Text>
           <Text style={styles.infoStep}>2. Cadastre seus medicamentos (aba Medicamentos)</Text>
           <Text style={styles.infoStep}>3. Adicione contatos de emergência (aba Contatos)</Text>
-          <Text style={styles.infoStep}>4. Ative o Alerta de Emergência aqui</Text>
+          <Text style={styles.infoStep}>4. Ative o alerta de emergência aqui</Text>
         </View>
       )}
     </ScrollView>
@@ -255,8 +254,8 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  content: { padding: 16, paddingBottom: 32 },
+  container: { flex: 1, backgroundColor: '#F2F4F8' },
+  content: { padding: 14, paddingBottom: 32 },
 
   // Modal
   modalOverlay: {
@@ -267,89 +266,105 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', borderRadius: 16, padding: 22, width: '100%',
     elevation: 8, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8,
   },
-  modalTitle: { fontSize: 17, fontWeight: '700', color: '#1a3a6b', marginBottom: 10 },
+  modalTitle: { fontSize: 17, fontWeight: '700', color: '#1C3F7A', marginBottom: 10 },
   modalIntro: { fontSize: 13, color: '#555', lineHeight: 19, marginBottom: 14 },
   stepRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },
   stepNum: {
-    width: 22, height: 22, borderRadius: 11, backgroundColor: '#1a3a6b',
+    width: 22, height: 22, borderRadius: 6, backgroundColor: '#1C3F7A',
     alignItems: 'center', justifyContent: 'center', marginRight: 10, marginTop: 1, flexShrink: 0,
   },
   stepNumText: { color: '#fff', fontSize: 11, fontWeight: '700' },
   stepText: { fontSize: 13, color: '#333', lineHeight: 20, flex: 1 },
-  bold: { fontWeight: '700' },
-  tipBox: {
-    backgroundColor: '#f0faf4', borderRadius: 8, padding: 10, marginTop: 4, marginBottom: 14,
-  },
+  tipBox: { backgroundColor: '#f0faf4', borderRadius: 8, padding: 10, marginTop: 4, marginBottom: 14 },
   tipText: { fontSize: 12, color: '#1a6b3a', lineHeight: 18 },
   checkRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 18 },
   checkbox: {
-    width: 22, height: 22, borderRadius: 5, borderWidth: 2, borderColor: '#1a3a6b',
+    width: 22, height: 22, borderRadius: 5, borderWidth: 2, borderColor: '#1C3F7A',
     alignItems: 'center', justifyContent: 'center', marginRight: 10,
   },
-  checkboxChecked: { backgroundColor: '#1a3a6b' },
+  checkboxChecked: { backgroundColor: '#1C3F7A' },
   checkmark: { color: '#fff', fontSize: 13, fontWeight: '700' },
   checkLabel: { fontSize: 14, color: '#444' },
   modalActions: { flexDirection: 'row', gap: 10 },
   cancelBtn: {
-    flex: 1, borderWidth: 1.5, borderColor: '#ccc', borderRadius: 10,
+    flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 10,
     padding: 13, alignItems: 'center',
   },
   cancelBtnText: { fontSize: 14, color: '#666', fontWeight: '600' },
-  confirmBtn: { flex: 1, backgroundColor: '#1a3a6b', borderRadius: 10, padding: 13, alignItems: 'center' },
+  confirmBtn: { flex: 1, backgroundColor: '#1C3F7A', borderRadius: 10, padding: 13, alignItems: 'center' },
   confirmBtnText: { fontSize: 14, color: '#fff', fontWeight: '700' },
 
-  // Existing
-  statusCard: {
-    backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 16,
-    elevation: 2, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4,
+  // Hero status
+  heroCard: {
+    backgroundColor: '#1C3F7A', borderRadius: 12, padding: 14, marginBottom: 12,
   },
-  statusTitle: { fontSize: 14, color: '#666', marginBottom: 8 },
-  statusBadge: {
-    alignSelf: 'flex-start', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 4, marginBottom: 8,
-  },
-  badgeActive: { backgroundColor: '#e8f5e9' },
-  badgeInactive: { backgroundColor: '#f5f5f5' },
-  badgeText: { fontSize: 13, fontWeight: '600' },
-  statusDesc: { fontSize: 13, color: '#666', marginBottom: 12 },
-  toggleBtn: { borderRadius: 8, padding: 14, alignItems: 'center' },
-  btnActivate: { backgroundColor: '#1a3a6b' },
-  btnDeactivate: { backgroundColor: '#666' },
-  toggleBtnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  heroRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  heroLeft: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 },
+  statusDot: { width: 8, height: 8, borderRadius: 4 },
+  dotActive: { backgroundColor: '#5DC994' },
+  dotInactive: { backgroundColor: '#E07B4F' },
+  heroStatusText: { fontSize: 13, color: 'rgba(255,255,255,0.85)', flex: 1 },
+  heroBtn: { borderRadius: 8, paddingHorizontal: 16, paddingVertical: 8, marginLeft: 12 },
+  heroBtnOn: { backgroundColor: '#E07B4F' },
+  heroBtnOff: { backgroundColor: 'rgba(255,255,255,0.18)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' },
+  heroBtnText: { color: '#fff', fontWeight: '700', fontSize: 13 },
+
+  // Cards
   summaryCard: {
-    backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 12,
-    elevation: 2, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4,
+    backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
   },
-  cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  cardTitle: { fontSize: 13, color: '#666' },
-  cardChevron: { fontSize: 22, color: '#bbb', lineHeight: 24 },
-  name: { fontSize: 20, fontWeight: '700', color: '#222', marginBottom: 4 },
-  detail: { fontSize: 14, color: '#444', marginTop: 2 },
+  cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  cardTag: { fontSize: 10, color: '#8A8F9D', fontWeight: '600', letterSpacing: 0.5 },
+  cardChevron: { fontSize: 22, color: '#C0C5D0', lineHeight: 24 },
+  profileRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  avatar: {
+    width: 40, height: 40, borderRadius: 20, backgroundColor: '#EEF3FF',
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  avatarText: { fontSize: 15, fontWeight: '600', color: '#1C3F7A' },
+  name: { fontSize: 17, fontWeight: '600', color: '#1A1F2E', marginBottom: 6 },
+  pillsRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+  pill: { backgroundColor: '#EEF3FF', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 },
+  pillText: { fontSize: 12, color: '#1C3F7A', fontWeight: '600' },
+  pillRed: { backgroundColor: '#FEE9E9' },
+  pillTextRed: { color: '#B03020' },
+
   warningCard: {
-    backgroundColor: '#fff3cd', borderRadius: 12, padding: 14, marginBottom: 12,
+    backgroundColor: '#fff3cd', borderRadius: 12, padding: 14, marginBottom: 10,
     borderLeftWidth: 4, borderLeftColor: '#ffc107',
   },
   warningText: { fontSize: 14, color: '#856404' },
+
   criticalCard: {
-    backgroundColor: '#fff8f8', borderRadius: 12, padding: 16, marginBottom: 12,
-    borderLeftWidth: 4, borderLeftColor: '#CC0000',
+    backgroundColor: '#fff8f8', borderRadius: 12, padding: 14, marginBottom: 10,
+    borderWidth: 0.5, borderColor: 'rgba(204,0,0,0.12)', borderLeftWidth: 3, borderLeftColor: '#CC0000',
   },
-  criticalMed: { fontSize: 14, color: '#444', marginTop: 4 },
+  criticalCardTag: { fontSize: 10, color: '#CC0000', fontWeight: '600', letterSpacing: 0.5 },
+  criticalMed: { fontSize: 13, color: '#444', marginTop: 4 },
+
   interactionCard: {
-    backgroundColor: '#fff8f0', borderRadius: 12, padding: 16, marginBottom: 12,
-    borderLeftWidth: 4, borderLeftColor: '#e65c00',
-    elevation: 1, shadowColor: '#000', shadowOpacity: 0.07, shadowRadius: 3,
+    backgroundColor: '#fff8f5', borderRadius: 12, padding: 14, marginBottom: 10,
+    borderWidth: 0.5, borderColor: 'rgba(230,92,0,0.15)', borderLeftWidth: 3, borderLeftColor: '#e65c00',
   },
-  interactionCardTitle: { fontSize: 13, fontWeight: '700', color: '#e65c00', flex: 1 },
-  interactionItem: { fontSize: 13, marginTop: 4, fontWeight: '600' },
-  interactionMore: { fontSize: 12, color: '#888', marginTop: 6, fontStyle: 'italic' },
-  statsRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
+  interactionCardTag: { fontSize: 10, color: '#e65c00', fontWeight: '600', letterSpacing: 0.5 },
+  interactionRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 },
+  interactionBadge: {
+    borderWidth: 1, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 1,
+  },
+  interactionBadgeText: { fontSize: 10, fontWeight: '600' },
+  interactionPair: { fontSize: 13, color: '#333', flex: 1, fontWeight: '500' },
+  interactionMore: { fontSize: 12, color: '#888', marginTop: 8, fontStyle: 'italic' },
+
+  statsRow: { flexDirection: 'row', gap: 10, marginBottom: 14 },
   statBox: {
     flex: 1, backgroundColor: '#fff', borderRadius: 12, padding: 14, alignItems: 'center',
-    elevation: 1, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 2,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
   },
-  statNum: { fontSize: 28, fontWeight: '700', color: '#1a3a6b' },
-  statLabel: { fontSize: 11, color: '#666', marginTop: 2 },
-  infoCard: { backgroundColor: '#e8f4fd', borderRadius: 12, padding: 16 },
-  infoTitle: { fontSize: 15, fontWeight: '600', color: '#0066cc', marginBottom: 10 },
-  infoStep: { fontSize: 14, color: '#333', marginBottom: 6 },
+  statNum: { fontSize: 28, fontWeight: '600', color: '#1C3F7A' },
+  statLabel: { fontSize: 11, color: '#8A8F9D', marginTop: 2 },
+
+  infoCard: { backgroundColor: '#EEF3FF', borderRadius: 12, padding: 16 },
+  infoTitle: { fontSize: 14, fontWeight: '600', color: '#1C3F7A', marginBottom: 10 },
+  infoStep: { fontSize: 13, color: '#4A5270', marginBottom: 6 },
 });
