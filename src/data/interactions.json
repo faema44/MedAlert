@@ -1438,5 +1438,125 @@
     "risk_level": "high",
     "risk_description": "Valeriana potencializa o efeito sedativo de antidepressivos tricíclicos",
     "mechanism": "A ação sedativa da valeriana pode ser potencializada por antidepressivos tricíclicos como a amitriptilina, narcóticos e anestésicos, promovendo maior tempo de sedação e risco de depressão do SNC."
+  },
+  {
+    "id": "int_181",
+    "drug1": "Glycine max (Soja)",
+    "drug2": "Levotiroxina",
+    "risk_level": "high",
+    "risk_description": "Soja reduz a absorção da levotiroxina, comprometendo o tratamento do hipotireoidismo",
+    "mechanism": "As isoflavonas da soja interferem na absorção intestinal da levotiroxina. O uso concomitante pode reduzir os níveis séricos do hormônio tireoidiano e comprometer o controle do hipotireoidismo. Recomenda-se intervalo mínimo de 4 horas entre o uso de soja e a tomada de levotiroxina. Fonte: Ruver-Martins & Silva, Rev Fitos 2024."
+  },
+  {
+    "id": "int_182",
+    "drug1": "Salvia miltiorrhiza (Danshen)",
+    "drug2": "Varfarina",
+    "risk_level": "critical",
+    "risk_description": "Danshen potencializa o efeito anticoagulante da varfarina com risco de hemorragia",
+    "mechanism": "A Salvia miltiorrhiza (Danshen), utilizada na fitoterapia chinesa para distúrbios cardiovasculares, melhora a microcirculação e inibe a agregação plaquetária. Combinada com varfarina, potencializa o efeito anticoagulante com risco significativo de sangramento grave. Monitorar o INR com frequência ao usar concomitantemente. Fonte: Ruver-Martins & Silva, Rev Fitos 2024."
+  },
+  {
+    "id": "int_183",
+    "drug1": "Ginkgo biloba",
+    "drug2": "Atenolol",
+    "risk_level": "high",
+    "risk_description": "Ginkgo combinado com atenolol pode causar bradicardia e hipotensão",
+    "mechanism": "O uso concomitante de Ginkgo biloba com betabloqueadores como o atenolol pode resultar em bradicardia e hipotensão. O ginkgo interfere na regulação vascular periférica e pode potencializar o efeito hipotensor do atenolol, aumentando o risco de efeitos cardiovasculares adversos. Monitorar pressão arterial e frequência cardíaca. Fonte: Ruver-Martins & Silva, Rev Fitos 2024."
+  },
+  {
+    "id": "int_184",
+    "drug1": "Ginkgo biloba",
+    "drug2": "Omeprazol",
+    "risk_level": "moderate",
+    "risk_description": "Ginkgo reduz a concentração plasmática e o efeito terapêutico do omeprazol",
+    "mechanism": "O Ginkgo biloba induz enzimas do citocromo P450 (CYP2C19), acelerando o metabolismo do omeprazol e reduzindo sua concentração plasmática e eficácia terapêutica. Pacientes em uso de omeprazol para gastrite ou úlcera péptica podem ter controle insuficiente dos sintomas ao usar ginkgo concomitantemente. Fonte: Ruver-Martins & Silva, Rev Fitos 2024."
+  },
+  {
+    "id": "int_185",
+    "drug1": "Senna alexandrina (Sene)",
+    "drug2": "Anticoncepcionais orais",
+    "risk_level": "high",
+    "risk_description": "Sene reduz a absorção de estrógenos e anticoncepcionais orais, comprometendo a eficácia contraceptiva",
+    "mechanism": "O uso crônico ou abusivo do sene como laxativo acelera o trânsito intestinal e reduz a absorção de estrógenos e anticoncepcionais orais. A eficácia contraceptiva pode ser comprometida, especialmente com uso frequente. Recomenda-se evitar o uso regular de sene em usuárias de anticoncepcionais orais. Fonte: Ruver-Martins & Silva, Rev Fitos 2024."
+  },
+  {
+    "id": "int_186",
+    "drug1": "Panax ginseng (Ginseng)",
+    "drug2": "Estrógenos",
+    "risk_level": "high",
+    "risk_description": "Ginseng aumenta a atividade estrogênica causando mastalgia e sangramento menstrual excessivo",
+    "mechanism": "O ginseng possui atividade estrogênica intrínseca (fitoestrógeno). Combinado com estrógenos exógenos (terapia hormonal, anticoncepcionais), pode intensificar os efeitos estrogênicos, resultando em mastalgia, retenção hídrica e sangramento uterino anormal. Mulheres com histórico de câncer hormônio-dependente devem evitar a combinação. Fonte: Ruver-Martins & Silva, Rev Fitos 2024."
+  },
+  {
+    "id": "int_187",
+    "drug1": "Matricaria recutita (Camomila)",
+    "drug2": "Fluoxetina",
+    "risk_level": "high",
+    "risk_description": "Camomila intensifica a ação depressora do SNC da fluoxetina",
+    "mechanism": "A camomila possui propriedades ansiolíticas e depressoras do SNC. Combinada com antidepressivos como a fluoxetina, pode intensificar a depressão do sistema nervoso central e prolongar a sedação. Monitorar sinais de sedação excessiva. Fonte: Ruver-Martins & Silva, Rev Fitos 2024."
+  },
+  {
+    "id": "int_188",
+    "drug1": "Matricaria recutita (Camomila)",
+    "drug2": "Clonazepam",
+    "risk_level": "high",
+    "risk_description": "Camomila prolonga e intensifica o efeito sedativo do clonazepam",
+    "mechanism": "A ação ansiolítica e depressora do SNC da camomila é aditiva ao clonazepam (benzodiazepínico). A combinação pode prolongar e intensificar a sedação, aumentar o risco de sonolência excessiva e depressão respiratória. Evitar o uso concomitante ou reduzir as doses sob orientação médica. Fonte: Ruver-Martins & Silva, Rev Fitos 2024."
+  },
+  {
+    "id": "int_189",
+    "drug1": "Matricaria recutita (Camomila)",
+    "drug2": "Amitriptilina",
+    "risk_level": "high",
+    "risk_description": "Camomila intensifica a depressão do SNC da amitriptilina",
+    "mechanism": "A camomila possui efeito depressor do SNC que pode se somar ao efeito sedativo da amitriptilina (antidepressivo tricíclico). A combinação pode resultar em sedação excessiva, comprometimento cognitivo e maior risco de quedas em idosos. Fonte: Ruver-Martins & Silva, Rev Fitos 2024."
+  },
+  {
+    "id": "int_190",
+    "drug1": "Glycyrrhiza glabra (Alcaçuz)",
+    "drug2": "Enalapril",
+    "risk_level": "high",
+    "risk_description": "Alcaçuz aumenta a concentração plasmática do enalapril e antagoniza seu efeito anti-hipertensivo",
+    "mechanism": "O alcaçuz causa pseudoaldosteronismo com retenção de sódio e água, antagonizando o efeito dos IECAs como o enalapril e aumentando a pressão arterial. Além disso, pode alterar a concentração plasmática do fármaco. Pacientes hipertensos em uso de enalapril devem evitar o consumo de alcaçuz. Fonte: Ruver-Martins & Silva, Rev Fitos 2024."
+  },
+  {
+    "id": "int_191",
+    "drug1": "Glycyrrhiza glabra (Alcaçuz)",
+    "drug2": "Hidrocortisona",
+    "risk_level": "high",
+    "risk_description": "Alcaçuz potencializa os efeitos da hidrocortisona aumentando risco de efeitos adversos corticosteroides",
+    "mechanism": "O alcaçuz inibe a enzima 11β-HSD2 que converte o cortisol ativo em cortisona inativa, potencializando o efeito dos corticosteroides como a hidrocortisona. A combinação pode aumentar os efeitos adversos: hiperglicemia, retenção hídrica, hipertensão, osteoporose e supressão do eixo hipotálamo-hipófise-adrenal. Fonte: Ruver-Martins & Silva, Rev Fitos 2024."
+  },
+  {
+    "id": "int_192",
+    "drug1": "Glycyrrhiza glabra (Alcaçuz)",
+    "drug2": "Anticoncepcionais orais",
+    "risk_level": "high",
+    "risk_description": "Alcaçuz aumenta a concentração plasmática de hormônios dos anticoncepcionais orais",
+    "mechanism": "O alcaçuz inibe enzimas do metabolismo hepático (CYP3A4), aumentando a concentração plasmática dos hormônios dos anticoncepcionais orais. Isso pode intensificar os efeitos estrogênicos e progestagênicos, com risco aumentado de trombose, retenção hídrica e alterações da pressão arterial. Fonte: Ruver-Martins & Silva, Rev Fitos 2024."
+  },
+  {
+    "id": "int_193",
+    "drug1": "Passiflora incarnata (Maracujá)",
+    "drug2": "Diazepam",
+    "risk_level": "high",
+    "risk_description": "Maracujá intensifica o efeito sedativo do diazepam",
+    "mechanism": "A passiflora possui ação ansiolítica e sedativa leve que é aditiva ao diazepam (benzodiazepínico). A combinação pode intensificar a sonolência, a depressão do SNC e o risco de sedação excessiva e comprometimento psicomotor. Fonte: Ruver-Martins & Silva, Rev Fitos 2024."
+  },
+  {
+    "id": "int_194",
+    "drug1": "Passiflora incarnata (Maracujá)",
+    "drug2": "Lorazepam",
+    "risk_level": "high",
+    "risk_description": "Maracujá intensifica o efeito sedativo do lorazepam",
+    "mechanism": "A ação sedativa da passiflora potencializa o efeito do lorazepam (benzodiazepínico de ação intermediária), aumentando a intensidade da sonolência e o risco de depressão do SNC. Evitar a combinação, especialmente em idosos e pacientes com doenças respiratórias. Fonte: Ruver-Martins & Silva, Rev Fitos 2024."
+  },
+  {
+    "id": "int_195",
+    "drug1": "Passiflora incarnata (Maracujá)",
+    "drug2": "Codeína",
+    "risk_level": "high",
+    "risk_description": "Maracujá potencializa o efeito depressor do SNC da codeína",
+    "mechanism": "A ação sedativa da passiflora é aditiva ao efeito opioide depressor do SNC da codeína. A combinação pode intensificar a sonolência, depressão respiratória e o risco de sedação excessiva. O uso concomitante deve ser evitado ou monitorado rigorosamente. Fonte: Ruver-Martins & Silva, Rev Fitos 2024."
   }
 ]

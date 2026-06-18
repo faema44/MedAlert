@@ -5543,7 +5543,28 @@
         "Uva Ursi"
       ],
       "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Glycine max (Soja)",
+      "brands": [
+        "Soja",
+        "Isoflavona de Soja",
+        "Buona",
+        "PauseFemme",
+        "Soyfemme"
+      ],
+      "category": "Fitoterápico"
+    },
+    {
+      "genericName": "Salvia miltiorrhiza (Danshen)",
+      "brands": [
+        "Danshen",
+        "Dan Shen",
+        "Red Sage",
+        "Mãe Erva Sálvia"
+      ],
+      "category": "Fitoterápico"
     }
   ],
-  "updatedAt": "2026-06-16"
+  "updatedAt": "2026-06-17"
 }
