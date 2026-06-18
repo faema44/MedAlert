@@ -48,11 +48,11 @@ function InteractionCard({ item, expanded, onToggle }: {
         </View>
       </View>
 
-      <View style={styles.drugPair}>
+      <Text style={styles.drugPair}>
         <Text style={styles.drugName}>{item.drug1}</Text>
-        <Text style={[styles.drugPlus, { color: accentColor }]}>+</Text>
+        <Text style={[styles.drugPlus, { color: accentColor }]}>{' + '}</Text>
         <Text style={styles.drugName}>{item.drug2}</Text>
-      </View>
+      </Text>
 
       <Text style={styles.riskDesc}>{item.risk_description}</Text>
 
@@ -363,9 +363,9 @@ const styles = StyleSheet.create({
   riskBadgeText: { fontSize: 11, fontWeight: '600' },
   typeTag: { fontSize: 13, color: '#8A8F9D' },
   chevron: { fontSize: 11, color: '#C0C5D0' },
-  drugPair: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 },
-  drugName: { fontSize: 14, fontWeight: '600', color: '#1A1F2E' },
-  drugPlus: { fontSize: 13, fontWeight: '700' },
+  drugPair: { fontSize: 14, marginBottom: 6, lineHeight: 20 },
+  drugName: { fontWeight: '600', color: '#1A1F2E' },
+  drugPlus: { fontWeight: '700' },
   riskDesc: { fontSize: 12, color: '#6B7280', fontStyle: 'italic' },
   mechanismBox: { borderRadius: 8, padding: 10, marginTop: 10 },
   mechanismTitle: { fontSize: 11, fontWeight: '700', color: '#444', marginBottom: 4 },
