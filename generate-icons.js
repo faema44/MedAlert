@@ -100,9 +100,6 @@ function fgPixel(x, y, s) {
   return CLEAR;
 }
 
-// android-icon-background.png: solid dark blue
-function bgPixel() { return BLUE; }
-
 // android-icon-monochrome.png: white cross, transparent bg
 function monoPixel(x, y, s) {
   const cx = s / 2;
@@ -122,7 +119,6 @@ const ASSETS = path.join(__dirname, 'assets');
 const tasks = [
   ['icon.png', 1024, iconPixel],
   ['android-icon-foreground.png', 1024, fgPixel],
-  ['android-icon-background.png', 1024, bgPixel],
   ['android-icon-monochrome.png', 1024, monoPixel],
   ['notification-icon.png', 96, notifPixel],
 ];

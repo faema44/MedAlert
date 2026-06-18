@@ -18,7 +18,6 @@
       "adaptiveIcon": {
         "backgroundColor": "#1a3a6b",
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
@@ -32,6 +31,7 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "./plugins/withMedNotification",
       "expo-sqlite",
       [
         "expo-notifications",

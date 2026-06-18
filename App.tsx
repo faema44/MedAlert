@@ -27,24 +27,48 @@ const TITLES: Record<string, string> = {
   Help: 'Ajuda',
 };
 
+// Simple unicode icons that render consistently cross-platform
+const TAB_ICONS: Record<string, { icon: string; activeIcon: string }> = {
+  Home:         { icon: '⌂',  activeIcon: '⌂' },
+  Profile:      { icon: '◯',  activeIcon: '●' },
+  Medications:  { icon: '✦',  activeIcon: '✦' },
+  Contacts:     { icon: '☎',  activeIcon: '☎' },
+  Interactions: { icon: '≡',  activeIcon: '≡' },
+};
+
 function HeaderTitle({ route }: { route: { name: string } }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
       <Image
         source={require('./assets/icon.png')}
-        style={{ width: 30, height: 30, borderRadius: 7 }}
+        style={{ width: 28, height: 28, borderRadius: 7 }}
       />
-      <Text style={{ color: '#fff', fontWeight: '700', fontSize: 17 }}>
+      <Text style={{ color: '#fff', fontWeight: '600', fontSize: 17 }}>
         {TITLES[route.name] ?? route.name}
       </Text>
     </View>
   );
 }
 
-function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
+function TabIcon({ name, focused }: { name: string; focused: boolean }) {
+  const icons: Record<string, string> = {
+    Home:         '🏠',
+    Profile:      '👤',
+    Medications:  '💊',
+    Contacts:     '📞',
+    Interactions: '📋',
+  };
   return (
     <View style={{ alignItems: 'center' }}>
-      <Text style={{ fontSize: focused ? 22 : 20, opacity: focused ? 1 : 0.6 }}>{emoji}</Text>
+      <Text style={{ fontSize: focused ? 22 : 20, opacity: focused ? 1 : 0.55 }}>
+        {icons[name] ?? '•'}
+      </Text>
+      {focused && (
+        <View style={{
+          width: 4, height: 4, borderRadius: 2,
+          backgroundColor: '#1C3F7A', marginTop: 2,
+        }} />
+      )}
     </View>
   );
 }
@@ -58,81 +82,53 @@ function AppNavigator() {
       await setupNotificationChannels();
       await requestPermissions();
       syncMedicationsDb().catch(() => {});
-      syncInteractionsDb().catch(() => {}); // fire-and-forget: não bloqueia o startup
+      syncInteractionsDb().catch(() => {});
     }
     init();
   }, []);
 
   return (
     <NavigationContainer>
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
       <Tab.Navigator
         screenOptions={({ route, navigation }) => ({
-          headerStyle: { backgroundColor: '#1a3a6b' },
+          headerStyle: { backgroundColor: '#1C3F7A' },
           headerTintColor: '#fff',
           headerTitle: () => <HeaderTitle route={route} />,
           headerRight: route.name !== 'Help' ? () => (
-            <TouchableOpacity onPress={() => navigation.navigate('Help' as never)} style={{ marginRight: 16, padding: 4 }}>
-              <Text style={{ color: '#fff', fontSize: 20, fontWeight: '700' }}>?</Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Help' as never)}
+              style={{ marginRight: 16, padding: 4 }}
+            >
+              <View style={{
+                width: 26, height: 26, borderRadius: 13,
+                borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.5)',
+                alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', lineHeight: 16 }}>?</Text>
+              </View>
             </TouchableOpacity>
           ) : undefined,
-          tabBarActiveTintColor: '#1a3a6b',
-          tabBarInactiveTintColor: '#999',
+          tabBarActiveTintColor: '#1C3F7A',
+          tabBarInactiveTintColor: '#9CA3AF',
           tabBarStyle: {
             height: 56 + insets.bottom,
             paddingBottom: insets.bottom + 2,
             paddingTop: 6,
+            backgroundColor: '#fff',
+            borderTopWidth: 0.5,
+            borderTopColor: '#E8EAF0',
           },
-          tabBarLabelStyle: { fontSize: 11 },
+          tabBarLabelStyle: { fontSize: 10, fontWeight: '500' },
+          tabBarIcon: ({ focused }) => <TabIcon name={route.name} focused={focused} />,
         })}
       >
-        <Tab.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{
-            tabBarLabel: 'Início',
-            tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" focused={focused} />,
-          }}
-        />
-        <Tab.Screen
-          name="Profile"
-          component={ProfileScreen}
-          options={{
-            tabBarLabel: 'Perfil',
-            tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} />,
-          }}
-        />
-        <Tab.Screen
-          name="Medications"
-          component={MedicationsScreen}
-          options={{
-            tabBarLabel: 'Remédios',
-            tabBarIcon: ({ focused }) => <TabIcon emoji="💊" focused={focused} />,
-          }}
-        />
-        <Tab.Screen
-          name="Contacts"
-          component={ContactsScreen}
-          options={{
-            tabBarLabel: 'Contatos',
-            tabBarIcon: ({ focused }) => <TabIcon emoji="📞" focused={focused} />,
-          }}
-        />
-        <Tab.Screen
-          name="Interactions"
-          component={InteractionsScreen}
-          options={{
-            tabBarLabel: 'Tabelas',
-            tabBarIcon: ({ focused }) => <TabIcon emoji="📋" focused={focused} />,
-          }}
-        />
-        <Tab.Screen
-          name="Help"
-          component={HelpScreen}
-          options={{
-            tabBarItemStyle: { display: 'none' },
-          }}
-        />
+        <Tab.Screen name="Home"         component={HomeScreen}         options={{ tabBarLabel: 'Início' }} />
+        <Tab.Screen name="Profile"      component={ProfileScreen}      options={{ tabBarLabel: 'Perfil' }} />
+        <Tab.Screen name="Medications"  component={MedicationsScreen}  options={{ tabBarLabel: 'Remédios' }} />
+        <Tab.Screen name="Contacts"     component={ContactsScreen}     options={{ tabBarLabel: 'Contatos' }} />
+        <Tab.Screen name="Interactions" component={InteractionsScreen} options={{ tabBarLabel: 'Tabelas' }} />
+        <Tab.Screen name="Help"         component={HelpScreen}         options={{ tabBarItemStyle: { display: 'none' } }} />
       </Tab.Navigator>
     </NavigationContainer>
   );
