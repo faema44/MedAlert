@@ -159,6 +159,22 @@ export default function HelpScreen() {
         </Text>
       </Section>
 
+      {/* Bateria Samsung */}
+      <Section title="🔋 Lembretes não tocam? Veja como corrigir">
+        <Text style={styles.bodyText}>
+          Samsung e outros fabricantes bloqueiam alarmes de apps em segundo plano por padrão.
+          Para os lembretes funcionarem mesmo com o celular na tela de bloqueio:
+        </Text>
+        <Step number="1" text="Configurações → Apps → MedAlert → Bateria" />
+        <Step number="2" text='Selecione "Sem restrições" (em vez de "Otimizada")' />
+        <TouchableOpacity style={styles.settingsBtn} onPress={() => Linking.openSettings()}>
+          <Text style={styles.settingsBtnText}>⚙️  Abrir configurações do MedAlert</Text>
+        </TouchableOpacity>
+        <Text style={styles.tip}>
+          💡 Em Samsung: Configurações → Bateria → Limites de uso em segundo plano → adicione MedAlert em "Apps que nunca adormecem".
+        </Text>
+      </Section>
+
       {/* Privacidade */}
       <Section title="🔐 Privacidade e segurança (LGPD)">
         <Text style={styles.bodyText}>
@@ -323,6 +339,12 @@ const styles = StyleSheet.create({
   videoPlay: { color: '#fff', fontSize: 18 },
   videoTitle: { fontSize: 13, fontWeight: '600', color: '#1a3a6b', marginBottom: 4, lineHeight: 18 },
   videoSub: { fontSize: 11, color: '#888' },
+
+  settingsBtn: {
+    backgroundColor: '#1C3F7A', borderRadius: 8, paddingVertical: 11,
+    alignItems: 'center', marginTop: 10, marginBottom: 4,
+  },
+  settingsBtnText: { color: '#fff', fontWeight: '600', fontSize: 14 },
 
   warningLabel: { fontSize: 13, fontWeight: '700', color: '#b05800', marginBottom: 4, marginTop: 8 },
 
