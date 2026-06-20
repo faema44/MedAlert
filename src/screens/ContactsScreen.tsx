@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
-  Modal, TextInput, Switch, Alert, Linking,
+  Modal, TextInput, Switch, Alert, Linking, ScrollView,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -127,8 +128,9 @@ export default function ContactsScreen() {
       </TouchableOpacity>
 
       <Modal visible={showModal} animationType="slide" transparent>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalBox, { paddingBottom: insets.bottom + 32 }]}>
+          <ScrollView style={styles.modalBox} contentContainerStyle={{ paddingBottom: insets.bottom + 32 }} keyboardShouldPersistTaps="handled">
             <Text style={styles.modalTitle}>{editingId !== null ? 'Editar Contato' : 'Contato de Emergência'}</Text>
             {editingId === null && (
               <Text style={styles.modalSubtitle}>Aparecerá na tela de bloqueio — acesso sem senha</Text>
@@ -178,8 +180,9 @@ export default function ContactsScreen() {
                 <Text style={styles.saveBtnText}>{editingId !== null ? 'Atualizar' : 'Salvar'}</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </ScrollView>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

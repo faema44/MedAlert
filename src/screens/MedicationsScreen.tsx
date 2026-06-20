@@ -1,7 +1,8 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
   Modal, TextInput, Switch, Alert, ScrollView, Linking, Share,
+  KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,6 +21,92 @@ import {
 import { Medication, MedicationReminder, DrugInteraction } from '../types';
 import { DrugSuggestion, getSuggestions, getBulaUrl, checkInteractions, checkSubstanceInteractions, isPhytotherapic, getPhytotherapics } from '../utils/drugSearch';
 import { reportMissingDrug } from '../services/reportMissing';
+
+// ─── Time Picker ──────────────────────────────────────────────────────────────
+const ITEM_H = 44;
+const PICKER_VISIBLE = 5;
+const PICKER_PAD = ITEM_H * 2; // centers first/last items
+
+function PickerCol({ items, value, onChange }: {
+  items: string[]; value: number; onChange: (v: number) => void;
+}) {
+  const ref = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    const id = setTimeout(() => {
+      ref.current?.scrollTo({ y: value * ITEM_H, animated: false });
+    }, 80);
+    return () => clearTimeout(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <View style={{ height: ITEM_H * PICKER_VISIBLE, width: 72, overflow: 'hidden' }}>
+      <ScrollView
+        ref={ref}
+        nestedScrollEnabled
+        snapToInterval={ITEM_H}
+        decelerationRate="fast"
+        showsVerticalScrollIndicator={false}
+        onMomentumScrollEnd={(e) => {
+          const idx = Math.round(e.nativeEvent.contentOffset.y / ITEM_H);
+          onChange(Math.max(0, Math.min(items.length - 1, idx)));
+        }}
+        onScrollEndDrag={(e) => {
+          const idx = Math.round(e.nativeEvent.contentOffset.y / ITEM_H);
+          onChange(Math.max(0, Math.min(items.length - 1, idx)));
+        }}
+        contentContainerStyle={{ paddingVertical: PICKER_PAD }}
+      >
+        {items.map((item, i) => (
+          <View key={i} style={{ height: ITEM_H, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{
+              fontSize: i === value ? 26 : 18,
+              color: i === value ? '#1C3F7A' : '#C0C5D0',
+              fontWeight: i === value ? '700' : '400',
+            }}>
+              {item}
+            </Text>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
+
+const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+const MINUTES = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
+
+function TimePicker({ hour, minute, onChange }: {
+  hour: number; minute: number; onChange: (h: number, m: number) => void;
+}) {
+  return (
+    <View style={tpStyles.wrap}>
+      <View pointerEvents="none" style={tpStyles.selBar} />
+      <PickerCol items={HOURS} value={hour} onChange={(h) => onChange(h, minute)} />
+      <Text style={tpStyles.colon}>:</Text>
+      <PickerCol items={MINUTES} value={minute} onChange={(m) => onChange(hour, m)} />
+    </View>
+  );
+}
+
+const tpStyles = StyleSheet.create({
+  wrap: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#F2F4F8', borderRadius: 12,
+    height: ITEM_H * PICKER_VISIBLE, overflow: 'hidden', marginTop: 4,
+  },
+  selBar: {
+    position: 'absolute',
+    top: ITEM_H * 2, left: 0, right: 0,
+    height: ITEM_H,
+    backgroundColor: 'rgba(28,63,122,0.09)',
+    borderTopWidth: 1, borderBottomWidth: 1,
+    borderColor: 'rgba(28,63,122,0.14)',
+  },
+  colon: { fontSize: 26, fontWeight: '700', color: '#1C3F7A', paddingHorizontal: 6, marginBottom: 2 },
+});
+// ──────────────────────────────────────────────────────────────────────────────
 
 function buildDoctorMessage(drugName: string, interactions: DrugInteraction[]): string {
   const pairs = interactions
@@ -91,8 +178,10 @@ export default function MedicationsScreen() {
   const [reminderMed, setReminderMed] = useState<Medication | null>(null);
   const [reminders, setReminders] = useState<MedicationReminder[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [startTime, setStartTime] = useState('08:00');
+  const [pickerHour, setPickerHour] = useState(8);
+  const [pickerMinute, setPickerMinute] = useState(0);
   const [timesPerDay, setTimesPerDay] = useState(1);
+  const [reminderTimes, setReminderTimes] = useState<Map<number, string[]>>(new Map());
   const [customTimes, setCustomTimes] = useState('');
   const [withSound, setWithSound] = useState(true);
   const [reminderPeriod, setReminderPeriod] = useState<ReminderPeriod>('day');
@@ -101,22 +190,27 @@ export default function MedicationsScreen() {
   const [nMonths, setNMonths] = useState('1');
   const [monthDay, setMonthDay] = useState('1');
 
+  const startTime = `${String(pickerHour).padStart(2, '0')}:${String(pickerMinute).padStart(2, '0')}`;
   const computedTimes = useMemo(
     () => computeTimes(startTime, timesPerDay),
-    [startTime, timesPerDay]
+    [pickerHour, pickerMinute, timesPerDay]
   );
 
   const load = useCallback(async () => {
     try {
       const meds = await getMedications();
       setMedications(meds);
-      const map = new Map<number, DrugInteraction[]>();
-      meds.forEach(med => {
+      const interactionMap = new Map<number, DrugInteraction[]>();
+      const timesMap = new Map<number, string[]>();
+      await Promise.all(meds.map(async (med) => {
         const others = meds.filter(m => m.id !== med.id).map(m => m.generic_name);
         const ints = checkInteractions(med.generic_name, others);
-        if (ints.length > 0) map.set(med.id, ints);
-      });
-      setCardInteractions(map);
+        if (ints.length > 0) interactionMap.set(med.id, ints);
+        const rs = await getRemindersForMedication(med.id);
+        timesMap.set(med.id, rs.filter(r => r.is_active).map(r => periodLabel(r.period, r.time)));
+      }));
+      setCardInteractions(interactionMap);
+      setReminderTimes(timesMap);
     } catch {}
   }, []);
 
@@ -267,11 +361,18 @@ export default function MedicationsScreen() {
     ]);
   }
 
+  async function refreshReminderTimes(medId: number) {
+    const rs = await getRemindersForMedication(medId);
+    const times = rs.filter(r => r.is_active).map(r => periodLabel(r.period, r.time));
+    setReminderTimes(prev => new Map(prev).set(medId, times));
+  }
+
   async function openReminders(med: Medication) {
     setReminderMed(med);
     setReminders(await getRemindersForMedication(med.id));
     setShowAddForm(false);
-    setStartTime('08:00');
+    setPickerHour(8);
+    setPickerMinute(0);
     setTimesPerDay(1);
     setCustomTimes('');
     setWithSound(true);
@@ -327,7 +428,9 @@ export default function MedicationsScreen() {
         await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, n, d, h, mi, withSound);
         await addReminder({ medication_id: reminderMed.id, time: startTime, period: `nmonths:${n}:${d}`, with_sound: withSound, is_active: true });
       }
-      setReminders(await getRemindersForMedication(reminderMed.id));
+      const updated = await getRemindersForMedication(reminderMed.id);
+      setReminders(updated);
+      await refreshReminderTimes(reminderMed.id);
       setShowAddForm(false);
       setCustomTimes('');
       setReminderPeriod('day');
@@ -340,6 +443,7 @@ export default function MedicationsScreen() {
     await cancelReminderByTime(r.medication_id, r.time, r.period).catch(() => {});
     await deleteReminder(r.id);
     setReminders(await getRemindersForMedication(r.medication_id));
+    await refreshReminderTimes(r.medication_id);
   }
 
   async function handleToggleActive(r: MedicationReminder) {
@@ -364,6 +468,7 @@ export default function MedicationsScreen() {
       await cancelReminderByTime(r.medication_id, r.time, r.period).catch(() => {});
     }
     setReminders(await getRemindersForMedication(r.medication_id));
+    await refreshReminderTimes(r.medication_id);
   }
 
   return (
@@ -392,6 +497,11 @@ export default function MedicationsScreen() {
               {item.dose ? <Text style={styles.medDetail}>💊 {item.dose}</Text> : null}
               {item.frequency ? <Text style={styles.medDetail}>🕐 {item.frequency}</Text> : null}
               {item.notes ? <Text style={styles.medNotes}>{item.notes}</Text> : null}
+              {(reminderTimes.get(item.id)?.length ?? 0) > 0 && (
+                <Text style={styles.medReminders}>
+                  🔔 {reminderTimes.get(item.id)!.join('  ·  ')}
+                </Text>
+              )}
               {itemInteractions.map(i => {
                 const isC = i.risk_level === 'critical';
                 const isH = i.risk_level === 'high';
@@ -405,7 +515,10 @@ export default function MedicationsScreen() {
                 );
               })}
             </TouchableOpacity>
-            <TouchableOpacity style={styles.bellBtn} onPress={() => openReminders(item)}>
+            <TouchableOpacity
+              style={[styles.bellBtn, !(reminderTimes.get(item.id)?.length ?? 0) && styles.bellBtnDim]}
+              onPress={() => openReminders(item)}
+            >
               <Text style={styles.bellBtnText}>🔔</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.bulaCardBtn} onPress={() => Linking.openURL(getBulaUrl(item.generic_name, item.commercial_name || undefined))}>
@@ -425,6 +538,7 @@ export default function MedicationsScreen() {
 
       {/* Add medication modal */}
       <Modal visible={showModal} animationType="slide" transparent>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <View style={styles.modalOverlay}>
           <ScrollView style={styles.modalBox} contentContainerStyle={[styles.modalContent, { paddingBottom: insets.bottom + 32 }]} keyboardShouldPersistTaps="handled">
             <Text style={styles.modalTitle}>
@@ -545,6 +659,51 @@ export default function MedicationsScreen() {
                 </TouchableOpacity>
               )
             )}
+            <Text style={styles.fieldLabel}>Nome comercial</Text>
+            <TextInput
+              style={styles.fieldInput}
+              value={form.commercial_name}
+              onChangeText={handleCommercialNameChange}
+              onFocus={() => setSuggestions([])}
+              autoCapitalize="words"
+            />
+            {commercialSuggestions.length > 0 && (
+              <View style={styles.suggestionsBox}>
+                {commercialSuggestions.map(s => (
+                  <View key={s.label} style={styles.suggestionRow}>
+                    <TouchableOpacity
+                      style={[styles.suggestionChip, styles.suggestionChipBrand]}
+                      onPress={() => applyCommercialSuggestion(s)}
+                    >
+                      <Text style={[styles.suggestionChipText, styles.suggestionChipTextBrand]} numberOfLines={1}>
+                        {s.brandName}
+                      </Text>
+                      {s.category ? (
+                        <Text style={[styles.suggestionCategory, styles.suggestionCategoryBrand]}>
+                          {s.genericName} · {s.category}
+                        </Text>
+                      ) : null}
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.bulaBtn}
+                      onPress={() => Linking.openURL(s.bulaUrl)}
+                    >
+                      <Text style={styles.bulaBtnText}>📋</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            <Text style={styles.fieldLabel}>Dose</Text>
+            <TextInput style={styles.fieldInput} value={form.dose} onChangeText={v => setForm(f => ({ ...f, dose: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} />
+
+            <Text style={styles.fieldLabel}>Frequência</Text>
+            <TextInput style={styles.fieldInput} value={form.frequency} onChangeText={v => setForm(f => ({ ...f, frequency: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} />
+
+            <Text style={styles.fieldLabel}>Observações</Text>
+            <TextInput style={[styles.fieldInput, { minHeight: 60, textAlignVertical: 'top' }]} value={form.notes} onChangeText={v => setForm(f => ({ ...f, notes: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} multiline />
+
             {interactions.map(i => {
               const isC = i.risk_level === 'critical';
               const isH = i.risk_level === 'high';
@@ -592,51 +751,6 @@ export default function MedicationsScreen() {
               </View>
             )}
 
-            <Text style={styles.fieldLabel}>Nome comercial</Text>
-            <TextInput
-              style={styles.fieldInput}
-              value={form.commercial_name}
-              onChangeText={handleCommercialNameChange}
-              onFocus={() => setSuggestions([])}
-              autoCapitalize="words"
-            />
-            {commercialSuggestions.length > 0 && (
-              <View style={styles.suggestionsBox}>
-                {commercialSuggestions.map(s => (
-                  <View key={s.label} style={styles.suggestionRow}>
-                    <TouchableOpacity
-                      style={[styles.suggestionChip, styles.suggestionChipBrand]}
-                      onPress={() => applyCommercialSuggestion(s)}
-                    >
-                      <Text style={[styles.suggestionChipText, styles.suggestionChipTextBrand]} numberOfLines={1}>
-                        {s.brandName}
-                      </Text>
-                      {s.category ? (
-                        <Text style={[styles.suggestionCategory, styles.suggestionCategoryBrand]}>
-                          {s.genericName} · {s.category}
-                        </Text>
-                      ) : null}
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.bulaBtn}
-                      onPress={() => Linking.openURL(s.bulaUrl)}
-                    >
-                      <Text style={styles.bulaBtnText}>📋</Text>
-                    </TouchableOpacity>
-                  </View>
-                ))}
-              </View>
-            )}
-
-            <Text style={styles.fieldLabel}>Dose</Text>
-            <TextInput style={styles.fieldInput} value={form.dose} onChangeText={v => setForm(f => ({ ...f, dose: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} />
-
-            <Text style={styles.fieldLabel}>Frequência</Text>
-            <TextInput style={styles.fieldInput} value={form.frequency} onChangeText={v => setForm(f => ({ ...f, frequency: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} />
-
-            <Text style={styles.fieldLabel}>Observações</Text>
-            <TextInput style={[styles.fieldInput, { minHeight: 60, textAlignVertical: 'top' }]} value={form.notes} onChangeText={v => setForm(f => ({ ...f, notes: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} multiline />
-
             <View style={styles.modalActions}>
               <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowModal(false)}>
                 <Text style={styles.cancelBtnText}>Cancelar</Text>
@@ -647,10 +761,12 @@ export default function MedicationsScreen() {
             </View>
           </ScrollView>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Reminders modal */}
       <Modal visible={showReminderModal} animationType="slide" transparent>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <View style={styles.modalOverlay}>
           <ScrollView style={styles.modalBox} contentContainerStyle={[styles.modalContent, { paddingBottom: insets.bottom + 32 }]} keyboardShouldPersistTaps="handled">
             <Text style={styles.modalTitle}>🔔 Lembretes</Text>
@@ -769,13 +885,10 @@ export default function MedicationsScreen() {
                 )}
 
                 <Text style={styles.fieldLabel}>Horário</Text>
-                <TextInput
-                  style={styles.fieldInput}
-                  value={startTime}
-                  onChangeText={setStartTime}
-                  placeholder="08:00"
-                  keyboardType="numbers-and-punctuation"
-                  maxLength={5}
+                <TimePicker
+                  hour={pickerHour}
+                  minute={pickerMinute}
+                  onChange={(h, m) => { setPickerHour(h); setPickerMinute(m); }}
                 />
 
                 {reminderPeriod === 'day' && (
@@ -842,6 +955,7 @@ export default function MedicationsScreen() {
             </TouchableOpacity>
           </ScrollView>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );
@@ -866,6 +980,7 @@ const styles = StyleSheet.create({
   medCommercial: { fontSize: 13, color: '#888', marginBottom: 4 },
   medDetail: { fontSize: 13, color: '#555', marginTop: 2 },
   medNotes: { fontSize: 12, color: '#888', marginTop: 4, fontStyle: 'italic' },
+  medReminders: { fontSize: 12, color: '#1C3F7A', marginTop: 4, opacity: 0.75 },
   cardInteractionBox: {
     borderLeftWidth: 3, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 5,
     marginTop: 6, backgroundColor: '#fff8f8',
@@ -873,6 +988,7 @@ const styles = StyleSheet.create({
   cardInteractionBadge: { fontSize: 11, fontWeight: '700', marginBottom: 1 },
   cardInteractionDesc: { fontSize: 11, color: '#555', fontStyle: 'italic' },
   bellBtn: { padding: 8, marginLeft: 4 },
+  bellBtnDim: { opacity: 0.28 },
   bellBtnText: { fontSize: 18 },
   bulaCardBtn: { padding: 8, marginLeft: 4 },
   bulaCardBtnText: { fontSize: 18 },

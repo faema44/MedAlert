@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, StyleSheet, ScrollView,
   TouchableOpacity, Alert, ActivityIndicator,
+  KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { getProfile, saveProfile } from '../database/db';
 import { getMedications } from '../database/db';
@@ -61,6 +62,7 @@ export default function ProfileScreen() {
   }
 
   return (
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
     <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Identificação</Text>
@@ -140,6 +142,7 @@ export default function ProfileScreen() {
         )}
       </TouchableOpacity>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
