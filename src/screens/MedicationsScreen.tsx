@@ -8,7 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   getMedications, addMedication, updateMedication, deleteMedication,
-  getRemindersForMedication, addReminder, deleteReminder, toggleReminderActive, updateAllRemindersSound, updateReminderSound,
+  getRemindersForMedication, addReminder, deleteReminder, toggleReminderActive, updateAllRemindersSound, updateReminderSound, updateMedicationStock,
 } from '../database/db';
 import {
   scheduleReminderWeekly, scheduleReminderMonthly, scheduleReminderEveryNMonths,
@@ -121,7 +121,26 @@ function buildDoctorMessage(drugName: string, interactions: DrugInteraction[]): 
 
 const EMPTY_MED: Omit<Medication, 'id'> = {
   generic_name: '', commercial_name: '', dose: '', frequency: '', is_critical: false, notes: '',
+  stock_quantity: null, end_date: null,
 };
+
+function formatEndDate(iso: string): string {
+  const [y, m, d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function daysRemaining(iso: string): number {
+  const end = new Date(iso + 'T00:00:00');
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  return Math.ceil((end.getTime() - now.getTime()) / 86400000);
+}
+
+function addDays(days: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
 
 const TIMES_PER_DAY_OPTIONS = [1, 2, 3, 4, 6];
 type ReminderPeriod = 'day' | 'week' | 'month' | 'year';
@@ -176,6 +195,8 @@ export default function MedicationsScreen() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [cardInteractions, setCardInteractions] = useState<Map<number, DrugInteraction[]>>(new Map());
   const [interactionModal, setInteractionModal] = useState<DrugInteraction[] | null>(null);
+  const [stockInput, setStockInput] = useState('');
+  const [durationDays, setDurationDays] = useState('');
 
   // Reminder state
   const [reminderHasSound, setReminderHasSound] = useState<Map<number, boolean>>(new Map());
@@ -297,7 +318,9 @@ export default function MedicationsScreen() {
   async function doSave() {
     try {
       const isCritical = interactions.some(i => i.risk_level === 'critical' || i.risk_level === 'high');
-      const data = { ...form, generic_name: form.generic_name.trim(), commercial_name: form.commercial_name.trim(), is_critical: isCritical };
+      const stockQty = stockInput.trim() ? parseInt(stockInput.trim(), 10) : null;
+      const endDate = durationDays.trim() ? addDays(parseInt(durationDays.trim(), 10)) : null;
+      const data = { ...form, generic_name: form.generic_name.trim(), commercial_name: form.commercial_name.trim(), is_critical: isCritical, stock_quantity: stockQty, end_date: endDate };
       let newMedId: number | null = null;
       if (editingId !== null) {
         await updateMedication({ ...data, id: editingId });
@@ -315,6 +338,8 @@ export default function MedicationsScreen() {
       setKnownDrug(false);
       setReportedDrug('');
       setReportingName(null);
+      setStockInput('');
+      setDurationDays('');
       await syncNotification(updated);
       if (newMedId !== null && reminders.length > 0) {
         const newMed = updated.find(m => m.id === newMedId);
@@ -379,7 +404,11 @@ export default function MedicationsScreen() {
       frequency: item.frequency,
       is_critical: item.is_critical,
       notes: item.notes,
+      stock_quantity: item.stock_quantity,
+      end_date: item.end_date,
     });
+    setStockInput(item.stock_quantity != null ? String(item.stock_quantity) : '');
+    setDurationDays(item.end_date ? String(Math.max(0, daysRemaining(item.end_date))) : '');
     setEditingId(item.id);
     setSuggestions([]);
     setCommercialSuggestions([]);
@@ -703,6 +732,43 @@ export default function MedicationsScreen() {
                 <Text style={styles.deleteBtnText}>✕</Text>
               </TouchableOpacity>
             </View>
+            {/* Stock row */}
+            {item.stock_quantity != null && (
+              <View style={styles.stockRow}>
+                {(() => {
+                  const dailyDoses = reminderTimes.get(item.id)?.length ?? 1;
+                  const daysLeft = Math.floor(item.stock_quantity / dailyDoses);
+                  const isLow = daysLeft <= 3;
+                  return (
+                    <>
+                      <Text style={[styles.stockText, isLow && styles.stockTextLow]}>
+                        💊 {item.stock_quantity} restante{item.stock_quantity !== 1 ? 's' : ''} · ~{daysLeft} dia{daysLeft !== 1 ? 's' : ''}
+                        {isLow ? '  ⚠ estoque baixo' : ''}
+                      </Text>
+                      <TouchableOpacity
+                        style={styles.takenBtn}
+                        onPress={async () => {
+                          const next = Math.max(0, item.stock_quantity! - 1);
+                          await updateMedicationStock(item.id, next);
+                          setMedications(prev => prev.map(m => m.id === item.id ? { ...m, stock_quantity: next } : m));
+                          if (next === 0) Alert.alert('Estoque zerado', `O estoque de ${item.generic_name} acabou. Providencie a reposição.`);
+                        }}
+                      >
+                        <Text style={styles.takenBtnText}>Tomar</Text>
+                      </TouchableOpacity>
+                    </>
+                  );
+                })()}
+              </View>
+            )}
+            {item.end_date && (
+              <Text style={[styles.endDateText, daysRemaining(item.end_date) <= 0 && styles.endDateDone]}>
+                {daysRemaining(item.end_date) > 0
+                  ? `📅 Termina em ${formatEndDate(item.end_date)} · ${daysRemaining(item.end_date)} dia${daysRemaining(item.end_date) !== 1 ? 's' : ''}`
+                  : `📅 Tratamento encerrado em ${formatEndDate(item.end_date)}`}
+              </Text>
+            )}
+
             {itemInteractions.length > 0 && (
               <TouchableOpacity style={styles.cardInteractionRow} activeOpacity={0.7} onPress={() => setInteractionModal(itemInteractions)}>
                 {itemInteractions.slice(0, 3).map(i => {
@@ -724,7 +790,7 @@ export default function MedicationsScreen() {
         }}
       />
 
-      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={() => { setForm(EMPTY_MED); setEditingId(null); setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setSubstanceInteractions([]); setEntryType('medicamento'); setKnownDrug(false); setReportedDrug(''); setReportingName(null); setReminders([]); setReminderIsDraft(false); setShowModal(true); }}>
+      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={() => { setForm(EMPTY_MED); setEditingId(null); setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setSubstanceInteractions([]); setEntryType('medicamento'); setKnownDrug(false); setReportedDrug(''); setReportingName(null); setReminders([]); setReminderIsDraft(false); setStockInput(''); setDurationDays(''); setShowModal(true); }}>
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 
@@ -956,6 +1022,47 @@ export default function MedicationsScreen() {
                 </View>
               );
             })}
+            {/* Stock & duration */}
+            {(() => {
+              const hasAlarm = editingId !== null
+                ? (reminderTimes.get(editingId)?.length ?? 0) > 0
+                : reminders.filter(r => r.is_active).length > 0;
+              return (
+                <>
+                  <View style={styles.stockSection}>
+                    <Text style={styles.stockSectionTitle}>Controle de estoque</Text>
+                    {!hasAlarm && (
+                      <Text style={styles.stockNoAlarm}>Configure um alarme para ativar o controle de estoque</Text>
+                    )}
+                    <Text style={styles.fieldLabel}>Quantidade atual (comprimidos/doses)</Text>
+                    <TextInput
+                      style={[styles.fieldInput, !hasAlarm && { opacity: 0.4 }]}
+                      value={stockInput}
+                      onChangeText={setStockInput}
+                      keyboardType="number-pad"
+                      editable={hasAlarm}
+                      placeholder={hasAlarm ? 'Ex: 30' : 'Requer alarme ativo'}
+                      placeholderTextColor="#bbb"
+                    />
+                    <Text style={styles.fieldLabel}>Duração do tratamento (dias)</Text>
+                    <TextInput
+                      style={styles.fieldInput}
+                      value={durationDays}
+                      onChangeText={setDurationDays}
+                      keyboardType="number-pad"
+                      placeholder="Deixe vazio para uso contínuo"
+                      placeholderTextColor="#bbb"
+                    />
+                    {durationDays.trim() !== '' && !isNaN(parseInt(durationDays)) && (
+                      <Text style={styles.stockEndDatePreview}>
+                        Termina em: {formatEndDate(addDays(parseInt(durationDays)))}
+                      </Text>
+                    )}
+                  </View>
+                </>
+              );
+            })()}
+
             {interactions.some(i => i.risk_level === 'critical' || i.risk_level === 'high') && (
               <View style={styles.doctorAdviceBox}>
                 <Text style={styles.doctorAdviceTitle}>Avise seu médico</Text>
@@ -1245,6 +1352,23 @@ const styles = StyleSheet.create({
   medDetail: { fontSize: 13, color: '#555', marginTop: 2 },
   medNotes: { fontSize: 12, color: '#888', marginTop: 4, fontStyle: 'italic' },
   medReminders: { fontSize: 12, color: '#1C3F7A', marginTop: 4, opacity: 0.75 },
+  // Stock
+  stockSection: {
+    marginTop: 16, borderTopWidth: 1, borderTopColor: '#f0f0f0', paddingTop: 14,
+  },
+  stockSectionTitle: { fontSize: 13, fontWeight: '700', color: '#1C3F7A', marginBottom: 8 },
+  stockNoAlarm: { fontSize: 12, color: '#E07B4F', marginBottom: 8, fontStyle: 'italic' },
+  stockEndDatePreview: { fontSize: 12, color: '#1a6b3a', marginTop: 4, fontStyle: 'italic' },
+  stockRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 },
+  stockText: { fontSize: 12, color: '#555', flex: 1 },
+  stockTextLow: { color: '#E07B4F', fontWeight: '600' },
+  takenBtn: {
+    backgroundColor: '#1C3F7A', borderRadius: 6, paddingHorizontal: 12, paddingVertical: 5,
+  },
+  takenBtnText: { fontSize: 12, color: '#fff', fontWeight: '700' },
+  endDateText: { fontSize: 12, color: '#888', marginTop: 4 },
+  endDateDone: { color: '#CC0000' },
+
   cardInteractionRow: {
     flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8, flexWrap: 'wrap',
   },

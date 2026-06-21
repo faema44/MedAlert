@@ -16,6 +16,8 @@ export interface Medication {
   frequency: string;
   is_critical: boolean;
   notes: string;
+  stock_quantity: number | null;
+  end_date: string | null; // ISO "YYYY-MM-DD"
 }
 
 export interface EmergencyContact {

@@ -70,6 +70,12 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
   try {
     await database.execAsync('ALTER TABLE medication_reminders ADD COLUMN with_sound INTEGER DEFAULT 1');
   } catch {}
+  try {
+    await database.execAsync('ALTER TABLE medications ADD COLUMN stock_quantity INTEGER');
+  } catch {}
+  try {
+    await database.execAsync('ALTER TABLE medications ADD COLUMN end_date TEXT');
+  } catch {}
 }
 
 // Profile
@@ -100,14 +106,19 @@ export async function saveProfile(data: Partial<Profile>): Promise<void> {
 export async function getMedications(): Promise<Medication[]> {
   const database = await getDb();
   const rows = await database.getAllAsync<Medication>('SELECT * FROM medications ORDER BY is_critical DESC, generic_name ASC');
-  return rows.map(r => ({ ...r, is_critical: Boolean(r.is_critical) }));
+  return rows.map(r => ({
+    ...r,
+    is_critical: Boolean(r.is_critical),
+    stock_quantity: r.stock_quantity ?? null,
+    end_date: r.end_date ?? null,
+  }));
 }
 
 export async function addMedication(med: Omit<Medication, 'id'>): Promise<number> {
   const database = await getDb();
   const result = await database.runAsync(
-    `INSERT INTO medications (generic_name, commercial_name, dose, frequency, is_critical, notes) VALUES (?, ?, ?, ?, ?, ?)`,
-    [med.generic_name ?? '', med.commercial_name ?? '', med.dose ?? '', med.frequency ?? '', med.is_critical ? 1 : 0, med.notes ?? '']
+    `INSERT INTO medications (generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [med.generic_name ?? '', med.commercial_name ?? '', med.dose ?? '', med.frequency ?? '', med.is_critical ? 1 : 0, med.notes ?? '', med.stock_quantity ?? null, med.end_date ?? null]
   );
   return result.lastInsertRowId;
 }
@@ -115,9 +126,14 @@ export async function addMedication(med: Omit<Medication, 'id'>): Promise<number
 export async function updateMedication(med: Medication): Promise<void> {
   const database = await getDb();
   await database.runAsync(
-    `UPDATE medications SET generic_name=?, commercial_name=?, dose=?, frequency=?, is_critical=?, notes=? WHERE id=?`,
-    [med.generic_name, med.commercial_name, med.dose, med.frequency, med.is_critical ? 1 : 0, med.notes, med.id]
+    `UPDATE medications SET generic_name=?, commercial_name=?, dose=?, frequency=?, is_critical=?, notes=?, stock_quantity=?, end_date=? WHERE id=?`,
+    [med.generic_name, med.commercial_name, med.dose, med.frequency, med.is_critical ? 1 : 0, med.notes, med.stock_quantity ?? null, med.end_date ?? null, med.id]
   );
+}
+
+export async function updateMedicationStock(id: number, newQuantity: number): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('UPDATE medications SET stock_quantity=? WHERE id=?', [newQuantity, id]);
 }
 
 export async function deleteMedication(id: number): Promise<void> {
