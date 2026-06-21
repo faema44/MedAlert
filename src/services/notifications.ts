@@ -11,10 +11,8 @@ const REMINDER_SILENT_CHANNEL = 'medalert_reminder_silent';
 const REMINDER_CATEGORY = 'reminder_action';
 
 export async function setupReminderCategory(): Promise<void> {
-  await Notifications.setNotificationCategoryAsync(REMINDER_CATEGORY, [
-    { identifier: 'tomei',     buttonTitle: '✓ Tomei',   options: { opensAppToForeground: false } },
-    { identifier: 'nao_tomei', buttonTitle: 'Não tomei', options: { opensAppToForeground: false } },
-  ]);
+  // setNotificationCategoryAsync triggers push-token infrastructure in expo-notifications,
+  // which was removed from Expo Go in SDK 53. No-op here; categories work in production builds.
 }
 
 export async function setupNotificationChannels(): Promise<void> {
@@ -198,13 +196,39 @@ export async function cancelEmergencyNotification(): Promise<void> {
   await clearEmergency();
 }
 
+export async function dismissNotification(id: string): Promise<void> {
+  await Notifications.dismissNotificationAsync(id).catch(() => {});
+}
+
+export interface ReminderAlertPayload {
+  notificationId: string;
+  medicationId: number;
+  name: string;
+  dose: string;
+}
+
+export function initReminderListeners(
+  onReceived: (data: ReminderAlertPayload) => void,
+): () => void {
+  const sub = Notifications.addNotificationReceivedListener((notification) => {
+    const data = notification.request.content.data;
+    if (data?.type !== 'reminder') return;
+    onReceived({
+      notificationId: notification.request.identifier,
+      medicationId: data.medicationId as number,
+      name: notification.request.content.title ?? '',
+      dose: notification.request.content.subtitle ?? '',
+    });
+  });
+  return () => sub.remove();
+}
+
 function reminderContent(medicationName: string, dose: string, medicationId: number) {
   return {
     title: '💊 Hora do medicamento',
     body: `${medicationName}${dose ? ' — ' + dose : ''}`,
     data: { type: 'reminder', medicationId },
     sticky: true,
-    categoryIdentifier: REMINDER_CATEGORY,
   };
 }
 
@@ -357,7 +381,7 @@ Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
     const isReminder = notification.request.content.data?.type === 'reminder';
     return {
-      shouldShowBanner: !isReminder, // foreground reminders are handled by in-app modal
+      shouldShowBanner: true,
       shouldPlaySound: isReminder,
       shouldSetBadge: false,
       shouldShowList: true,

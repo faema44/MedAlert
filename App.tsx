@@ -4,7 +4,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as Notifications from 'expo-notifications';
 
 import HomeScreen from './src/screens/HomeScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
@@ -13,7 +12,10 @@ import ContactsScreen from './src/screens/ContactsScreen';
 import InteractionsScreen from './src/screens/InteractionsScreen';
 import HelpScreen from './src/screens/HelpScreen';
 
-import { setupNotificationChannels, requestPermissions, setupReminderCategory } from './src/services/notifications';
+import {
+  setupNotificationChannels, requestPermissions, setupReminderCategory,
+  initReminderListeners, dismissNotification, ReminderAlertPayload,
+} from './src/services/notifications';
 import { getDb, getMedications, getContacts, getMedicationById, updateMedicationStock } from './src/database/db';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
 
@@ -28,7 +30,6 @@ const TITLES: Record<string, string> = {
   Help: 'Ajuda',
 };
 
-// Simple unicode icons that render consistently cross-platform
 const TAB_ICONS: Record<string, { icon: string; activeIcon: string }> = {
   Home:         { icon: '⌂',  activeIcon: '⌂' },
   Profile:      { icon: '◯',  activeIcon: '●' },
@@ -74,36 +75,29 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
   );
 }
 
-interface ReminderAlertData {
-  notificationId: string;
-  medicationId: number;
-  name: string;
-  dose: string;
-}
-
 function AppNavigator() {
   const insets = useSafeAreaInsets();
   const [medCount, setMedCount] = useState(0);
   const [contactCount, setContactCount] = useState(0);
-  const [reminderAlert, setReminderAlert] = useState<ReminderAlertData | null>(null);
-  const alertQueueRef = useRef<ReminderAlertData[]>([]);
+  const [reminderAlert, setReminderAlert] = useState<ReminderAlertPayload | null>(null);
+  const alertQueueRef = useRef<ReminderAlertPayload[]>([]);
 
   function showNextAlert() {
     const next = alertQueueRef.current.shift();
     setReminderAlert(next ?? null);
   }
 
-  async function handleTomei(alert: ReminderAlertData) {
+  async function handleTomei(alert: ReminderAlertPayload) {
     const med = await getMedicationById(alert.medicationId).catch(() => null);
     if (med?.stock_quantity != null && med.stock_quantity > 0) {
       await updateMedicationStock(alert.medicationId, med.stock_quantity - 1).catch(() => {});
     }
-    await Notifications.dismissNotificationAsync(alert.notificationId).catch(() => {});
+    await dismissNotification(alert.notificationId);
     showNextAlert();
   }
 
-  function handleNaoTomei(alert: ReminderAlertData) {
-    Notifications.dismissNotificationAsync(alert.notificationId).catch(() => {});
+  function handleNaoTomei(alert: ReminderAlertPayload) {
+    dismissNotification(alert.notificationId);
     showNextAlert();
   }
 
@@ -125,103 +119,82 @@ function AppNavigator() {
     }
     init();
 
-    // Foreground: notification received while app is open
-    const foregroundSub = Notifications.addNotificationReceivedListener(notif => {
-      if (notif.request.content.data?.type !== 'reminder') return;
-      const medicationId = notif.request.content.data.medicationId as number;
-      const body = notif.request.content.body ?? '';
-      const [name, dose] = body.split(' — ');
-      const data: ReminderAlertData = { notificationId: notif.request.identifier, medicationId, name: name ?? '', dose: dose ?? '' };
+    const cleanup = initReminderListeners((data) => {
       setReminderAlert(current => {
         if (current !== null) { alertQueueRef.current.push(data); return current; }
         return data;
       });
     });
 
-    // Background: user tapped action button on notification
-    const responseSub = Notifications.addNotificationResponseReceivedListener(async response => {
-      if (response.notification.request.content.data?.type !== 'reminder') return;
-      const medicationId = response.notification.request.content.data.medicationId as number;
-      const notifId = response.notification.request.identifier;
-      if (response.actionIdentifier === 'tomei') {
-        const med = await getMedicationById(medicationId).catch(() => null);
-        if (med?.stock_quantity != null && med.stock_quantity > 0) {
-          await updateMedicationStock(medicationId, med.stock_quantity - 1).catch(() => {});
-        }
-      }
-      await Notifications.dismissNotificationAsync(notifId).catch(() => {});
-    });
-
-    return () => {
-      foregroundSub.remove();
-      responseSub.remove();
-    };
+    return cleanup;
   }, [loadCounts]);
 
   return (
-    <NavigationContainer onStateChange={loadCounts}>
-      <StatusBar style="light" />
-      <Tab.Navigator
-        screenOptions={({ route, navigation }) => ({
-          headerStyle: { backgroundColor: '#1C3F7A' },
-          headerTintColor: '#fff',
-          headerTitle: () => <HeaderTitle route={route} />,
-          headerRight: route.name !== 'Help' ? () => (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Help' as never)}
-              style={{ marginRight: 16, padding: 4 }}
-            >
-              <View style={{
-                width: 26, height: 26, borderRadius: 13,
-                borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.5)',
-                alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', lineHeight: 16 }}>?</Text>
-              </View>
-            </TouchableOpacity>
-          ) : undefined,
-          tabBarActiveTintColor: '#1C3F7A',
-          tabBarInactiveTintColor: '#9CA3AF',
-          tabBarStyle: {
-            height: 64 + insets.bottom,
-            paddingBottom: insets.bottom + 10,
-            paddingTop: 8,
-            backgroundColor: '#fff',
-            borderTopWidth: 0.5,
-            borderTopColor: '#E8EAF0',
-          },
-          tabBarLabelStyle: { fontSize: 10, fontWeight: '500' },
-          tabBarIcon: ({ focused }) => <TabIcon name={route.name} focused={focused} />,
-        })}
-      >
-        <Tab.Screen name="Home"         component={HomeScreen}         options={{ tabBarLabel: 'Início' }} />
-        <Tab.Screen name="Profile"      component={ProfileScreen}      options={{ tabBarLabel: 'Perfil' }} />
-        <Tab.Screen name="Medications"  component={MedicationsScreen}  options={{ tabBarLabel: 'Remédios', tabBarBadge: medCount > 0 ? medCount : undefined, tabBarBadgeStyle: { backgroundColor: '#1C3F7A', minWidth: 17, height: 17, borderRadius: 9 } }} />
-        <Tab.Screen name="Contacts"     component={ContactsScreen}     options={{ tabBarLabel: 'Contatos', tabBarBadge: contactCount > 0 ? contactCount : undefined, tabBarBadgeStyle: { backgroundColor: '#1C3F7A', minWidth: 17, height: 17, borderRadius: 9 } }} />
-        <Tab.Screen name="Interactions" component={InteractionsScreen} options={{ tabBarLabel: 'Tabelas' }} />
-        <Tab.Screen name="Help"         component={HelpScreen}         options={{ tabBarItemStyle: { display: 'none' } }} />
-      </Tab.Navigator>
-    </NavigationContainer>
+    <>
+      <NavigationContainer onStateChange={loadCounts}>
+        <StatusBar style="light" />
+        <Tab.Navigator
+          screenOptions={({ route, navigation }) => ({
+            headerStyle: { backgroundColor: '#1C3F7A' },
+            headerTintColor: '#fff',
+            headerTitle: () => <HeaderTitle route={route} />,
+            headerRight: route.name !== 'Help' ? () => (
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Help' as never)}
+                style={{ marginRight: 16, padding: 4 }}
+              >
+                <View style={{
+                  width: 26, height: 26, borderRadius: 13,
+                  borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.5)',
+                  alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', lineHeight: 16 }}>?</Text>
+                </View>
+              </TouchableOpacity>
+            ) : undefined,
+            tabBarActiveTintColor: '#1C3F7A',
+            tabBarInactiveTintColor: '#9CA3AF',
+            tabBarStyle: {
+              height: 64 + insets.bottom,
+              paddingBottom: insets.bottom + 10,
+              paddingTop: 8,
+              backgroundColor: '#fff',
+              borderTopWidth: 0.5,
+              borderTopColor: '#E8EAF0',
+            },
+            tabBarLabelStyle: { fontSize: 10, fontWeight: '500' },
+            tabBarIcon: ({ focused }) => <TabIcon name={route.name} focused={focused} />,
+          })}
+        >
+          <Tab.Screen name="Home"         component={HomeScreen}         options={{ tabBarLabel: 'Início' }} />
+          <Tab.Screen name="Profile"      component={ProfileScreen}      options={{ tabBarLabel: 'Perfil' }} />
+          <Tab.Screen name="Medications"  component={MedicationsScreen}  options={{ tabBarLabel: 'Remédios', tabBarBadge: medCount > 0 ? medCount : undefined, tabBarBadgeStyle: { backgroundColor: '#1C3F7A', minWidth: 17, height: 17, borderRadius: 9 } }} />
+          <Tab.Screen name="Contacts"     component={ContactsScreen}     options={{ tabBarLabel: 'Contatos', tabBarBadge: contactCount > 0 ? contactCount : undefined, tabBarBadgeStyle: { backgroundColor: '#1C3F7A', minWidth: 17, height: 17, borderRadius: 9 } }} />
+          <Tab.Screen name="Interactions" component={InteractionsScreen} options={{ tabBarLabel: 'Tabelas' }} />
+          <Tab.Screen name="Help"         component={HelpScreen}         options={{ tabBarItemStyle: { display: 'none' } }} />
+        </Tab.Navigator>
+      </NavigationContainer>
 
-    <Modal visible={!!reminderAlert} transparent animationType="fade" onRequestClose={() => reminderAlert && handleNaoTomei(reminderAlert)}>
-      {reminderAlert && (
-        <View style={ras.overlay}>
-          <View style={[ras.box, { paddingBottom: insets.bottom + 16 }]}>
-            <Text style={ras.title}>💊 Hora do medicamento</Text>
-            <Text style={ras.name}>{reminderAlert.name}</Text>
-            {!!reminderAlert.dose && <Text style={ras.dose}>{reminderAlert.dose}</Text>}
-            <View style={ras.btnRow}>
-              <TouchableOpacity style={ras.btnNo} onPress={() => handleNaoTomei(reminderAlert)}>
-                <Text style={ras.btnNoText}>Não tomei</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={ras.btnYes} onPress={() => handleTomei(reminderAlert)}>
-                <Text style={ras.btnYesText}>✓ Tomei</Text>
-              </TouchableOpacity>
+      <Modal visible={!!reminderAlert} transparent animationType="fade" onRequestClose={() => reminderAlert && handleNaoTomei(reminderAlert)}>
+        {reminderAlert && (
+          <View style={ras.overlay}>
+            <View style={[ras.box, { paddingBottom: insets.bottom + 16 }]}>
+              <Text style={ras.title}>💊 Hora do medicamento</Text>
+              <Text style={ras.name}>{reminderAlert.name}</Text>
+              {!!reminderAlert.dose && <Text style={ras.dose}>{reminderAlert.dose}</Text>}
+              <View style={ras.btnRow}>
+                <TouchableOpacity style={ras.btnNo} onPress={() => handleNaoTomei(reminderAlert)}>
+                  <Text style={ras.btnNoText}>Não tomei</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={ras.btnYes} onPress={() => handleTomei(reminderAlert)}>
+                  <Text style={ras.btnYesText}>✓ Tomei</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      )}
-    </Modal>
+        )}
+      </Modal>
+    </>
   );
 }
 

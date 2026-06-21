@@ -3,13 +3,20 @@ import {
   Modal, View, TouchableOpacity, Text, Alert, Linking, StyleSheet, ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Pdf from 'react-native-pdf';
 
 const ANVISA_BULARIO = 'https://consultas.anvisa.gov.br/#/bulario/';
+
+// Lazy-load so react-native-blob-util native module is not accessed at app startup
+let _Pdf: any = null;
+function getPdf() {
+  if (!_Pdf) _Pdf = require('react-native-pdf').default;
+  return _Pdf;
+}
 
 function BulaModal({ url, onClose }: { url: string; onClose: () => void }) {
   const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
+  const Pdf = getPdf();
 
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
