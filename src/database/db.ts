@@ -103,12 +103,13 @@ export async function getMedications(): Promise<Medication[]> {
   return rows.map(r => ({ ...r, is_critical: Boolean(r.is_critical) }));
 }
 
-export async function addMedication(med: Omit<Medication, 'id'>): Promise<void> {
+export async function addMedication(med: Omit<Medication, 'id'>): Promise<number> {
   const database = await getDb();
-  await database.runAsync(
+  const result = await database.runAsync(
     `INSERT INTO medications (generic_name, commercial_name, dose, frequency, is_critical, notes) VALUES (?, ?, ?, ?, ?, ?)`,
     [med.generic_name ?? '', med.commercial_name ?? '', med.dose ?? '', med.frequency ?? '', med.is_critical ? 1 : 0, med.notes ?? '']
   );
+  return result.lastInsertRowId;
 }
 
 export async function updateMedication(med: Medication): Promise<void> {
@@ -193,6 +194,16 @@ export async function deleteReminder(id: number): Promise<void> {
 export async function toggleReminderActive(id: number, isActive: boolean): Promise<void> {
   const database = await getDb();
   await database.runAsync('UPDATE medication_reminders SET is_active=? WHERE id=?', [isActive ? 1 : 0, id]);
+}
+
+export async function updateAllRemindersSound(medicationId: number, withSound: boolean): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('UPDATE medication_reminders SET with_sound=? WHERE medication_id=?', [withSound ? 1 : 0, medicationId]);
+}
+
+export async function updateReminderSound(id: number, withSound: boolean): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('UPDATE medication_reminders SET with_sound=? WHERE id=?', [withSound ? 1 : 0, id]);
 }
 
 export async function countReminders(medicationId: number): Promise<number> {

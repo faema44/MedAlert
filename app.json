@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "MedAlert",
+    "name": "Alerta Médico",
     "slug": "MedAlert",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,7 +10,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.medalert.app",
       "infoPlist": {
-        "NSHealthShareUsageDescription": "O MedAlert usa dados de saúde para exibir informações de emergência."
+        "NSHealthShareUsageDescription": "O Alerta Médico usa dados de saúde para exibir informações de emergência."
       }
     },
     "android": {
@@ -21,6 +21,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
+      "softwareKeyboardLayoutMode": "resize",
       "permissions": [
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.VIBRATE",

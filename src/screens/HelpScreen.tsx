@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 
-const PRIVACY_URL = 'https://faema44.github.io/MedAlert/privacy.html';
+const PRIVACY_URL = 'https://alertamedico.ia.br/privacy.html';
 const CARDIODF_URL = 'https://www.youtube.com/watch?v=lPaP_QgjEW4';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -35,7 +35,7 @@ export default function HelpScreen() {
       {/* Hero */}
       <View style={styles.hero}>
         <Text style={styles.heroIcon}>🏥</Text>
-        <Text style={styles.heroTitle}>Para que serve o MedAlert?</Text>
+        <Text style={styles.heroTitle}>Para que serve o Alerta Médico?</Text>
 
         <View style={styles.heroFeatures}>
           <View style={styles.heroFeatureRow}>
@@ -60,7 +60,7 @@ export default function HelpScreen() {
           podem interagir perigosamente com anestesias, contrastes e procedimentos de urgência.
         </Text>
         <Text style={styles.heroText}>
-          O MedAlert mantém essas informações visíveis na tela de bloqueio do celular,
+          O Alerta Médico mantém essas informações visíveis na tela de bloqueio do celular,
           acessíveis sem precisar desbloqueá-lo, mesmo que você esteja inconsciente.
         </Text>
       </View>
@@ -70,7 +70,10 @@ export default function HelpScreen() {
         <Step number="1" text="Abra a aba Perfil e preencha seu nome, tipo sanguíneo e alergias." />
         <Step number="2" text="Cadastre todos os medicamentos que você usa regularmente na aba Medicamentos. Marque como 'crítico' os que não podem ser interrompidos." />
         <Step number="3" text="Adicione ao menos um contato de emergência na aba Contatos (familiar ou médico de referência)." />
-        <Step number="4" text="Na tela Início, toque em 'Ícone na Tela de Bloqueio (Emergência)' para ativar. A partir daí, sua ficha médica fica visível na notificação persistente." />
+        <Step number="4" text="Na tela Início, toque em 'Ícone na Tela de Bloqueio (Emergência)' para ativar. Sua ficha médica ficará visível na notificação persistente imediatamente." />
+        <Text style={styles.tip}>
+          💡 Após configurar lembretes, a tela Início exibe um card "Próximos lembretes" com o horário mais próximo de cada medicamento (ex.: Zyloric hoje às 14:00 · Glifage amanhã às 08:00). Toque no card para ir à lista de medicamentos.
+        </Text>
       </Section>
 
       {/* Tela de bloqueio */}
@@ -83,8 +86,10 @@ export default function HelpScreen() {
         <Bullet text="Todos os medicamentos cadastrados (com dose)" />
         <Bullet text="Medicamentos críticos sinalizados com ⚠️" />
         <Bullet text="Alergias e observações médicas" />
+        <Bullet text="Contatos de emergência" />
+        <Bullet text="Próximo lembrete do dia (ex.: 🔔 Zyloric hoje às 14:00)" />
         <Text style={styles.tip}>
-          💡 Nenhum desbloqueio é necessário. O médico vê tudo na própria tela de bloqueio.
+          💡 Nenhum desbloqueio é necessário. O socorrista vê tudo na própria tela de bloqueio.
         </Text>
       </Section>
 
@@ -95,9 +100,9 @@ export default function HelpScreen() {
           é necessário ajustar as configurações do Android:
         </Text>
         <Step number="1" text='Abra as Configurações do celular' />
-        <Step number="2" text='Vá em Notificações (ou Aplicativos → MedAlert → Notificações)' />
+        <Step number="2" text='Vá em Notificações (ou Aplicativos → Alerta Médico → Notificações)' />
         <Step number="3" text='Em Tela de Bloqueio, selecione "Mostrar todo o conteúdo"' />
-        <Step number="4" text='Confirme que as notificações do MedAlert estão ativadas' />
+        <Step number="4" text='Confirme que as notificações do Alerta Médico estão ativadas' />
         <Text style={styles.tip}>
           💡 O caminho exato varia por fabricante. Em Samsung: Configurações → Notificações → Configurações avançadas → Mostrar na tela de bloqueio. Em Motorola: Configurações → Notificações → Privacidade de notificações.
         </Text>
@@ -128,7 +133,7 @@ export default function HelpScreen() {
           </View>
         </View>
         <Text style={styles.tip}>
-          💡 Use a aba Interações para ver o relatório completo com mecanismos e recomendações.
+          💡 Use a aba Interações para ver o relatório completo com mecanismos e recomendações. As abas Medicamentos e Contatos exibem um número em vermelho quando há itens cadastrados.
         </Text>
       </Section>
 
@@ -165,20 +170,20 @@ export default function HelpScreen() {
           Samsung e outros fabricantes bloqueiam alarmes de apps em segundo plano por padrão.
           Para os lembretes funcionarem mesmo com o celular na tela de bloqueio:
         </Text>
-        <Step number="1" text="Configurações → Apps → MedAlert → Bateria" />
+        <Step number="1" text="Configurações → Apps → Alerta Médico → Bateria" />
         <Step number="2" text='Selecione "Sem restrições" (em vez de "Otimizada")' />
         <TouchableOpacity style={styles.settingsBtn} onPress={() => Linking.openSettings()}>
-          <Text style={styles.settingsBtnText}>⚙️  Abrir configurações do MedAlert</Text>
+          <Text style={styles.settingsBtnText}>⚙️  Abrir configurações do Alerta Médico</Text>
         </TouchableOpacity>
         <Text style={styles.tip}>
-          💡 Em Samsung: Configurações → Bateria → Limites de uso em segundo plano → adicione MedAlert em "Apps que nunca adormecem".
+          💡 Em Samsung: Configurações → Bateria → Limites de uso em segundo plano → adicione Alerta Médico em "Apps que nunca adormecem".
         </Text>
       </Section>
 
       {/* Privacidade */}
       <Section title="🔐 Privacidade e segurança (LGPD)">
         <Text style={styles.bodyText}>
-          Seus dados de saúde (nome, tipo sanguíneo, medicamentos, contatos) ficam armazenados exclusivamente no seu celular. A Lei Geral de Proteção de Dados (Lei 13.709/2018) classifica dados de saúde como dados sensíveis — e o MedAlert respeita essa exigência.
+          Seus dados de saúde (nome, tipo sanguíneo, medicamentos, contatos) ficam armazenados exclusivamente no seu celular. A Lei Geral de Proteção de Dados (Lei 13.709/2018) classifica dados de saúde como dados sensíveis — e o Alerta Médico respeita essa exigência.
         </Text>
         <Text style={styles.bodyText}>
           A única exceção é o recurso opcional "Reportar medicamento em falta": ao usá-lo, o
@@ -217,7 +222,7 @@ export default function HelpScreen() {
         <Text style={styles.bodyText}>
           A exibição na tela de bloqueio, os lembretes e as notificações dependem das
           configurações do seu dispositivo. O comportamento pode variar conforme o fabricante,
-          modelo e versão do Android. O MedAlert não garante funcionamento idêntico em todos
+          modelo e versão do Android. O Alerta Médico não garante funcionamento idêntico em todos
           os aparelhos.
         </Text>
       </Section>

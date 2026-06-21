@@ -1,32 +1,42 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal,
 } from 'react-native';
 import { useFocusEffect, useNavigation, NavigationProp } from '@react-navigation/native';
-import { getProfile, getMedications, getContacts, getKV, setKV } from '../database/db';
+import { getProfile, getMedications, getKV, setKV, getRemindersForMedication } from '../database/db';
 
 type RootTabs = { Home: undefined; Profile: undefined; Medications: undefined; Contacts: undefined; Interactions: undefined };
-import { updateEmergencyNotification, cancelEmergencyNotification } from '../services/notifications';
-import { Profile, Medication, EmergencyContact, DrugInteraction } from '../types';
+import { updateEmergencyNotification, cancelEmergencyNotification, nextReminderInfo, ReminderInfo } from '../services/notifications';
+import { Profile, Medication, MedicationReminder, DrugInteraction } from '../types';
 import { checkInteractions } from '../utils/drugSearch';
 
 const KV_LOCKSCREEN_SEEN = 'lockscreen_instructions_seen';
+const KV_ALERT_ACTIVE = 'alert_active';
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp<RootTabs>>();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [medications, setMedications] = useState<Medication[]>([]);
-  const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [notifActive, setNotifActive] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
   const [allInteractions, setAllInteractions] = useState<DrugInteraction[]>([]);
+  const [nextReminders, setNextReminders] = useState<{ name: string; label: string; sortMs: number }[]>([]);
 
   const load = useCallback(async () => {
-    const [p, m, c] = await Promise.all([getProfile(), getMedications(), getContacts()]);
+    const [p, m, alertActive] = await Promise.all([
+      getProfile(), getMedications(), getKV(KV_ALERT_ACTIVE),
+    ]);
     setProfile(p);
     setMedications(m);
-    setContacts(c);
+
+    if (alertActive === '1' && p?.name) {
+      await updateEmergencyNotification(p, m).catch(() => {});
+      setNotifActive(true);
+    } else {
+      setNotifActive(false);
+    }
+
     const seen = new Set<string>();
     const ints: DrugInteraction[] = [];
     m.forEach(med => {
@@ -40,6 +50,18 @@ export default function HomeScreen() {
       return order[a.risk_level] - order[b.risk_level];
     });
     setAllInteractions(ints);
+
+    // Compute next reminder for each medication
+    const remindersPerMed = await Promise.all(
+      m.map(med => getRemindersForMedication(med.id).catch(() => [] as MedicationReminder[]))
+    );
+    const nexts: { name: string; label: string; sortMs: number }[] = [];
+    m.forEach((med, idx) => {
+      const info = nextReminderInfo(remindersPerMed[idx] ?? []);
+      if (info) nexts.push({ name: med.generic_name, label: info.label, sortMs: info.sortMs });
+    });
+    nexts.sort((a, b) => a.sortMs - b.sortMs);
+    setNextReminders(nexts);
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
@@ -47,6 +69,7 @@ export default function HomeScreen() {
   async function doActivate() {
     if (!profile) return;
     await updateEmergencyNotification(profile, medications);
+    await setKV(KV_ALERT_ACTIVE, '1');
     setNotifActive(true);
   }
 
@@ -57,6 +80,7 @@ export default function HomeScreen() {
     }
     if (notifActive) {
       await cancelEmergencyNotification();
+      await setKV(KV_ALERT_ACTIVE, '0');
       setNotifActive(false);
       return;
     }
@@ -77,9 +101,6 @@ export default function HomeScreen() {
 
   const criticalMeds = medications.filter(m => m.is_critical);
   const profileComplete = profile?.name && medications.length > 0;
-  const initials = profile?.name
-    ? profile.name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
-    : null;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -95,9 +116,9 @@ export default function HomeScreen() {
             </Text>
             {[
               'Abra as Configurações do celular',
-              'Vá em Notificações (ou Aplicativos → MedAlert → Notificações)',
+              'Vá em Notificações (ou Aplicativos → Alerta Médico → Notificações)',
               'Em Tela de Bloqueio, selecione "Mostrar todo o conteúdo"',
-              'Certifique-se de que as notificações do MedAlert estão ativadas',
+              'Certifique-se de que as notificações do Alerta Médico estão ativadas',
             ].map((step, i) => (
               <View key={i} style={styles.stepRow}>
                 <View style={styles.stepNum}><Text style={styles.stepNumText}>{i + 1}</Text></View>
@@ -146,39 +167,15 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* Profile card */}
-      {profile ? (
-        <TouchableOpacity style={styles.summaryCard} activeOpacity={0.8} onPress={() => navigation.navigate('Profile')}>
-          <View style={styles.cardRow}>
-            <Text style={styles.cardTag}>PERFIL MÉDICO</Text>
-            <Text style={styles.cardChevron}>›</Text>
-          </View>
-          <View style={styles.profileRow}>
-            {initials && (
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{initials}</Text>
-              </View>
-            )}
-            <View style={{ flex: 1 }}>
-              <Text style={styles.name}>{profile.name}</Text>
-              <View style={styles.pillsRow}>
-                {profile.blood_type !== 'Desconhecido' && (
-                  <View style={styles.pill}>
-                    <Text style={styles.pillText}>{profile.blood_type}</Text>
-                  </View>
-                )}
-                {profile.allergies ? (
-                  <View style={[styles.pill, styles.pillRed]}>
-                    <Text style={[styles.pillText, styles.pillTextRed]}>{profile.allergies}</Text>
-                  </View>
-                ) : null}
-              </View>
+      {nextReminders.length > 0 && (
+        <TouchableOpacity style={styles.remindersCard} activeOpacity={0.8} onPress={() => navigation.navigate('Medications')}>
+          <Text style={styles.remindersTitle}>Próximos lembretes</Text>
+          {nextReminders.slice(0, 5).map((r, i) => (
+            <View key={i} style={styles.reminderRow}>
+              <Text style={styles.reminderName} numberOfLines={1}>{r.name}</Text>
+              <Text style={styles.reminderLabel}>{r.label}</Text>
             </View>
-          </View>
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity style={styles.warningCard} activeOpacity={0.8} onPress={() => navigation.navigate('Profile')}>
-          <Text style={styles.warningText}>⚠️ Preencha o seu perfil para as informações aparecerem na tela de bloqueio</Text>
+          ))}
         </TouchableOpacity>
       )}
 
@@ -224,27 +221,11 @@ export default function HomeScreen() {
         </TouchableOpacity>
       )}
 
-      {/* Stats row */}
-      <View style={styles.statsRow}>
-        <TouchableOpacity style={styles.statBox} activeOpacity={0.8} onPress={() => navigation.navigate('Medications')}>
-          <Text style={styles.statNum}>{medications.length}</Text>
-          <Text style={styles.statLabel}>Medicamentos</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.statBox} activeOpacity={0.8} onPress={() => navigation.navigate('Contacts')}>
-          <Text style={styles.statNum}>{contacts.length}</Text>
-          <Text style={styles.statLabel}>Contatos</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.statBox} activeOpacity={0.8} onPress={() => navigation.navigate('Medications')}>
-          <Text style={styles.statNum}>{criticalMeds.length}</Text>
-          <Text style={styles.statLabel}>Críticos</Text>
-        </TouchableOpacity>
-      </View>
-
       {!profileComplete && (
         <View style={styles.infoCard}>
-          <Text style={styles.infoTitle}>Como usar o MedAlert</Text>
+          <Text style={styles.infoTitle}>Como usar o Alerta Médico</Text>
           <Text style={styles.infoStep}>1. Preencha seu perfil médico (aba Perfil)</Text>
-          <Text style={styles.infoStep}>2. Cadastre seus medicamentos (aba Medicamentos)</Text>
+          <Text style={styles.infoStep}>2. Cadastre seus medicamentos (aba Remédios)</Text>
           <Text style={styles.infoStep}>3. Adicione contatos de emergência (aba Contatos)</Text>
           <Text style={styles.infoStep}>4. Ative o alerta de emergência aqui</Text>
         </View>
@@ -309,32 +290,19 @@ const styles = StyleSheet.create({
   heroBtnOff: { backgroundColor: 'rgba(255,255,255,0.18)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' },
   heroBtnText: { color: '#fff', fontWeight: '700', fontSize: 13 },
 
-  // Cards
-  summaryCard: {
+  // Reminders card
+  remindersCard: {
     backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10,
     borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
   },
-  cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  cardTag: { fontSize: 10, color: '#8A8F9D', fontWeight: '600', letterSpacing: 0.5 },
-  cardChevron: { fontSize: 22, color: '#C0C5D0', lineHeight: 24 },
-  profileRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  avatar: {
-    width: 40, height: 40, borderRadius: 20, backgroundColor: '#EEF3FF',
-    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-  },
-  avatarText: { fontSize: 15, fontWeight: '600', color: '#1C3F7A' },
-  name: { fontSize: 17, fontWeight: '600', color: '#1A1F2E', marginBottom: 6 },
-  pillsRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
-  pill: { backgroundColor: '#EEF3FF', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 },
-  pillText: { fontSize: 12, color: '#1C3F7A', fontWeight: '600' },
-  pillRed: { backgroundColor: '#FEE9E9' },
-  pillTextRed: { color: '#B03020' },
+  remindersTitle: { fontSize: 10, color: '#8A8F9D', fontWeight: '600', letterSpacing: 0.5, marginBottom: 8 },
+  reminderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 5, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.05)' },
+  reminderName: { fontSize: 13, color: '#1A1F2E', fontWeight: '500', flex: 1, marginRight: 8 },
+  reminderLabel: { fontSize: 12, color: '#1C3F7A', fontWeight: '600' },
 
-  warningCard: {
-    backgroundColor: '#fff3cd', borderRadius: 12, padding: 14, marginBottom: 10,
-    borderLeftWidth: 4, borderLeftColor: '#ffc107',
-  },
-  warningText: { fontSize: 14, color: '#856404' },
+  // Shared card primitives
+  cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  cardChevron: { fontSize: 22, color: '#C0C5D0', lineHeight: 24 },
 
   criticalCard: {
     backgroundColor: '#fff8f8', borderRadius: 12, padding: 14, marginBottom: 10,
@@ -355,14 +323,6 @@ const styles = StyleSheet.create({
   interactionBadgeText: { fontSize: 10, fontWeight: '600' },
   interactionPair: { fontSize: 13, color: '#333', flex: 1, fontWeight: '500' },
   interactionMore: { fontSize: 12, color: '#888', marginTop: 8, fontStyle: 'italic' },
-
-  statsRow: { flexDirection: 'row', gap: 10, marginBottom: 14 },
-  statBox: {
-    flex: 1, backgroundColor: '#fff', borderRadius: 12, padding: 14, alignItems: 'center',
-    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
-  },
-  statNum: { fontSize: 28, fontWeight: '600', color: '#1C3F7A' },
-  statLabel: { fontSize: 11, color: '#8A8F9D', marginTop: 2 },
 
   infoCard: { backgroundColor: '#EEF3FF', borderRadius: 12, padding: 16 },
   infoTitle: { fontSize: 14, fontWeight: '600', color: '#1C3F7A', marginBottom: 10 },

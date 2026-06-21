@@ -8,7 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   getMedications, addMedication, updateMedication, deleteMedication,
-  getRemindersForMedication, addReminder, deleteReminder, toggleReminderActive,
+  getRemindersForMedication, addReminder, deleteReminder, toggleReminderActive, updateAllRemindersSound, updateReminderSound,
 } from '../database/db';
 import {
   scheduleReminderWeekly, scheduleReminderMonthly, scheduleReminderEveryNMonths,
@@ -181,8 +181,8 @@ export default function MedicationsScreen() {
   const [showReminderModal, setShowReminderModal] = useState(false);
   const [reminderMed, setReminderMed] = useState<Medication | null>(null);
   const [reminderIsDraft, setReminderIsDraft] = useState(false);
+  const [reminderFromEditFlow, setReminderFromEditFlow] = useState(false);
   const [reminders, setReminders] = useState<MedicationReminder[]>([]);
-  const [showAddForm, setShowAddForm] = useState(false);
   const [pickerHour, setPickerHour] = useState(8);
   const [pickerMinute, setPickerMinute] = useState(0);
   const [timesPerDay, setTimesPerDay] = useState(1);
@@ -263,11 +263,15 @@ export default function MedicationsScreen() {
     }));
     setSuggestions([]);
     setKnownDrug(true);
-    const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
-    const drugInts = checkInteractions(s.genericName, others);
-    const seenIds = new Set(drugInts.map(i => i.id));
-    setInteractions(drugInts);
-    setSubstanceInteractions(checkSubstanceInteractions(s.genericName, others).filter(i => !seenIds.has(i.id)));
+    setInteractions([]);
+    setSubstanceInteractions([]);
+    setTimeout(() => {
+      const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
+      const drugInts = checkInteractions(s.genericName, others);
+      const seenIds = new Set(drugInts.map(i => i.id));
+      setInteractions(drugInts);
+      setSubstanceInteractions(checkSubstanceInteractions(s.genericName, others).filter(i => !seenIds.has(i.id)));
+    }, 0);
   }
 
   function handleCommercialNameChange(v: string) {
@@ -381,12 +385,16 @@ export default function MedicationsScreen() {
     setKnownDrug(true);
     setReportedDrug('');
     setEntryType(isPhytotherapic(item.generic_name) ? 'fitoterapico' : 'medicamento');
-    const others = medications.filter(m => m.id !== item.id).map(m => m.generic_name);
-    const drugInts = checkInteractions(item.generic_name, others);
-    const seenIds = new Set(drugInts.map(i => i.id));
-    setInteractions(drugInts);
-    setSubstanceInteractions(checkSubstanceInteractions(item.generic_name, others).filter(i => !seenIds.has(i.id)));
-    setShowModal(true);
+    setInteractions([]);
+    setSubstanceInteractions([]);
+    setShowModal(true); // abre imediatamente
+    setTimeout(() => {  // interações calculadas após render
+      const others = medications.filter(m => m.id !== item.id).map(m => m.generic_name);
+      const drugInts = checkInteractions(item.generic_name, others);
+      const seenIds = new Set(drugInts.map(i => i.id));
+      setInteractions(drugInts);
+      setSubstanceInteractions(checkSubstanceInteractions(item.generic_name, others).filter(i => !seenIds.has(i.id)));
+    }, 0);
   }
 
   async function handleDelete(id: number, name: string) {
@@ -418,22 +426,70 @@ export default function MedicationsScreen() {
     setSelectedWeekdays([2]); setSelectedMonthDays([1]); setNMonths('1'); setMonthDay('1');
   }
 
-  async function openReminders(med: Medication) {
+  function populatePickerFromReminders(rs: MedicationReminder[]) {
+    const active = rs.filter(r => r.is_active);
+    const first = active[0] ?? rs[0];
+    if (!first) { resetPickerState(); return; }
+    const [h, m] = first.time.split(':').map(Number);
+    setPickerHour(h);
+    setPickerMinute(m);
+    setCustomTimes('');
+    const p = first.period ?? 'day';
+    if (p === 'day') {
+      setReminderPeriod('day');
+      setTimesPerDay(rs.filter(r => (r.period ?? 'day') === 'day').length || 1);
+    } else if (p.startsWith('week:')) {
+      setReminderPeriod('week');
+      setSelectedWeekdays(p.split(':')[1].split(',').map(Number));
+    } else if (p.startsWith('month:')) {
+      setReminderPeriod('month');
+      setSelectedMonthDays(p.split(':')[1].split(',').map(Number));
+    } else if (p.startsWith('nmonths:')) {
+      setReminderPeriod('year');
+      const [, nStr, dStr] = p.split(':');
+      setNMonths(nStr); setMonthDay(dStr);
+    }
+  }
+
+  async function openReminders(med: Medication, fromEditFlow = false) {
     setReminderMed(med);
     setReminderIsDraft(false);
-    const rs = await getRemindersForMedication(med.id);
-    setReminders(rs);
-    setShowAddForm(rs.length === 0);
+    setReminderFromEditFlow(fromEditFlow);
+    setReminders([]);
     resetPickerState();
-    setShowReminderModal(true);
+    setShowReminderModal(true); // abre imediatamente
+    const rs = await getRemindersForMedication(med.id); // carrega após render
+    setReminders(rs);
+    setWithSound(rs.some(r => r.with_sound));
+    if (rs.length > 0) populatePickerFromReminders(rs);
   }
 
   function openRemindersForNewMed() {
     setReminderMed(null);
     setReminderIsDraft(true);
-    setShowAddForm(reminders.length === 0);
+    setReminderFromEditFlow(false);
     resetPickerState();
     setShowReminderModal(true);
+  }
+
+  async function handleToggleSound(item: Medication) {
+    const rs = await getRemindersForMedication(item.id);
+    if (rs.length === 0) return;
+    const currentHasSound = rs.some(r => r.is_active && r.with_sound);
+    const newSound = !currentHasSound;
+    await updateAllRemindersSound(item.id, newSound);
+    await cancelAllRemindersForMedication(item.id).catch(() => {});
+    for (const r of rs.filter(r => r.is_active)) {
+      const [h, m] = r.time.split(':').map(Number);
+      const p = r.period ?? 'day';
+      try {
+        if (p === 'day') await scheduleReminder(item.id, item.generic_name, item.dose, h, m, newSound);
+        else if (p.startsWith('week:')) await scheduleReminderWeekly(item.id, item.generic_name, item.dose, p.split(':')[1].split(',').map(Number), h, m, newSound);
+        else if (p.startsWith('month:')) await scheduleReminderMonthly(item.id, item.generic_name, item.dose, p.split(':')[1].split(',').map(Number), h, m, newSound);
+        else if (p.startsWith('nmonths:')) { const [,nStr,dStr] = p.split(':'); await scheduleReminderEveryNMonths(item.id, item.generic_name, item.dose, Number(nStr), Number(dStr), h, m, newSound); }
+      } catch {}
+    }
+    setReminderHasSound(prev => new Map(prev).set(item.id, newSound));
   }
 
   async function handleSaveReminder() {
@@ -485,29 +541,43 @@ export default function MedicationsScreen() {
         setTimeout(() => setShowModal(true), 100);
         return;
       } else if (reminderMed) {
-        for (const e of newEntries) {
-          const [h, m] = e.time.split(':').map(Number);
-          const p = e.period;
-          if (p === 'day') {
-            await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, withSound);
-          } else if (p.startsWith('week:')) {
-            await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, selectedWeekdays, h, m, withSound);
-          } else if (p.startsWith('month:')) {
-            await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, selectedMonthDays, h, m, withSound);
-          } else if (p.startsWith('nmonths:')) {
-            const [, nStr, dStr] = p.split(':');
-            await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, withSound);
+        // Determina o tipo de período sendo salvo
+        const p0 = newEntries[0]?.period ?? 'day';
+        const periodType = (p: string) => p.startsWith('week:') ? 'week' : p.startsWith('month:') ? 'month' : p.startsWith('nmonths:') ? 'nmonths' : 'day';
+        // Apaga todos os reminders do mesmo tipo (substitui em vez de acumular)
+        for (const r of reminders) {
+          if (periodType(r.period ?? 'day') === periodType(p0)) {
+            await deleteReminder(r.id).catch(() => {});
           }
+        }
+        // Adiciona os novos
+        for (const e of newEntries) {
           await addReminder({ medication_id: reminderMed.id, time: e.time, period: e.period, with_sound: withSound, is_active: true });
         }
-        const updated = await getRemindersForMedication(reminderMed.id);
-        setReminders(updated);
+        // Cancela tudo e reagenda todos os reminders restantes + novos
+        await cancelAllRemindersForMedication(reminderMed.id).catch(() => {});
+        const allRem = await getRemindersForMedication(reminderMed.id);
+        for (const rem of allRem.filter(rem => rem.is_active)) {
+          const [h, m] = rem.time.split(':').map(Number);
+          const p = rem.period ?? 'day';
+          try {
+            if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, rem.with_sound);
+            else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound);
+            else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound);
+            else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, rem.with_sound); }
+          } catch {}
+        }
+        setReminders(allRem);
         await refreshReminderTimes(reminderMed.id);
       }
 
-      setShowAddForm(false);
-      setCustomTimes('');
-      setReminderPeriod('day');
+      if (reminderFromEditFlow) {
+        setReminderFromEditFlow(false);
+        setShowReminderModal(false);
+        setTimeout(() => setShowModal(true), 100);
+      } else {
+        resetPickerState();
+      }
     } catch {
       Alert.alert('Erro', 'Não foi possível salvar o lembrete.');
     }
@@ -553,6 +623,26 @@ export default function MedicationsScreen() {
     await refreshReminderTimes(r.medication_id);
   }
 
+  async function handleToggleReminderSound(r: MedicationReminder) {
+    if (!reminderMed) return;
+    await updateReminderSound(r.id, !r.with_sound);
+    await cancelAllRemindersForMedication(reminderMed.id).catch(() => {});
+    const rs = await getRemindersForMedication(reminderMed.id);
+    for (const rem of rs.filter(rem => rem.is_active)) {
+      const [h, m] = rem.time.split(':').map(Number);
+      const p = rem.period ?? 'day';
+      try {
+        if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, rem.with_sound);
+        else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound);
+        else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound);
+        else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, rem.with_sound); }
+      } catch {}
+    }
+    setReminders(rs);
+    setWithSound(rs.some(rem => rem.with_sound));
+    await refreshReminderTimes(reminderMed.id);
+  }
+
   return (
     <View style={styles.container}>
       <FlatList
@@ -596,7 +686,7 @@ export default function MedicationsScreen() {
                   !((reminderTimes.get(item.id)?.length ?? 0) > 0 && (reminderHasSound.get(item.id) ?? false)) && styles.bellBtnDim,
                   (reminderTimes.get(item.id)?.length ?? 0) > 0 && (reminderHasSound.get(item.id) ?? false) && styles.bellBtnActive,
                 ]}
-                onPress={() => openReminders(item)}
+                onPress={() => handleToggleSound(item)}
               >
                 <Text style={styles.bellBtnText}>🔔</Text>
               </TouchableOpacity>
@@ -811,7 +901,7 @@ export default function MedicationsScreen() {
               onPress={() => {
                 if (editingId !== null) {
                   const med = medications.find(m => m.id === editingId);
-                  if (med) { setShowModal(false); setTimeout(() => openReminders(med), 100); }
+                  if (med) { setShowModal(false); setTimeout(() => openReminders(med, true), 100); }
                 } else {
                   setShowModal(false);
                   setTimeout(() => openRemindersForNewMed(), 100);
@@ -884,7 +974,7 @@ export default function MedicationsScreen() {
             )}
 
             <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.cancelBtn} onPress={() => { setShowModal(false); setReminders([]); setReminderIsDraft(false); }}>
+              <TouchableOpacity style={styles.cancelBtn} onPress={() => { setShowModal(false); setReminders([]); setReminderIsDraft(false); setEditingId(null); }}>
                 <Text style={styles.cancelBtnText}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
@@ -906,14 +996,45 @@ export default function MedicationsScreen() {
               <Text style={styles.reminderMedName}>{reminderMed?.generic_name || form.generic_name}</Text>
             )}
 
-            {reminders.length === 0 && !showAddForm && (
-              <Text style={styles.reminderEmpty}>Nenhum lembrete configurado.</Text>
-            )}
+            <View style={styles.soundRow}>
+              <View>
+                <Text style={styles.soundLabel}>🔔 Som</Text>
+                <Text style={styles.soundHint}>{withSound ? 'Toca som ao notificar' : 'Notificações silenciosas'}</Text>
+              </View>
+              <Switch
+                value={withSound}
+                onValueChange={async (val) => {
+                  setWithSound(val);
+                  if (!reminderMed) return;
+                  await updateAllRemindersSound(reminderMed.id, val);
+                  await cancelAllRemindersForMedication(reminderMed.id).catch(() => {});
+                  const rs = await getRemindersForMedication(reminderMed.id);
+                  for (const rem of rs.filter(rem => rem.is_active)) {
+                    const [h, m] = rem.time.split(':').map(Number);
+                    const p = rem.period ?? 'day';
+                    try {
+                      if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, val);
+                      else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, val);
+                      else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, val);
+                      else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, val); }
+                    } catch {}
+                  }
+                  setReminders(rs);
+                  await refreshReminderTimes(reminderMed.id);
+                }}
+                trackColor={{ true: '#1a3a6b', false: '#ccc' }}
+                thumbColor="#fff"
+              />
+            </View>
 
             {reminders.map(r => (
               <View key={r.id} style={styles.reminderRow}>
                 <Text style={styles.reminderTime}>{periodLabel(r.period, r.time)}</Text>
-                <Text style={styles.reminderSound}>{r.with_sound ? '🔊' : '🔇'}</Text>
+                <TouchableOpacity onPress={() => withSound && handleToggleReminderSound(r)} disabled={!withSound}>
+                  <Text style={[styles.reminderSound, !withSound && { opacity: 0.35 }]}>
+                    {r.with_sound && withSound ? '🔊' : '🔇'}
+                  </Text>
+                </TouchableOpacity>
                 <Switch
                   value={r.is_active}
                   onValueChange={() => handleToggleActive(r)}
@@ -927,169 +1048,148 @@ export default function MedicationsScreen() {
               </View>
             ))}
 
-            {showAddForm ? (
-              <View style={styles.addForm}>
-                <Text style={styles.addFormTitle}>Novo lembrete</Text>
+            <View style={[styles.addForm, reminders.length === 0 && { marginTop: 0, borderTopWidth: 0, paddingTop: 0 }]}>
+              {reminders.length > 0 && <Text style={styles.addFormTitle}>Novo lembrete</Text>}
 
-                <Text style={styles.fieldLabel}>Período</Text>
-                <View style={styles.periodRow}>
-                  {(['day', 'week', 'month', 'year'] as ReminderPeriod[]).map(p => {
-                    const labels: Record<ReminderPeriod, string> = { day: 'Dia', week: 'Semana', month: 'Mês', year: 'Periódico' };
-                    return (
-                      <TouchableOpacity
-                        key={p}
-                        style={[styles.periodBtn, reminderPeriod === p && styles.periodBtnActive]}
-                        onPress={() => setReminderPeriod(p)}
-                      >
-                        <Text style={[styles.periodBtnText, reminderPeriod === p && styles.periodBtnTextActive]}>
-                          {labels[p]}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-
-                {reminderPeriod === 'week' && (
-                  <>
-                    <Text style={styles.fieldLabel}>Dias da semana (selecione um ou mais)</Text>
-                    <View style={styles.weekdayRow}>
-                      {WEEKDAYS.map(wd => {
-                        const sel = selectedWeekdays.includes(wd.value);
-                        return (
-                          <TouchableOpacity
-                            key={wd.value}
-                            style={[styles.weekdayBtn, sel && styles.weekdayBtnActive]}
-                            onPress={() => setSelectedWeekdays(prev =>
-                              sel ? prev.filter(v => v !== wd.value) : [...prev, wd.value]
-                            )}
-                          >
-                            <Text style={[styles.weekdayBtnText, sel && styles.weekdayBtnTextActive]}>
-                              {wd.label}
-                            </Text>
-                          </TouchableOpacity>
-                        );
-                      })}
-                    </View>
-                  </>
-                )}
-
-                {reminderPeriod === 'month' && (
-                  <>
-                    <Text style={styles.fieldLabel}>Dias do mês (selecione um ou mais)</Text>
-                    <View style={styles.monthGrid}>
-                      {Array.from({ length: 28 }, (_, i) => i + 1).map(d => {
-                        const sel = selectedMonthDays.includes(d);
-                        return (
-                          <TouchableOpacity
-                            key={d}
-                            style={[styles.monthDayBtn, sel && styles.monthDayBtnActive]}
-                            onPress={() => setSelectedMonthDays(prev =>
-                              sel ? prev.filter(v => v !== d) : [...prev, d]
-                            )}
-                          >
-                            <Text style={[styles.monthDayBtnText, sel && styles.monthDayBtnTextActive]}>
-                              {d}
-                            </Text>
-                          </TouchableOpacity>
-                        );
-                      })}
-                    </View>
-                  </>
-                )}
-
-                {reminderPeriod === 'year' && (
-                  <>
-                    <Text style={styles.fieldLabel}>Repetir a cada quantos meses</Text>
-                    <TextInput
-                      style={styles.fieldInput}
-                      value={nMonths}
-                      onChangeText={setNMonths}
-                      keyboardType="number-pad"
-                      maxLength={2}
-                    />
-                    <Text style={styles.fieldLabel}>No dia do mês (1–28)</Text>
-                    <TextInput
-                      style={styles.fieldInput}
-                      value={monthDay}
-                      onChangeText={setMonthDay}
-                      keyboardType="number-pad"
-                      maxLength={2}
-                    />
-                  </>
-                )}
-
-                <Text style={styles.fieldLabel}>Horário</Text>
-                <TimePicker
-                  hour={pickerHour}
-                  minute={pickerMinute}
-                  onChange={(h, m) => { setPickerHour(h); setPickerMinute(m); }}
-                />
-
-                {reminderPeriod === 'day' && (
-                  <>
-                    <Text style={styles.fieldLabel}>Vezes por dia</Text>
-                    <View style={styles.timesRow}>
-                      {TIMES_PER_DAY_OPTIONS.map(n => (
-                        <TouchableOpacity
-                          key={n}
-                          style={[styles.timesBtn, timesPerDay === n && !customTimes.trim() && styles.timesBtnActive]}
-                          onPress={() => { setTimesPerDay(n); setCustomTimes(''); }}
-                        >
-                          <Text style={[styles.timesBtnText, timesPerDay === n && !customTimes.trim() && styles.timesBtnTextActive]}>{n}x</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-
-                    <Text style={styles.fieldLabel}>Outro valor ou horários específicos</Text>
-                    <TextInput
-                      style={styles.fieldInput}
-                      value={customTimes}
-                      onChangeText={setCustomTimes}
-                    />
-
-                    {!customTimes.trim() && computedTimes.length > 0 && (
-                      <View style={styles.timesPreview}>
-                        <Text style={styles.timesPreviewLabel}>Horários dos avisos:</Text>
-                        <Text style={styles.timesPreviewValue}>{computedTimes.join('  •  ')}</Text>
-                      </View>
-                    )}
-                  </>
-                )}
-
-                <View style={styles.soundRow}>
-                  <View>
-                    <Text style={styles.soundLabel}>🔔 Som</Text>
-                    <Text style={styles.soundHint}>{withSound ? 'Toca som ao notificar' : 'Apenas mensagem'}</Text>
-                  </View>
-                  <Switch
-                    value={withSound}
-                    onValueChange={setWithSound}
-                    trackColor={{ true: '#1a3a6b', false: '#ccc' }}
-                    thumbColor="#fff"
-                  />
-                </View>
-
-                <View style={styles.modalActions}>
-                  <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowAddForm(false)}>
-                    <Text style={styles.cancelBtnText}>Cancelar</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.saveBtn} onPress={handleSaveReminder}>
-                    <Text style={styles.saveBtnText}>Salvar</Text>
-                  </TouchableOpacity>
-                </View>
+              <Text style={styles.fieldLabel}>Período</Text>
+              <View style={styles.periodRow}>
+                {(['day', 'week', 'month', 'year'] as ReminderPeriod[]).map(p => {
+                  const labels: Record<ReminderPeriod, string> = { day: 'Dia', week: 'Sem.', month: 'Mês', year: 'Livre' };
+                  return (
+                    <TouchableOpacity
+                      key={p}
+                      style={[styles.periodBtn, reminderPeriod === p && styles.periodBtnActive]}
+                      onPress={() => setReminderPeriod(p)}
+                    >
+                      <Text style={[styles.periodBtnText, reminderPeriod === p && styles.periodBtnTextActive]}>
+                        {labels[p]}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
-            ) : (
-              <TouchableOpacity style={styles.addReminderBtn} onPress={() => setShowAddForm(true)}>
-                <Text style={styles.addReminderBtnText}>+ Adicionar lembrete</Text>
-              </TouchableOpacity>
-            )}
 
-            <TouchableOpacity style={[styles.cancelBtn, { marginTop: 12 }]} onPress={() => {
-              setShowReminderModal(false);
-              if (reminderIsDraft || editingId !== null) setTimeout(() => setShowModal(true), 100);
-            }}>
-              <Text style={styles.cancelBtnText}>Fechar</Text>
-            </TouchableOpacity>
+              {reminderPeriod === 'week' && (
+                <>
+                  <Text style={styles.fieldLabel}>Dias da semana (selecione um ou mais)</Text>
+                  <View style={styles.weekdayRow}>
+                    {WEEKDAYS.map(wd => {
+                      const sel = selectedWeekdays.includes(wd.value);
+                      return (
+                        <TouchableOpacity
+                          key={wd.value}
+                          style={[styles.weekdayBtn, sel && styles.weekdayBtnActive]}
+                          onPress={() => setSelectedWeekdays(prev =>
+                            sel ? prev.filter(v => v !== wd.value) : [...prev, wd.value]
+                          )}
+                        >
+                          <Text style={[styles.weekdayBtnText, sel && styles.weekdayBtnTextActive]}>
+                            {wd.label}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </>
+              )}
+
+              {reminderPeriod === 'month' && (
+                <>
+                  <Text style={styles.fieldLabel}>Dias do mês (selecione um ou mais)</Text>
+                  <View style={styles.monthGrid}>
+                    {Array.from({ length: 28 }, (_, i) => i + 1).map(d => {
+                      const sel = selectedMonthDays.includes(d);
+                      return (
+                        <TouchableOpacity
+                          key={d}
+                          style={[styles.monthDayBtn, sel && styles.monthDayBtnActive]}
+                          onPress={() => setSelectedMonthDays(prev =>
+                            sel ? prev.filter(v => v !== d) : [...prev, d]
+                          )}
+                        >
+                          <Text style={[styles.monthDayBtnText, sel && styles.monthDayBtnTextActive]}>
+                            {d}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </>
+              )}
+
+              {reminderPeriod === 'year' && (
+                <>
+                  <Text style={styles.fieldLabel}>Repetir a cada quantos meses</Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    value={nMonths}
+                    onChangeText={setNMonths}
+                    keyboardType="number-pad"
+                    maxLength={2}
+                  />
+                  <Text style={styles.fieldLabel}>No dia do mês (1–28)</Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    value={monthDay}
+                    onChangeText={setMonthDay}
+                    keyboardType="number-pad"
+                    maxLength={2}
+                  />
+                </>
+              )}
+
+              <Text style={styles.fieldLabel}>Horário</Text>
+              <TimePicker
+                hour={pickerHour}
+                minute={pickerMinute}
+                onChange={(h, m) => { setPickerHour(h); setPickerMinute(m); }}
+              />
+
+              {reminderPeriod === 'day' && (
+                <>
+                  <Text style={styles.fieldLabel}>Vezes por dia</Text>
+                  <View style={styles.timesRow}>
+                    {TIMES_PER_DAY_OPTIONS.map(n => (
+                      <TouchableOpacity
+                        key={n}
+                        style={[styles.timesBtn, timesPerDay === n && !customTimes.trim() && styles.timesBtnActive]}
+                        onPress={() => { setTimesPerDay(n); setCustomTimes(''); }}
+                      >
+                        <Text style={[styles.timesBtnText, timesPerDay === n && !customTimes.trim() && styles.timesBtnTextActive]}>{n}x</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
+                  <Text style={styles.fieldLabel}>Outro valor ou horários específicos</Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    value={customTimes}
+                    onChangeText={setCustomTimes}
+                  />
+
+                  {!customTimes.trim() && computedTimes.length > 0 && (
+                    <View style={styles.timesPreview}>
+                      <Text style={styles.timesPreviewLabel}>Horários dos avisos:</Text>
+                      <Text style={styles.timesPreviewValue}>{computedTimes.join('  •  ')}</Text>
+                    </View>
+                  )}
+                </>
+              )}
+
+              <View style={styles.modalActions}>
+                <TouchableOpacity style={styles.cancelBtn} onPress={() => {
+                  const goBack = reminderIsDraft || reminderFromEditFlow;
+                  setShowReminderModal(false);
+                  setReminderFromEditFlow(false);
+                  if (goBack) setTimeout(() => setShowModal(true), 100);
+                }}>
+                  <Text style={styles.cancelBtnText}>Fechar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.saveBtn} onPress={handleSaveReminder}>
+                  <Text style={styles.saveBtnText}>Salvar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </ScrollView>
         </View>
         </KeyboardAvoidingView>

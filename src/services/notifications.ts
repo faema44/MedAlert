@@ -1,7 +1,8 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import { Profile, Medication } from '../types';
+import { Profile, Medication, MedicationReminder } from '../types';
 import { postMedNotification, cancelMedNotification } from './medNotification';
+import { getRemindersForMedication } from '../database/db';
 
 const CHANNEL_ID = 'medalert_emergency_v3';
 const NOTIF_ID = 'emergency';
@@ -42,11 +43,87 @@ export async function setupNotificationChannels(): Promise<void> {
 }
 
 export async function requestPermissions(): Promise<boolean> {
-  const { status: existing } = await Notifications.getPermissionsAsync();
-  if (existing === 'granted') return true;
+  try {
+    const { status: existing } = await Notifications.getPermissionsAsync();
+    if (existing === 'granted') return true;
+    const { status } = await Notifications.requestPermissionsAsync();
+    return status === 'granted';
+  } catch {
+    return false;
+  }
+}
 
-  const { status } = await Notifications.requestPermissionsAsync();
-  return status === 'granted';
+export interface ReminderInfo {
+  label: string;   // "hoje às 14:00" | "amanhã às 08:00" | "20/06 às 10:00"
+  sortMs: number;  // epoch ms — used for sorting
+}
+
+export function nextReminderInfo(reminders: MedicationReminder[]): ReminderInfo | null {
+  const now = new Date();
+  let bestMs = Infinity;
+
+  for (const r of reminders) {
+    if (!r.is_active) continue;
+    const [h, m] = r.time.split(':').map(Number);
+    if (isNaN(h) || isNaN(m)) continue;
+
+    let candidate: Date | null = null;
+
+    if (!r.period || r.period === 'day') {
+      const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+      candidate = t > now ? t : new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, h, m);
+
+    } else if (r.period.startsWith('week:')) {
+      const wds = r.period.split(':')[1].split(',').map(Number);
+      const todayWd = now.getDay() + 1; // 1=Dom…7=Sáb
+      let min: Date | null = null;
+      for (const wd of wds) {
+        const diff = (wd - todayWd + 7) % 7;
+        if (diff === 0) {
+          const c = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+          const pick = c > now ? c : new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7, h, m);
+          if (!min || pick < min) min = pick;
+        } else {
+          const c = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff, h, m);
+          if (!min || c < min) min = c;
+        }
+      }
+      candidate = min;
+
+    } else if (r.period.startsWith('month:')) {
+      const days = r.period.split(':')[1].split(',').map(Number);
+      let min: Date | null = null;
+      for (const d of days) {
+        const c = new Date(now.getFullYear(), now.getMonth(), d, h, m);
+        const pick = c > now ? c : new Date(now.getFullYear(), now.getMonth() + 1, d, h, m);
+        if (!min || pick < min) min = pick;
+      }
+      candidate = min;
+
+    } else if (r.period.startsWith('nmonths:')) {
+      const [, nStr, dStr] = r.period.split(':');
+      const n = parseInt(nStr, 10);
+      const d = parseInt(dStr, 10);
+      let c = new Date(now.getFullYear(), now.getMonth(), d, h, m);
+      if (c <= now) c = new Date(now.getFullYear(), now.getMonth() + n, d, h, m);
+      candidate = c;
+    }
+
+    if (candidate && candidate.getTime() < bestMs) bestMs = candidate.getTime();
+  }
+
+  if (!isFinite(bestMs)) return null;
+
+  const best = new Date(bestMs);
+  const hh = String(best.getHours()).padStart(2, '0');
+  const mm = String(best.getMinutes()).padStart(2, '0');
+  const today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const targetDay = new Date(best.getFullYear(), best.getMonth(), best.getDate()).getTime();
+  const diffDays = Math.round((targetDay - today0) / 86400000);
+  const dayLabel = diffDays === 0 ? 'hoje' : diffDays === 1 ? 'amanhã'
+    : `${String(best.getDate()).padStart(2, '0')}/${String(best.getMonth() + 1).padStart(2, '0')}`;
+
+  return { label: `${dayLabel} às ${hh}:${mm}`, sortMs: bestMs };
 }
 
 async function clearEmergency(): Promise<void> {
@@ -65,24 +142,47 @@ export async function updateEmergencyNotification(
 
   if (!profile?.name) return;
 
+  const meds8 = medications.slice(0, 8);
+
+  // Carrega lembretes de cada medicamento para mostrar próximo horário
+  const medReminders = meds8.length
+    ? await Promise.all(meds8.map(m => getRemindersForMedication(m.id).catch(() => [] as MedicationReminder[])))
+    : [];
+
   // bigText: ficha completa, exibida ao expandir (▼)
   const lines: string[] = [`👤 ${profile.name}`];
   if (profile.blood_type && profile.blood_type !== 'Desconhecido') lines.push(`🩸 ${profile.blood_type}`);
-  if (medications.length) {
+  if (meds8.length) {
     lines.push('');
-    medications.slice(0, 8).forEach(m => {
+    meds8.forEach((m, idx) => {
       const label = m.commercial_name ? `${m.generic_name} (${m.commercial_name})` : m.generic_name;
-      lines.push(`${m.is_critical ? '⚠️' : '💊'} ${label}${m.dose ? '  ' + m.dose : ''}`);
+      const info = nextReminderInfo(medReminders[idx] ?? []);
+      const timeStr = info ? `  🔔 ${info.label}` : '';
+      lines.push(`${m.is_critical ? '⚠️' : '💊'} ${label}${m.dose ? '  ' + m.dose : ''}${timeStr}`);
     });
     if (medications.length > 8) lines.push(`  +${medications.length - 8} outros`);
   }
-  if (profile.allergies) { lines.push(''); lines.push(`🚫 ${profile.allergies}`); }
+  if (profile.allergies) { lines.push(''); lines.push(`🚫 Alergia: ${profile.allergies}`); }
   if (profile.notes)     { lines.push(''); lines.push(`📋 ${profile.notes}`); }
 
-  // contentText vazio → collapsed mostra só o título "Informações Médicas"
-  // bigText completo → expanded (▼) mostra ficha médica
+  // contentText: próximo lembrete do dia (visível no modo colapsado)
+  // só mostra medicamentos com lembrete ainda hoje (não exibe os que já passaram)
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999);
+  const upcoming: { sortMs: number; name: string; label: string }[] = [];
+  meds8.forEach((m, idx) => {
+    const info = nextReminderInfo(medReminders[idx] ?? []);
+    if (info && info.sortMs <= todayEnd.getTime()) {
+      upcoming.push({ name: m.generic_name, label: info.label, sortMs: info.sortMs });
+    }
+  });
+  upcoming.sort((a, b) => a.sortMs - b.sortMs);
+  const contentText = upcoming.length > 0
+    ? `${upcoming[0].name} · ${upcoming[0].label}`
+    : '';
+
   try {
-    postMedNotification('✚  Informações Médicas', '', lines.join('\n'), CHANNEL_ID);
+    postMedNotification('✚  Informações Médicas', contentText, lines.join('\n'), CHANNEL_ID);
   } catch {}
 }
 
@@ -95,6 +195,7 @@ function reminderContent(medicationName: string, dose: string, medicationId: num
     title: '💊 Hora do medicamento',
     body: `${medicationName}${dose ? ' — ' + dose : ''}`,
     data: { type: 'reminder', medicationId },
+    sticky: true,
   };
 }
 

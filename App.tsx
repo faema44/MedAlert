@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, View, Image, TouchableOpacity } from 'react-native';
@@ -13,13 +13,13 @@ import InteractionsScreen from './src/screens/InteractionsScreen';
 import HelpScreen from './src/screens/HelpScreen';
 
 import { setupNotificationChannels, requestPermissions } from './src/services/notifications';
-import { getDb } from './src/database/db';
+import { getDb, getMedications, getContacts } from './src/database/db';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
 
 const Tab = createBottomTabNavigator();
 
 const TITLES: Record<string, string> = {
-  Home: 'MedAlert',
+  Home: 'Alerta Médico',
   Profile: 'Perfil Médico',
   Medications: 'Medicamentos',
   Contacts: 'Contatos',
@@ -75,20 +75,29 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
 
 function AppNavigator() {
   const insets = useSafeAreaInsets();
+  const [medCount, setMedCount] = useState(0);
+  const [contactCount, setContactCount] = useState(0);
+
+  const loadCounts = useCallback(async () => {
+    const [meds, contacts] = await Promise.all([getMedications(), getContacts()]);
+    setMedCount(meds.length);
+    setContactCount(contacts.length);
+  }, []);
 
   useEffect(() => {
     async function init() {
       await getDb();
-      await setupNotificationChannels();
-      await requestPermissions();
+      await setupNotificationChannels().catch(() => {});
+      await requestPermissions().catch(() => {});
       syncMedicationsDb().catch(() => {});
       syncInteractionsDb().catch(() => {});
+      loadCounts();
     }
     init();
-  }, []);
+  }, [loadCounts]);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer onStateChange={loadCounts}>
       <StatusBar style="light" />
       <Tab.Navigator
         screenOptions={({ route, navigation }) => ({
@@ -112,9 +121,9 @@ function AppNavigator() {
           tabBarActiveTintColor: '#1C3F7A',
           tabBarInactiveTintColor: '#9CA3AF',
           tabBarStyle: {
-            height: 56 + insets.bottom,
-            paddingBottom: insets.bottom + 2,
-            paddingTop: 6,
+            height: 64 + insets.bottom,
+            paddingBottom: insets.bottom + 10,
+            paddingTop: 8,
             backgroundColor: '#fff',
             borderTopWidth: 0.5,
             borderTopColor: '#E8EAF0',
@@ -125,8 +134,8 @@ function AppNavigator() {
       >
         <Tab.Screen name="Home"         component={HomeScreen}         options={{ tabBarLabel: 'Início' }} />
         <Tab.Screen name="Profile"      component={ProfileScreen}      options={{ tabBarLabel: 'Perfil' }} />
-        <Tab.Screen name="Medications"  component={MedicationsScreen}  options={{ tabBarLabel: 'Remédios' }} />
-        <Tab.Screen name="Contacts"     component={ContactsScreen}     options={{ tabBarLabel: 'Contatos' }} />
+        <Tab.Screen name="Medications"  component={MedicationsScreen}  options={{ tabBarLabel: 'Remédios', tabBarBadge: medCount > 0 ? medCount : undefined, tabBarBadgeStyle: { backgroundColor: '#1C3F7A', minWidth: 17, height: 17, borderRadius: 9 } }} />
+        <Tab.Screen name="Contacts"     component={ContactsScreen}     options={{ tabBarLabel: 'Contatos', tabBarBadge: contactCount > 0 ? contactCount : undefined, tabBarBadgeStyle: { backgroundColor: '#1C3F7A', minWidth: 17, height: 17, borderRadius: 9 } }} />
         <Tab.Screen name="Interactions" component={InteractionsScreen} options={{ tabBarLabel: 'Tabelas' }} />
         <Tab.Screen name="Help"         component={HelpScreen}         options={{ tabBarItemStyle: { display: 'none' } }} />
       </Tab.Navigator>
