@@ -197,6 +197,7 @@ export default function MedicationsScreen() {
   const [interactionModal, setInteractionModal] = useState<DrugInteraction[] | null>(null);
   const [stockInput, setStockInput] = useState('');
   const [durationDays, setDurationDays] = useState('');
+  const [showStockHelp, setShowStockHelp] = useState(false);
 
   // Reminder state
   const [reminderHasSound, setReminderHasSound] = useState<Map<number, boolean>>(new Map());
@@ -1030,7 +1031,12 @@ export default function MedicationsScreen() {
               return (
                 <>
                   <View style={styles.stockSection}>
-                    <Text style={styles.stockSectionTitle}>Controle de estoque</Text>
+                    <View style={styles.stockSectionHeader}>
+                      <Text style={styles.stockSectionTitle}>Controle de estoque</Text>
+                      <TouchableOpacity onPress={() => setShowStockHelp(true)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                        <Text style={styles.stockHelpBtn}>?</Text>
+                      </TouchableOpacity>
+                    </View>
                     {!hasAlarm && (
                       <Text style={styles.stockNoAlarm}>Configure um alarme para ativar o controle de estoque</Text>
                     )}
@@ -1328,6 +1334,37 @@ export default function MedicationsScreen() {
           </View>
         </View>
       </Modal>
+
+      <Modal visible={showStockHelp} animationType="slide" transparent onRequestClose={() => setShowStockHelp(false)}>
+        <View style={styles.intModalOverlay}>
+          <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
+            <Text style={styles.intModalTitle}>Controle de estoque</Text>
+            <ScrollView>
+              <Text style={styles.stockHelpText}>
+                O controle de estoque ajuda você a saber quantos comprimidos ou doses restam e quando precisa comprar mais.
+              </Text>
+              <Text style={styles.stockHelpSubtitle}>Como funciona</Text>
+              <Text style={styles.stockHelpText}>
+                1. Informe a quantidade atual de comprimidos ou doses que você tem em casa.{'\n\n'}
+                2. Cada vez que tomar o medicamento, toque em <Text style={{ fontWeight: '700' }}>Tomar</Text> no card do medicamento. O estoque diminui automaticamente em 1.{'\n\n'}
+                3. Quando o estoque ficar baixo (menos de 3 dias de doses), você verá um aviso de estoque baixo para providenciar a reposição.
+              </Text>
+              <Text style={styles.stockHelpSubtitle}>Duração do tratamento</Text>
+              <Text style={styles.stockHelpText}>
+                Se o médico prescreveu por um número definido de dias (ex: antibiótico por 7 dias), preencha o campo de duração. O app exibirá a data de término e avisará quando o tratamento encerrar.
+              </Text>
+              <View style={styles.stockHelpTip}>
+                <Text style={styles.stockHelpTipText}>
+                  💡 O controle de estoque só funciona se houver um alarme ativo configurado para o medicamento.
+                </Text>
+              </View>
+            </ScrollView>
+            <TouchableOpacity style={styles.intModalClose} onPress={() => setShowStockHelp(false)}>
+              <Text style={styles.intModalCloseText}>Entendi</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -1356,7 +1393,19 @@ const styles = StyleSheet.create({
   stockSection: {
     marginTop: 16, borderTopWidth: 1, borderTopColor: '#f0f0f0', paddingTop: 14,
   },
-  stockSectionTitle: { fontSize: 13, fontWeight: '700', color: '#1C3F7A', marginBottom: 8 },
+  stockSectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
+  stockSectionTitle: { fontSize: 13, fontWeight: '700', color: '#1C3F7A' },
+  stockHelpBtn: {
+    width: 18, height: 18, borderRadius: 9, borderWidth: 1.5, borderColor: '#1C3F7A',
+    textAlign: 'center', lineHeight: 16, fontSize: 11, fontWeight: '700', color: '#1C3F7A',
+  },
+  stockHelpText: { fontSize: 13, color: '#444', lineHeight: 20, marginBottom: 8 },
+  stockHelpSubtitle: { fontSize: 13, fontWeight: '700', color: '#1C3F7A', marginTop: 8, marginBottom: 4 },
+  stockHelpTip: {
+    backgroundColor: '#FFF8E7', borderRadius: 8, padding: 10, marginTop: 8,
+    borderLeftWidth: 3, borderLeftColor: '#E07B4F',
+  },
+  stockHelpTipText: { fontSize: 12, color: '#7a5200', lineHeight: 18 },
   stockNoAlarm: { fontSize: 12, color: '#E07B4F', marginBottom: 8, fontStyle: 'italic' },
   stockEndDatePreview: { fontSize: 12, color: '#1a6b3a', marginTop: 4, fontStyle: 'italic' },
   stockRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 },
