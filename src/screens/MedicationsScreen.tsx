@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
-  Modal, TextInput, Switch, Alert, ScrollView, Linking, Share,
-  KeyboardAvoidingView, Platform,
+  Modal, TextInput, Switch, Alert, ScrollView, Share,
+  KeyboardAvoidingView, Platform, ActivityIndicator,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,7 +19,8 @@ import {
   scheduleReminder, cancelReminderByTime, cancelAllRemindersForMedication,
 } from '../services/notifications';
 import { Medication, MedicationReminder, DrugInteraction } from '../types';
-import { DrugSuggestion, getSuggestions, getBulaUrl, checkInteractions, checkSubstanceInteractions, isPhytotherapic, getPhytotherapics } from '../utils/drugSearch';
+import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, checkInteractions, checkSubstanceInteractions, isPhytotherapic, getPhytotherapics } from '../utils/drugSearch';
+import { openBula } from '../utils/openBula';
 import { reportMissingDrug } from '../services/reportMissing';
 
 // ─── Time Picker ──────────────────────────────────────────────────────────────
@@ -160,6 +161,7 @@ function computeTimes(startTime: string, timesPerDay: number): string[] {
 export default function MedicationsScreen() {
   const insets = useSafeAreaInsets();
   const [medications, setMedications] = useState<Medication[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(EMPTY_MED);
   const [suggestions, setSuggestions] = useState<DrugSuggestion[]>([]);
@@ -174,8 +176,10 @@ export default function MedicationsScreen() {
   const [cardInteractions, setCardInteractions] = useState<Map<number, DrugInteraction[]>>(new Map());
 
   // Reminder state
+  const [reminderHasSound, setReminderHasSound] = useState<Map<number, boolean>>(new Map());
   const [showReminderModal, setShowReminderModal] = useState(false);
   const [reminderMed, setReminderMed] = useState<Medication | null>(null);
+  const [reminderIsDraft, setReminderIsDraft] = useState(false);
   const [reminders, setReminders] = useState<MedicationReminder[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [pickerHour, setPickerHour] = useState(8);
@@ -197,21 +201,26 @@ export default function MedicationsScreen() {
   );
 
   const load = useCallback(async () => {
+    setLoading(true);
     try {
       const meds = await getMedications();
       setMedications(meds);
       const interactionMap = new Map<number, DrugInteraction[]>();
       const timesMap = new Map<number, string[]>();
+      const soundMap = new Map<number, boolean>();
       await Promise.all(meds.map(async (med) => {
         const others = meds.filter(m => m.id !== med.id).map(m => m.generic_name);
         const ints = checkInteractions(med.generic_name, others);
         if (ints.length > 0) interactionMap.set(med.id, ints);
         const rs = await getRemindersForMedication(med.id);
         timesMap.set(med.id, rs.filter(r => r.is_active).map(r => periodLabel(r.period, r.time)));
+        soundMap.set(med.id, rs.some(r => r.is_active && r.with_sound));
       }));
       setCardInteractions(interactionMap);
       setReminderTimes(timesMap);
+      setReminderHasSound(soundMap);
     } catch {}
+    setLoading(false);
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
@@ -237,10 +246,11 @@ export default function MedicationsScreen() {
     setKnownDrug(false);
     if (reportedDrug && v !== reportedDrug) setReportedDrug('');
     setReportingName(null);
-    // Exclude the medication being edited from the interaction check
     const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
-    setInteractions(checkInteractions(v, others));
-    setSubstanceInteractions(checkSubstanceInteractions(v, others));
+    const drugInts = checkInteractions(v, others);
+    const seenIds = new Set(drugInts.map(i => i.id));
+    setInteractions(drugInts);
+    setSubstanceInteractions(checkSubstanceInteractions(v, others).filter(i => !seenIds.has(i.id)));
   }
 
   function applySuggestion(s: DrugSuggestion) {
@@ -253,8 +263,10 @@ export default function MedicationsScreen() {
     setSuggestions([]);
     setKnownDrug(true);
     const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
-    setInteractions(checkInteractions(s.genericName, others));
-    setSubstanceInteractions(checkSubstanceInteractions(s.genericName, others));
+    const drugInts = checkInteractions(s.genericName, others);
+    const seenIds = new Set(drugInts.map(i => i.id));
+    setInteractions(drugInts);
+    setSubstanceInteractions(checkSubstanceInteractions(s.genericName, others).filter(i => !seenIds.has(i.id)));
   }
 
   function handleCommercialNameChange(v: string) {
@@ -280,10 +292,11 @@ export default function MedicationsScreen() {
     try {
       const isCritical = interactions.some(i => i.risk_level === 'critical' || i.risk_level === 'high');
       const data = { ...form, generic_name: form.generic_name.trim(), commercial_name: form.commercial_name.trim(), is_critical: isCritical };
+      let newMedId: number | null = null;
       if (editingId !== null) {
         await updateMedication({ ...data, id: editingId });
       } else {
-        await addMedication(data);
+        newMedId = await addMedication(data);
       }
       const updated = await getMedications();
       setMedications(updated);
@@ -297,6 +310,33 @@ export default function MedicationsScreen() {
       setReportedDrug('');
       setReportingName(null);
       await syncNotification(updated);
+      if (newMedId !== null && reminders.length > 0) {
+        const newMed = updated.find(m => m.id === newMedId);
+        if (newMed) {
+          for (const r of reminders) {
+            const [h, m] = r.time.split(':').map(Number);
+            const p = r.period ?? 'day';
+            try {
+              if (p === 'day') {
+                await scheduleReminder(newMedId, newMed.generic_name, newMed.dose, h, m, r.with_sound);
+              } else if (p.startsWith('week:')) {
+                const wds = p.split(':')[1].split(',').map(Number);
+                await scheduleReminderWeekly(newMedId, newMed.generic_name, newMed.dose, wds, h, m, r.with_sound);
+              } else if (p.startsWith('month:')) {
+                const days = p.split(':')[1].split(',').map(Number);
+                await scheduleReminderMonthly(newMedId, newMed.generic_name, newMed.dose, days, h, m, r.with_sound);
+              } else if (p.startsWith('nmonths:')) {
+                const [, nStr, dStr] = p.split(':');
+                await scheduleReminderEveryNMonths(newMedId, newMed.generic_name, newMed.dose, Number(nStr), Number(dStr), h, m, r.with_sound);
+              }
+            } catch {}
+            await addReminder({ medication_id: newMedId, time: r.time, period: r.period, with_sound: r.with_sound, is_active: true }).catch(() => {});
+          }
+        }
+      }
+      if (newMedId !== null) await refreshReminderTimes(newMedId).catch(() => {});
+      setReminders([]);
+      setReminderIsDraft(false);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       Alert.alert('Erro ao salvar', msg);
@@ -341,8 +381,10 @@ export default function MedicationsScreen() {
     setReportedDrug('');
     setEntryType(isPhytotherapic(item.generic_name) ? 'fitoterapico' : 'medicamento');
     const others = medications.filter(m => m.id !== item.id).map(m => m.generic_name);
-    setInteractions(checkInteractions(item.generic_name, others));
-    setSubstanceInteractions(checkSubstanceInteractions(item.generic_name, others));
+    const drugInts = checkInteractions(item.generic_name, others);
+    const seenIds = new Set(drugInts.map(i => i.id));
+    setInteractions(drugInts);
+    setSubstanceInteractions(checkSubstanceInteractions(item.generic_name, others).filter(i => !seenIds.has(i.id)));
     setShowModal(true);
   }
 
@@ -364,29 +406,39 @@ export default function MedicationsScreen() {
   async function refreshReminderTimes(medId: number) {
     const rs = await getRemindersForMedication(medId);
     const times = rs.filter(r => r.is_active).map(r => periodLabel(r.period, r.time));
+    const hasSound = rs.some(r => r.is_active && r.with_sound);
     setReminderTimes(prev => new Map(prev).set(medId, times));
+    setReminderHasSound(prev => new Map(prev).set(medId, hasSound));
+  }
+
+  function resetPickerState() {
+    setPickerHour(8); setPickerMinute(0); setTimesPerDay(1);
+    setCustomTimes(''); setWithSound(true); setReminderPeriod('day');
+    setSelectedWeekdays([2]); setSelectedMonthDays([1]); setNMonths('1'); setMonthDay('1');
   }
 
   async function openReminders(med: Medication) {
     setReminderMed(med);
-    setReminders(await getRemindersForMedication(med.id));
-    setShowAddForm(false);
-    setPickerHour(8);
-    setPickerMinute(0);
-    setTimesPerDay(1);
-    setCustomTimes('');
-    setWithSound(true);
-    setReminderPeriod('day');
-    setSelectedWeekdays([2]);
-    setSelectedMonthDays([1]);
-    setNMonths('1');
-    setMonthDay('1');
+    setReminderIsDraft(false);
+    const rs = await getRemindersForMedication(med.id);
+    setReminders(rs);
+    setShowAddForm(rs.length === 0);
+    resetPickerState();
+    setShowReminderModal(true);
+  }
+
+  function openRemindersForNewMed() {
+    setReminderMed(null);
+    setReminderIsDraft(true);
+    setShowAddForm(reminders.length === 0);
+    resetPickerState();
     setShowReminderModal(true);
   }
 
   async function handleSaveReminder() {
-    if (!reminderMed) return;
     try {
+      let newEntries: MedicationReminder[] = [];
+
       if (reminderPeriod === 'day') {
         let times: string[] = [];
         if (customTimes.trim()) {
@@ -401,23 +453,21 @@ export default function MedicationsScreen() {
           times = computedTimes;
         }
         if (times.length === 0) { Alert.alert('Erro', 'Nenhum horário válido informado.'); return; }
-        for (const time of times) {
-          const [h, m] = time.split(':').map(Number);
-          await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, withSound);
-          await addReminder({ medication_id: reminderMed.id, time, period: 'day', with_sound: withSound, is_active: true });
-        }
+        newEntries = times.map((time, i) => ({
+          id: reminderIsDraft ? -(Date.now() + i) : 0,
+          medication_id: reminderMed?.id ?? 0,
+          time, period: 'day', with_sound: withSound, is_active: true,
+        }));
       } else if (reminderPeriod === 'week') {
         if (selectedWeekdays.length === 0) { Alert.alert('Erro', 'Selecione ao menos um dia da semana.'); return; }
         const [h, m] = startTime.split(':').map(Number);
         if (isNaN(h) || isNaN(m)) { Alert.alert('Erro', 'Horário inválido.'); return; }
-        await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, selectedWeekdays, h, m, withSound);
-        await addReminder({ medication_id: reminderMed.id, time: startTime, period: `week:${selectedWeekdays.sort((a,b)=>a-b).join(',')}`, with_sound: withSound, is_active: true });
+        newEntries = [{ id: reminderIsDraft ? -Date.now() : 0, medication_id: reminderMed?.id ?? 0, time: startTime, period: `week:${selectedWeekdays.sort((a,b)=>a-b).join(',')}`, with_sound: withSound, is_active: true }];
       } else if (reminderPeriod === 'month') {
         if (selectedMonthDays.length === 0) { Alert.alert('Erro', 'Selecione ao menos um dia do mês.'); return; }
         const [h, m] = startTime.split(':').map(Number);
         if (isNaN(h) || isNaN(m)) { Alert.alert('Erro', 'Horário inválido.'); return; }
-        await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, selectedMonthDays, h, m, withSound);
-        await addReminder({ medication_id: reminderMed.id, time: startTime, period: `month:${selectedMonthDays.sort((a,b)=>a-b).join(',')}`, with_sound: withSound, is_active: true });
+        newEntries = [{ id: reminderIsDraft ? -Date.now() : 0, medication_id: reminderMed?.id ?? 0, time: startTime, period: `month:${selectedMonthDays.sort((a,b)=>a-b).join(',')}`, with_sound: withSound, is_active: true }];
       } else if (reminderPeriod === 'year') {
         const n = parseInt(nMonths, 10);
         const d = parseInt(monthDay, 10);
@@ -425,12 +475,35 @@ export default function MedicationsScreen() {
         if (isNaN(n) || n < 1) { Alert.alert('Erro', 'Informe o intervalo em meses (mínimo 1).'); return; }
         if (isNaN(d) || d < 1 || d > 28) { Alert.alert('Erro', 'Dia do mês deve ser entre 1 e 28.'); return; }
         if (isNaN(h) || isNaN(mi)) { Alert.alert('Erro', 'Horário inválido.'); return; }
-        await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, n, d, h, mi, withSound);
-        await addReminder({ medication_id: reminderMed.id, time: startTime, period: `nmonths:${n}:${d}`, with_sound: withSound, is_active: true });
+        newEntries = [{ id: reminderIsDraft ? -Date.now() : 0, medication_id: reminderMed?.id ?? 0, time: startTime, period: `nmonths:${n}:${d}`, with_sound: withSound, is_active: true }];
       }
-      const updated = await getRemindersForMedication(reminderMed.id);
-      setReminders(updated);
-      await refreshReminderTimes(reminderMed.id);
+
+      if (reminderIsDraft) {
+        setReminders(prev => [...prev, ...newEntries]);
+        setShowReminderModal(false);
+        setTimeout(() => setShowModal(true), 100);
+        return;
+      } else if (reminderMed) {
+        for (const e of newEntries) {
+          const [h, m] = e.time.split(':').map(Number);
+          const p = e.period;
+          if (p === 'day') {
+            await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, withSound);
+          } else if (p.startsWith('week:')) {
+            await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, selectedWeekdays, h, m, withSound);
+          } else if (p.startsWith('month:')) {
+            await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, selectedMonthDays, h, m, withSound);
+          } else if (p.startsWith('nmonths:')) {
+            const [, nStr, dStr] = p.split(':');
+            await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, withSound);
+          }
+          await addReminder({ medication_id: reminderMed.id, time: e.time, period: e.period, with_sound: withSound, is_active: true });
+        }
+        const updated = await getRemindersForMedication(reminderMed.id);
+        setReminders(updated);
+        await refreshReminderTimes(reminderMed.id);
+      }
+
       setShowAddForm(false);
       setCustomTimes('');
       setReminderPeriod('day');
@@ -440,6 +513,10 @@ export default function MedicationsScreen() {
   }
 
   async function handleDeleteReminder(r: MedicationReminder) {
+    if (reminderIsDraft) {
+      setReminders(prev => prev.filter(x => x.id !== r.id));
+      return;
+    }
     await cancelReminderByTime(r.medication_id, r.time, r.period).catch(() => {});
     await deleteReminder(r.id);
     setReminders(await getRemindersForMedication(r.medication_id));
@@ -447,6 +524,10 @@ export default function MedicationsScreen() {
   }
 
   async function handleToggleActive(r: MedicationReminder) {
+    if (reminderIsDraft) {
+      setReminders(prev => prev.map(x => x.id === r.id ? { ...x, is_active: !x.is_active } : x));
+      return;
+    }
     const newActive = !r.is_active;
     await toggleReminderActive(r.id, newActive);
     if (newActive && reminderMed) {
@@ -479,8 +560,13 @@ export default function MedicationsScreen() {
         contentContainerStyle={styles.list}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text style={styles.emptyText}>Nenhum medicamento cadastrado.</Text>
-            <Text style={styles.emptyHint}>Toque em + para adicionar.</Text>
+            {loading
+              ? <ActivityIndicator size="large" color="#1C3F7A" />
+              : <>
+                  <Text style={styles.emptyText}>Nenhum medicamento cadastrado.</Text>
+                  <Text style={styles.emptyHint}>Toque em + para adicionar.</Text>
+                </>
+            }
           </View>
         }
         renderItem={({ item }) => {
@@ -488,51 +574,66 @@ export default function MedicationsScreen() {
           const hasHighRisk = itemInteractions.some(i => i.risk_level === 'critical' || i.risk_level === 'high');
           return (
           <View style={[styles.medCard, hasHighRisk && styles.medCardCritical]}>
-            <TouchableOpacity style={styles.medInfo} activeOpacity={0.6} onPress={() => openEdit(item)}>
-              <View style={styles.medHeader}>
-                {hasHighRisk && <Text style={styles.criticalIcon}>⚠️</Text>}
-                <Text style={styles.medGeneric}>{item.generic_name}</Text>
-              </View>
-              {item.commercial_name ? <Text style={styles.medCommercial}>{item.commercial_name}</Text> : null}
-              {item.dose ? <Text style={styles.medDetail}>💊 {item.dose}</Text> : null}
-              {item.frequency ? <Text style={styles.medDetail}>🕐 {item.frequency}</Text> : null}
-              {item.notes ? <Text style={styles.medNotes}>{item.notes}</Text> : null}
-              {(reminderTimes.get(item.id)?.length ?? 0) > 0 && (
-                <Text style={styles.medReminders}>
-                  🔔 {reminderTimes.get(item.id)!.join('  ·  ')}
-                </Text>
-              )}
-              {itemInteractions.map(i => {
-                const isC = i.risk_level === 'critical';
-                const isH = i.risk_level === 'high';
-                const color = isC ? '#CC0000' : isH ? '#e65c00' : '#b58900';
-                const label = isC ? '⚡ CRÍTICO' : isH ? '⚡ ALTO' : '⚡ MODERADO';
-                return (
-                  <View key={i.id} style={[styles.cardInteractionBox, { borderLeftColor: color }]}>
-                    <Text style={[styles.cardInteractionBadge, { color }]}>{label} · {i.drug1} + {i.drug2}</Text>
-                    <Text style={styles.cardInteractionDesc}>{i.risk_description}</Text>
-                  </View>
-                );
-              })}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.bellBtn, !(reminderTimes.get(item.id)?.length ?? 0) && styles.bellBtnDim]}
-              onPress={() => openReminders(item)}
-            >
-              <Text style={styles.bellBtnText}>🔔</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.bulaCardBtn} onPress={() => Linking.openURL(getBulaUrl(item.generic_name, item.commercial_name || undefined))}>
-              <Text style={styles.bulaCardBtnText}>📋</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.id, item.generic_name)}>
-              <Text style={styles.deleteBtnText}>✕</Text>
-            </TouchableOpacity>
+            <View style={styles.medCardRow}>
+              <TouchableOpacity style={styles.medInfo} activeOpacity={0.6} onPress={() => openEdit(item)}>
+                <View style={styles.medHeader}>
+                  {hasHighRisk && <Text style={styles.criticalIcon}>⚠️</Text>}
+                  <Text style={styles.medGeneric}>{item.generic_name}</Text>
+                </View>
+                {item.commercial_name ? <Text style={styles.medCommercial}>{item.commercial_name}</Text> : null}
+                {item.dose ? <Text style={styles.medDetail}>💊 {item.dose}</Text> : null}
+                {(reminderTimes.get(item.id)?.length ?? 0) > 0 ? (
+                  <Text style={styles.medDetail}>🕐 {reminderTimes.get(item.id)!.join('  ·  ')}</Text>
+                ) : item.frequency ? (
+                  <Text style={styles.medDetail}>🕐 {item.frequency}</Text>
+                ) : null}
+                {item.notes ? <Text style={styles.medNotes}>{item.notes}</Text> : null}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.bellBtn,
+                  !((reminderTimes.get(item.id)?.length ?? 0) > 0 && (reminderHasSound.get(item.id) ?? false)) && styles.bellBtnDim,
+                  (reminderTimes.get(item.id)?.length ?? 0) > 0 && (reminderHasSound.get(item.id) ?? false) && styles.bellBtnActive,
+                ]}
+                onPress={() => openReminders(item)}
+              >
+                <Text style={styles.bellBtnText}>🔔</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.bulaCardBtn} onPress={() => {
+                const url = isPhytotherapic(item.generic_name)
+                  ? getPhytoBulaUrl(item.generic_name, item.commercial_name || undefined)
+                  : getBulaUrl(item.generic_name, item.commercial_name || undefined);
+                openBula(url);
+              }}>
+                <Text style={styles.bulaCardBtnText}>📋</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.id, item.generic_name)}>
+                <Text style={styles.deleteBtnText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            {itemInteractions.length > 0 && (
+              <Text style={styles.cardInteractionWarning}>
+                Possíveis interações detectadas. Em caso de dúvidas, consulte seu médico.
+              </Text>
+            )}
+            {itemInteractions.map(i => {
+              const isC = i.risk_level === 'critical';
+              const isH = i.risk_level === 'high';
+              const color = isC ? '#CC0000' : isH ? '#e65c00' : '#b58900';
+              const label = isC ? '⚡ Crítico' : isH ? '⚡ Alto' : '⚡ Moderado';
+              return (
+                <View key={i.id} style={[styles.cardInteractionBox, { borderLeftColor: color }]}>
+                  <Text style={[styles.cardInteractionBadge, { color }]}>{label} · {i.drug1} + {i.drug2}</Text>
+                  <Text style={styles.cardInteractionDesc}>{i.risk_description}</Text>
+                </View>
+              );
+            })}
           </View>
           );
         }}
       />
 
-      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={() => { setForm(EMPTY_MED); setEditingId(null); setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setSubstanceInteractions([]); setEntryType('medicamento'); setKnownDrug(false); setReportedDrug(''); setReportingName(null); setShowModal(true); }}>
+      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={() => { setForm(EMPTY_MED); setEditingId(null); setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setSubstanceInteractions([]); setEntryType('medicamento'); setKnownDrug(false); setReportedDrug(''); setReportingName(null); setReminders([]); setReminderIsDraft(false); setShowModal(true); }}>
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 
@@ -564,7 +665,12 @@ export default function MedicationsScreen() {
               </View>
             )}
 
-            <Text style={styles.fieldLabel}>{entryType === 'fitoterapico' ? 'Nome do fitoterápico / planta *' : 'Nome genérico *'}</Text>
+            <View style={styles.fieldLabelRow}>
+              <Text style={styles.fieldLabel}>{entryType === 'fitoterapico' ? 'Nome do fitoterápico / planta *' : 'Nome genérico *'}</Text>
+              {form.generic_name.length >= 2 && suggestions.length === 0 && !knownDrug && (
+                <ActivityIndicator size="small" color="#1C3F7A" style={{ marginLeft: 6 }} />
+              )}
+            </View>
             <TextInput
               style={styles.fieldInput}
               value={form.generic_name}
@@ -605,7 +711,7 @@ export default function MedicationsScreen() {
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={styles.bulaBtn}
-                      onPress={() => Linking.openURL(s.bulaUrl)}
+                      onPress={() => openBula(s.bulaUrl)}
                     >
                       <Text style={styles.bulaBtnText}>📋</Text>
                     </TouchableOpacity>
@@ -686,7 +792,7 @@ export default function MedicationsScreen() {
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={styles.bulaBtn}
-                      onPress={() => Linking.openURL(s.bulaUrl)}
+                      onPress={() => openBula(s.bulaUrl)}
                     >
                       <Text style={styles.bulaBtnText}>📋</Text>
                     </TouchableOpacity>
@@ -698,12 +804,37 @@ export default function MedicationsScreen() {
             <Text style={styles.fieldLabel}>Dose</Text>
             <TextInput style={styles.fieldInput} value={form.dose} onChangeText={v => setForm(f => ({ ...f, dose: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} />
 
-            <Text style={styles.fieldLabel}>Frequência</Text>
-            <TextInput style={styles.fieldInput} value={form.frequency} onChangeText={v => setForm(f => ({ ...f, frequency: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} />
+            <Text style={[styles.fieldLabel, { marginTop: 10 }]}>Frequência</Text>
+            <TouchableOpacity
+              style={styles.freqField}
+              onPress={() => {
+                if (editingId !== null) {
+                  const med = medications.find(m => m.id === editingId);
+                  if (med) { setShowModal(false); setTimeout(() => openReminders(med), 100); }
+                } else {
+                  setShowModal(false);
+                  setTimeout(() => openRemindersForNewMed(), 100);
+                }
+              }}
+            >
+              {(() => {
+                const times = editingId !== null
+                  ? (reminderTimes.get(editingId) ?? [])
+                  : reminders.filter(r => r.is_active).map(r => periodLabel(r.period, r.time));
+                return times.length > 0
+                  ? <Text style={styles.freqTimesText}>🕐 {times.join('  ·  ')}</Text>
+                  : <Text style={styles.freqPlaceholderText}>Toque para configurar →</Text>;
+              })()}
+            </TouchableOpacity>
 
             <Text style={styles.fieldLabel}>Observações</Text>
             <TextInput style={[styles.fieldInput, { minHeight: 60, textAlignVertical: 'top' }]} value={form.notes} onChangeText={v => setForm(f => ({ ...f, notes: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} multiline />
 
+            {(interactions.length > 0 || substanceInteractions.length > 0) && (
+              <Text style={styles.interactionDisclaimer}>
+                ⚠️ Possíveis interações com outros medicamentos ou substâncias que você já usa. Em caso de dúvidas, consulte seu médico.
+              </Text>
+            )}
             {interactions.map(i => {
               const isC = i.risk_level === 'critical';
               const isH = i.risk_level === 'high';
@@ -752,7 +883,7 @@ export default function MedicationsScreen() {
             )}
 
             <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowModal(false)}>
+              <TouchableOpacity style={styles.cancelBtn} onPress={() => { setShowModal(false); setReminders([]); setReminderIsDraft(false); }}>
                 <Text style={styles.cancelBtnText}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
@@ -769,8 +900,10 @@ export default function MedicationsScreen() {
         <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <View style={styles.modalOverlay}>
           <ScrollView style={styles.modalBox} contentContainerStyle={[styles.modalContent, { paddingBottom: insets.bottom + 32 }]} keyboardShouldPersistTaps="handled">
-            <Text style={styles.modalTitle}>🔔 Lembretes</Text>
-            {reminderMed && <Text style={styles.reminderMedName}>{reminderMed.generic_name}</Text>}
+            <Text style={styles.modalTitle}>⏰ Frequência</Text>
+            {(reminderMed?.generic_name || (reminderIsDraft && form.generic_name)) && (
+              <Text style={styles.reminderMedName}>{reminderMed?.generic_name || form.generic_name}</Text>
+            )}
 
             {reminders.length === 0 && !showAddForm && (
               <Text style={styles.reminderEmpty}>Nenhum lembrete configurado.</Text>
@@ -924,7 +1057,7 @@ export default function MedicationsScreen() {
 
                 <View style={styles.soundRow}>
                   <View>
-                    <Text style={styles.soundLabel}>Som</Text>
+                    <Text style={styles.soundLabel}>🔔 Som</Text>
                     <Text style={styles.soundHint}>{withSound ? 'Toca som ao notificar' : 'Apenas mensagem'}</Text>
                   </View>
                   <Switch
@@ -950,7 +1083,10 @@ export default function MedicationsScreen() {
               </TouchableOpacity>
             )}
 
-            <TouchableOpacity style={[styles.cancelBtn, { marginTop: 12 }]} onPress={() => setShowReminderModal(false)}>
+            <TouchableOpacity style={[styles.cancelBtn, { marginTop: 12 }]} onPress={() => {
+              setShowReminderModal(false);
+              if (reminderIsDraft || editingId !== null) setTimeout(() => setShowModal(true), 100);
+            }}>
               <Text style={styles.cancelBtnText}>Fechar</Text>
             </TouchableOpacity>
           </ScrollView>
@@ -969,9 +1105,9 @@ const styles = StyleSheet.create({
   emptyHint: { fontSize: 13, color: '#bbb' },
   medCard: {
     backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10,
-    flexDirection: 'row', alignItems: 'flex-start',
     elevation: 1, shadowColor: '#000', shadowOpacity: 0.07, shadowRadius: 3,
   },
+  medCardRow: { flexDirection: 'row', alignItems: 'flex-start' },
   medCardCritical: { borderLeftWidth: 4, borderLeftColor: '#CC0000' },
   medInfo: { flex: 1 },
   medHeader: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginBottom: 2 },
@@ -981,15 +1117,26 @@ const styles = StyleSheet.create({
   medDetail: { fontSize: 13, color: '#555', marginTop: 2 },
   medNotes: { fontSize: 12, color: '#888', marginTop: 4, fontStyle: 'italic' },
   medReminders: { fontSize: 12, color: '#1C3F7A', marginTop: 4, opacity: 0.75 },
+  cardInteractionWarning: {
+    fontSize: 11, color: '#888', fontStyle: 'italic', marginTop: 8, marginBottom: 2,
+  },
   cardInteractionBox: {
     borderLeftWidth: 3, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 5,
     marginTop: 6, backgroundColor: '#fff8f8',
   },
   cardInteractionBadge: { fontSize: 11, fontWeight: '700', marginBottom: 1 },
   cardInteractionDesc: { fontSize: 11, color: '#555', fontStyle: 'italic' },
-  bellBtn: { padding: 8, marginLeft: 4 },
+  bellBtn: { padding: 8, marginLeft: 4, borderRadius: 8 },
   bellBtnDim: { opacity: 0.28 },
+  bellBtnActive: { backgroundColor: 'rgba(28,63,122,0.12)' },
   bellBtnText: { fontSize: 18 },
+  freqField: {
+    borderWidth: 1, borderColor: '#ddd', borderRadius: 8,
+    paddingHorizontal: 12, paddingVertical: 12, backgroundColor: '#fafafa', minHeight: 44,
+    justifyContent: 'center',
+  },
+  freqTimesText: { fontSize: 14, color: '#1C3F7A', fontWeight: '600' },
+  freqPlaceholderText: { fontSize: 14, color: '#bbb', fontStyle: 'italic' },
   bulaCardBtn: { padding: 8, marginLeft: 4 },
   bulaCardBtnText: { fontSize: 18 },
   deleteBtn: { padding: 8, marginLeft: 4 },
@@ -1004,7 +1151,8 @@ const styles = StyleSheet.create({
   modalBox: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '90%' },
   modalContent: { padding: 20 },
   modalTitle: { fontSize: 18, fontWeight: '700', color: '#222', marginBottom: 4 },
-  fieldLabel: { fontSize: 13, color: '#555', marginBottom: 4, marginTop: 10 },
+  fieldLabelRow: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 4 },
+  fieldLabel: { fontSize: 13, color: '#555' },
   fieldInput: {
     borderWidth: 1, borderColor: '#ddd', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10,
     fontSize: 15, color: '#222', backgroundColor: '#fafafa',
@@ -1050,6 +1198,10 @@ const styles = StyleSheet.create({
   // Interaction warning
   interactionCard: {
     borderLeftWidth: 3, borderRadius: 8, padding: 10, marginTop: 8,
+  },
+  interactionDisclaimer: {
+    fontSize: 12, color: '#888', fontStyle: 'italic',
+    marginTop: 12, marginBottom: 4, lineHeight: 16,
   },
   interactionBadge: { fontSize: 11, fontWeight: '700', marginBottom: 3, letterSpacing: 0.5 },
   interactionDrugs: { fontSize: 13, fontWeight: '700', color: '#222', marginBottom: 2 },

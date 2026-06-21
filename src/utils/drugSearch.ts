@@ -60,9 +60,62 @@ function toSlug(name: string): string {
     .replace(/[^a-z0-9-]/g, '');
 }
 
-export function getBulaUrl(genericName: string, brandName?: string): string {
-  const slug = toSlug(brandName ?? genericName);
-  return `https://consultaremedios.com.br/${slug}/bula`;
+export function getBulaUrl(genericName: string, _brandName?: string): string {
+  return `${BULA_BASE}/${toSlug(genericName)}.pdf`;
+}
+
+const PHYTO_BULA_MAP: Record<string, string> = {
+  // 15 bulas padrão ANVISA (IN 04/2014)
+  'aesculus hippocastanum': 'castanha-da-india',
+  'castanha da india':      'castanha-da-india',
+  'allium sativum':         'alho',
+  'alho medicinal':         'alho',
+  'cynara scolymus':        'alcachofra',
+  'alcachofra':             'alcachofra',
+  'echinacea purpurea':     'equinacea',
+  'equinacea':              'equinacea',
+  'rhamnus purshiana':      'cascara-sagrada',
+  'cascara sagrada':        'cascara-sagrada',
+  'ginkgo biloba':          'ginkgo-biloba',
+  'glycine max':            'soja-isoflavona',
+  'soja':                   'soja-isoflavona',
+  'hypericum perforatum':   'erva-de-sao-joao',
+  'erva de sao joao':       'erva-de-sao-joao',
+  'paullinia cupana':       'guarana',
+  'guarana':                'guarana',
+  'piper methysticum':      'kava-kava',
+  'kava kava':              'kava-kava',
+  'senna alexandrina':      'sene',
+  'sene':                   'sene',
+  'serenoa repens':         'saw-palmetto',
+  'saw palmetto':           'saw-palmetto',
+  'valeriana officinalis':  'valeriana',
+  'valeriana':              'valeriana',
+  'passiflora incarnata':   'maracuja',
+  'maracuja':               'maracuja',
+  'silybum marianum':       'silimarina',
+  'silimarina':             'silimarina',
+  // bulas de produtos registrados na ANVISA
+  'maytenus ilicifolia':    'espinheira-santa',
+  'espinheira santa':       'espinheira-santa',
+  'mikania glomerata':      'guaco',
+  'guaco':                  'guaco',
+  'centella asiatica':      'centella-asiatica',
+  'cimicifuga racemosa':    'cimicifuga',
+  'cimicifuga':             'cimicifuga',
+  'panax ginseng':          'ginseng',
+  'ginseng':                'ginseng',
+};
+
+const BULA_BASE = 'https://www.alertamedico.ia.br/bulas';
+
+export function getPhytoBulaUrl(genericName: string, brandName?: string): string {
+  const key = normalize(genericName.split('(')[0].split('/')[0].trim());
+  const slug = Object.entries(PHYTO_BULA_MAP).find(([k]) => key.includes(k) || k.includes(key))?.[1];
+  if (slug) return `${BULA_BASE}/${slug}.pdf`;
+  if (brandName) return getBulaUrl(genericName, brandName);
+  const name = genericName.split('(')[0].split('/')[0].trim();
+  return `https://www.google.com/search?q=${encodeURIComponent(`bula fitoterápico ${name}`)}`;
 }
 
 // Salt/descriptor prefixes (normalized — no accents)
@@ -155,45 +208,54 @@ export function getSuggestions(input: string, max = 7, categoryFilter?: string):
   const q = normalize(input);
   if (q.length < 2) return [];
 
-  const results: DrugSuggestion[] = [];
+  // score: 0 = generic starts with query, 1 = brand starts with query,
+  //        2 = generic contains query, 3 = brand contains query
+  const scored: Array<{ score: number; s: DrugSuggestion }> = [];
   const addedGenerics = new Set<string>();
 
   for (const entry of DB) {
-    if (results.length >= max) break;
     if (categoryFilter && entry.category !== categoryFilter) continue;
 
     const gNorm = normalize(entry.genericName);
     const fb = getFirstCommercialBrand(entry.brands, entry.genericName);
 
-    // Match on generic name
     if (gNorm.includes(q)) {
-      results.push({
-        label: entry.genericName,
-        genericName: entry.genericName,
-        firstBrand: fb,
-        category: entry.category,
-        bulaUrl: getBulaUrl(entry.genericName, fb),
+      scored.push({
+        score: gNorm.startsWith(q) ? 0 : 2,
+        s: {
+          label: entry.genericName,
+          genericName: entry.genericName,
+          firstBrand: fb,
+          category: entry.category,
+          bulaUrl: getBulaUrl(entry.genericName, fb),
+        },
       });
       addedGenerics.add(gNorm);
       continue;
     }
 
-    // Match on brand names
     const matchedBrand = entry.brands.find(b => normalize(b).includes(q));
     if (matchedBrand && !addedGenerics.has(gNorm)) {
-      results.push({
-        label: `${matchedBrand}  →  ${entry.genericName}`,
-        genericName: entry.genericName,
-        brandName: matchedBrand,
-        category: entry.category,
-        bulaUrl: getBulaUrl(entry.genericName, matchedBrand),
-        isBrand: true,
+      const bNorm = normalize(matchedBrand);
+      scored.push({
+        score: bNorm.startsWith(q) ? 1 : 3,
+        s: {
+          label: `${matchedBrand}  →  ${entry.genericName}`,
+          genericName: entry.genericName,
+          brandName: matchedBrand,
+          category: entry.category,
+          bulaUrl: getBulaUrl(entry.genericName, matchedBrand),
+          isBrand: true,
+        },
       });
       addedGenerics.add(gNorm);
     }
   }
 
-  return results;
+  return scored
+    .sort((a, b) => a.score - b.score)
+    .slice(0, max)
+    .map(r => r.s);
 }
 
 // ─── Interaction check ────────────────────────────────────────────────────────
@@ -221,7 +283,7 @@ function entryMatchesName(entry: string, name: string): boolean {
 }
 
 export function checkSubstanceInteractions(drugName: string, userMedNames: string[]): DrugInteraction[] {
-  if (drugName.trim().length < 3) return [];
+  if (drugName.trim().length < 3 || userMedNames.length === 0) return [];
   const seen = new Set<string>();
   const results: DrugInteraction[] = [];
   for (const interaction of ALL_INTERACTIONS) {
@@ -230,10 +292,10 @@ export function checkSubstanceInteractions(drugName: string, userMedNames: strin
     const m2 = entryMatchesName(interaction.drug2, drugName);
     if (m1) {
       const otherIsMed = userMedNames.some(m => entryMatchesName(interaction.drug2, m));
-      if (!otherIsMed) { seen.add(interaction.id); results.push(interaction); }
+      if (otherIsMed) { seen.add(interaction.id); results.push(interaction); }
     } else if (m2) {
       const otherIsMed = userMedNames.some(m => entryMatchesName(interaction.drug1, m));
-      if (!otherIsMed) { seen.add(interaction.id); results.push(interaction); }
+      if (otherIsMed) { seen.add(interaction.id); results.push(interaction); }
     }
   }
   const order: Record<string, number> = { critical: 0, high: 1, moderate: 2 };

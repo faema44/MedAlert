@@ -6,8 +6,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import { getMedications } from '../database/db';
 import {
   checkInteractions, getAllInteractions, isPhytotherapicInteraction,
-  getAllMedsList, getAllPhytoList, DbEntry,
+  getAllMedsList, getAllPhytoList, DbEntry, getBulaUrl, getPhytoBulaUrl,
 } from '../utils/drugSearch';
+import { openBula } from '../utils/openBula';
 import { DrugInteraction, Medication } from '../types';
 
 const RISK_CONFIG = {
@@ -70,6 +71,12 @@ function MedCard({ item, isPhyto }: { item: DbEntry; isPhyto?: boolean }) {
   const accent = isPhyto ? '#1a6b3a' : '#1C3F7A';
   const bgAccent = isPhyto ? '#EAF4EC' : '#EEF3FF';
   const popularNames = item.brands.slice(0, 3).join(' · ');
+  const firstBrand = item.brands[0];
+
+  function handleOpenBula() {
+    const url = isPhyto ? getPhytoBulaUrl(item.genericName, firstBrand) : getBulaUrl(item.genericName, firstBrand);
+    openBula(url);
+  }
 
   return (
     <View style={[styles.medCard, { borderLeftColor: accent }]}>
@@ -83,6 +90,10 @@ function MedCard({ item, isPhyto }: { item: DbEntry; isPhyto?: boolean }) {
           <Text style={[styles.catChipText, { color: accent }]}>{item.category}</Text>
         </View>
       </View>
+      <TouchableOpacity style={styles.bulaBtn} onPress={handleOpenBula}>
+        <Text style={styles.bulaBtnText}>📋</Text>
+        <Text style={[styles.bulaBtnLabel, { color: accent }]}>Bula</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -387,4 +398,7 @@ const styles = StyleSheet.create({
   medBrands: { fontSize: 11, color: '#8A8F9D', marginBottom: 5 },
   catChip: { alignSelf: 'flex-start', borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2 },
   catChipText: { fontSize: 10, fontWeight: '600' },
+  bulaBtn: { alignItems: 'center', justifyContent: 'center', paddingLeft: 10, gap: 2 },
+  bulaBtnText: { fontSize: 18 },
+  bulaBtnLabel: { fontSize: 9, fontWeight: '600' },
 });
