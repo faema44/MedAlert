@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, Switch,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation, NavigationProp } from '@react-navigation/native';
@@ -20,8 +20,7 @@ export default function HomeScreen() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [medications, setMedications] = useState<Medication[]>([]);
   const [notifActive, setNotifActive] = useState(false);
-  const [showInstructions, setShowInstructions] = useState(false);
-  const [dontShowAgain, setDontShowAgain] = useState(false);
+  const [showAlertModal, setShowAlertModal] = useState(false);
   const [allInteractions, setAllInteractions] = useState<DrugInteraction[]>([]);
   const [showInteractionsModal, setShowInteractionsModal] = useState(false);
   const [nextReminders, setNextReminders] = useState<{ name: string; label: string; sortMs: number }[]>([]);
@@ -76,7 +75,7 @@ export default function HomeScreen() {
     setNotifActive(true);
   }
 
-  async function handleToggleNotification() {
+  async function handleAlertToggle() {
     if (!profile?.name) {
       Alert.alert('Perfil incompleto', 'Preencha seu nome no perfil antes de ativar o alerta.');
       return;
@@ -85,21 +84,9 @@ export default function HomeScreen() {
       await cancelEmergencyNotification();
       await setKV(KV_ALERT_ACTIVE, '0');
       setNotifActive(false);
-      return;
-    }
-    const seen = await getKV(KV_LOCKSCREEN_SEEN);
-    if (seen) {
-      await doActivate();
     } else {
-      setDontShowAgain(false);
-      setShowInstructions(true);
+      await doActivate();
     }
-  }
-
-  async function handleInstructionsConfirm() {
-    if (dontShowAgain) await setKV(KV_LOCKSCREEN_SEEN, '1');
-    setShowInstructions(false);
-    await doActivate();
   }
 
   const criticalMeds = medications.filter(m => m.is_critical);
@@ -108,20 +95,47 @@ export default function HomeScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
-      {/* Lock screen instructions modal */}
-      <Modal visible={showInstructions} animationType="fade" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>🔒 Configurar Tela de Bloqueio</Text>
-            <Text style={styles.modalIntro}>
-              Para que suas informações médicas apareçam na tela de bloqueio sem desbloquear o celular,
-              siga os passos abaixo:
+      {/* Alert status chip */}
+      <TouchableOpacity style={styles.alertChip} activeOpacity={0.7} onPress={() => setShowAlertModal(true)}>
+        <View style={[styles.statusDot, notifActive ? styles.dotActive : styles.dotInactive]} />
+        <Text style={[styles.alertChipText, { color: notifActive ? '#1a6b3a' : '#888' }]}>
+          {notifActive ? 'Alerta ativado' : 'Alerta desativado'}
+        </Text>
+        <Text style={styles.cardChevron}>›</Text>
+      </TouchableOpacity>
+
+      {/* Alert modal */}
+      <Modal visible={showAlertModal} animationType="slide" transparent onRequestClose={() => setShowAlertModal(false)}>
+        <View style={styles.intModalOverlay}>
+          <ScrollView style={styles.alertModalBox} contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}>
+            <Text style={styles.alertModalTitle}>Alerta de Emergência</Text>
+
+            <View style={styles.alertToggleRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.alertToggleLabel}>{notifActive ? 'Ativado' : 'Desativado'}</Text>
+                <Text style={styles.alertToggleHint}>
+                  {notifActive ? 'Visível na tela de bloqueio' : 'Toque para ativar'}
+                </Text>
+              </View>
+              <Switch
+                value={notifActive}
+                onValueChange={handleAlertToggle}
+                trackColor={{ true: '#1C3F7A', false: '#ccc' }}
+                thumbColor="#fff"
+              />
+            </View>
+
+            <Text style={styles.alertModalSection}>Para que serve</Text>
+            <Text style={styles.alertModalBody}>
+              Exibe suas informações médicas — medicamentos, doses e contatos de emergência — na tela de bloqueio do celular, sem precisar desbloquear. Útil em situações de emergência para socorristas e familiares.
             </Text>
+
+            <Text style={styles.alertModalSection}>Como configurar o celular</Text>
             {[
               'Abra as Configurações do celular',
-              'Vá em Notificações (ou Aplicativos → Alerta Médico → Notificações)',
+              'Vá em Notificações → Alerta Médico',
               'Em Tela de Bloqueio, selecione "Mostrar todo o conteúdo"',
-              'Certifique-se de que as notificações do Alerta Médico estão ativadas',
+              'Certifique-se de que as notificações estão ativadas',
             ].map((step, i) => (
               <View key={i} style={styles.stepRow}>
                 <View style={styles.stepNum}><Text style={styles.stepNumText}>{i + 1}</Text></View>
@@ -130,45 +144,16 @@ export default function HomeScreen() {
             ))}
             <View style={styles.tipBox}>
               <Text style={styles.tipText}>
-                💡 O caminho exato varia por fabricante (Samsung, Motorola, etc.), mas geralmente está
-                em Configurações → Notificações → Tela de Bloqueio.
+                💡 O caminho exato varia por fabricante (Samsung, Motorola, etc.), mas geralmente está em Configurações → Notificações → Tela de Bloqueio.
               </Text>
             </View>
-            <TouchableOpacity style={styles.checkRow} onPress={() => setDontShowAgain(v => !v)} activeOpacity={0.7}>
-              <View style={[styles.checkbox, dontShowAgain && styles.checkboxChecked]}>
-                {dontShowAgain && <Text style={styles.checkmark}>✓</Text>}
-              </View>
-              <Text style={styles.checkLabel}>Não mostrar novamente</Text>
+
+            <TouchableOpacity style={styles.intModalClose} onPress={() => setShowAlertModal(false)}>
+              <Text style={styles.intModalCloseText}>Fechar</Text>
             </TouchableOpacity>
-            <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowInstructions(false)}>
-                <Text style={styles.cancelBtnText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.confirmBtn} onPress={handleInstructionsConfirm}>
-                <Text style={styles.confirmBtnText}>Entendi — Ativar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          </ScrollView>
         </View>
       </Modal>
-
-      {/* Hero status card */}
-      <View style={styles.heroCard}>
-        <View style={styles.heroRow}>
-          <View style={styles.heroLeft}>
-            <View style={[styles.statusDot, notifActive ? styles.dotActive : styles.dotInactive]} />
-            <Text style={styles.heroStatusText}>
-              {notifActive ? 'Alerta ativo — visível na tela de bloqueio' : 'Alerta inativo'}
-            </Text>
-          </View>
-          <TouchableOpacity
-            style={[styles.heroBtn, notifActive ? styles.heroBtnOff : styles.heroBtnOn]}
-            onPress={handleToggleNotification}
-          >
-            <Text style={styles.heroBtnText}>{notifActive ? 'Desativar' : 'Ativar'}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
 
       {nextReminders.length > 0 && (
         <TouchableOpacity style={styles.remindersCard} activeOpacity={0.8} onPress={() => navigation.navigate('Medications')}>
@@ -269,37 +254,31 @@ const styles = StyleSheet.create({
   stepText: { fontSize: 13, color: '#333', lineHeight: 20, flex: 1 },
   tipBox: { backgroundColor: '#f0faf4', borderRadius: 8, padding: 10, marginTop: 4, marginBottom: 14 },
   tipText: { fontSize: 12, color: '#1a6b3a', lineHeight: 18 },
-  checkRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 18 },
-  checkbox: {
-    width: 22, height: 22, borderRadius: 5, borderWidth: 2, borderColor: '#1C3F7A',
-    alignItems: 'center', justifyContent: 'center', marginRight: 10,
+  // Alert chip
+  alertChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: '#fff', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 14,
+    marginBottom: 10, borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
   },
-  checkboxChecked: { backgroundColor: '#1C3F7A' },
-  checkmark: { color: '#fff', fontSize: 13, fontWeight: '700' },
-  checkLabel: { fontSize: 14, color: '#444' },
-  modalActions: { flexDirection: 'row', gap: 10 },
-  cancelBtn: {
-    flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 10,
-    padding: 13, alignItems: 'center',
-  },
-  cancelBtnText: { fontSize: 14, color: '#666', fontWeight: '600' },
-  confirmBtn: { flex: 1, backgroundColor: '#1C3F7A', borderRadius: 10, padding: 13, alignItems: 'center' },
-  confirmBtnText: { fontSize: 14, color: '#fff', fontWeight: '700' },
-
-  // Hero status
-  heroCard: {
-    backgroundColor: '#1C3F7A', borderRadius: 12, padding: 14, marginBottom: 12,
-  },
-  heroRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  heroLeft: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 },
   statusDot: { width: 8, height: 8, borderRadius: 4 },
   dotActive: { backgroundColor: '#5DC994' },
   dotInactive: { backgroundColor: '#E07B4F' },
-  heroStatusText: { fontSize: 13, color: 'rgba(255,255,255,0.85)', flex: 1 },
-  heroBtn: { borderRadius: 8, paddingHorizontal: 16, paddingVertical: 8, marginLeft: 12 },
-  heroBtnOn: { backgroundColor: '#E07B4F' },
-  heroBtnOff: { backgroundColor: 'rgba(255,255,255,0.18)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' },
-  heroBtnText: { color: '#fff', fontWeight: '700', fontSize: 13 },
+  alertChipText: { fontSize: 13, fontWeight: '500', flex: 1 },
+
+  // Alert modal
+  alertModalBox: {
+    backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    padding: 20, maxHeight: '85%',
+  },
+  alertModalTitle: { fontSize: 17, fontWeight: '700', color: '#1C3F7A', marginBottom: 16 },
+  alertToggleRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: '#F2F4F8', borderRadius: 12, padding: 14, marginBottom: 20,
+  },
+  alertToggleLabel: { fontSize: 15, fontWeight: '700', color: '#1A1F2E' },
+  alertToggleHint: { fontSize: 12, color: '#888', marginTop: 2 },
+  alertModalSection: { fontSize: 11, fontWeight: '700', color: '#8A8F9D', letterSpacing: 0.5, marginBottom: 8, marginTop: 4 },
+  alertModalBody: { fontSize: 13, color: '#444', lineHeight: 20, marginBottom: 16 },
 
   // Reminders card
   remindersCard: {
