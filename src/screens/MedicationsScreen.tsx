@@ -175,6 +175,7 @@ export default function MedicationsScreen() {
   const [entryType, setEntryType] = useState<'medicamento' | 'fitoterapico'>('medicamento');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [cardInteractions, setCardInteractions] = useState<Map<number, DrugInteraction[]>>(new Map());
+  const [interactionModal, setInteractionModal] = useState<DrugInteraction[] | null>(null);
 
   // Reminder state
   const [reminderHasSound, setReminderHasSound] = useState<Map<number, boolean>>(new Map());
@@ -703,22 +704,21 @@ export default function MedicationsScreen() {
               </TouchableOpacity>
             </View>
             {itemInteractions.length > 0 && (
-              <Text style={styles.cardInteractionWarning}>
-                Possíveis interações detectadas. Em caso de dúvidas, consulte seu médico.
-              </Text>
+              <TouchableOpacity style={styles.cardInteractionRow} activeOpacity={0.7} onPress={() => setInteractionModal(itemInteractions)}>
+                {itemInteractions.slice(0, 3).map(i => {
+                  const color = i.risk_level === 'critical' ? '#CC0000' : i.risk_level === 'high' ? '#e65c00' : '#b58900';
+                  const label = i.risk_level === 'critical' ? 'Interação Crítica' : i.risk_level === 'high' ? 'Interação Alta' : 'Interação Moderada';
+                  return (
+                    <View key={i.id} style={[styles.cardInteractionBadge, { borderColor: color }]}>
+                      <Text style={[styles.cardInteractionBadgeText, { color }]}>{label}</Text>
+                    </View>
+                  );
+                })}
+                {itemInteractions.length > 3 && (
+                  <Text style={styles.cardInteractionMore}>+{itemInteractions.length - 3}</Text>
+                )}
+              </TouchableOpacity>
             )}
-            {itemInteractions.map(i => {
-              const isC = i.risk_level === 'critical';
-              const isH = i.risk_level === 'high';
-              const color = isC ? '#CC0000' : isH ? '#e65c00' : '#b58900';
-              const label = isC ? '⚡ Crítico' : isH ? '⚡ Alto' : '⚡ Moderado';
-              return (
-                <View key={i.id} style={[styles.cardInteractionBox, { borderLeftColor: color }]}>
-                  <Text style={[styles.cardInteractionBadge, { color }]}>{label} · {i.drug1} + {i.drug2}</Text>
-                  <Text style={styles.cardInteractionDesc}>{i.risk_description}</Text>
-                </View>
-              );
-            })}
           </View>
           );
         }}
@@ -1195,6 +1195,32 @@ export default function MedicationsScreen() {
         </KeyboardAvoidingView>
       </Modal>
       {bulaModal}
+
+      <Modal visible={!!interactionModal} animationType="slide" transparent onRequestClose={() => setInteractionModal(null)}>
+        <View style={styles.intModalOverlay}>
+          <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
+            <Text style={styles.intModalTitle}>Interações detectadas</Text>
+            <ScrollView>
+              {(interactionModal ?? []).map(i => {
+                const color = i.risk_level === 'critical' ? '#CC0000' : i.risk_level === 'high' ? '#e65c00' : '#b58900';
+                const label = i.risk_level === 'critical' ? 'Crítico' : i.risk_level === 'high' ? 'Alto' : 'Moderado';
+                return (
+                  <View key={i.id} style={[styles.intModalItem, { borderLeftColor: color }]}>
+                    <View style={[styles.intModalBadge, { borderColor: color }]}>
+                      <Text style={[styles.intModalBadgeText, { color }]}>{label}</Text>
+                    </View>
+                    <Text style={styles.intModalDrugs}>{i.drug1} + {i.drug2}</Text>
+                    <Text style={styles.intModalDesc}>{i.risk_description}</Text>
+                  </View>
+                );
+              })}
+            </ScrollView>
+            <TouchableOpacity style={styles.intModalClose} onPress={() => setInteractionModal(null)}>
+              <Text style={styles.intModalCloseText}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -1219,15 +1245,35 @@ const styles = StyleSheet.create({
   medDetail: { fontSize: 13, color: '#555', marginTop: 2 },
   medNotes: { fontSize: 12, color: '#888', marginTop: 4, fontStyle: 'italic' },
   medReminders: { fontSize: 12, color: '#1C3F7A', marginTop: 4, opacity: 0.75 },
-  cardInteractionWarning: {
-    fontSize: 11, color: '#888', fontStyle: 'italic', marginTop: 8, marginBottom: 2,
+  cardInteractionRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8, flexWrap: 'wrap',
   },
-  cardInteractionBox: {
-    borderLeftWidth: 3, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 5,
-    marginTop: 6, backgroundColor: '#fff8f8',
+  cardInteractionBadge: {
+    borderWidth: 1, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2,
   },
-  cardInteractionBadge: { fontSize: 11, fontWeight: '700', marginBottom: 1 },
-  cardInteractionDesc: { fontSize: 11, color: '#555', fontStyle: 'italic' },
+  cardInteractionBadgeText: { fontSize: 10, fontWeight: '600' },
+  cardInteractionMore: { fontSize: 11, color: '#999' },
+
+  intModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  intModalBox: {
+    backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    padding: 20, maxHeight: '70%',
+  },
+  intModalTitle: { fontSize: 16, fontWeight: '700', color: '#1C3F7A', marginBottom: 16 },
+  intModalItem: {
+    borderLeftWidth: 3, borderRadius: 8, padding: 10, marginBottom: 10, backgroundColor: '#fafafa',
+  },
+  intModalBadge: {
+    borderWidth: 1, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2,
+    alignSelf: 'flex-start', marginBottom: 4,
+  },
+  intModalBadgeText: { fontSize: 10, fontWeight: '600' },
+  intModalDrugs: { fontSize: 13, fontWeight: '700', color: '#222', marginBottom: 2 },
+  intModalDesc: { fontSize: 12, color: '#555', fontStyle: 'italic' },
+  intModalClose: {
+    marginTop: 12, backgroundColor: '#1C3F7A', borderRadius: 10, padding: 14, alignItems: 'center',
+  },
+  intModalCloseText: { fontSize: 15, color: '#fff', fontWeight: '700' },
   bellBtn: { padding: 8, marginLeft: 4, borderRadius: 8 },
   bellBtnDim: { opacity: 0.28 },
   bellBtnActive: { backgroundColor: 'rgba(28,63,122,0.12)' },

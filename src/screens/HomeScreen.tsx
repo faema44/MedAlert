@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation, NavigationProp } from '@react-navigation/native';
 import { getProfile, getMedications, getKV, setKV, getRemindersForMedication } from '../database/db';
 
@@ -15,12 +16,14 @@ const KV_ALERT_ACTIVE = 'alert_active';
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp<RootTabs>>();
+  const insets = useSafeAreaInsets();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [medications, setMedications] = useState<Medication[]>([]);
   const [notifActive, setNotifActive] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
   const [allInteractions, setAllInteractions] = useState<DrugInteraction[]>([]);
+  const [showInteractionsModal, setShowInteractionsModal] = useState(false);
   const [nextReminders, setNextReminders] = useState<{ name: string; label: string; sortMs: number }[]>([]);
 
   const load = useCallback(async () => {
@@ -194,32 +197,40 @@ export default function HomeScreen() {
       )}
 
       {allInteractions.length > 0 && (
-        <TouchableOpacity style={styles.interactionCard} activeOpacity={0.8} onPress={() => navigation.navigate('Interactions')}>
-          <View style={styles.cardRow}>
-            <Text style={styles.interactionCardTag}>
-              {allInteractions.length} INTERAÇ{allInteractions.length > 1 ? 'ÕES' : 'ÃO'} DETECTADA{allInteractions.length > 1 ? 'S' : ''}
-            </Text>
-            <Text style={styles.cardChevron}>›</Text>
-          </View>
-          {allInteractions.slice(0, 3).map(i => {
-            const color = i.risk_level === 'critical' ? '#CC0000' : i.risk_level === 'high' ? '#e65c00' : '#b58900';
-            const label = i.risk_level === 'critical' ? 'Crítico' : i.risk_level === 'high' ? 'Alto' : 'Moderado';
-            return (
-              <View key={i.id} style={styles.interactionRow}>
-                <View style={[styles.interactionBadge, { borderColor: color }]}>
-                  <Text style={[styles.interactionBadgeText, { color }]}>{label}</Text>
-                </View>
-                <Text style={styles.interactionPair} numberOfLines={1}>{i.drug1} + {i.drug2}</Text>
-              </View>
-            );
-          })}
-          {allInteractions.length > 3 && (
-            <Text style={styles.interactionMore}>
-              + {allInteractions.length - 3} outra{allInteractions.length - 3 > 1 ? 's' : ''} — toque para ver todas
-            </Text>
-          )}
+        <TouchableOpacity style={styles.interactionChip} activeOpacity={0.7} onPress={() => setShowInteractionsModal(true)}>
+          <Text style={styles.interactionChipIcon}>⚠</Text>
+          <Text style={styles.interactionChipText}>
+            {allInteractions.length} interaç{allInteractions.length > 1 ? 'ões' : 'ão'} detectada{allInteractions.length > 1 ? 's' : ''}
+          </Text>
+          <Text style={styles.cardChevron}>›</Text>
         </TouchableOpacity>
       )}
+
+      <Modal visible={showInteractionsModal} animationType="slide" transparent onRequestClose={() => setShowInteractionsModal(false)}>
+        <View style={styles.intModalOverlay}>
+          <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
+            <Text style={styles.intModalTitle}>Interações detectadas</Text>
+            <ScrollView>
+              {allInteractions.map(i => {
+                const color = i.risk_level === 'critical' ? '#CC0000' : i.risk_level === 'high' ? '#e65c00' : '#b58900';
+                const label = i.risk_level === 'critical' ? 'Crítico' : i.risk_level === 'high' ? 'Alto' : 'Moderado';
+                return (
+                  <View key={i.id} style={[styles.intModalItem, { borderLeftColor: color }]}>
+                    <View style={[styles.intModalBadge, { borderColor: color }]}>
+                      <Text style={[styles.intModalBadgeText, { color }]}>{label}</Text>
+                    </View>
+                    <Text style={styles.intModalDrugs}>{i.drug1} + {i.drug2}</Text>
+                    <Text style={styles.intModalDesc}>{i.risk_description}</Text>
+                  </View>
+                );
+              })}
+            </ScrollView>
+            <TouchableOpacity style={styles.intModalClose} onPress={() => setShowInteractionsModal(false)}>
+              <Text style={styles.intModalCloseText}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {!profileComplete && (
         <View style={styles.infoCard}>
@@ -311,18 +322,35 @@ const styles = StyleSheet.create({
   criticalCardTag: { fontSize: 10, color: '#CC0000', fontWeight: '600', letterSpacing: 0.5 },
   criticalMed: { fontSize: 13, color: '#444', marginTop: 4 },
 
-  interactionCard: {
-    backgroundColor: '#fff8f5', borderRadius: 12, padding: 14, marginBottom: 10,
-    borderWidth: 0.5, borderColor: 'rgba(230,92,0,0.15)', borderLeftWidth: 3, borderLeftColor: '#e65c00',
+  interactionChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: '#fff', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 14,
+    marginBottom: 10, borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
   },
-  interactionCardTag: { fontSize: 10, color: '#e65c00', fontWeight: '600', letterSpacing: 0.5 },
-  interactionRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 },
-  interactionBadge: {
-    borderWidth: 1, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 1,
+  interactionChipIcon: { fontSize: 13, color: '#e65c00' },
+  interactionChipText: { fontSize: 13, color: '#555', flex: 1 },
+
+  // Interactions modal
+  intModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  intModalBox: {
+    backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    padding: 20, maxHeight: '70%',
   },
-  interactionBadgeText: { fontSize: 10, fontWeight: '600' },
-  interactionPair: { fontSize: 13, color: '#333', flex: 1, fontWeight: '500' },
-  interactionMore: { fontSize: 12, color: '#888', marginTop: 8, fontStyle: 'italic' },
+  intModalTitle: { fontSize: 16, fontWeight: '700', color: '#1C3F7A', marginBottom: 16 },
+  intModalItem: {
+    borderLeftWidth: 3, borderRadius: 8, padding: 10, marginBottom: 10, backgroundColor: '#fafafa',
+  },
+  intModalBadge: {
+    borderWidth: 1, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2,
+    alignSelf: 'flex-start', marginBottom: 4,
+  },
+  intModalBadgeText: { fontSize: 10, fontWeight: '600' },
+  intModalDrugs: { fontSize: 13, fontWeight: '700', color: '#222', marginBottom: 2 },
+  intModalDesc: { fontSize: 12, color: '#555', fontStyle: 'italic' },
+  intModalClose: {
+    marginTop: 12, backgroundColor: '#1C3F7A', borderRadius: 10, padding: 14, alignItems: 'center',
+  },
+  intModalCloseText: { fontSize: 15, color: '#fff', fontWeight: '700' },
 
   infoCard: { backgroundColor: '#EEF3FF', borderRadius: 12, padding: 16 },
   infoTitle: { fontSize: 14, fontWeight: '600', color: '#1C3F7A', marginBottom: 10 },
