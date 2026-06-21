@@ -1346,7 +1346,8 @@ export default function MedicationsScreen() {
               <Text style={styles.stockHelpSubtitle}>Como funciona</Text>
               <Text style={styles.stockHelpText}>
                 1. Informe a quantidade atual de comprimidos ou doses que você tem em casa.{'\n\n'}
-                2. Cada vez que tomar o medicamento, toque em <Text style={{ fontWeight: '700' }}>Tomar</Text> no card do medicamento. O estoque diminui automaticamente em 1.{'\n\n'}
+                2. Cada vez que tomar o medicamento, toque em <Text style={{ fontWeight: '700' }}>Tomei</Text> no aviso que aparece na tela quando o alarme disparar, ou em <Text style={{ fontWeight: '700' }}>Tomar</Text> no card do medicamento na aba Medicamentos. O estoque diminui automaticamente em 1.{'\n\n'}
+                O aviso de alarme permanece na tela até você tocar em <Text style={{ fontWeight: '700' }}>Tomei</Text> ou <Text style={{ fontWeight: '700' }}>Não tomei</Text>.{'\n\n'}
                 3. Quando o estoque ficar baixo (menos de 3 dias de doses), você verá um aviso de estoque baixo para providenciar a reposição.
               </Text>
               <Text style={styles.stockHelpSubtitle}>Duração do tratamento</Text>
