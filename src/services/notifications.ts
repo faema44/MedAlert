@@ -8,6 +8,14 @@ const CHANNEL_ID = 'medalert_emergency_v3';
 const NOTIF_ID = 'emergency';
 const REMINDER_SOUND_CHANNEL = 'medalert_reminder_sound';
 const REMINDER_SILENT_CHANNEL = 'medalert_reminder_silent';
+const REMINDER_CATEGORY = 'reminder_action';
+
+export async function setupReminderCategory(): Promise<void> {
+  await Notifications.setNotificationCategoryAsync(REMINDER_CATEGORY, [
+    { identifier: 'tomei',     buttonTitle: '✓ Tomei',   options: { opensAppToForeground: false } },
+    { identifier: 'nao_tomei', buttonTitle: 'Não tomei', options: { opensAppToForeground: false } },
+  ]);
+}
 
 export async function setupNotificationChannels(): Promise<void> {
   if (Platform.OS !== 'android') return;
@@ -196,6 +204,7 @@ function reminderContent(medicationName: string, dose: string, medicationId: num
     body: `${medicationName}${dose ? ' — ' + dose : ''}`,
     data: { type: 'reminder', medicationId },
     sticky: true,
+    categoryIdentifier: REMINDER_CATEGORY,
   };
 }
 
@@ -348,7 +357,7 @@ Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
     const isReminder = notification.request.content.data?.type === 'reminder';
     return {
-      shouldShowBanner: true,
+      shouldShowBanner: !isReminder, // foreground reminders are handled by in-app modal
       shouldPlaySound: isReminder,
       shouldSetBadge: false,
       shouldShowList: true,

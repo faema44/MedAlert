@@ -136,6 +136,13 @@ export async function updateMedicationStock(id: number, newQuantity: number): Pr
   await database.runAsync('UPDATE medications SET stock_quantity=? WHERE id=?', [newQuantity, id]);
 }
 
+export async function getMedicationById(id: number): Promise<Medication | null> {
+  const database = await getDb();
+  const row = await database.getFirstAsync<Medication>('SELECT * FROM medications WHERE id=?', [id]);
+  if (!row) return null;
+  return { ...row, is_critical: Boolean(row.is_critical), stock_quantity: row.stock_quantity ?? null, end_date: row.end_date ?? null };
+}
+
 export async function deleteMedication(id: number): Promise<void> {
   const database = await getDb();
   await database.runAsync('DELETE FROM medications WHERE id=?', [id]);
