@@ -20,7 +20,7 @@ import {
 } from '../services/notifications';
 import { Medication, MedicationReminder, DrugInteraction } from '../types';
 import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, checkInteractions, checkSubstanceInteractions, isPhytotherapic, getPhytotherapics } from '../utils/drugSearch';
-import { openBula } from '../utils/openBula';
+import { useBulaViewer } from '../utils/useBulaViewer';
 import { reportMissingDrug } from '../services/reportMissing';
 
 // ─── Time Picker ──────────────────────────────────────────────────────────────
@@ -159,6 +159,7 @@ function computeTimes(startTime: string, timesPerDay: number): string[] {
 }
 
 export default function MedicationsScreen() {
+  const { openBula, modal: bulaModal } = useBulaViewer();
   const insets = useSafeAreaInsets();
   const [medications, setMedications] = useState<Medication[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1093,6 +1094,7 @@ export default function MedicationsScreen() {
         </View>
         </KeyboardAvoidingView>
       </Modal>
+      {bulaModal}
     </View>
   );
 }

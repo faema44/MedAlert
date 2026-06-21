@@ -8,7 +8,7 @@ import {
   checkInteractions, getAllInteractions, isPhytotherapicInteraction,
   getAllMedsList, getAllPhytoList, DbEntry, getBulaUrl, getPhytoBulaUrl,
 } from '../utils/drugSearch';
-import { openBula } from '../utils/openBula';
+import { useBulaViewer } from '../utils/useBulaViewer';
 import { DrugInteraction, Medication } from '../types';
 
 const RISK_CONFIG = {
@@ -67,7 +67,7 @@ function InteractionCard({ item, expanded, onToggle }: {
   );
 }
 
-function MedCard({ item, isPhyto }: { item: DbEntry; isPhyto?: boolean }) {
+function MedCard({ item, isPhyto, onOpenBula }: { item: DbEntry; isPhyto?: boolean; onOpenBula: (url: string) => void }) {
   const accent = isPhyto ? '#1a6b3a' : '#1C3F7A';
   const bgAccent = isPhyto ? '#EAF4EC' : '#EEF3FF';
   const popularNames = item.brands.slice(0, 3).join(' · ');
@@ -75,7 +75,7 @@ function MedCard({ item, isPhyto }: { item: DbEntry; isPhyto?: boolean }) {
 
   function handleOpenBula() {
     const url = isPhyto ? getPhytoBulaUrl(item.genericName, firstBrand) : getBulaUrl(item.genericName, firstBrand);
-    openBula(url);
+    onOpenBula(url);
   }
 
   return (
@@ -99,6 +99,7 @@ function MedCard({ item, isPhyto }: { item: DbEntry; isPhyto?: boolean }) {
 }
 
 export default function InteractionsScreen() {
+  const { openBula, modal: bulaModal } = useBulaViewer();
   const [tab, setTab] = useState<Tab>('interactions');
   const [search, setSearch] = useState('');
   const [riskFilter, setRiskFilter] = useState<RiskFilter>('all');
@@ -275,7 +276,7 @@ export default function InteractionsScreen() {
                 <Text style={styles.emptyText}>Nenhum medicamento encontrado.</Text>
               </View>
             }
-            renderItem={({ item }) => <MedCard item={item} />}
+            renderItem={({ item }) => <MedCard item={item} onOpenBula={openBula} />}
           />
         </>
       )}
@@ -306,10 +307,11 @@ export default function InteractionsScreen() {
                 <Text style={styles.emptyText}>Nenhum fitoterápico encontrado.</Text>
               </View>
             }
-            renderItem={({ item }) => <MedCard item={item} isPhyto />}
+            renderItem={({ item }) => <MedCard item={item} isPhyto onOpenBula={openBula} />}
           />
         </>
       )}
+      {bulaModal}
     </View>
   );
 }
