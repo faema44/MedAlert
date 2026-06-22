@@ -15,6 +15,7 @@ import HelpScreen from './src/screens/HelpScreen';
 import {
   setupNotificationChannels, requestPermissions, setupReminderCategory,
   initReminderListeners, dismissNotification, ReminderAlertPayload,
+  scheduleRepeatAlarm, cancelRepeatAlarm,
 } from './src/services/notifications';
 import { getDb, getMedications, getContacts, getMedicationById, updateMedicationStock } from './src/database/db';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
@@ -80,14 +81,17 @@ function AppNavigator() {
   const [medCount, setMedCount] = useState(0);
   const [contactCount, setContactCount] = useState(0);
   const [reminderAlert, setReminderAlert] = useState<ReminderAlertPayload | null>(null);
+  const [confirmingTomei, setConfirmingTomei] = useState(false);
   const alertQueueRef = useRef<ReminderAlertPayload[]>([]);
 
   function showNextAlert() {
+    setConfirmingTomei(false);
     const next = alertQueueRef.current.shift();
     setReminderAlert(next ?? null);
   }
 
-  async function handleTomei(alert: ReminderAlertPayload) {
+  async function handleConfirmTomei(alert: ReminderAlertPayload) {
+    cancelRepeatAlarm(alert.medicationId).catch(() => {});
     const med = await getMedicationById(alert.medicationId).catch(() => null);
     if (med?.stock_quantity != null && med.stock_quantity > 0) {
       await updateMedicationStock(alert.medicationId, med.stock_quantity - 1).catch(() => {});
@@ -97,6 +101,7 @@ function AppNavigator() {
   }
 
   function handleNaoTomei(alert: ReminderAlertPayload) {
+    cancelRepeatAlarm(alert.medicationId).catch(() => {});
     dismissNotification(alert.notificationId);
     showNextAlert();
   }
@@ -120,6 +125,9 @@ function AppNavigator() {
     init();
 
     const cleanup = initReminderListeners((data) => {
+      if (data.repeatInterval > 0) {
+        scheduleRepeatAlarm(data.medicationId, data.name, data.dose, data.repeatInterval, true).catch(() => {});
+      }
       setReminderAlert(current => {
         if (current !== null) { alertQueueRef.current.push(data); return current; }
         return data;
@@ -175,21 +183,35 @@ function AppNavigator() {
         </Tab.Navigator>
       </NavigationContainer>
 
-      <Modal visible={!!reminderAlert} transparent animationType="fade" onRequestClose={() => reminderAlert && handleNaoTomei(reminderAlert)}>
+      <Modal visible={!!reminderAlert} transparent animationType="fade" onRequestClose={() => { setConfirmingTomei(false); reminderAlert && handleNaoTomei(reminderAlert); }}>
         {reminderAlert && (
           <View style={ras.overlay}>
             <View style={[ras.box, { paddingBottom: insets.bottom + 16 }]}>
               <Text style={ras.title}>💊 Hora do medicamento</Text>
               <Text style={ras.name}>{reminderAlert.name}</Text>
               {!!reminderAlert.dose && <Text style={ras.dose}>{reminderAlert.dose}</Text>}
-              <View style={ras.btnRow}>
-                <TouchableOpacity style={ras.btnNo} onPress={() => handleNaoTomei(reminderAlert)}>
-                  <Text style={ras.btnNoText}>Não tomei</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={ras.btnYes} onPress={() => handleTomei(reminderAlert)}>
-                  <Text style={ras.btnYesText}>✓ Tomei</Text>
-                </TouchableOpacity>
-              </View>
+              {confirmingTomei ? (
+                <>
+                  <Text style={ras.confirmText}>Confirma que tomou agora?</Text>
+                  <View style={ras.btnRow}>
+                    <TouchableOpacity style={ras.btnNo} onPress={() => setConfirmingTomei(false)}>
+                      <Text style={ras.btnNoText}>Cancelar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={ras.btnYes} onPress={() => handleConfirmTomei(reminderAlert)}>
+                      <Text style={ras.btnYesText}>✓ Sim, tomei</Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : (
+                <View style={ras.btnRow}>
+                  <TouchableOpacity style={ras.btnNo} onPress={() => handleNaoTomei(reminderAlert)}>
+                    <Text style={ras.btnNoText}>Não tomei</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={ras.btnYes} onPress={() => setConfirmingTomei(true)}>
+                    <Text style={ras.btnYesText}>✓ Tomei</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
           </View>
         )}
@@ -210,6 +232,7 @@ const ras = StyleSheet.create({
   title: { fontSize: 13, color: '#888', fontWeight: '500', marginBottom: 8 },
   name: { fontSize: 22, fontWeight: '700', color: '#1C3F7A', marginBottom: 4 },
   dose: { fontSize: 14, color: '#555', marginBottom: 20 },
+  confirmText: { fontSize: 14, color: '#E07B4F', fontWeight: '600', marginTop: 16, marginBottom: 4 },
   btnRow: { flexDirection: 'row', gap: 12, marginTop: 20 },
   btnNo: {
     flex: 1, borderWidth: 1.5, borderColor: '#1C3F7A', borderRadius: 10,

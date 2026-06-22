@@ -205,6 +205,7 @@ export interface ReminderAlertPayload {
   medicationId: number;
   name: string;
   dose: string;
+  repeatInterval: number;
 }
 
 export function initReminderListeners(
@@ -213,21 +214,23 @@ export function initReminderListeners(
   const sub = Notifications.addNotificationReceivedListener((notification) => {
     const data = notification.request.content.data;
     if (data?.type !== 'reminder') return;
-    onReceived({
+    const payload: ReminderAlertPayload = {
       notificationId: notification.request.identifier,
       medicationId: data.medicationId as number,
-      name: notification.request.content.title ?? '',
-      dose: notification.request.content.subtitle ?? '',
-    });
+      name: (data.name as string) || (notification.request.content.title ?? ''),
+      dose: (data.dose as string) || '',
+      repeatInterval: (data.repeatInterval as number) || 0,
+    };
+    onReceived(payload);
   });
   return () => sub.remove();
 }
 
-function reminderContent(medicationName: string, dose: string, medicationId: number) {
+function reminderContent(medicationName: string, dose: string, medicationId: number, repeatInterval = 0) {
   return {
-    title: '💊 Hora do medicamento',
-    body: `${medicationName}${dose ? ' — ' + dose : ''}`,
-    data: { type: 'reminder', medicationId },
+    title: medicationName,
+    body: dose || 'Hora de tomar o medicamento',
+    data: { type: 'reminder', medicationId, name: medicationName, dose, repeatInterval },
     sticky: true,
   };
 }
@@ -243,11 +246,12 @@ export async function scheduleReminder(
   hour: number,
   minute: number,
   withSound: boolean,
+  repeatInterval = 0,
 ): Promise<void> {
   const id = `reminder_${medicationId}_${timePart(hour, minute)}`;
   await Notifications.scheduleNotificationAsync({
     identifier: id,
-    content: reminderContent(medicationName, dose, medicationId),
+    content: reminderContent(medicationName, dose, medicationId, repeatInterval),
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
       hour,
@@ -265,11 +269,12 @@ export async function scheduleReminderWeekly(
   hour: number,
   minute: number,
   withSound: boolean,
+  repeatInterval = 0,
 ): Promise<void> {
   for (const wd of weekdays) {
     await Notifications.scheduleNotificationAsync({
       identifier: `reminder_${medicationId}_w${wd}_${timePart(hour, minute)}`,
-      content: reminderContent(medicationName, dose, medicationId),
+      content: reminderContent(medicationName, dose, medicationId, repeatInterval),
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
         weekday: wd,
@@ -289,11 +294,12 @@ export async function scheduleReminderMonthly(
   hour: number,
   minute: number,
   withSound: boolean,
+  repeatInterval = 0,
 ): Promise<void> {
   for (const day of days) {
     await Notifications.scheduleNotificationAsync({
       identifier: `reminder_${medicationId}_m${day}_${timePart(hour, minute)}`,
-      content: reminderContent(medicationName, dose, medicationId),
+      content: reminderContent(medicationName, dose, medicationId, repeatInterval),
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
         repeats: true,
@@ -315,6 +321,7 @@ export async function scheduleReminderEveryNMonths(
   hour: number,
   minute: number,
   withSound: boolean,
+  repeatInterval = 0,
 ): Promise<void> {
   const tp = timePart(hour, minute);
   const now = new Date();
@@ -324,7 +331,7 @@ export async function scheduleReminderEveryNMonths(
     const dateStr = `${next.getFullYear()}${String(next.getMonth() + 1).padStart(2, '0')}${String(next.getDate()).padStart(2, '0')}`;
     await Notifications.scheduleNotificationAsync({
       identifier: `reminder_${medicationId}_nm_${dateStr}_${tp}`,
-      content: reminderContent(medicationName, dose, medicationId),
+      content: reminderContent(medicationName, dose, medicationId, repeatInterval),
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
         repeats: false,
@@ -375,6 +382,30 @@ export async function cancelAllRemindersForMedication(medicationId: number): Pro
       .filter(n => n.identifier.startsWith(`reminder_${medicationId}_`))
       .map(n => Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {}))
   );
+}
+
+export async function scheduleRepeatAlarm(
+  medicationId: number,
+  medicationName: string,
+  dose: string,
+  intervalMinutes: number,
+  withSound: boolean,
+): Promise<void> {
+  const id = `reminder_repeat_${medicationId}`;
+  await Notifications.cancelScheduledNotificationAsync(id).catch(() => {});
+  await Notifications.scheduleNotificationAsync({
+    identifier: id,
+    content: reminderContent(medicationName, dose, medicationId, intervalMinutes),
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+      seconds: intervalMinutes * 60,
+      channelId: withSound ? REMINDER_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+    },
+  });
+}
+
+export async function cancelRepeatAlarm(medicationId: number): Promise<void> {
+  await Notifications.cancelScheduledNotificationAsync(`reminder_repeat_${medicationId}`).catch(() => {});
 }
 
 Notifications.setNotificationHandler({

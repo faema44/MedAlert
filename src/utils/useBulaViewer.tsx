@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     top: 60,
     justifyContent: 'center',
     alignItems: 'center',

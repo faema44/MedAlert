@@ -8,7 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   getMedications, addMedication, updateMedication, deleteMedication,
-  getRemindersForMedication, addReminder, deleteReminder, toggleReminderActive, updateAllRemindersSound, updateReminderSound, updateMedicationStock,
+  getRemindersForMedication, addReminder, deleteReminder, toggleReminderActive, updateAllRemindersSound, updateReminderSound, updateMedicationStock, updateAllRemindersInterval,
 } from '../database/db';
 import {
   scheduleReminderWeekly, scheduleReminderMonthly, scheduleReminderEveryNMonths,
@@ -212,6 +212,7 @@ export default function MedicationsScreen() {
   const [reminderTimes, setReminderTimes] = useState<Map<number, string[]>>(new Map());
   const [customTimes, setCustomTimes] = useState('');
   const [withSound, setWithSound] = useState(true);
+  const [repeatInterval, setRepeatInterval] = useState(0);
   const [reminderPeriod, setReminderPeriod] = useState<ReminderPeriod>('day');
   const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([2]);
   const [selectedMonthDays, setSelectedMonthDays] = useState<number[]>([1]);
@@ -349,20 +350,21 @@ export default function MedicationsScreen() {
             const [h, m] = r.time.split(':').map(Number);
             const p = r.period ?? 'day';
             try {
+              const ri = r.repeat_interval ?? 0;
               if (p === 'day') {
-                await scheduleReminder(newMedId, newMed.generic_name, newMed.dose, h, m, r.with_sound);
+                await scheduleReminder(newMedId, newMed.generic_name, newMed.dose, h, m, r.with_sound, ri);
               } else if (p.startsWith('week:')) {
                 const wds = p.split(':')[1].split(',').map(Number);
-                await scheduleReminderWeekly(newMedId, newMed.generic_name, newMed.dose, wds, h, m, r.with_sound);
+                await scheduleReminderWeekly(newMedId, newMed.generic_name, newMed.dose, wds, h, m, r.with_sound, ri);
               } else if (p.startsWith('month:')) {
                 const days = p.split(':')[1].split(',').map(Number);
-                await scheduleReminderMonthly(newMedId, newMed.generic_name, newMed.dose, days, h, m, r.with_sound);
+                await scheduleReminderMonthly(newMedId, newMed.generic_name, newMed.dose, days, h, m, r.with_sound, ri);
               } else if (p.startsWith('nmonths:')) {
                 const [, nStr, dStr] = p.split(':');
-                await scheduleReminderEveryNMonths(newMedId, newMed.generic_name, newMed.dose, Number(nStr), Number(dStr), h, m, r.with_sound);
+                await scheduleReminderEveryNMonths(newMedId, newMed.generic_name, newMed.dose, Number(nStr), Number(dStr), h, m, r.with_sound, ri);
               }
             } catch {}
-            await addReminder({ medication_id: newMedId, time: r.time, period: r.period, with_sound: r.with_sound, is_active: true }).catch(() => {});
+            await addReminder({ medication_id: newMedId, time: r.time, period: r.period, with_sound: r.with_sound, is_active: true, repeat_interval: r.repeat_interval ?? 0 }).catch(() => {});
           }
         }
       }
@@ -453,7 +455,7 @@ export default function MedicationsScreen() {
 
   function resetPickerState() {
     setPickerHour(8); setPickerMinute(0); setTimesPerDay(1);
-    setCustomTimes(''); setWithSound(true); setReminderPeriod('day');
+    setCustomTimes(''); setWithSound(true); setRepeatInterval(0); setReminderPeriod('day');
     setSelectedWeekdays([2]); setSelectedMonthDays([1]); setNMonths('1'); setMonthDay('1');
   }
 
@@ -492,6 +494,7 @@ export default function MedicationsScreen() {
     const rs = await getRemindersForMedication(med.id); // carrega após render
     setReminders(rs);
     setWithSound(rs.some(r => r.with_sound));
+    setRepeatInterval(rs[0]?.repeat_interval ?? 0);
     if (rs.length > 0) populatePickerFromReminders(rs);
   }
 
@@ -514,10 +517,11 @@ export default function MedicationsScreen() {
       const [h, m] = r.time.split(':').map(Number);
       const p = r.period ?? 'day';
       try {
-        if (p === 'day') await scheduleReminder(item.id, item.generic_name, item.dose, h, m, newSound);
-        else if (p.startsWith('week:')) await scheduleReminderWeekly(item.id, item.generic_name, item.dose, p.split(':')[1].split(',').map(Number), h, m, newSound);
-        else if (p.startsWith('month:')) await scheduleReminderMonthly(item.id, item.generic_name, item.dose, p.split(':')[1].split(',').map(Number), h, m, newSound);
-        else if (p.startsWith('nmonths:')) { const [,nStr,dStr] = p.split(':'); await scheduleReminderEveryNMonths(item.id, item.generic_name, item.dose, Number(nStr), Number(dStr), h, m, newSound); }
+        const ri = r.repeat_interval ?? 0;
+        if (p === 'day') await scheduleReminder(item.id, item.generic_name, item.dose, h, m, newSound, ri);
+        else if (p.startsWith('week:')) await scheduleReminderWeekly(item.id, item.generic_name, item.dose, p.split(':')[1].split(',').map(Number), h, m, newSound, ri);
+        else if (p.startsWith('month:')) await scheduleReminderMonthly(item.id, item.generic_name, item.dose, p.split(':')[1].split(',').map(Number), h, m, newSound, ri);
+        else if (p.startsWith('nmonths:')) { const [,nStr,dStr] = p.split(':'); await scheduleReminderEveryNMonths(item.id, item.generic_name, item.dose, Number(nStr), Number(dStr), h, m, newSound, ri); }
       } catch {}
     }
     setReminderHasSound(prev => new Map(prev).set(item.id, newSound));
@@ -544,18 +548,18 @@ export default function MedicationsScreen() {
         newEntries = times.map((time, i) => ({
           id: reminderIsDraft ? -(Date.now() + i) : 0,
           medication_id: reminderMed?.id ?? 0,
-          time, period: 'day', with_sound: withSound, is_active: true,
+          time, period: 'day', with_sound: withSound, is_active: true, repeat_interval: repeatInterval,
         }));
       } else if (reminderPeriod === 'week') {
         if (selectedWeekdays.length === 0) { Alert.alert('Erro', 'Selecione ao menos um dia da semana.'); return; }
         const [h, m] = startTime.split(':').map(Number);
         if (isNaN(h) || isNaN(m)) { Alert.alert('Erro', 'Horário inválido.'); return; }
-        newEntries = [{ id: reminderIsDraft ? -Date.now() : 0, medication_id: reminderMed?.id ?? 0, time: startTime, period: `week:${selectedWeekdays.sort((a,b)=>a-b).join(',')}`, with_sound: withSound, is_active: true }];
+        newEntries = [{ id: reminderIsDraft ? -Date.now() : 0, medication_id: reminderMed?.id ?? 0, time: startTime, period: `week:${selectedWeekdays.sort((a,b)=>a-b).join(',')}`, with_sound: withSound, is_active: true, repeat_interval: repeatInterval }];
       } else if (reminderPeriod === 'month') {
         if (selectedMonthDays.length === 0) { Alert.alert('Erro', 'Selecione ao menos um dia do mês.'); return; }
         const [h, m] = startTime.split(':').map(Number);
         if (isNaN(h) || isNaN(m)) { Alert.alert('Erro', 'Horário inválido.'); return; }
-        newEntries = [{ id: reminderIsDraft ? -Date.now() : 0, medication_id: reminderMed?.id ?? 0, time: startTime, period: `month:${selectedMonthDays.sort((a,b)=>a-b).join(',')}`, with_sound: withSound, is_active: true }];
+        newEntries = [{ id: reminderIsDraft ? -Date.now() : 0, medication_id: reminderMed?.id ?? 0, time: startTime, period: `month:${selectedMonthDays.sort((a,b)=>a-b).join(',')}`, with_sound: withSound, is_active: true, repeat_interval: repeatInterval }];
       } else if (reminderPeriod === 'year') {
         const n = parseInt(nMonths, 10);
         const d = parseInt(monthDay, 10);
@@ -563,7 +567,7 @@ export default function MedicationsScreen() {
         if (isNaN(n) || n < 1) { Alert.alert('Erro', 'Informe o intervalo em meses (mínimo 1).'); return; }
         if (isNaN(d) || d < 1 || d > 28) { Alert.alert('Erro', 'Dia do mês deve ser entre 1 e 28.'); return; }
         if (isNaN(h) || isNaN(mi)) { Alert.alert('Erro', 'Horário inválido.'); return; }
-        newEntries = [{ id: reminderIsDraft ? -Date.now() : 0, medication_id: reminderMed?.id ?? 0, time: startTime, period: `nmonths:${n}:${d}`, with_sound: withSound, is_active: true }];
+        newEntries = [{ id: reminderIsDraft ? -Date.now() : 0, medication_id: reminderMed?.id ?? 0, time: startTime, period: `nmonths:${n}:${d}`, with_sound: withSound, is_active: true, repeat_interval: repeatInterval }];
       }
 
       if (reminderIsDraft) {
@@ -583,7 +587,7 @@ export default function MedicationsScreen() {
         }
         // Adiciona os novos
         for (const e of newEntries) {
-          await addReminder({ medication_id: reminderMed.id, time: e.time, period: e.period, with_sound: withSound, is_active: true });
+          await addReminder({ medication_id: reminderMed.id, time: e.time, period: e.period, with_sound: withSound, is_active: true, repeat_interval: repeatInterval });
         }
         // Cancela tudo e reagenda todos os reminders restantes + novos
         await cancelAllRemindersForMedication(reminderMed.id).catch(() => {});
@@ -592,10 +596,11 @@ export default function MedicationsScreen() {
           const [h, m] = rem.time.split(':').map(Number);
           const p = rem.period ?? 'day';
           try {
-            if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, rem.with_sound);
-            else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound);
-            else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound);
-            else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, rem.with_sound); }
+            const ri = rem.repeat_interval ?? 0;
+            if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, rem.with_sound, ri);
+            else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, ri);
+            else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, ri);
+            else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, rem.with_sound, ri); }
           } catch {}
         }
         setReminders(allRem);
@@ -635,17 +640,18 @@ export default function MedicationsScreen() {
     if (newActive && reminderMed) {
       const [h, m] = r.time.split(':').map(Number);
       const p = r.period ?? 'day';
+      const ri = r.repeat_interval ?? 0;
       if (p === 'day') {
-        await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, r.with_sound).catch(() => {});
+        await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, r.with_sound, ri).catch(() => {});
       } else if (p.startsWith('week:')) {
         const wds = p.split(':')[1].split(',').map(Number);
-        await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, wds, h, m, r.with_sound).catch(() => {});
+        await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, wds, h, m, r.with_sound, ri).catch(() => {});
       } else if (p.startsWith('month:')) {
         const days = p.split(':')[1].split(',').map(Number);
-        await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, days, h, m, r.with_sound).catch(() => {});
+        await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, days, h, m, r.with_sound, ri).catch(() => {});
       } else if (p.startsWith('nmonths:')) {
         const [, n, d] = p.split(':');
-        await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(n), Number(d), h, m, r.with_sound).catch(() => {});
+        await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(n), Number(d), h, m, r.with_sound, ri).catch(() => {});
       }
     } else {
       await cancelReminderByTime(r.medication_id, r.time, r.period).catch(() => {});
@@ -663,10 +669,11 @@ export default function MedicationsScreen() {
       const [h, m] = rem.time.split(':').map(Number);
       const p = rem.period ?? 'day';
       try {
-        if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, rem.with_sound);
-        else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound);
-        else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound);
-        else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, rem.with_sound); }
+        const ri = rem.repeat_interval ?? 0;
+        if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, rem.with_sound, ri);
+        else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, ri);
+        else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, ri);
+        else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, rem.with_sound, ri); }
       } catch {}
     }
     setReminders(rs);
@@ -1126,10 +1133,11 @@ export default function MedicationsScreen() {
                     const [h, m] = rem.time.split(':').map(Number);
                     const p = rem.period ?? 'day';
                     try {
-                      if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, val);
-                      else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, val);
-                      else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, val);
-                      else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, val); }
+                      const ri = rem.repeat_interval ?? 0;
+                      if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, val, ri);
+                      else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, val, ri);
+                      else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, val, ri);
+                      else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, val, ri); }
                     } catch {}
                   }
                   setReminders(rs);
@@ -1138,6 +1146,40 @@ export default function MedicationsScreen() {
                 trackColor={{ true: '#1a3a6b', false: '#ccc' }}
                 thumbColor="#fff"
               />
+            </View>
+
+            <View style={styles.repeatRow}>
+              <Text style={styles.repeatLabel}>🔁 Repetir alarme</Text>
+              <View style={styles.repeatChips}>
+                {([0, 5, 10, 15, 30] as const).map(min => (
+                  <TouchableOpacity
+                    key={min}
+                    style={[styles.repeatChip, repeatInterval === min && styles.repeatChipActive]}
+                    onPress={async () => {
+                      setRepeatInterval(min);
+                      if (reminderMed) {
+                        await updateAllRemindersInterval(reminderMed.id, min);
+                        await cancelAllRemindersForMedication(reminderMed.id).catch(() => {});
+                        const rs = await getRemindersForMedication(reminderMed.id);
+                        for (const rem of rs.filter(rem => rem.is_active)) {
+                          const [h, m] = rem.time.split(':').map(Number);
+                          const p = rem.period ?? 'day';
+                          try {
+                            if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, rem.with_sound, min);
+                            else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, min);
+                            else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, min);
+                            else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, rem.with_sound, min); }
+                          } catch {}
+                        }
+                      }
+                    }}
+                  >
+                    <Text style={[styles.repeatChipText, repeatInterval === min && styles.repeatChipTextActive]}>
+                      {min === 0 ? 'Não repetir' : `${min}min`}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
 
             {reminders.map(r => (
@@ -1603,6 +1645,16 @@ const styles = StyleSheet.create({
   },
   soundLabel: { fontSize: 15, fontWeight: '600', color: '#333' },
   soundHint: { fontSize: 12, color: '#999', marginTop: 2 },
+  repeatRow: { marginTop: 16 },
+  repeatLabel: { fontSize: 15, fontWeight: '600', color: '#333', marginBottom: 8 },
+  repeatChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  repeatChip: {
+    paddingVertical: 6, paddingHorizontal: 12, borderRadius: 16,
+    borderWidth: 1.5, borderColor: '#ccc', backgroundColor: '#fff',
+  },
+  repeatChipActive: { borderColor: '#1C3F7A', backgroundColor: '#EEF2FB' },
+  repeatChipText: { fontSize: 13, color: '#666', fontWeight: '500' },
+  repeatChipTextActive: { color: '#1C3F7A', fontWeight: '700' },
   typeRow: { flexDirection: 'row', gap: 8, marginTop: 12, marginBottom: 4 },
   typeBtn: {
     flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 10,

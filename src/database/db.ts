@@ -76,6 +76,9 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
   try {
     await database.execAsync('ALTER TABLE medications ADD COLUMN end_date TEXT');
   } catch {}
+  try {
+    await database.execAsync('ALTER TABLE medication_reminders ADD COLUMN repeat_interval INTEGER DEFAULT 0');
+  } catch {}
 }
 
 // Profile
@@ -185,7 +188,7 @@ export async function deleteContact(id: number): Promise<void> {
 }
 
 // Medication Reminders
-type ReminderRow = { id: number; medication_id: number; time: string; days: string; with_sound: number; is_active: number };
+type ReminderRow = { id: number; medication_id: number; time: string; days: string; with_sound: number; is_active: number; repeat_interval: number };
 
 export async function getRemindersForMedication(medicationId: number): Promise<MedicationReminder[]> {
   const database = await getDb();
@@ -198,14 +201,15 @@ export async function getRemindersForMedication(medicationId: number): Promise<M
     period: r.days ?? 'day',
     with_sound: Boolean(r.with_sound),
     is_active: Boolean(r.is_active),
+    repeat_interval: r.repeat_interval ?? 0,
   }));
 }
 
 export async function addReminder(r: Omit<MedicationReminder, 'id'>): Promise<void> {
   const database = await getDb();
   await database.runAsync(
-    'INSERT INTO medication_reminders (medication_id, time, days, with_sound, is_active) VALUES (?, ?, ?, ?, 1)',
-    [r.medication_id, r.time, r.period ?? 'day', r.with_sound ? 1 : 0]
+    'INSERT INTO medication_reminders (medication_id, time, days, with_sound, is_active, repeat_interval) VALUES (?, ?, ?, ?, 1, ?)',
+    [r.medication_id, r.time, r.period ?? 'day', r.with_sound ? 1 : 0, r.repeat_interval ?? 0]
   );
 }
 
@@ -227,6 +231,11 @@ export async function updateAllRemindersSound(medicationId: number, withSound: b
 export async function updateReminderSound(id: number, withSound: boolean): Promise<void> {
   const database = await getDb();
   await database.runAsync('UPDATE medication_reminders SET with_sound=? WHERE id=?', [withSound ? 1 : 0, id]);
+}
+
+export async function updateAllRemindersInterval(medicationId: number, intervalMinutes: number): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('UPDATE medication_reminders SET repeat_interval=? WHERE medication_id=?', [intervalMinutes, medicationId]);
 }
 
 export async function countReminders(medicationId: number): Promise<number> {
