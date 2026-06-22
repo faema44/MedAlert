@@ -76,7 +76,7 @@ function PickerCol({ items, value, onChange }: {
 }
 
 const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
-const MINUTES = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
+const MINUTES = Array.from({ length: 6 }, (_, i) => String(i * 10).padStart(2, '0'));
 
 function TimePicker({ hour, minute, onChange }: {
   hour: number; minute: number; onChange: (h: number, m: number) => void;
@@ -465,7 +465,7 @@ export default function MedicationsScreen() {
     if (!first) { resetPickerState(); return; }
     const [h, m] = first.time.split(':').map(Number);
     setPickerHour(h);
-    setPickerMinute(m);
+    setPickerMinute(Math.round(m / 10) * 10 % 60);
     setCustomTimes('');
     const p = first.period ?? 'day';
     if (p === 'day') {
@@ -1118,7 +1118,7 @@ export default function MedicationsScreen() {
 
             <View style={styles.soundRow}>
               <View>
-                <Text style={styles.soundLabel}>🔔 Som</Text>
+                <Text style={styles.soundLabel}>🔔 Alarme</Text>
                 <Text style={styles.soundHint}>{withSound ? 'Toca som ao notificar' : 'Notificações silenciosas'}</Text>
               </View>
               <Switch
@@ -1148,38 +1148,35 @@ export default function MedicationsScreen() {
               />
             </View>
 
-            <View style={styles.repeatRow}>
-              <Text style={styles.repeatLabel}>🔁 Repetir alarme</Text>
-              <View style={styles.repeatChips}>
-                {([0, 5, 10, 15, 30] as const).map(min => (
-                  <TouchableOpacity
-                    key={min}
-                    style={[styles.repeatChip, repeatInterval === min && styles.repeatChipActive]}
-                    onPress={async () => {
-                      setRepeatInterval(min);
-                      if (reminderMed) {
-                        await updateAllRemindersInterval(reminderMed.id, min);
-                        await cancelAllRemindersForMedication(reminderMed.id).catch(() => {});
-                        const rs = await getRemindersForMedication(reminderMed.id);
-                        for (const rem of rs.filter(rem => rem.is_active)) {
-                          const [h, m] = rem.time.split(':').map(Number);
-                          const p = rem.period ?? 'day';
-                          try {
-                            if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, rem.with_sound, min);
-                            else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, min);
-                            else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, min);
-                            else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, rem.with_sound, min); }
-                          } catch {}
-                        }
-                      }
-                    }}
-                  >
-                    <Text style={[styles.repeatChipText, repeatInterval === min && styles.repeatChipTextActive]}>
-                      {min === 0 ? 'Não repetir' : `${min}min`}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+            <View style={styles.soundRow}>
+              <View>
+                <Text style={styles.soundLabel}>🔁 Repetir alarme</Text>
+                <Text style={styles.soundHint}>{repeatInterval > 0 ? `A cada ${repeatInterval} min até responder` : 'Dispara uma vez'}</Text>
               </View>
+              <Switch
+                value={repeatInterval > 0}
+                onValueChange={async (val) => {
+                  const min = val ? 5 : 0;
+                  setRepeatInterval(min);
+                  if (reminderMed) {
+                    await updateAllRemindersInterval(reminderMed.id, min);
+                    await cancelAllRemindersForMedication(reminderMed.id).catch(() => {});
+                    const rs = await getRemindersForMedication(reminderMed.id);
+                    for (const rem of rs.filter(rem => rem.is_active)) {
+                      const [h, m] = rem.time.split(':').map(Number);
+                      const p = rem.period ?? 'day';
+                      try {
+                        if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, rem.with_sound, min);
+                        else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, min);
+                        else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, min);
+                        else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, rem.with_sound, min); }
+                      } catch {}
+                    }
+                  }
+                }}
+                trackColor={{ true: '#1a3a6b', false: '#ccc' }}
+                thumbColor="#fff"
+              />
             </View>
 
             {reminders.map(r => (
@@ -1645,16 +1642,6 @@ const styles = StyleSheet.create({
   },
   soundLabel: { fontSize: 15, fontWeight: '600', color: '#333' },
   soundHint: { fontSize: 12, color: '#999', marginTop: 2 },
-  repeatRow: { marginTop: 16 },
-  repeatLabel: { fontSize: 15, fontWeight: '600', color: '#333', marginBottom: 8 },
-  repeatChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  repeatChip: {
-    paddingVertical: 6, paddingHorizontal: 12, borderRadius: 16,
-    borderWidth: 1.5, borderColor: '#ccc', backgroundColor: '#fff',
-  },
-  repeatChipActive: { borderColor: '#1C3F7A', backgroundColor: '#EEF2FB' },
-  repeatChipText: { fontSize: 13, color: '#666', fontWeight: '500' },
-  repeatChipTextActive: { color: '#1C3F7A', fontWeight: '700' },
   typeRow: { flexDirection: 'row', gap: 8, marginTop: 12, marginBottom: 4 },
   typeBtn: {
     flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 10,
