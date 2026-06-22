@@ -1,8 +1,8 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import { Profile, Medication, MedicationReminder } from '../types';
+import { Profile, Medication, MedicationReminder, ActivityReminder } from '../types';
 import { postMedNotification, cancelMedNotification } from './medNotification';
-import { getRemindersForMedication } from '../database/db';
+import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity } from '../database/db';
 
 const CHANNEL_ID = 'medalert_emergency_v3';
 const NOTIF_ID = 'emergency';
@@ -406,6 +406,176 @@ export async function scheduleRepeatAlarm(
 
 export async function cancelRepeatAlarm(medicationId: number): Promise<void> {
   await Notifications.cancelScheduledNotificationAsync(`reminder_repeat_${medicationId}`).catch(() => {});
+}
+
+export interface ActivityAlertPayload {
+  notificationId: string;
+  activityId: number;
+  name: string;
+  activityType: string;
+}
+
+export function initActivityListeners(
+  onReceived: (data: ActivityAlertPayload) => void,
+): () => void {
+  const sub = Notifications.addNotificationReceivedListener((notification) => {
+    const data = notification.request.content.data;
+    if (data?.type !== 'activity') return;
+    onReceived({
+      notificationId: notification.request.identifier,
+      activityId: data.activityId as number,
+      name: (data.activityName as string) || notification.request.content.title || '',
+      activityType: (data.activityType as string) || 'custom',
+    });
+  });
+  return () => sub.remove();
+}
+
+export async function scheduleActivityReminder(
+  activityId: number,
+  activityName: string,
+  hour: number,
+  minute: number,
+  withSound = true,
+  activityType = 'custom',
+): Promise<void> {
+  const tp = timePart(hour, minute);
+  await Notifications.scheduleNotificationAsync({
+    identifier: `activity_${activityId}_${tp}`,
+    content: {
+      title: activityName,
+      body: 'Hora da sua atividade',
+      data: { type: 'activity', activityId, activityName, activityType },
+    },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.DAILY,
+      hour,
+      minute,
+      channelId: withSound ? REMINDER_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+    },
+  });
+}
+
+export async function cancelAllRemindersForActivity(activityId: number): Promise<void> {
+  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+  await Promise.all(
+    scheduled
+      .filter(n => n.identifier.startsWith(`activity_${activityId}_`))
+      .map(n => Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {}))
+  );
+}
+
+export async function scheduleAppointmentReminders(
+  appointmentId: number,
+  doctorName: string,
+  date: string,  // "YYYY-MM-DD"
+  time: string,  // "HH:MM"
+): Promise<void> {
+  const [year, month, day] = date.split('-').map(Number);
+  const [hour, minute] = time.split(':').map(Number);
+  if (isNaN(year) || isNaN(hour)) return;
+
+  const apptMs = new Date(year, month - 1, day, hour, minute).getTime();
+  const now = Date.now();
+
+  const d1 = new Date(apptMs - 24 * 60 * 60 * 1000);
+  if (d1.getTime() > now) {
+    await Notifications.scheduleNotificationAsync({
+      identifier: `appt_${appointmentId}_d1`,
+      content: {
+        title: `Consulta amanhã às ${time}`,
+        body: `Dr(a). ${doctorName}`,
+        data: { type: 'appointment', appointmentId },
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
+        repeats: false,
+        year: d1.getFullYear(),
+        month: d1.getMonth() + 1,
+        day: d1.getDate(),
+        hour: d1.getHours(),
+        minute: d1.getMinutes(),
+        channelId: REMINDER_SOUND_CHANNEL,
+      } as any,
+    }).catch(() => {});
+  }
+
+  const h1 = new Date(apptMs - 60 * 60 * 1000);
+  if (h1.getTime() > now) {
+    await Notifications.scheduleNotificationAsync({
+      identifier: `appt_${appointmentId}_h1`,
+      content: {
+        title: `Consulta em 1 hora`,
+        body: `Dr(a). ${doctorName} às ${time}`,
+        data: { type: 'appointment', appointmentId },
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
+        repeats: false,
+        year: h1.getFullYear(),
+        month: h1.getMonth() + 1,
+        day: h1.getDate(),
+        hour: h1.getHours(),
+        minute: h1.getMinutes(),
+        channelId: REMINDER_SOUND_CHANNEL,
+      } as any,
+    }).catch(() => {});
+  }
+}
+
+export async function cancelAppointmentReminders(appointmentId: number): Promise<void> {
+  await Notifications.cancelScheduledNotificationAsync(`appt_${appointmentId}_d1`).catch(() => {});
+  await Notifications.cancelScheduledNotificationAsync(`appt_${appointmentId}_h1`).catch(() => {});
+}
+
+export async function rescheduleRemindersForMedication(
+  med: Medication,
+  reminders: MedicationReminder[],
+): Promise<void> {
+  for (const r of reminders) {
+    if (!r.is_active) continue;
+    const [h, m] = r.time.split(':').map(Number);
+    if (isNaN(h)) continue;
+    if (!r.period || r.period === 'day') {
+      await scheduleReminder(med.id, med.generic_name, med.dose, h, m, r.with_sound, r.repeat_interval).catch(() => {});
+    } else if (r.period.startsWith('week:')) {
+      const wds = r.period.split(':')[1].split(',').map(Number);
+      await scheduleReminderWeekly(med.id, med.generic_name, med.dose, wds, h, m, r.with_sound, r.repeat_interval).catch(() => {});
+    } else if (r.period.startsWith('month:')) {
+      const days = r.period.split(':')[1].split(',').map(Number);
+      await scheduleReminderMonthly(med.id, med.generic_name, med.dose, days, h, m, r.with_sound, r.repeat_interval).catch(() => {});
+    } else if (r.period.startsWith('nmonths:')) {
+      const [, nStr, dStr] = r.period.split(':');
+      await scheduleReminderEveryNMonths(med.id, med.generic_name, med.dose, parseInt(nStr), parseInt(dStr), h, m, r.with_sound, r.repeat_interval).catch(() => {});
+    }
+  }
+}
+
+export async function rescheduleAllActiveNotifications(): Promise<void> {
+  try {
+    const [meds, acts] = await Promise.all([getMedications(), getActivities()]);
+    await Promise.all(meds.map(async med => {
+      const reminders = await getRemindersForMedication(med.id).catch(() => [] as MedicationReminder[]);
+      await rescheduleRemindersForMedication(med, reminders);
+    }));
+    await Promise.all(acts.map(async act => {
+      const reminders = await getRemindersForActivity(act.id).catch(() => []);
+      await rescheduleRemindersForActivity(act.id, act.name, reminders);
+    }));
+  } catch {}
+}
+
+export async function rescheduleRemindersForActivity(
+  activityId: number,
+  activityName: string,
+  reminders: ActivityReminder[],
+): Promise<void> {
+  for (const r of reminders) {
+    if (!r.is_active) continue;
+    const [h, m] = r.time.split(':').map(Number);
+    if (isNaN(h)) continue;
+    await scheduleActivityReminder(activityId, activityName, h, m, r.with_sound ?? true).catch(() => {});
+  }
 }
 
 Notifications.setNotificationHandler({

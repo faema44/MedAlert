@@ -6,15 +6,22 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getContacts, addContact, updateContact, deleteContact } from '../database/db';
-import { EmergencyContact } from '../types';
+import { getContacts, addContact, updateContact, deleteContact, getMedications, getProfile } from '../database/db';
+import { EmergencyContact, Medication } from '../types';
 
 const EMPTY: Omit<EmergencyContact, 'id'> = {
-  name: '', phone: '', relationship: '', is_primary: false,
+  name: '', phone: '', relationship: '', is_primary: false, is_doctor: false,
 };
 
 function getInitials(name: string): string {
   return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+}
+
+function buildWhatsAppNumber(phone: string): string {
+  let digits = phone.replace(/\D/g, '');
+  if (digits.startsWith('0')) digits = digits.substring(1);
+  if (!digits.startsWith('55')) digits = '55' + digits;
+  return digits;
 }
 
 export default function ContactsScreen() {
@@ -23,6 +30,12 @@ export default function ContactsScreen() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(EMPTY);
   const [editingId, setEditingId] = useState<number | null>(null);
+
+  // WhatsApp modal state
+  const [waContact, setWaContact] = useState<EmergencyContact | null>(null);
+  const [waMeds, setWaMeds] = useState<Medication[]>([]);
+  const [waSelected, setWaSelected] = useState<Set<number>>(new Set());
+  const [waReceita, setWaReceita] = useState<Set<number>>(new Set());
 
   const load = useCallback(async () => {
     setContacts(await getContacts());
@@ -37,7 +50,7 @@ export default function ContactsScreen() {
   }
 
   function openEdit(item: EmergencyContact) {
-    setForm({ name: item.name, phone: item.phone, relationship: item.relationship, is_primary: item.is_primary });
+    setForm({ name: item.name, phone: item.phone, relationship: item.relationship, is_primary: item.is_primary, is_doctor: item.is_doctor });
     setEditingId(item.id);
     setShowModal(true);
   }
@@ -72,6 +85,68 @@ export default function ContactsScreen() {
     Linking.openURL(`tel:${phone.replace(/\D/g, '')}`);
   }
 
+  async function openWaModal(contact: EmergencyContact) {
+    const meds = await getMedications();
+    setWaContact(contact);
+    setWaMeds(meds);
+    const all = new Set(meds.map(m => m.id));
+    setWaSelected(all);
+    setWaReceita(new Set());
+  }
+
+  async function sendWhatsApp() {
+    if (!waContact) return;
+    const profile = await getProfile();
+    const selected = waMeds.filter(m => waSelected.has(m.id));
+
+    const medLines = selected.map(m => {
+      const name = m.commercial_name ? `${m.generic_name} (${m.commercial_name})` : m.generic_name;
+      const dose = m.dose ? ` – ${m.dose}` : '';
+      const receita = waReceita.has(m.id) ? ' ✦ solicito receita' : '';
+      return `💊 ${name}${dose}${receita}`;
+    }).join('\n');
+
+    const patient = profile?.name ? `\n\nAtenciosamente,\n${profile.name}` : '';
+
+    let message: string;
+    if (waContact.is_doctor) {
+      const needReceita = selected.filter(m => waReceita.has(m.id));
+      const receitaNote = needReceita.length > 0
+        ? `\n\nSolicito receita para: ${needReceita.map(m => m.generic_name).join(', ')}.`
+        : '';
+      message = `Olá, ${waContact.name}!\n\nSegue a lista dos meus medicamentos em uso:\n\n${medLines}${receitaNote}${patient}`;
+    } else {
+      message = `Olá, ${waContact.name}!\n\nSegue a lista dos meus medicamentos em uso:\n\n${medLines}${patient}`;
+    }
+
+    const digits = buildWhatsAppNumber(waContact.phone);
+    const url = `whatsapp://send?phone=${digits}&text=${encodeURIComponent(message)}`;
+    const canOpen = await Linking.canOpenURL(url).catch(() => false);
+    setWaContact(null);
+    if (canOpen) {
+      Linking.openURL(url);
+    } else {
+      Linking.openURL(`https://wa.me/${digits}?text=${encodeURIComponent(message)}`);
+    }
+  }
+
+  function toggleWaSelected(id: number) {
+    setWaSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) { next.delete(id); setWaReceita(r => { const nr = new Set(r); nr.delete(id); return nr; }); }
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleWaReceita(id: number) {
+    setWaReceita(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
   return (
     <View style={styles.container}>
       <FlatList
@@ -86,14 +161,12 @@ export default function ContactsScreen() {
         }
         renderItem={({ item }) => (
           <View style={[styles.card, item.is_primary && styles.cardPrimary]}>
-            {/* Avatar */}
             <View style={[styles.avatar, item.is_primary && styles.avatarPrimary]}>
               <Text style={[styles.avatarText, item.is_primary && styles.avatarTextPrimary]}>
                 {getInitials(item.name)}
               </Text>
             </View>
 
-            {/* Info */}
             <View style={styles.cardInfo}>
               <View style={styles.nameRow}>
                 <Text style={styles.contactName}>{item.name}</Text>
@@ -102,15 +175,22 @@ export default function ContactsScreen() {
                     <Text style={styles.primaryBadgeText}>Principal</Text>
                   </View>
                 )}
+                {item.is_doctor && (
+                  <View style={styles.doctorBadge}>
+                    <Text style={styles.doctorBadgeText}>Médico</Text>
+                  </View>
+                )}
               </View>
               {item.relationship ? <Text style={styles.contactRelation}>{item.relationship}</Text> : null}
               <Text style={styles.contactPhone}>{item.phone}</Text>
             </View>
 
-            {/* Actions */}
             <View style={styles.cardActions}>
               <TouchableOpacity style={styles.callBtn} onPress={() => handleCall(item.phone)}>
                 <Text style={styles.callBtnText}>Ligar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.waBtn} onPress={() => openWaModal(item)}>
+                <Text style={styles.waBtnText}>💬</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.editBtn} onPress={() => openEdit(item)}>
                 <Text style={styles.editBtnText}>✏️</Text>
@@ -127,6 +207,7 @@ export default function ContactsScreen() {
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 
+      {/* Contact form modal */}
       <Modal visible={showModal} animationType="slide" transparent>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <View style={styles.modalOverlay}>
@@ -159,7 +240,7 @@ export default function ContactsScreen() {
               style={styles.fieldInput}
               value={form.relationship}
               onChangeText={v => setForm(f => ({ ...f, relationship: v }))}
-              placeholder="Ex: Esposa, Médico Dr. Silva, Filha..."
+              placeholder="Ex: Esposa, Dr. Silva, Filha..."
               autoCapitalize="sentences"
             />
 
@@ -168,6 +249,15 @@ export default function ContactsScreen() {
               <Switch
                 value={form.is_primary}
                 onValueChange={v => setForm(f => ({ ...f, is_primary: v }))}
+                trackColor={{ true: '#1C3F7A', false: '#ccc' }}
+              />
+            </View>
+
+            <View style={styles.primaryRow}>
+              <Text style={styles.primaryLabel}>É médico 🩺</Text>
+              <Switch
+                value={form.is_doctor}
+                onValueChange={v => setForm(f => ({ ...f, is_doctor: v }))}
                 trackColor={{ true: '#1C3F7A', false: '#ccc' }}
               />
             </View>
@@ -183,6 +273,63 @@ export default function ContactsScreen() {
           </ScrollView>
         </View>
         </KeyboardAvoidingView>
+      </Modal>
+
+      {/* WhatsApp modal */}
+      <Modal visible={!!waContact} animationType="slide" transparent onRequestClose={() => setWaContact(null)}>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalBox, { paddingBottom: insets.bottom + 24 }]}>
+            <Text style={styles.modalTitle}>
+              {waContact?.is_doctor ? '💬 Mensagem para Médico' : '💬 Enviar no WhatsApp'}
+            </Text>
+            <Text style={styles.waSubtitle}>
+              {waContact?.name} · {waContact?.is_doctor ? 'Marque os medicamentos e solicite receitas' : 'Selecione os medicamentos'}
+            </Text>
+
+            {waMeds.length === 0 ? (
+              <Text style={styles.waEmpty}>Nenhum medicamento cadastrado.</Text>
+            ) : (
+              <ScrollView style={styles.waMedList}>
+                {waContact?.is_doctor && (
+                  <View style={styles.waHeader}>
+                    <Text style={[styles.waHeaderCell, { flex: 1 }]}>Medicamento</Text>
+                    <Text style={styles.waHeaderCell}>Receita</Text>
+                  </View>
+                )}
+                {waMeds.map(m => (
+                  <View key={m.id} style={styles.waMedRow}>
+                    <TouchableOpacity style={styles.waCheckRow} onPress={() => toggleWaSelected(m.id)}>
+                      <View style={[styles.waCheck, waSelected.has(m.id) && styles.waCheckActive]}>
+                        {waSelected.has(m.id) && <Text style={styles.waCheckMark}>✓</Text>}
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.waMedName}>{m.generic_name}</Text>
+                        {!!m.dose && <Text style={styles.waMedDose}>{m.dose}</Text>}
+                      </View>
+                    </TouchableOpacity>
+                    {waContact?.is_doctor && (
+                      <TouchableOpacity
+                        style={[styles.waReceitaBtn, waReceita.has(m.id) && styles.waReceitaBtnActive, !waSelected.has(m.id) && { opacity: 0.3 }]}
+                        onPress={() => waSelected.has(m.id) && toggleWaReceita(m.id)}
+                      >
+                        <Text style={[styles.waReceitaText, waReceita.has(m.id) && styles.waReceitaTextActive]}>Receita</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={styles.cancelBtn} onPress={() => setWaContact(null)}>
+                <Text style={styles.cancelBtnText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.saveBtn} onPress={sendWhatsApp} disabled={waSelected.size === 0}>
+                <Text style={styles.saveBtnText}>Enviar 💬</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
       </Modal>
     </View>
   );
@@ -211,18 +358,20 @@ const styles = StyleSheet.create({
   avatarTextPrimary: { color: '#fff' },
 
   cardInfo: { flex: 1 },
-  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2, flexWrap: 'wrap' },
   contactName: { fontSize: 15, fontWeight: '600', color: '#1A1F2E' },
   primaryBadge: { backgroundColor: '#EEF3FF', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
   primaryBadgeText: { fontSize: 10, color: '#1C3F7A', fontWeight: '600' },
+  doctorBadge: { backgroundColor: '#F0FFF4', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
+  doctorBadgeText: { fontSize: 10, color: '#1a6b3a', fontWeight: '600' },
   contactRelation: { fontSize: 12, color: '#8A8F9D', marginBottom: 2 },
   contactPhone: { fontSize: 13, color: '#4A5270', fontWeight: '500' },
 
   cardActions: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  callBtn: {
-    backgroundColor: '#1C3F7A', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 7,
-  },
+  callBtn: { backgroundColor: '#1C3F7A', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 7 },
   callBtnText: { fontSize: 12, color: '#fff', fontWeight: '600' },
+  waBtn: { backgroundColor: '#25D366', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7 },
+  waBtnText: { fontSize: 14 },
   editBtn: { padding: 8 },
   editBtnText: { fontSize: 17 },
   deleteBtn: { padding: 8 },
@@ -251,4 +400,28 @@ const styles = StyleSheet.create({
   cancelBtnText: { fontSize: 15, color: '#6B7280', fontWeight: '600' },
   saveBtn: { flex: 1, backgroundColor: '#1C3F7A', borderRadius: 10, padding: 14, alignItems: 'center' },
   saveBtnText: { fontSize: 15, color: '#fff', fontWeight: '700' },
+
+  // WhatsApp modal
+  waSubtitle: { fontSize: 13, color: '#8A8F9D', marginBottom: 12 },
+  waEmpty: { fontSize: 14, color: '#aaa', textAlign: 'center', paddingVertical: 20 },
+  waMedList: { maxHeight: 320 },
+  waHeader: { flexDirection: 'row', paddingBottom: 6, borderBottomWidth: 1, borderColor: '#EEF0F5', marginBottom: 4 },
+  waHeaderCell: { fontSize: 11, color: '#8A8F9D', fontWeight: '600', textAlign: 'center', minWidth: 60 },
+  waMedRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 0.5, borderColor: '#F0F0F5' },
+  waCheckRow: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  waCheck: {
+    width: 22, height: 22, borderRadius: 5, borderWidth: 1.5, borderColor: '#C0C8DC',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  waCheckActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
+  waCheckMark: { color: '#fff', fontSize: 13, fontWeight: '700' },
+  waMedName: { fontSize: 14, color: '#1A1F2E', fontWeight: '500' },
+  waMedDose: { fontSize: 12, color: '#8A8F9D' },
+  waReceitaBtn: {
+    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6,
+    borderWidth: 1, borderColor: '#C0C8DC', marginLeft: 8,
+  },
+  waReceitaBtnActive: { backgroundColor: '#E07B4F', borderColor: '#E07B4F' },
+  waReceitaText: { fontSize: 12, color: '#8A8F9D', fontWeight: '600' },
+  waReceitaTextActive: { color: '#fff' },
 });

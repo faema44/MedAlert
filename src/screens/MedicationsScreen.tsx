@@ -4,7 +4,8 @@ import {
   Modal, TextInput, Switch, Alert, ScrollView, Share,
   KeyboardAvoidingView, Platform, ActivityIndicator,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   getMedications, addMedication, updateMedication, deleteMedication,
@@ -22,91 +23,6 @@ import { Medication, MedicationReminder, DrugInteraction } from '../types';
 import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, checkInteractions, checkSubstanceInteractions, isPhytotherapic, getPhytotherapics } from '../utils/drugSearch';
 import { useBulaViewer } from '../utils/useBulaViewer';
 import { reportMissingDrug } from '../services/reportMissing';
-
-// ─── Time Picker ──────────────────────────────────────────────────────────────
-const ITEM_H = 44;
-const PICKER_VISIBLE = 5;
-const PICKER_PAD = ITEM_H * 2; // centers first/last items
-
-function PickerCol({ items, value, onChange }: {
-  items: string[]; value: number; onChange: (v: number) => void;
-}) {
-  const ref = useRef<ScrollView>(null);
-
-  useEffect(() => {
-    const id = setTimeout(() => {
-      ref.current?.scrollTo({ y: value * ITEM_H, animated: false });
-    }, 80);
-    return () => clearTimeout(id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return (
-    <View style={{ height: ITEM_H * PICKER_VISIBLE, width: 72, overflow: 'hidden' }}>
-      <ScrollView
-        ref={ref}
-        nestedScrollEnabled
-        snapToInterval={ITEM_H}
-        decelerationRate="fast"
-        showsVerticalScrollIndicator={false}
-        onMomentumScrollEnd={(e) => {
-          const idx = Math.round(e.nativeEvent.contentOffset.y / ITEM_H);
-          onChange(Math.max(0, Math.min(items.length - 1, idx)));
-        }}
-        onScrollEndDrag={(e) => {
-          const idx = Math.round(e.nativeEvent.contentOffset.y / ITEM_H);
-          onChange(Math.max(0, Math.min(items.length - 1, idx)));
-        }}
-        contentContainerStyle={{ paddingVertical: PICKER_PAD }}
-      >
-        {items.map((item, i) => (
-          <View key={i} style={{ height: ITEM_H, justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{
-              fontSize: i === value ? 26 : 18,
-              color: i === value ? '#1C3F7A' : '#C0C5D0',
-              fontWeight: i === value ? '700' : '400',
-            }}>
-              {item}
-            </Text>
-          </View>
-        ))}
-      </ScrollView>
-    </View>
-  );
-}
-
-const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
-const MINUTES = Array.from({ length: 6 }, (_, i) => String(i * 10).padStart(2, '0'));
-
-function TimePicker({ hour, minute, onChange }: {
-  hour: number; minute: number; onChange: (h: number, m: number) => void;
-}) {
-  return (
-    <View style={tpStyles.wrap}>
-      <View pointerEvents="none" style={tpStyles.selBar} />
-      <PickerCol items={HOURS} value={hour} onChange={(h) => onChange(h, minute)} />
-      <Text style={tpStyles.colon}>:</Text>
-      <PickerCol items={MINUTES} value={minute} onChange={(m) => onChange(hour, m)} />
-    </View>
-  );
-}
-
-const tpStyles = StyleSheet.create({
-  wrap: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#F2F4F8', borderRadius: 12,
-    height: ITEM_H * PICKER_VISIBLE, overflow: 'hidden', marginTop: 4,
-  },
-  selBar: {
-    position: 'absolute',
-    top: ITEM_H * 2, left: 0, right: 0,
-    height: ITEM_H,
-    backgroundColor: 'rgba(28,63,122,0.09)',
-    borderTopWidth: 1, borderBottomWidth: 1,
-    borderColor: 'rgba(28,63,122,0.14)',
-  },
-  colon: { fontSize: 26, fontWeight: '700', color: '#1C3F7A', paddingHorizontal: 6, marginBottom: 2 },
-});
 // ──────────────────────────────────────────────────────────────────────────────
 
 function buildDoctorMessage(drugName: string, interactions: DrugInteraction[]): string {
@@ -163,7 +79,12 @@ function periodLabel(period: string, time: string): string {
   return time;
 }
 
+function fmtHM(h: number, m: number): string {
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
 function computeTimes(startTime: string, timesPerDay: number): string[] {
+  if (!startTime) return [];
   const parts = startTime.split(':');
   const h = parseInt(parts[0], 10);
   const m = parseInt(parts[1] ?? '0', 10);
@@ -198,6 +119,12 @@ export default function MedicationsScreen() {
   const [stockInput, setStockInput] = useState('');
   const [durationDays, setDurationDays] = useState('');
   const [showStockHelp, setShowStockHelp] = useState(false);
+  const [showInteractionWarning, setShowInteractionWarning] = useState(false);
+  const [stockActionMed, setStockActionMed] = useState<Medication | null>(null);
+  const [stockEditValue, setStockEditValue] = useState('');
+  useEffect(() => {
+    if (stockActionMed) setStockEditValue(String(stockActionMed.stock_quantity ?? 0));
+  }, [stockActionMed]);
 
   // Reminder state
   const [reminderHasSound, setReminderHasSound] = useState<Map<number, boolean>>(new Map());
@@ -206,11 +133,16 @@ export default function MedicationsScreen() {
   const [reminderIsDraft, setReminderIsDraft] = useState(false);
   const [reminderFromEditFlow, setReminderFromEditFlow] = useState(false);
   const [reminders, setReminders] = useState<MedicationReminder[]>([]);
-  const [pickerHour, setPickerHour] = useState(8);
-  const [pickerMinute, setPickerMinute] = useState(0);
+  const [pickerH, setPickerH] = useState<number | null>(null);
+  const [pickerM, setPickerM] = useState<number | null>(null);
+  const [customH, setCustomH] = useState<number | null>(null);
+  const [customM, setCustomM] = useState<number | null>(null);
+  const [showHorarioPicker, setShowHorarioPicker] = useState(false);
+  const [showCustomPicker, setShowCustomPicker] = useState(false);
   const [timesPerDay, setTimesPerDay] = useState(1);
   const [reminderTimes, setReminderTimes] = useState<Map<number, string[]>>(new Map());
   const [customTimes, setCustomTimes] = useState('');
+  const [specificModeActive, setSpecificModeActive] = useState(false);
   const [withSound, setWithSound] = useState(true);
   const [repeatInterval, setRepeatInterval] = useState(0);
   const [reminderPeriod, setReminderPeriod] = useState<ReminderPeriod>('day');
@@ -219,16 +151,21 @@ export default function MedicationsScreen() {
   const [nMonths, setNMonths] = useState('1');
   const [monthDay, setMonthDay] = useState('1');
 
-  const startTime = `${String(pickerHour).padStart(2, '0')}:${String(pickerMinute).padStart(2, '0')}`;
+  const pickerDisplay = pickerH !== null ? fmtHM(pickerH, pickerM ?? 0) : '';
+  const customInputDisplay = customH !== null ? fmtHM(customH, customM ?? 0) : '';
+  const startTime = pickerDisplay;
   const computedTimes = useMemo(
     () => computeTimes(startTime, timesPerDay),
-    [pickerHour, pickerMinute, timesPerDay]
+    [startTime, timesPerDay]
   );
+
+  const route = useRoute<RouteProp<{ Medications: { openMedId?: number } }, 'Medications'>>();
 
   const load = useCallback(async () => {
     setLoading(true);
+    let meds: Medication[] = [];
     try {
-      const meds = await getMedications();
+      meds = await getMedications();
       setMedications(meds);
       const interactionMap = new Map<number, DrugInteraction[]>();
       const timesMap = new Map<number, string[]>();
@@ -246,9 +183,18 @@ export default function MedicationsScreen() {
       setReminderHasSound(soundMap);
     } catch {}
     setLoading(false);
+    return meds;
   }, []);
 
-  useFocusEffect(useCallback(() => { load(); }, [load]));
+  useFocusEffect(useCallback(() => {
+    const openId = route.params?.openMedId;
+    load().then(meds => {
+      if (openId) {
+        const med = meds.find(m => m.id === openId);
+        if (med) openEdit(med);
+      }
+    });
+  }, [load, route.params?.openMedId]));
 
   async function syncNotification(meds: Medication[]) {
     try {
@@ -383,17 +329,7 @@ export default function MedicationsScreen() {
       return;
     }
     if (interactions.length > 0) {
-      const lines = interactions
-        .map(i => `• ${i.drug1} + ${i.drug2}\n  ${i.risk_description}`)
-        .join('\n\n');
-      Alert.alert(
-        'Interação medicamentosa detectada',
-        `Este medicamento pode interagir com outros da sua lista:\n\n${lines}`,
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          { text: 'Salvar mesmo assim', onPress: doSave },
-        ]
-      );
+      setShowInteractionWarning(true);
       return;
     }
     await doSave();
@@ -454,7 +390,9 @@ export default function MedicationsScreen() {
   }
 
   function resetPickerState() {
-    setPickerHour(8); setPickerMinute(0); setTimesPerDay(1);
+    setPickerH(null); setPickerM(null); setCustomH(null); setCustomM(null);
+    setShowHorarioPicker(false); setShowCustomPicker(false);
+    setTimesPerDay(1); setSpecificModeActive(false);
     setCustomTimes(''); setWithSound(true); setRepeatInterval(0); setReminderPeriod('day');
     setSelectedWeekdays([2]); setSelectedMonthDays([1]); setNMonths('1'); setMonthDay('1');
   }
@@ -464,13 +402,18 @@ export default function MedicationsScreen() {
     const first = active[0] ?? rs[0];
     if (!first) { resetPickerState(); return; }
     const [h, m] = first.time.split(':').map(Number);
-    setPickerHour(h);
-    setPickerMinute(Math.round(m / 10) * 10 % 60);
+    setPickerH(h); setPickerM(m);
     setCustomTimes('');
+    setCustomH(null); setCustomM(null);
     const p = first.period ?? 'day';
     if (p === 'day') {
       setReminderPeriod('day');
-      setTimesPerDay(rs.filter(r => (r.period ?? 'day') === 'day').length || 1);
+      const dayRs = rs.filter(r => (r.period ?? 'day') === 'day');
+      setTimesPerDay(dayRs.length || 1);
+      if (dayRs.length > 1) {
+        setCustomTimes(dayRs.map(r => r.time.substring(0, 5)).join(' '));
+        setPickerH(null); setPickerM(null);
+      }
     } else if (p.startsWith('week:')) {
       setReminderPeriod('week');
       setSelectedWeekdays(p.split(':')[1].split(',').map(Number));
@@ -719,14 +662,12 @@ export default function MedicationsScreen() {
                 {item.notes ? <Text style={styles.medNotes}>{item.notes}</Text> : null}
               </TouchableOpacity>
               <TouchableOpacity
-                style={[
-                  styles.bellBtn,
-                  !((reminderTimes.get(item.id)?.length ?? 0) > 0 && (reminderHasSound.get(item.id) ?? false)) && styles.bellBtnDim,
-                  (reminderTimes.get(item.id)?.length ?? 0) > 0 && (reminderHasSound.get(item.id) ?? false) && styles.bellBtnActive,
-                ]}
+                style={styles.bellBtn}
                 onPress={() => handleToggleSound(item)}
               >
-                <Text style={styles.bellBtnText}>🔔</Text>
+                <Text style={styles.bellBtnText}>
+                  {(reminderTimes.get(item.id)?.length ?? 0) > 0 && (reminderHasSound.get(item.id) ?? false) ? '🔔' : '🔕'}
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.bulaCardBtn} onPress={() => {
                 const url = isPhytotherapic(item.generic_name)
@@ -755,12 +696,7 @@ export default function MedicationsScreen() {
                       </Text>
                       <TouchableOpacity
                         style={styles.takenBtn}
-                        onPress={async () => {
-                          const next = Math.max(0, item.stock_quantity! - 1);
-                          await updateMedicationStock(item.id, next);
-                          setMedications(prev => prev.map(m => m.id === item.id ? { ...m, stock_quantity: next } : m));
-                          if (next === 0) Alert.alert('Estoque zerado', `O estoque de ${item.generic_name} acabou. Providencie a reposição.`);
-                        }}
+                        onPress={() => setStockActionMed(item)}
                       >
                         <Text style={styles.takenBtnText}>Tomar</Text>
                       </TouchableOpacity>
@@ -1116,236 +1052,395 @@ export default function MedicationsScreen() {
               <Text style={styles.reminderMedName}>{reminderMed?.generic_name || form.generic_name}</Text>
             )}
 
+            <Text style={styles.fieldLabel}>Período</Text>
+            <View style={styles.periodRow}>
+              {(['day', 'week', 'month', 'year'] as ReminderPeriod[]).map(p => {
+                const labels: Record<ReminderPeriod, string> = { day: 'Dia', week: 'Sem.', month: 'Mês', year: 'Livre' };
+                return (
+                  <TouchableOpacity
+                    key={p}
+                    style={[styles.periodBtn, reminderPeriod === p && styles.periodBtnActive]}
+                    onPress={() => setReminderPeriod(p)}
+                  >
+                    <Text style={[styles.periodBtnText, reminderPeriod === p && styles.periodBtnTextActive]}>
+                      {labels[p]}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {reminderPeriod === 'week' && (
+              <>
+                <Text style={styles.fieldLabel}>Dias da semana (selecione um ou mais)</Text>
+                <View style={styles.weekdayRow}>
+                  {WEEKDAYS.map(wd => {
+                    const sel = selectedWeekdays.includes(wd.value);
+                    return (
+                      <TouchableOpacity
+                        key={wd.value}
+                        style={[styles.weekdayBtn, sel && styles.weekdayBtnActive]}
+                        onPress={() => setSelectedWeekdays(prev =>
+                          sel ? prev.filter(v => v !== wd.value) : [...prev, wd.value]
+                        )}
+                      >
+                        <Text style={[styles.weekdayBtnText, sel && styles.weekdayBtnTextActive]}>
+                          {wd.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </>
+            )}
+
+            {reminderPeriod === 'month' && (
+              <>
+                <Text style={styles.fieldLabel}>Dias do mês (selecione um ou mais)</Text>
+                <View style={styles.monthGrid}>
+                  {Array.from({ length: 28 }, (_, i) => i + 1).map(d => {
+                    const sel = selectedMonthDays.includes(d);
+                    return (
+                      <TouchableOpacity
+                        key={d}
+                        style={[styles.monthDayBtn, sel && styles.monthDayBtnActive]}
+                        onPress={() => setSelectedMonthDays(prev =>
+                          sel ? prev.filter(v => v !== d) : [...prev, d]
+                        )}
+                      >
+                        <Text style={[styles.monthDayBtnText, sel && styles.monthDayBtnTextActive]}>
+                          {d}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </>
+            )}
+
+            {reminderPeriod === 'year' && (
+              <>
+                <Text style={styles.fieldLabel}>Repetir a cada quantos meses</Text>
+                <TextInput
+                  style={styles.fieldInput}
+                  value={nMonths}
+                  onChangeText={setNMonths}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                />
+                <Text style={styles.fieldLabel}>No dia do mês (1–28)</Text>
+                <TextInput
+                  style={styles.fieldInput}
+                  value={monthDay}
+                  onChangeText={setMonthDay}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                />
+              </>
+            )}
+
+            <View style={styles.horarioInlineRow}>
+              <Text style={styles.fieldLabel}>Horário</Text>
+              <TouchableOpacity onPress={() => setShowHorarioPicker(true)}>
+                <Text style={[styles.timeFieldInputInline, !pickerDisplay && { color: '#C0C8DC' }]}>
+                  {pickerDisplay || '--:--'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            {showHorarioPicker && (
+              <DateTimePicker
+                value={(() => { const d = new Date(); d.setHours(pickerH ?? 8, pickerM ?? 0, 0, 0); return d; })()}
+                mode="time"
+                is24Hour={true}
+                onChange={(e, d) => {
+                  setShowHorarioPicker(false);
+                  if (e.type === 'set' && d) {
+                    setPickerH(d.getHours()); setPickerM(d.getMinutes());
+                    setCustomTimes(''); setSpecificModeActive(false);
+                  }
+                }}
+              />
+            )}
+
+            {reminderPeriod === 'day' && (
+              <>
+                <Text style={styles.fieldLabel}>Vezes por dia</Text>
+                <View style={styles.timesRow}>
+                  {TIMES_PER_DAY_OPTIONS.map(n => (
+                    <TouchableOpacity
+                      key={n}
+                      style={[styles.timesBtn, timesPerDay === n && !customTimes.trim() && styles.timesBtnActive]}
+                      onPress={() => { setTimesPerDay(n); setCustomTimes(''); setSpecificModeActive(false); }}
+                    >
+                      <Text style={[styles.timesBtnText, timesPerDay === n && !customTimes.trim() && styles.timesBtnTextActive]}>{n}x</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                <View style={styles.specificTimesRow}>
+                  <Text style={styles.specificTimesLabel}>Ou horários específicos</Text>
+                  <TouchableOpacity onPress={() => setShowCustomPicker(true)} style={{ marginLeft: 8 }}>
+                    <Text style={[styles.specificTimesInput, !customInputDisplay && { color: '#C0C8DC' }]}>
+                      {customInputDisplay || '--:--'}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.addTimeBtn}
+                    onPress={() => {
+                      if (customH === null) return;
+                      const t = fmtHM(customH, customM ?? 0);
+                      if (!specificModeActive) { setCustomTimes(''); setSpecificModeActive(true); }
+                      setCustomTimes(prev => {
+                        const base = specificModeActive ? prev.trim() : '';
+                        return base ? base + ' ' + t : t;
+                      });
+                      setPickerH(null); setPickerM(null);
+                      setCustomH(null); setCustomM(null);
+                    }}
+                  >
+                    <Text style={styles.addTimeBtnText}>+</Text>
+                  </TouchableOpacity>
+                </View>
+                {showCustomPicker && (
+                  <DateTimePicker
+                    value={(() => { const d = new Date(); d.setHours(customH ?? 8, customM ?? 0, 0, 0); return d; })()}
+                    mode="time"
+                    is24Hour={true}
+                    onChange={(e, d) => {
+                      setShowCustomPicker(false);
+                      if (e.type === 'set' && d) {
+                        setCustomH(d.getHours()); setCustomM(d.getMinutes());
+                        if (!specificModeActive) { setCustomTimes(''); setSpecificModeActive(true); }
+                      }
+                    }}
+                  />
+                )}
+
+                {customTimes.trim() && (
+                  <View style={styles.customTimesBox}>
+                    <Text style={styles.customTimesText}>{customTimes}</Text>
+                  </View>
+                )}
+
+                {(customTimes.trim() ? customTimes.split(/\s+/).filter(t => /^\d{1,2}:\d{2}$/.test(t)) : computedTimes).length > 0 && (
+                  <View style={styles.timesPreview}>
+                    <Text style={styles.timesPreviewLabel}>Horários dos avisos:</Text>
+                    <View style={styles.timesChipsRow}>
+                      {(customTimes.trim() ? customTimes.split(/\s+/).filter(t => /^\d{1,2}:\d{2}$/.test(t)) : computedTimes).map(t => (
+                        <Text key={t} style={styles.timesChip}>{t}</Text>
+                      ))}
+                    </View>
+                  </View>
+                )}
+              </>
+            )}
+
             <View style={styles.soundRow}>
-              <View>
-                <Text style={styles.soundLabel}>🔔 Alarme</Text>
-                <Text style={styles.soundHint}>{withSound ? 'Toca som ao notificar' : 'Notificações silenciosas'}</Text>
-              </View>
-              <Switch
-                value={withSound}
-                onValueChange={async (val) => {
-                  setWithSound(val);
-                  if (!reminderMed) return;
-                  await updateAllRemindersSound(reminderMed.id, val);
+              <Text style={[styles.soundLabel, { flex: 1 }]}>🔔 Alarme</Text>
+              <TouchableOpacity onPress={async () => {
+                const val = !withSound;
+                setWithSound(val);
+                if (!reminderMed) return;
+                await updateAllRemindersSound(reminderMed.id, val);
+                await cancelAllRemindersForMedication(reminderMed.id).catch(() => {});
+                const rs = await getRemindersForMedication(reminderMed.id);
+                for (const rem of rs.filter(rem => rem.is_active)) {
+                  const [h, m] = rem.time.split(':').map(Number);
+                  const p = rem.period ?? 'day';
+                  try {
+                    const ri = rem.repeat_interval ?? 0;
+                    if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, val, ri);
+                    else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, val, ri);
+                    else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, val, ri);
+                    else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, val, ri); }
+                  } catch {}
+                }
+                setReminders(rs);
+                await refreshReminderTimes(reminderMed.id);
+              }}>
+                <Text style={styles.soundBell}>{withSound ? '🔔' : '🔕'}</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.soundRow}>
+              <Text style={[styles.soundLabel, { flex: 1 }]}>🔁 Repetir alarme</Text>
+              <TouchableOpacity onPress={async () => {
+                const min = repeatInterval > 0 ? 0 : 5;
+                setRepeatInterval(min);
+                if (reminderMed) {
+                  await updateAllRemindersInterval(reminderMed.id, min);
                   await cancelAllRemindersForMedication(reminderMed.id).catch(() => {});
                   const rs = await getRemindersForMedication(reminderMed.id);
                   for (const rem of rs.filter(rem => rem.is_active)) {
                     const [h, m] = rem.time.split(':').map(Number);
                     const p = rem.period ?? 'day';
                     try {
-                      const ri = rem.repeat_interval ?? 0;
-                      if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, val, ri);
-                      else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, val, ri);
-                      else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, val, ri);
-                      else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, val, ri); }
+                      if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, rem.with_sound, min);
+                      else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, min);
+                      else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, min);
+                      else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, rem.with_sound, min); }
                     } catch {}
                   }
-                  setReminders(rs);
-                  await refreshReminderTimes(reminderMed.id);
-                }}
-                trackColor={{ true: '#1a3a6b', false: '#ccc' }}
-                thumbColor="#fff"
-              />
+                }
+              }}>
+                <Text style={styles.soundHint}>{repeatInterval > 0 ? `a cada ${repeatInterval} min` : 'desligado'}</Text>
+              </TouchableOpacity>
+              <Text style={[styles.soundHint, { marginLeft: 12 }]}>{withSound ? 'com som' : 'sem som'}</Text>
             </View>
 
-            <View style={styles.soundRow}>
-              <View>
-                <Text style={styles.soundLabel}>🔁 Repetir alarme</Text>
-                <Text style={styles.soundHint}>{repeatInterval > 0 ? `A cada ${repeatInterval} min até responder` : 'Dispara uma vez'}</Text>
-              </View>
-              <Switch
-                value={repeatInterval > 0}
-                onValueChange={async (val) => {
-                  const min = val ? 5 : 0;
-                  setRepeatInterval(min);
-                  if (reminderMed) {
-                    await updateAllRemindersInterval(reminderMed.id, min);
-                    await cancelAllRemindersForMedication(reminderMed.id).catch(() => {});
-                    const rs = await getRemindersForMedication(reminderMed.id);
-                    for (const rem of rs.filter(rem => rem.is_active)) {
-                      const [h, m] = rem.time.split(':').map(Number);
-                      const p = rem.period ?? 'day';
-                      try {
-                        if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, rem.with_sound, min);
-                        else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, min);
-                        else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, min);
-                        else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, rem.with_sound, min); }
-                      } catch {}
-                    }
-                  }
-                }}
-                trackColor={{ true: '#1a3a6b', false: '#ccc' }}
-                thumbColor="#fff"
-              />
-            </View>
-
-            {reminders.map(r => (
-              <View key={r.id} style={styles.reminderRow}>
-                <Text style={styles.reminderTime}>{periodLabel(r.period, r.time)}</Text>
-                <TouchableOpacity onPress={() => withSound && handleToggleReminderSound(r)} disabled={!withSound}>
-                  <Text style={[styles.reminderSound, !withSound && { opacity: 0.35 }]}>
-                    {r.with_sound && withSound ? '🔊' : '🔇'}
-                  </Text>
-                </TouchableOpacity>
-                <Switch
-                  value={r.is_active}
-                  onValueChange={() => handleToggleActive(r)}
-                  trackColor={{ true: '#1a3a6b', false: '#ccc' }}
-                  thumbColor="#fff"
-                  style={styles.reminderSwitch}
-                />
-                <TouchableOpacity onPress={() => handleDeleteReminder(r)} style={styles.reminderDeleteBtn}>
-                  <Text style={styles.reminderDeleteText}>✕</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-
-            <View style={[styles.addForm, reminders.length === 0 && { marginTop: 0, borderTopWidth: 0, paddingTop: 0 }]}>
-              {reminders.length > 0 && <Text style={styles.addFormTitle}>Novo lembrete</Text>}
-
-              <Text style={styles.fieldLabel}>Período</Text>
-              <View style={styles.periodRow}>
-                {(['day', 'week', 'month', 'year'] as ReminderPeriod[]).map(p => {
-                  const labels: Record<ReminderPeriod, string> = { day: 'Dia', week: 'Sem.', month: 'Mês', year: 'Livre' };
-                  return (
-                    <TouchableOpacity
-                      key={p}
-                      style={[styles.periodBtn, reminderPeriod === p && styles.periodBtnActive]}
-                      onPress={() => setReminderPeriod(p)}
-                    >
-                      <Text style={[styles.periodBtnText, reminderPeriod === p && styles.periodBtnTextActive]}>
-                        {labels[p]}
-                      </Text>
+            {(() => {
+              const makeRow = (t: string, saved?: MedicationReminder) => (
+                <View key={t} style={styles.reminderRow}>
+                  <Text style={[styles.soundLabel, { flex: 1 }]}>{t}</Text>
+                  <Switch
+                    value={saved ? saved.is_active : true}
+                    onValueChange={saved ? () => handleToggleActive(saved) : () => {}}
+                    trackColor={{ true: '#1a3a6b', false: '#ccc' }}
+                    thumbColor="#fff"
+                  />
+                  {saved ? (
+                    <TouchableOpacity onPress={() => handleToggleReminderSound(saved)} style={styles.reminderBellBtn}>
+                      <Text style={styles.soundBell}>{saved.with_sound ? '🔔' : '🔕'}</Text>
                     </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              {reminderPeriod === 'week' && (
-                <>
-                  <Text style={styles.fieldLabel}>Dias da semana (selecione um ou mais)</Text>
-                  <View style={styles.weekdayRow}>
-                    {WEEKDAYS.map(wd => {
-                      const sel = selectedWeekdays.includes(wd.value);
-                      return (
-                        <TouchableOpacity
-                          key={wd.value}
-                          style={[styles.weekdayBtn, sel && styles.weekdayBtnActive]}
-                          onPress={() => setSelectedWeekdays(prev =>
-                            sel ? prev.filter(v => v !== wd.value) : [...prev, wd.value]
-                          )}
-                        >
-                          <Text style={[styles.weekdayBtnText, sel && styles.weekdayBtnTextActive]}>
-                            {wd.label}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                </>
-              )}
-
-              {reminderPeriod === 'month' && (
-                <>
-                  <Text style={styles.fieldLabel}>Dias do mês (selecione um ou mais)</Text>
-                  <View style={styles.monthGrid}>
-                    {Array.from({ length: 28 }, (_, i) => i + 1).map(d => {
-                      const sel = selectedMonthDays.includes(d);
-                      return (
-                        <TouchableOpacity
-                          key={d}
-                          style={[styles.monthDayBtn, sel && styles.monthDayBtnActive]}
-                          onPress={() => setSelectedMonthDays(prev =>
-                            sel ? prev.filter(v => v !== d) : [...prev, d]
-                          )}
-                        >
-                          <Text style={[styles.monthDayBtnText, sel && styles.monthDayBtnTextActive]}>
-                            {d}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                </>
-              )}
-
-              {reminderPeriod === 'year' && (
-                <>
-                  <Text style={styles.fieldLabel}>Repetir a cada quantos meses</Text>
-                  <TextInput
-                    style={styles.fieldInput}
-                    value={nMonths}
-                    onChangeText={setNMonths}
-                    keyboardType="number-pad"
-                    maxLength={2}
-                  />
-                  <Text style={styles.fieldLabel}>No dia do mês (1–28)</Text>
-                  <TextInput
-                    style={styles.fieldInput}
-                    value={monthDay}
-                    onChangeText={setMonthDay}
-                    keyboardType="number-pad"
-                    maxLength={2}
-                  />
-                </>
-              )}
-
-              <Text style={styles.fieldLabel}>Horário</Text>
-              <TimePicker
-                hour={pickerHour}
-                minute={pickerMinute}
-                onChange={(h, m) => { setPickerHour(h); setPickerMinute(m); }}
-              />
-
-              {reminderPeriod === 'day' && (
-                <>
-                  <Text style={styles.fieldLabel}>Vezes por dia</Text>
-                  <View style={styles.timesRow}>
-                    {TIMES_PER_DAY_OPTIONS.map(n => (
-                      <TouchableOpacity
-                        key={n}
-                        style={[styles.timesBtn, timesPerDay === n && !customTimes.trim() && styles.timesBtnActive]}
-                        onPress={() => { setTimesPerDay(n); setCustomTimes(''); }}
-                      >
-                        <Text style={[styles.timesBtnText, timesPerDay === n && !customTimes.trim() && styles.timesBtnTextActive]}>{n}x</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-
-                  <Text style={styles.fieldLabel}>Outro valor ou horários específicos</Text>
-                  <TextInput
-                    style={styles.fieldInput}
-                    value={customTimes}
-                    onChangeText={setCustomTimes}
-                  />
-
-                  {!customTimes.trim() && computedTimes.length > 0 && (
-                    <View style={styles.timesPreview}>
-                      <Text style={styles.timesPreviewLabel}>Horários dos avisos:</Text>
-                      <Text style={styles.timesPreviewValue}>{computedTimes.join('  •  ')}</Text>
-                    </View>
+                  ) : (
+                    <Text style={[styles.soundBell, styles.reminderBellBtn]}>{withSound ? '🔔' : '🔕'}</Text>
                   )}
-                </>
-              )}
+                </View>
+              );
 
-              <View style={styles.modalActions}>
-                <TouchableOpacity style={styles.cancelBtn} onPress={() => {
-                  const goBack = reminderIsDraft || reminderFromEditFlow;
-                  setShowReminderModal(false);
-                  setReminderFromEditFlow(false);
-                  if (goBack) setTimeout(() => setShowModal(true), 100);
-                }}>
-                  <Text style={styles.cancelBtnText}>Fechar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.saveBtn} onPress={handleSaveReminder}>
-                  <Text style={styles.saveBtnText}>Salvar</Text>
-                </TouchableOpacity>
-              </View>
+              if (reminderPeriod === 'day') {
+                const previewTimes = customTimes.trim()
+                  ? customTimes.split(/\s+/).filter(t => /^\d{1,2}:\d{2}$/.test(t))
+                  : computedTimes;
+                const effectiveTimes = previewTimes.length > 0
+                  ? previewTimes
+                  : reminders.filter(r => (r.period ?? 'day') === 'day').map(r => r.time);
+                return effectiveTimes.map(t => {
+                  const saved = reminders.find(r => r.time === t && (r.period ?? 'day') === 'day');
+                  return makeRow(t, saved);
+                });
+              }
+              const matchesPeriod = (p: string) => {
+                const pp = p ?? 'day';
+                if (reminderPeriod === 'week') return pp.startsWith('week:');
+                if (reminderPeriod === 'month') return pp.startsWith('month:');
+                if (reminderPeriod === 'year') return pp.startsWith('nmonths:');
+                return pp === 'day';
+              };
+              return reminders.filter(r => matchesPeriod(r.period ?? 'day')).map(r => makeRow(periodLabel(r.period, r.time), r));
+            })()}
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={styles.cancelBtn} onPress={() => {
+                const goBack = reminderIsDraft || reminderFromEditFlow;
+                setShowReminderModal(false);
+                setReminderFromEditFlow(false);
+                if (goBack) setTimeout(() => setShowModal(true), 100);
+              }}>
+                <Text style={styles.cancelBtnText}>Fechar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.saveBtn} onPress={handleSaveReminder}>
+                <Text style={styles.saveBtnText}>Salvar</Text>
+              </TouchableOpacity>
             </View>
           </ScrollView>
         </View>
         </KeyboardAvoidingView>
       </Modal>
+      {/* Interaction warning modal */}
+      <Modal visible={showInteractionWarning} animationType="slide" transparent onRequestClose={() => setShowInteractionWarning(false)}>
+        <View style={styles.intModalOverlay}>
+          <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
+            <Text style={styles.intModalTitle}>Interação com outro medicamento</Text>
+            <ScrollView style={{ maxHeight: 240 }} showsVerticalScrollIndicator={false}>
+              {interactions.map(i => {
+                const c = i.risk_level === 'critical' ? '#CC0000' : i.risk_level === 'high' ? '#e65c00' : '#b58900';
+                const lbl = i.risk_level === 'critical' ? 'Crítico' : i.risk_level === 'high' ? 'Alto' : 'Moderado';
+                return (
+                  <View key={i.id} style={[styles.iwItem, { borderLeftColor: c }]}>
+                    <View style={[styles.intModalBadge, { borderColor: c, marginBottom: 4 }]}>
+                      <Text style={[styles.intModalBadgeText, { color: c }]}>{lbl}</Text>
+                    </View>
+                    <Text style={styles.intModalDrugs}>{i.drug1} + {i.drug2}</Text>
+                    <Text style={styles.intModalDesc}>{i.risk_description}</Text>
+                  </View>
+                );
+              })}
+            </ScrollView>
+            <Text style={styles.iwAdviceText}>Informe seu médico.</Text>
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowInteractionWarning(false)}>
+                <Text style={styles.cancelBtnText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.saveBtn} onPress={() => { setShowInteractionWarning(false); doSave(); }}>
+                <Text style={styles.saveBtnText}>Salvar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Stock action modal */}
+      <Modal visible={!!stockActionMed} animationType="slide" transparent onRequestClose={() => setStockActionMed(null)}>
+        <View style={styles.intModalOverlay}>
+          <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
+            <Text style={styles.intModalTitle}>💊 {stockActionMed?.generic_name}</Text>
+
+            <TouchableOpacity
+              style={styles.stockActionBtn}
+              onPress={async () => {
+                if (!stockActionMed) return;
+                const next = Math.max(0, (stockActionMed.stock_quantity ?? 0) - 1);
+                await updateMedicationStock(stockActionMed.id, next);
+                setMedications(prev => prev.map(m => m.id === stockActionMed.id ? { ...m, stock_quantity: next } : m));
+                setStockActionMed(null);
+                if (next === 0) Alert.alert('Estoque zerado', `O estoque de ${stockActionMed.generic_name} acabou. Providencie a reposição.`);
+              }}
+            >
+              <Text style={styles.stockActionBtnText}>✓ Informar Tomei</Text>
+              <Text style={styles.stockActionBtnHint}>Desconta 1 do estoque atual ({stockActionMed?.stock_quantity ?? 0} restante{stockActionMed?.stock_quantity !== 1 ? 's' : ''})</Text>
+            </TouchableOpacity>
+
+            <View style={styles.stockActionEditRow}>
+              <Text style={styles.stockActionEditLabel}>Alterar quantidade de estoque</Text>
+              <View style={styles.stockActionEditInputRow}>
+                <TextInput
+                  style={styles.stockActionEditInput}
+                  value={stockEditValue}
+                  onChangeText={setStockEditValue}
+                  keyboardType="number-pad"
+                  placeholder="0"
+                  placeholderTextColor="#bbb"
+                />
+                <TouchableOpacity
+                  style={styles.stockActionSaveBtn}
+                  onPress={async () => {
+                    if (!stockActionMed) return;
+                    const qty = parseInt(stockEditValue, 10);
+                    if (isNaN(qty) || qty < 0) { Alert.alert('Valor inválido', 'Informe um número maior ou igual a zero.'); return; }
+                    await updateMedicationStock(stockActionMed.id, qty);
+                    setMedications(prev => prev.map(m => m.id === stockActionMed.id ? { ...m, stock_quantity: qty } : m));
+                    setStockActionMed(null);
+                  }}
+                >
+                  <Text style={styles.stockActionSaveBtnText}>Salvar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.stockActionInfo}>
+              <Text style={styles.stockActionInfoText}>
+                O estoque é descontado automaticamente ao tocar em <Text style={{ fontWeight: '700' }}>Tomei</Text> no alarme ou em <Text style={{ fontWeight: '700' }}>Tomar</Text> aqui. Use <Text style={{ fontWeight: '700' }}>Alterar quantidade</Text> para corrigir o valor quando comprar mais medicamento.
+              </Text>
+            </View>
+
+            <TouchableOpacity style={styles.intModalClose} onPress={() => setStockActionMed(null)}>
+              <Text style={styles.intModalCloseText}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       {bulaModal}
 
       <Modal visible={!!interactionModal} animationType="slide" transparent onRequestClose={() => setInteractionModal(null)}>
@@ -1488,9 +1583,14 @@ const styles = StyleSheet.create({
   },
   intModalCloseText: { fontSize: 15, color: '#fff', fontWeight: '700' },
   bellBtn: { padding: 8, marginLeft: 4, borderRadius: 8 },
-  bellBtnDim: { opacity: 0.28 },
-  bellBtnActive: { backgroundColor: 'rgba(28,63,122,0.12)' },
   bellBtnText: { fontSize: 18 },
+  horarioInlineRow: {
+    flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 4, gap: 12,
+  },
+  timeFieldInputInline: {
+    fontSize: 20, fontWeight: '700', color: '#1C3F7A',
+    paddingVertical: 2, minWidth: 72, letterSpacing: 2, textAlign: 'center',
+  },
   freqField: {
     borderWidth: 1, borderColor: '#ddd', borderRadius: 8,
     paddingHorizontal: 12, paddingVertical: 12, backgroundColor: '#fafafa', minHeight: 44,
@@ -1631,17 +1731,44 @@ const styles = StyleSheet.create({
   timesBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
   timesBtnText: { fontSize: 14, color: '#555', fontWeight: '600' },
   timesBtnTextActive: { color: '#fff' },
+  specificTimesRow: {
+    flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',
+    marginTop: 12, marginBottom: 4,
+  },
+  specificTimesLabel: { fontSize: 13, color: '#555', fontWeight: '600' },
+  specificTimesDivider: { fontSize: 13, color: '#888' },
+  specificTimesInput: {
+    fontSize: 16, fontWeight: '700', color: '#1C3F7A',
+    textAlign: 'center', minWidth: 56, paddingVertical: 1,
+  },
+  addTimeBtn: {
+    marginLeft: 8, backgroundColor: '#1C3F7A', borderRadius: 6,
+    width: 30, height: 30, alignItems: 'center', justifyContent: 'center',
+  },
+  addTimeBtnText: { color: '#fff', fontSize: 20, fontWeight: '700', lineHeight: 26 },
+  customTimesBox: {
+    backgroundColor: '#F2F4F8', borderRadius: 8, padding: 10, marginTop: 4,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.1)',
+  },
+  customTimesText: { fontSize: 15, color: '#1C3F7A', fontWeight: '600', letterSpacing: 1 },
+  timesChipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 },
+  timesChip: {
+    backgroundColor: '#1C3F7A', color: '#fff', borderRadius: 6,
+    paddingHorizontal: 10, paddingVertical: 3, fontSize: 14, fontWeight: '700',
+  },
   timesPreview: {
     backgroundColor: '#f0f4ff', borderRadius: 8, padding: 12, marginTop: 12,
   },
   timesPreviewLabel: { fontSize: 12, color: '#888', marginBottom: 4 },
   timesPreviewValue: { fontSize: 16, color: '#1a3a6b', fontWeight: '700', letterSpacing: 1 },
   soundRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    flexDirection: 'row', alignItems: 'center',
     marginTop: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f0f0f0',
   },
   soundLabel: { fontSize: 15, fontWeight: '600', color: '#333' },
-  soundHint: { fontSize: 12, color: '#999', marginTop: 2 },
+  soundHint: { fontSize: 12, color: '#999' },
+  soundBell: { fontSize: 24 },
+  reminderBellBtn: { paddingLeft: 12 },
   typeRow: { flexDirection: 'row', gap: 8, marginTop: 12, marginBottom: 4 },
   typeBtn: {
     flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 10,
@@ -1660,4 +1787,37 @@ const styles = StyleSheet.create({
   },
   phytoCardName: { fontSize: 13, fontWeight: '700', color: '#1a6b3a', marginBottom: 2 },
   phytoCardScientific: { fontSize: 10, color: '#5a9a6a', fontStyle: 'italic' },
+  iwLevelBadge: {
+    borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6,
+    alignSelf: 'flex-start', marginBottom: 12,
+  },
+  iwLevelText: { fontSize: 13, fontWeight: '700' },
+  iwItem: {
+    borderLeftWidth: 3, borderRadius: 8, padding: 10, marginBottom: 8, backgroundColor: '#fafafa',
+  },
+  iwAdviceText: { fontSize: 14, color: '#555', marginTop: 12, marginBottom: 4 },
+  stockActionBtn: {
+    backgroundColor: '#1C3F7A', borderRadius: 10, padding: 16, marginBottom: 12,
+  },
+  stockActionBtnText: { fontSize: 15, color: '#fff', fontWeight: '700' },
+  stockActionBtnHint: { fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 3 },
+  stockActionEditRow: {
+    borderWidth: 1, borderColor: '#ddd', borderRadius: 10, padding: 12, marginBottom: 12,
+  },
+  stockActionEditLabel: { fontSize: 13, fontWeight: '600', color: '#1C3F7A', marginBottom: 8 },
+  stockActionEditInputRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  stockActionEditInput: {
+    flex: 1, borderWidth: 1, borderColor: '#ddd', borderRadius: 8,
+    paddingHorizontal: 12, paddingVertical: 10, fontSize: 18, color: '#222',
+    backgroundColor: '#fafafa', textAlign: 'center',
+  },
+  stockActionSaveBtn: {
+    backgroundColor: '#E07B4F', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 10,
+  },
+  stockActionSaveBtnText: { fontSize: 14, color: '#fff', fontWeight: '700' },
+  stockActionInfo: {
+    backgroundColor: '#FFF8E7', borderRadius: 8, padding: 12, marginBottom: 14,
+    borderLeftWidth: 3, borderLeftColor: '#E07B4F',
+  },
+  stockActionInfoText: { fontSize: 12, color: '#7a5200', lineHeight: 18 },
 });

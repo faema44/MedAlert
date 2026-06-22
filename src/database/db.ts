@@ -1,5 +1,5 @@
 import * as SQLite from 'expo-sqlite';
-import { Profile, Medication, EmergencyContact, MedicationReminder } from '../types';
+import { Profile, Medication, EmergencyContact, MedicationReminder, Activity, ActivityReminder, ActivityType, Appointment } from '../types';
 
 let db: SQLite.SQLiteDatabase | null = null;
 let dbInitPromise: Promise<SQLite.SQLiteDatabase> | null = null;
@@ -63,6 +63,43 @@ async function initSchema(database: SQLite.SQLiteDatabase): Promise<void> {
       value TEXT NOT NULL,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS activities (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      type TEXT NOT NULL DEFAULT 'custom',
+      name TEXT NOT NULL,
+      notes TEXT DEFAULT '',
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS activity_reminders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      activity_id INTEGER NOT NULL,
+      time TEXT NOT NULL,
+      is_active INTEGER DEFAULT 1,
+      FOREIGN KEY (activity_id) REFERENCES activities(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS appointments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      doctor_name TEXT NOT NULL,
+      specialty TEXT DEFAULT '',
+      date TEXT NOT NULL,
+      time TEXT NOT NULL DEFAULT '08:00',
+      location TEXT DEFAULT '',
+      notes TEXT DEFAULT '',
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS activity_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      activity_id INTEGER,
+      activity_name TEXT NOT NULL,
+      activity_type TEXT NOT NULL DEFAULT 'custom',
+      realized INTEGER DEFAULT 1,
+      value TEXT DEFAULT '',
+      logged_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
   `);
 }
 
@@ -78,6 +115,20 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
   } catch {}
   try {
     await database.execAsync('ALTER TABLE medication_reminders ADD COLUMN repeat_interval INTEGER DEFAULT 0');
+  } catch {}
+  // Add with_sound to activity_reminders
+  try {
+    await database.execAsync('ALTER TABLE activity_reminders ADD COLUMN with_sound INTEGER DEFAULT 1');
+  } catch {}
+  // Repair: restore is_active=1 for reminders broken by previous bell-mute implementation
+  try {
+    await database.execAsync('UPDATE medication_reminders SET is_active=1 WHERE is_active=0');
+  } catch {}
+  try {
+    await database.execAsync('UPDATE activity_reminders SET is_active=1 WHERE is_active=0');
+  } catch {}
+  try {
+    await database.execAsync('ALTER TABLE emergency_contacts ADD COLUMN is_doctor INTEGER DEFAULT 0');
   } catch {}
 }
 
@@ -157,7 +208,7 @@ export async function getContacts(): Promise<EmergencyContact[]> {
   const rows = await database.getAllAsync<EmergencyContact>(
     'SELECT * FROM emergency_contacts ORDER BY is_primary DESC, name ASC'
   );
-  return rows.map(r => ({ ...r, is_primary: Boolean(r.is_primary) }));
+  return rows.map(r => ({ ...r, is_primary: Boolean(r.is_primary), is_doctor: Boolean((r as any).is_doctor) }));
 }
 
 export async function addContact(contact: Omit<EmergencyContact, 'id'>): Promise<void> {
@@ -166,8 +217,8 @@ export async function addContact(contact: Omit<EmergencyContact, 'id'>): Promise
     await database.runAsync('UPDATE emergency_contacts SET is_primary=0');
   }
   await database.runAsync(
-    `INSERT INTO emergency_contacts (name, phone, relationship, is_primary) VALUES (?, ?, ?, ?)`,
-    [contact.name, contact.phone, contact.relationship, contact.is_primary ? 1 : 0]
+    `INSERT INTO emergency_contacts (name, phone, relationship, is_primary, is_doctor) VALUES (?, ?, ?, ?, ?)`,
+    [contact.name, contact.phone, contact.relationship, contact.is_primary ? 1 : 0, contact.is_doctor ? 1 : 0]
   );
 }
 
@@ -177,8 +228,8 @@ export async function updateContact(contact: EmergencyContact): Promise<void> {
     await database.runAsync('UPDATE emergency_contacts SET is_primary=0 WHERE id != ?', [contact.id]);
   }
   await database.runAsync(
-    `UPDATE emergency_contacts SET name=?, phone=?, relationship=?, is_primary=? WHERE id=?`,
-    [contact.name, contact.phone, contact.relationship, contact.is_primary ? 1 : 0, contact.id]
+    `UPDATE emergency_contacts SET name=?, phone=?, relationship=?, is_primary=?, is_doctor=? WHERE id=?`,
+    [contact.name, contact.phone, contact.relationship, contact.is_primary ? 1 : 0, contact.is_doctor ? 1 : 0, contact.id]
   );
 }
 
@@ -233,6 +284,21 @@ export async function updateReminderSound(id: number, withSound: boolean): Promi
   await database.runAsync('UPDATE medication_reminders SET with_sound=? WHERE id=?', [withSound ? 1 : 0, id]);
 }
 
+export async function deleteAllRemindersForMedication(medicationId: number): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('DELETE FROM medication_reminders WHERE medication_id=?', [medicationId]);
+}
+
+export async function setAllMedicationRemindersActive(medicationId: number, isActive: boolean): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('UPDATE medication_reminders SET is_active=? WHERE medication_id=?', [isActive ? 1 : 0, medicationId]);
+}
+
+export async function setAllActivityRemindersActive(activityId: number, isActive: boolean): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('UPDATE activity_reminders SET is_active=? WHERE activity_id=?', [isActive ? 1 : 0, activityId]);
+}
+
 export async function updateAllRemindersInterval(medicationId: number, intervalMinutes: number): Promise<void> {
   const database = await getDb();
   await database.runAsync('UPDATE medication_reminders SET repeat_interval=? WHERE medication_id=?', [intervalMinutes, medicationId]);
@@ -271,4 +337,131 @@ export async function getKVAge(key: string): Promise<number> {
     [key]
   );
   return row?.days ?? 999;
+}
+
+// Activities
+export async function getActivities(): Promise<Activity[]> {
+  const database = await getDb();
+  const rows = await database.getAllAsync<Activity>('SELECT * FROM activities ORDER BY name ASC');
+  return rows;
+}
+
+export async function addActivity(a: Omit<Activity, 'id' | 'created_at'>): Promise<number> {
+  const database = await getDb();
+  const result = await database.runAsync(
+    'INSERT INTO activities (type, name, notes) VALUES (?, ?, ?)',
+    [a.type, a.name, a.notes ?? '']
+  );
+  return result.lastInsertRowId;
+}
+
+export async function updateActivity(a: Activity): Promise<void> {
+  const database = await getDb();
+  await database.runAsync(
+    'UPDATE activities SET type=?, name=?, notes=? WHERE id=?',
+    [a.type, a.name, a.notes ?? '', a.id]
+  );
+}
+
+export async function deleteActivity(id: number): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('DELETE FROM activities WHERE id=?', [id]);
+}
+
+// Activity Reminders
+type ActivityReminderRow = { id: number; activity_id: number; time: string; is_active: number; with_sound: number };
+
+export async function getRemindersForActivity(activityId: number): Promise<ActivityReminder[]> {
+  const database = await getDb();
+  const rows = await database.getAllAsync<ActivityReminderRow>(
+    'SELECT * FROM activity_reminders WHERE activity_id=? ORDER BY time ASC',
+    [activityId]
+  );
+  return rows.map(r => ({ ...r, is_active: Boolean(r.is_active), with_sound: r.with_sound !== 0 }));
+}
+
+export async function addActivityReminder(r: Omit<ActivityReminder, 'id'>): Promise<void> {
+  const database = await getDb();
+  await database.runAsync(
+    'INSERT INTO activity_reminders (activity_id, time, is_active, with_sound) VALUES (?, ?, 1, 1)',
+    [r.activity_id, r.time]
+  );
+}
+
+export async function updateAllActivityRemindersSound(activityId: number, withSound: boolean): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('UPDATE activity_reminders SET with_sound=? WHERE activity_id=?', [withSound ? 1 : 0, activityId]);
+}
+
+export async function deleteActivityReminder(id: number): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('DELETE FROM activity_reminders WHERE id=?', [id]);
+}
+
+export async function deleteAllRemindersForActivity(activityId: number): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('DELETE FROM activity_reminders WHERE activity_id=?', [activityId]);
+}
+
+// Appointments
+export async function getAppointments(): Promise<Appointment[]> {
+  const database = await getDb();
+  const rows = await database.getAllAsync<Appointment>(
+    "SELECT * FROM appointments ORDER BY date ASC, time ASC"
+  );
+  return rows;
+}
+
+export async function addAppointment(a: Omit<Appointment, 'id' | 'created_at'>): Promise<number> {
+  const database = await getDb();
+  const result = await database.runAsync(
+    'INSERT INTO appointments (doctor_name, specialty, date, time, location, notes) VALUES (?, ?, ?, ?, ?, ?)',
+    [a.doctor_name, a.specialty ?? '', a.date, a.time, a.location ?? '', a.notes ?? '']
+  );
+  return result.lastInsertRowId;
+}
+
+export async function updateAppointment(a: Appointment): Promise<void> {
+  const database = await getDb();
+  await database.runAsync(
+    'UPDATE appointments SET doctor_name=?, specialty=?, date=?, time=?, location=?, notes=? WHERE id=?',
+    [a.doctor_name, a.specialty ?? '', a.date, a.time, a.location ?? '', a.notes ?? '', a.id]
+  );
+}
+
+export async function deleteAppointment(id: number): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('DELETE FROM appointments WHERE id=?', [id]);
+}
+
+// Activity Logs
+export interface ActivityLog {
+  id: number;
+  activity_id: number | null;
+  activity_name: string;
+  activity_type: string;
+  realized: boolean;
+  value: string;
+  logged_at: string;
+}
+
+export async function addActivityLog(log: Omit<ActivityLog, 'id' | 'logged_at'>): Promise<void> {
+  const database = await getDb();
+  await database.runAsync(
+    `INSERT INTO activity_logs (activity_id, activity_name, activity_type, realized, value) VALUES (?, ?, ?, ?, ?)`,
+    [log.activity_id ?? null, log.activity_name, log.activity_type, log.realized ? 1 : 0, log.value],
+  );
+}
+
+export async function getActivityLogs(limit = 200): Promise<ActivityLog[]> {
+  const database = await getDb();
+  const rows = await database.getAllAsync<any>(
+    'SELECT * FROM activity_logs ORDER BY logged_at DESC LIMIT ?', [limit],
+  );
+  return rows.map(r => ({ ...r, realized: Boolean(r.realized) }));
+}
+
+export async function deleteActivityLog(id: number): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('DELETE FROM activity_logs WHERE id=?', [id]);
 }

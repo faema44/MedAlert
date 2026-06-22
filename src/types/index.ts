@@ -26,6 +26,7 @@ export interface EmergencyContact {
   phone: string;
   relationship: string;
   is_primary: boolean;
+  is_doctor: boolean;
 }
 
 export interface DrugInteraction {
@@ -53,3 +54,42 @@ export interface MedicationReminder {
 }
 
 export const BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Desconhecido'];
+
+export type ActivityType = 'water' | 'walk' | 'physio' | 'bp' | 'glucose' | 'weight' | 'custom';
+
+export const ACTIVITY_PRESETS: Record<ActivityType, { icon: string; defaultName: string }> = {
+  water:   { icon: '💧', defaultName: 'Tomar água' },
+  walk:    { icon: '🚶', defaultName: 'Caminhada' },
+  physio:  { icon: '🏋️', defaultName: 'Fisioterapia' },
+  bp:      { icon: '❤️', defaultName: 'Medir pressão' },
+  glucose: { icon: '🩸', defaultName: 'Medir glicose' },
+  weight:  { icon: '⚖️', defaultName: 'Pesar-se' },
+  custom:  { icon: '📌', defaultName: '' },
+};
+
+export interface Activity {
+  id: number;
+  type: ActivityType;
+  name: string;
+  notes: string;
+  created_at: string;
+}
+
+export interface ActivityReminder {
+  id: number;
+  activity_id: number;
+  time: string;
+  is_active: boolean;
+  with_sound: boolean;
+}
+
+export interface Appointment {
+  id: number;
+  doctor_name: string;
+  specialty: string;
+  date: string;   // "YYYY-MM-DD"
+  time: string;   // "HH:MM"
+  location: string;
+  notes: string;
+  created_at: string;
+}
