@@ -7,6 +7,12 @@ interface MedEntry {
 }
 
 let DB: MedEntry[] = [];
+// Seed synchronously at module load so suggestions work before syncMedicationsDb completes
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const bundled = require('../data/medications-db.json');
+  if (bundled?.medications?.length) DB = bundled.medications;
+} catch { /* bundled data unavailable, syncMedicationsDb will fill later */ }
 
 export function loadExternalDb(data: { version?: string; medications: MedEntry[] }): void {
   if (!data?.medications?.length) return;
