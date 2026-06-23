@@ -65,6 +65,31 @@ function isDatePast(date: string, time: string): boolean {
   return new Date(y, mo - 1, d, h, mi) < new Date();
 }
 
+// Retorna cor conforme diretrizes SBC (pressão) e SBD (glicose)
+function measureColor(type: string, value: string): string {
+  if (type === 'bp') {
+    const m = value.match(/^(\d+)\/(\d+)/);
+    if (!m) return '#1C3F7A';
+    const sys = parseInt(m[1], 10);
+    const dia = parseInt(m[2], 10);
+    if (sys > 180 || dia > 120) return '#7F1D1D'; // crise hipertensiva
+    if (sys >= 140 || dia >= 90)  return '#DC2626'; // HAS estágio 2
+    if (sys >= 130 || dia >= 80)  return '#EA580C'; // HAS estágio 1
+    if (sys >= 120)               return '#D97706'; // elevada
+    return '#16A34A';                               // ótima/normal
+  }
+  if (type === 'glucose') {
+    const m = value.match(/^(\d+)/);
+    if (!m) return '#1C3F7A';
+    const g = parseInt(m[1], 10);
+    if (g < 70)   return '#7F1D1D'; // hipoglicemia grave
+    if (g <= 99)  return '#16A34A'; // normal em jejum
+    if (g <= 125) return '#D97706'; // pré-diabetes
+    return '#DC2626';               // diabetes / hiperglicemia
+  }
+  return '#1C3F7A';
+}
+
 function fmtLogDate(logged_at: string): string {
   const d = new Date(logged_at);
   const today = new Date();
@@ -486,7 +511,7 @@ export default function AgendaScreen() {
                   <View style={styles.logsSection}>
                     {itemLogs.map(log => (
                       <View key={log.id} style={styles.logRow}>
-                        <Text style={styles.logRowValue} numberOfLines={1}>
+                        <Text style={[styles.logRowValue, { color: measureColor(item.type, log.value) }]} numberOfLines={1}>
                           {log.value || (log.realized ? '✓ Realizado' : '✗ Não realizado')}
                         </Text>
                         <Text style={styles.logRowDate}>{fmtLogDate(log.logged_at)}</Text>
