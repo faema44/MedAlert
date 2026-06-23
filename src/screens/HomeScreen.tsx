@@ -1,34 +1,95 @@
 import React, { useCallback, useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal, Switch,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Switch,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation, NavigationProp } from '@react-navigation/native';
-import { getProfile, getMedications, getKV, setKV, getRemindersForMedication } from '../database/db';
+import {
+  getProfile, getMedications, getKV, setKV,
+  getRemindersForMedication, updateAllRemindersSound,
+  getActivities, getRemindersForActivity, updateAllActivityRemindersSound,
+  getAppointments,
+} from '../database/db';
 
-type RootTabs = { Home: undefined; Profile: undefined; Medications: undefined; Contacts: undefined; Interactions: undefined };
-import { updateEmergencyNotification, cancelEmergencyNotification, nextReminderInfo, ReminderInfo } from '../services/notifications';
-import { Profile, Medication, MedicationReminder, DrugInteraction } from '../types';
-import { checkInteractions } from '../utils/drugSearch';
+type RootTabs = {
+  Home: undefined; Profile: undefined; Medications: undefined;
+  Contacts: undefined; Agenda: undefined; Interactions: undefined;
+};
 
-const KV_LOCKSCREEN_SEEN = 'lockscreen_instructions_seen';
+import {
+  updateEmergencyNotification, cancelEmergencyNotification, nextReminderInfo,
+  cancelAllRemindersForMedication, cancelAllRemindersForActivity, cancelRepeatAlarm,
+  rescheduleRemindersForMedication, rescheduleRemindersForActivity,
+} from '../services/notifications';
+import { Profile, Medication, MedicationReminder, DrugInteraction, ActivityReminder, Appointment, ACTIVITY_PRESETS } from '../types';
+import { checkInteractions, isPhytotherapic } from '../utils/drugSearch';
+
 const KV_ALERT_ACTIVE = 'alert_active';
+
+type UnifiedItem = {
+  id: number;
+  type: 'med' | 'activity' | 'appointment';
+  icon: string;
+  name: string;
+  label: string;
+  sortMs: number;
+  isMuted: boolean;
+};
+
+function appointmentInfo(appt: Appointment): { label: string; sortMs: number } | null {
+  const [y, mo, d] = appt.date.split('-').map(Number);
+  const [h, m] = appt.time.split(':').map(Number);
+  if (isNaN(y) || isNaN(h)) return null;
+  const apptMs = new Date(y, mo - 1, d, h, m).getTime();
+  if (apptMs < Date.now()) return null;
+  const now = new Date();
+  const today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const diffDays = Math.round((new Date(y, mo - 1, d).getTime() - today0) / 86400000);
+  const hh = String(h).padStart(2, '0');
+  const mm = String(m).padStart(2, '0');
+  const dayLabel = diffDays === 0 ? 'hoje' : diffDays === 1 ? 'amanhã'
+    : `${String(d).padStart(2, '0')}/${String(mo).padStart(2, '0')}`;
+  return { label: `${dayLabel} às ${hh}:${mm}`, sortMs: apptMs };
+}
+
+function nextDailyInfo(reminders: ActivityReminder[]): { label: string; sortMs: number } | null {
+  const now = new Date();
+  let bestMs = Infinity;
+  for (const r of reminders) {
+    if (!r.is_active) continue;
+    const [h, m] = r.time.split(':').map(Number);
+    if (isNaN(h) || isNaN(m)) continue;
+    const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+    const pick = t > now ? t.getTime() : new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, h, m).getTime();
+    if (pick < bestMs) bestMs = pick;
+  }
+  if (!isFinite(bestMs)) return null;
+  const best = new Date(bestMs);
+  const hh = String(best.getHours()).padStart(2, '0');
+  const mm = String(best.getMinutes()).padStart(2, '0');
+  const today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const diffDays = Math.round((new Date(best.getFullYear(), best.getMonth(), best.getDate()).getTime() - today0) / 86400000);
+  return { label: `${diffDays === 0 ? 'hoje' : 'amanhã'} às ${hh}:${mm}`, sortMs: bestMs };
+}
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp<RootTabs>>();
   const insets = useSafeAreaInsets();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [medications, setMedications] = useState<Medication[]>([]);
+  const [onboardingDone, setOnboardingDone] = useState(false);
   const [notifActive, setNotifActive] = useState(false);
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [allInteractions, setAllInteractions] = useState<DrugInteraction[]>([]);
   const [showInteractionsModal, setShowInteractionsModal] = useState(false);
-  const [nextReminders, setNextReminders] = useState<{ name: string; label: string; sortMs: number }[]>([]);
+  const [unifiedItems, setUnifiedItems] = useState<UnifiedItem[]>([]);
 
   const load = useCallback(async () => {
-    const [p, m, alertActive] = await Promise.all([
-      getProfile(), getMedications(), getKV(KV_ALERT_ACTIVE),
+    const [p, m, alertActive, acts, appts, obDone] = await Promise.all([
+      getProfile(), getMedications(), getKV(KV_ALERT_ACTIVE), getActivities(), getAppointments(),
+      getKV('onboarding_done'),
     ]);
+    setOnboardingDone(obDone === '1');
     setProfile(p);
     setMedications(m);
 
@@ -39,45 +100,77 @@ export default function HomeScreen() {
       setNotifActive(false);
     }
 
+    // Drug interactions
     const seen = new Set<string>();
     const ints: DrugInteraction[] = [];
+    const order: Record<string, number> = { critical: 0, high: 1, moderate: 2 };
     m.forEach(med => {
       const others = m.filter(x => x.id !== med.id).map(x => x.generic_name);
       checkInteractions(med.generic_name, others).forEach(i => {
         if (!seen.has(i.id)) { seen.add(i.id); ints.push(i); }
       });
     });
-    ints.sort((a, b) => {
-      const order = { critical: 0, high: 1, moderate: 2 };
-      return order[a.risk_level] - order[b.risk_level];
-    });
+    ints.sort((a, b) => (order[a.risk_level] ?? 3) - (order[b.risk_level] ?? 3));
     setAllInteractions(ints);
 
-    // Compute next reminder for each medication
-    const remindersPerMed = await Promise.all(
-      m.map(med => getRemindersForMedication(med.id).catch(() => [] as MedicationReminder[]))
-    );
-    const nexts: { name: string; label: string; sortMs: number }[] = [];
+    // Build unified items
+    const items: UnifiedItem[] = [];
+
+    const medReminders = await Promise.all(m.map(med => getRemindersForMedication(med.id).catch(() => [] as MedicationReminder[])));
     m.forEach((med, idx) => {
-      const info = nextReminderInfo(remindersPerMed[idx] ?? []);
-      if (info) nexts.push({ name: med.generic_name, label: info.label, sortMs: info.sortMs });
+      const reminders = medReminders[idx] ?? [];
+      if (reminders.length === 0) return;
+      const activeReminders = reminders.filter(r => r.is_active);
+      const isMuted = activeReminders.length > 0 && activeReminders.every(r => !r.with_sound);
+      const info = nextReminderInfo(reminders);
+      if (!info) return;
+      items.push({
+        id: med.id, type: 'med', icon: med.is_critical ? '⚠️' : isPhytotherapic(med.generic_name) ? '🌿' : '💊',
+        name: med.generic_name,
+        label: info.label,
+        sortMs: info.sortMs,
+        isMuted,
+      });
     });
-    nexts.sort((a, b) => a.sortMs - b.sortMs);
-    setNextReminders(nexts);
+
+    const actReminders = await Promise.all(acts.map(a => getRemindersForActivity(a.id).catch(() => [] as ActivityReminder[])));
+    acts.forEach((act, idx) => {
+      const reminders = actReminders[idx] ?? [];
+      if (reminders.length === 0) return;
+      const activeReminders = reminders.filter(r => r.is_active);
+      const isMuted = activeReminders.length > 0 && activeReminders.every(r => !r.with_sound);
+      const info = nextDailyInfo(reminders);
+      if (!info) return;
+      items.push({
+        id: act.id, type: 'activity', icon: ACTIVITY_PRESETS[act.type]?.icon ?? '📌',
+        name: act.name,
+        label: info.label,
+        sortMs: info.sortMs,
+        isMuted,
+      });
+    });
+
+    appts.forEach(appt => {
+      const info = appointmentInfo(appt);
+      if (!info) return;
+      const docLabel = appt.specialty ? `${appt.doctor_name} · ${appt.specialty}` : appt.doctor_name;
+      items.push({
+        id: appt.id, type: 'appointment', icon: '🩺',
+        name: docLabel,
+        label: info.label,
+        sortMs: info.sortMs,
+        isMuted: false,
+      });
+    });
+
+    items.sort((a, b) => a.sortMs - b.sortMs);
+    setUnifiedItems(items);
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
-  async function doActivate() {
-    if (!profile) return;
-    await updateEmergencyNotification(profile, medications);
-    await setKV(KV_ALERT_ACTIVE, '1');
-    setNotifActive(true);
-  }
-
   async function handleAlertToggle() {
     if (!profile?.name) {
-      Alert.alert('Perfil incompleto', 'Preencha seu nome no perfil antes de ativar o alerta.');
       return;
     }
     if (notifActive) {
@@ -85,8 +178,33 @@ export default function HomeScreen() {
       await setKV(KV_ALERT_ACTIVE, '0');
       setNotifActive(false);
     } else {
-      await doActivate();
+      if (!profile) return;
+      await updateEmergencyNotification(profile, medications);
+      await setKV(KV_ALERT_ACTIVE, '1');
+      setNotifActive(true);
     }
+  }
+
+  async function handleToggleMute(item: UnifiedItem) {
+    // Toggle with_sound: muted → reativa com som; ativo → silencia (sem som)
+    // is_active permanece intacto — só o canal de áudio muda
+    const newWithSound = item.isMuted; // se estava mudo, novo estado = com som, e vice-versa
+    if (item.type === 'med') {
+      await updateAllRemindersSound(item.id, newWithSound);
+      await cancelAllRemindersForMedication(item.id);
+      await cancelRepeatAlarm(item.id);
+      const med = medications.find(m => m.id === item.id);
+      if (med) {
+        const reminders = await getRemindersForMedication(item.id);
+        await rescheduleRemindersForMedication(med, reminders.map(r => ({ ...r, with_sound: newWithSound })));
+      }
+    } else {
+      await updateAllActivityRemindersSound(item.id, newWithSound);
+      await cancelAllRemindersForActivity(item.id);
+      const reminders = await getRemindersForActivity(item.id);
+      await rescheduleRemindersForActivity(item.id, item.name, reminders.map(r => ({ ...r, with_sound: newWithSound })));
+    }
+    load();
   }
 
   const criticalMeds = medications.filter(m => m.is_critical);
@@ -109,7 +227,6 @@ export default function HomeScreen() {
         <View style={styles.intModalOverlay}>
           <ScrollView style={styles.alertModalBox} contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}>
             <Text style={styles.alertModalTitle}>Alerta de Emergência</Text>
-
             <View style={styles.alertToggleRow}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.alertToggleLabel}>{notifActive ? 'Ativado' : 'Desativado'}</Text>
@@ -124,12 +241,10 @@ export default function HomeScreen() {
                 thumbColor="#fff"
               />
             </View>
-
             <Text style={styles.alertModalSection}>Para que serve</Text>
             <Text style={styles.alertModalBody}>
-              Exibe suas informações médicas — medicamentos, doses e contatos de emergência — na tela de bloqueio do celular, sem precisar desbloquear. Útil em situações de emergência para socorristas e familiares.
+              Exibe suas informações médicas — medicamentos, doses e contatos de emergência — na tela de bloqueio do celular, sem precisar desbloquear.
             </Text>
-
             <Text style={styles.alertModalSection}>Como configurar o celular</Text>
             {[
               'Abra as Configurações do celular',
@@ -144,10 +259,9 @@ export default function HomeScreen() {
             ))}
             <View style={styles.tipBox}>
               <Text style={styles.tipText}>
-                💡 O caminho exato varia por fabricante (Samsung, Motorola, etc.), mas geralmente está em Configurações → Notificações → Tela de Bloqueio.
+                💡 O caminho exato varia por fabricante. Geralmente em Configurações → Notificações → Tela de Bloqueio.
               </Text>
             </View>
-
             <TouchableOpacity style={styles.intModalClose} onPress={() => setShowAlertModal(false)}>
               <Text style={styles.intModalCloseText}>Fechar</Text>
             </TouchableOpacity>
@@ -155,16 +269,38 @@ export default function HomeScreen() {
         </View>
       </Modal>
 
-      {nextReminders.length > 0 && (
-        <TouchableOpacity style={styles.remindersCard} activeOpacity={0.8} onPress={() => navigation.navigate('Medications')}>
-          <Text style={styles.remindersTitle}>Próximos lembretes</Text>
-          {nextReminders.slice(0, 5).map((r, i) => (
-            <View key={i} style={styles.reminderRow}>
-              <Text style={styles.reminderName} numberOfLines={1}>{r.name}</Text>
-              <Text style={styles.reminderLabel}>{r.label}</Text>
-            </View>
+      {/* Unified reminders list */}
+      {unifiedItems.length > 0 && (
+        <View style={styles.remindersCard}>
+          <Text style={styles.remindersTitle}>PRÓXIMOS LEMBRETES</Text>
+          {unifiedItems.map((item, idx) => (
+            <TouchableOpacity
+              key={`${item.type}-${item.id}`}
+              style={[styles.reminderRow, idx === 0 && styles.reminderRowFirst]}
+              activeOpacity={0.6}
+              onPress={() => {
+                if (item.type === 'med') (navigation as any).navigate('Medications', { openMedId: item.id });
+                else if (item.type === 'appointment') (navigation as any).navigate('Agenda', { tab: 'appointments', openAppointmentId: item.id });
+                else (navigation as any).navigate('Agenda', { tab: 'activities', openActivityId: item.id });
+              }}
+            >
+              <Text style={styles.reminderIcon}>{item.icon}</Text>
+              <Text style={styles.reminderName} numberOfLines={1}>{item.name}</Text>
+              <Text style={styles.reminderLabel}>{item.label}</Text>
+              {item.type !== 'appointment' ? (
+                <TouchableOpacity
+                  style={styles.reminderBellBtn}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  onPress={() => handleToggleMute(item)}
+                >
+                  <Text style={styles.reminderBell}>{item.isMuted ? '🔕' : '🔔'}</Text>
+                </TouchableOpacity>
+              ) : (
+                <Text style={styles.reminderBell}>📅</Text>
+              )}
+            </TouchableOpacity>
           ))}
-        </TouchableOpacity>
+        </View>
       )}
 
       {criticalMeds.length > 0 && (
@@ -217,13 +353,13 @@ export default function HomeScreen() {
         </View>
       </Modal>
 
-      {!profileComplete && (
+      {!profileComplete && !onboardingDone && (
         <View style={styles.infoCard}>
           <Text style={styles.infoTitle}>Como usar o Alerta Médico</Text>
           <Text style={styles.infoStep}>1. Preencha seu perfil médico (aba Perfil)</Text>
-          <Text style={styles.infoStep}>2. Cadastre seus medicamentos (aba Remédios)</Text>
+          <Text style={styles.infoStep}>2. Cadastre seus medicamentos (aba Medicamentos)</Text>
           <Text style={styles.infoStep}>3. Adicione contatos de emergência (aba Contatos)</Text>
-          <Text style={styles.infoStep}>4. Ative o alerta de emergência aqui</Text>
+          <Text style={styles.infoStep}>4. Ative o alerta de emergência acima para aparecer na tela de bloqueio</Text>
         </View>
       )}
     </ScrollView>
@@ -234,27 +370,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F2F4F8' },
   content: { padding: 14, paddingBottom: 32 },
 
-  // Modal
-  modalOverlay: {
-    flex: 1, backgroundColor: 'rgba(0,0,0,0.55)',
-    justifyContent: 'center', alignItems: 'center', padding: 20,
-  },
-  modalBox: {
-    backgroundColor: '#fff', borderRadius: 16, padding: 22, width: '100%',
-    elevation: 8, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8,
-  },
-  modalTitle: { fontSize: 17, fontWeight: '700', color: '#1C3F7A', marginBottom: 10 },
-  modalIntro: { fontSize: 13, color: '#555', lineHeight: 19, marginBottom: 14 },
-  stepRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },
-  stepNum: {
-    width: 22, height: 22, borderRadius: 6, backgroundColor: '#1C3F7A',
-    alignItems: 'center', justifyContent: 'center', marginRight: 10, marginTop: 1, flexShrink: 0,
-  },
-  stepNumText: { color: '#fff', fontSize: 11, fontWeight: '700' },
-  stepText: { fontSize: 13, color: '#333', lineHeight: 20, flex: 1 },
-  tipBox: { backgroundColor: '#f0faf4', borderRadius: 8, padding: 10, marginTop: 4, marginBottom: 14 },
-  tipText: { fontSize: 12, color: '#1a6b3a', lineHeight: 18 },
-  // Alert chip
   alertChip: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
     backgroundColor: '#fff', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 14,
@@ -265,7 +380,6 @@ const styles = StyleSheet.create({
   dotInactive: { backgroundColor: '#E07B4F' },
   alertChipText: { fontSize: 13, fontWeight: '500', flex: 1 },
 
-  // Alert modal
   alertModalBox: {
     backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20,
     padding: 20, maxHeight: '85%',
@@ -280,17 +394,37 @@ const styles = StyleSheet.create({
   alertModalSection: { fontSize: 11, fontWeight: '700', color: '#8A8F9D', letterSpacing: 0.5, marginBottom: 8, marginTop: 4 },
   alertModalBody: { fontSize: 13, color: '#444', lineHeight: 20, marginBottom: 16 },
 
-  // Reminders card
-  remindersCard: {
-    backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10,
-    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
+  stepRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },
+  stepNum: {
+    width: 22, height: 22, borderRadius: 6, backgroundColor: '#1C3F7A',
+    alignItems: 'center', justifyContent: 'center', marginRight: 10, marginTop: 1, flexShrink: 0,
   },
-  remindersTitle: { fontSize: 10, color: '#8A8F9D', fontWeight: '600', letterSpacing: 0.5, marginBottom: 8 },
-  reminderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 5, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.05)' },
-  reminderName: { fontSize: 13, color: '#1A1F2E', fontWeight: '500', flex: 1, marginRight: 8 },
-  reminderLabel: { fontSize: 12, color: '#1C3F7A', fontWeight: '600' },
+  stepNumText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  stepText: { fontSize: 13, color: '#333', lineHeight: 20, flex: 1 },
+  tipBox: { backgroundColor: '#f0faf4', borderRadius: 8, padding: 10, marginTop: 4, marginBottom: 14 },
+  tipText: { fontSize: 12, color: '#1a6b3a', lineHeight: 18 },
 
-  // Shared card primitives
+  remindersCard: {
+    backgroundColor: '#fff', borderRadius: 12, marginBottom: 10,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
+    overflow: 'hidden',
+  },
+  remindersTitle: {
+    fontSize: 10, color: '#8A8F9D', fontWeight: '700', letterSpacing: 0.8,
+    paddingHorizontal: 14, paddingTop: 12, paddingBottom: 8,
+  },
+  reminderRow: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingVertical: 11, paddingHorizontal: 14,
+    borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.05)',
+  },
+  reminderRowFirst: { borderTopWidth: 0 },
+  reminderIcon: { fontSize: 17, marginRight: 10, width: 22, textAlign: 'center' },
+  reminderName: { fontSize: 13, color: '#1A1F2E', fontWeight: '500', flex: 1, marginRight: 8 },
+  reminderLabel: { fontSize: 12, color: '#1C3F7A', fontWeight: '600', marginRight: 8 },
+  reminderBellBtn: { padding: 2 },
+  reminderBell: { fontSize: 15 },
+
   cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   cardChevron: { fontSize: 22, color: '#C0C5D0', lineHeight: 24 },
 
@@ -309,7 +443,6 @@ const styles = StyleSheet.create({
   interactionChipIcon: { fontSize: 13, color: '#e65c00' },
   interactionChipText: { fontSize: 13, color: '#555', flex: 1 },
 
-  // Interactions modal
   intModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   intModalBox: {
     backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20,

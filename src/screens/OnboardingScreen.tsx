@@ -119,7 +119,7 @@ function ProfileStep({ onNext, onSkip }: { onNext: (name: string, bt: string, al
         <Text style={s.stepIcon}>👤</Text>
         <Text style={s.stepTitle}>Seu Perfil Médico</Text>
         <Text style={s.stepSubtitle}>
-          Estas informações ficam salvas no app e podem salvar sua vida em uma emergência.
+          Estas informações ficam salvas apenas no seu celular e aparecem na tela de bloqueio caso seja necessário em alguma emergência médica.
         </Text>
 
         <View style={s.fieldBlock}>
@@ -393,20 +393,20 @@ export default function OnboardingScreen({ onComplete }: Props) {
   async function handleMedication(name: string, dose: string, time: Date) {
     let saved = false;
     if (name.trim()) {
-      const h = time.getHours();
-      const m = time.getMinutes();
-      const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-      const medId = await addMedication({
-        generic_name: name.trim(),
-        commercial_name: '',
-        dose: dose.trim(),
-        frequency: 'daily',
-        is_critical: false,
-        notes: '',
-        stock_quantity: null,
-        end_date: null,
-      }).catch(() => 0);
-      if (medId) {
+      try {
+        const h = time.getHours();
+        const m = time.getMinutes();
+        const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        const medId = await addMedication({
+          generic_name: name.trim(),
+          commercial_name: '',
+          dose: dose.trim(),
+          frequency: 'daily',
+          is_critical: false,
+          notes: '',
+          stock_quantity: null,
+          end_date: null,
+        });
         await addReminder({
           medication_id: medId,
           time: timeStr,
@@ -414,10 +414,10 @@ export default function OnboardingScreen({ onComplete }: Props) {
           with_sound: true,
           is_active: true,
           repeat_interval: 0,
-        }).catch(() => {});
+        });
         await scheduleReminder(medId, name.trim(), dose.trim(), h, m, true, 0).catch(() => {});
         saved = true;
-      }
+      } catch {}
     }
     setSummary(p => ({ ...p, med: saved }));
     setStep(3);
