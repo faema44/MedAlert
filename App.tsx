@@ -28,6 +28,7 @@ import ContactsScreen from './src/screens/ContactsScreen';
 import InteractionsScreen from './src/screens/InteractionsScreen';
 import AgendaScreen from './src/screens/AgendaScreen';
 import HelpScreen from './src/screens/HelpScreen';
+import OnboardingScreen from './src/screens/OnboardingScreen';
 
 import {
   setupNotificationChannels, requestPermissions, setupReminderCategory,
@@ -35,7 +36,7 @@ import {
   ReminderAlertPayload, ActivityAlertPayload,
   scheduleRepeatAlarm, cancelRepeatAlarm, rescheduleAllActiveNotifications,
 } from './src/services/notifications';
-import { getDb, getMedications, getContacts, getMedicationById, updateMedicationStock, addActivityLog } from './src/database/db';
+import { getDb, getMedications, getContacts, getMedicationById, updateMedicationStock, addActivityLog, getKV } from './src/database/db';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
 
 const Tab = createBottomTabNavigator();
@@ -98,6 +99,7 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
 
 function AppNavigator() {
   const insets = useSafeAreaInsets();
+  const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null);
   const [medCount, setMedCount] = useState(0);
   const [contactCount, setContactCount] = useState(0);
   const [reminderAlert, setReminderAlert] = useState<ReminderAlertPayload | null>(null);
@@ -135,6 +137,8 @@ function AppNavigator() {
   useEffect(() => {
     async function init() {
       await getDb();
+      const done = await getKV('onboarding_done').catch(() => '1');
+      setOnboardingDone(done === '1');
       await setupNotificationChannels().catch(() => {});
       await setupReminderCategory().catch(() => {});
       await requestPermissions().catch(() => {});
@@ -163,8 +167,15 @@ function AppNavigator() {
     return () => { cleanupMed(); cleanupAct(); };
   }, [loadCounts]);
 
+  if (onboardingDone === null) return null; // aguarda check de DB
+
   return (
     <>
+      {!onboardingDone && (
+        <Modal visible animationType="fade" statusBarTranslucent>
+          <OnboardingScreen onComplete={() => { setOnboardingDone(true); loadCounts(); }} />
+        </Modal>
+      )}
       <NavigationContainer onStateChange={loadCounts}>
         <StatusBar style="light" />
         <Tab.Navigator
