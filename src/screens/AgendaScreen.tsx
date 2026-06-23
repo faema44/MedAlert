@@ -65,30 +65,82 @@ function isDatePast(date: string, time: string): boolean {
   return new Date(y, mo - 1, d, h, mi) < new Date();
 }
 
-// Retorna cor conforme diretrizes SBC (pressão) e SBD (glicose)
+// Retorna cor conforme SBC (pressão), SBD (glicose) e OMS (IMC)
 function measureColor(type: string, value: string): string {
   if (type === 'bp') {
     const m = value.match(/^(\d+)\/(\d+)/);
     if (!m) return '#1C3F7A';
     const sys = parseInt(m[1], 10);
     const dia = parseInt(m[2], 10);
-    if (sys > 180 || dia > 120) return '#7F1D1D'; // crise hipertensiva
-    if (sys >= 140 || dia >= 90)  return '#DC2626'; // HAS estágio 2
-    if (sys >= 130 || dia >= 80)  return '#EA580C'; // HAS estágio 1
-    if (sys >= 120)               return '#D97706'; // elevada
-    return '#16A34A';                               // ótima/normal
+    if (sys > 180 || dia > 120) return '#7F1D1D';
+    if (sys >= 140 || dia >= 90)  return '#DC2626';
+    if (sys >= 130 || dia >= 80)  return '#EA580C';
+    if (sys >= 120)               return '#D97706';
+    return '#16A34A';
   }
   if (type === 'glucose') {
     const m = value.match(/^(\d+)/);
     if (!m) return '#1C3F7A';
     const g = parseInt(m[1], 10);
-    if (g < 70)   return '#7F1D1D'; // hipoglicemia grave
-    if (g <= 99)  return '#16A34A'; // normal em jejum
-    if (g <= 125) return '#D97706'; // pré-diabetes
-    return '#DC2626';               // diabetes / hiperglicemia
+    if (g < 70)   return '#7F1D1D';
+    if (g <= 99)  return '#16A34A';
+    if (g <= 125) return '#D97706';
+    return '#DC2626';
+  }
+  if (type === 'weight') {
+    const m = value.match(/IMC\s*([\d.]+)/);
+    if (!m) return '#1C3F7A';
+    const bmi = parseFloat(m[1]);
+    if (bmi < 18.5) return '#3B82F6';
+    if (bmi < 25)   return '#16A34A';
+    if (bmi < 30)   return '#D97706';
+    if (bmi < 35)   return '#EA580C';
+    if (bmi < 40)   return '#DC2626';
+    return '#7F1D1D';
   }
   return '#1C3F7A';
 }
+
+const BP_LEGEND = [
+  { color: '#16A34A', label: 'Ótima' },
+  { color: '#D97706', label: 'Elevada' },
+  { color: '#EA580C', label: 'Est. 1' },
+  { color: '#DC2626', label: 'Est. 2' },
+  { color: '#7F1D1D', label: 'Crise' },
+];
+const GLUCOSE_LEGEND = [
+  { color: '#7F1D1D', label: 'Hipoglicemia' },
+  { color: '#16A34A', label: 'Normal' },
+  { color: '#D97706', label: 'Pré-diab.' },
+  { color: '#DC2626', label: 'Diabetes' },
+];
+const BMI_LEGEND = [
+  { color: '#3B82F6', label: 'Abaixo' },
+  { color: '#16A34A', label: 'Normal' },
+  { color: '#D97706', label: 'Sobrepeso' },
+  { color: '#EA580C', label: 'Ob. I' },
+  { color: '#DC2626', label: 'Ob. II' },
+  { color: '#7F1D1D', label: 'Ob. III' },
+];
+
+function ColorLegend({ items }: { items: { color: string; label: string }[] }) {
+  return (
+    <View style={legendStyles.row}>
+      {items.map(i => (
+        <View key={i.label} style={legendStyles.item}>
+          <View style={[legendStyles.dot, { backgroundColor: i.color }]} />
+          <Text style={legendStyles.label}>{i.label}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+const legendStyles = StyleSheet.create({
+  row: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10, marginBottom: 2 },
+  item: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  label: { fontSize: 11, color: '#555' },
+});
 
 function fmtLogDate(logged_at: string): string {
   const d = new Date(logged_at);
@@ -152,6 +204,7 @@ export default function AgendaScreen() {
   const [bpDiastolic, setBpDiastolic] = useState('');
   const [bpPulse, setBpPulse] = useState('');
   const [measureValue, setMeasureValue] = useState('');
+  const [weightHeight, setWeightHeight] = useState('');
 
   // Appointments state
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -314,7 +367,7 @@ export default function AgendaScreen() {
   function openMeasureModal(a: Activity) {
     setMeasureActivity(a);
     setBpSystolic(''); setBpDiastolic(''); setBpPulse('');
-    setMeasureValue('');
+    setMeasureValue(''); setWeightHeight('');
     setShowMeasureModal(true);
   }
 
@@ -335,6 +388,13 @@ export default function AgendaScreen() {
     } else if (measureActivity.type === 'weight') {
       if (!measureValue.trim()) { Alert.alert('Obrigatório', 'Informe o peso.'); return; }
       value = `${measureValue.trim()} kg`;
+      const hCm = parseFloat(weightHeight.replace(',', '.'));
+      const w = parseFloat(measureValue.replace(',', '.'));
+      if (hCm > 0 && w > 0) {
+        const hM = hCm / 100;
+        const bmi = (w / (hM * hM)).toFixed(1);
+        value += ` · ${hCm}cm · IMC ${bmi}`;
+      }
     } else {
       value = measureValue.trim();
     }
@@ -727,24 +787,54 @@ export default function AgendaScreen() {
                 </>
               )}
 
-              {measureActivity?.type === 'weight' && (
-                <>
-                  <Text style={styles.fieldLabel}>Peso</Text>
-                  <View style={styles.measureInputRow}>
-                    <TextInput
-                      style={[styles.fieldInput, styles.measureInput]}
-                      value={measureValue}
-                      onChangeText={setMeasureValue}
-                      keyboardType="decimal-pad"
-                      placeholder="ex: 70.5"
-                      placeholderTextColor="#bbb"
-                      maxLength={6}
-                      returnKeyType="done"
-                    />
-                    <Text style={styles.measureUnit}>kg</Text>
-                  </View>
-                </>
-              )}
+              {measureActivity?.type === 'weight' && (() => {
+                const hCm = parseFloat(weightHeight.replace(',', '.'));
+                const w = parseFloat(measureValue.replace(',', '.'));
+                const bmi = (hCm > 0 && w > 0) ? (w / Math.pow(hCm / 100, 2)) : null;
+                const bmiColor = bmi ? measureColor('weight', `IMC ${bmi.toFixed(1)}`) : '#9CA3AF';
+                const bmiLabel = !bmi ? '' : bmi < 18.5 ? 'Abaixo do peso' : bmi < 25 ? 'Peso normal' : bmi < 30 ? 'Sobrepeso' : bmi < 35 ? 'Obesidade I' : bmi < 40 ? 'Obesidade II' : 'Obesidade III';
+                return (
+                  <>
+                    <Text style={styles.fieldLabel}>Peso</Text>
+                    <View style={styles.measureInputRow}>
+                      <TextInput
+                        style={[styles.fieldInput, styles.measureInput]}
+                        value={measureValue}
+                        onChangeText={setMeasureValue}
+                        keyboardType="decimal-pad"
+                        placeholder="ex: 70.5"
+                        placeholderTextColor="#bbb"
+                        maxLength={6}
+                        returnKeyType="next"
+                      />
+                      <Text style={styles.measureUnit}>kg</Text>
+                    </View>
+
+                    <Text style={styles.fieldLabel}>Altura <Text style={styles.fieldLabelOpt}>(para calcular IMC)</Text></Text>
+                    <View style={styles.measureInputRow}>
+                      <TextInput
+                        style={[styles.fieldInput, styles.measureInput]}
+                        value={weightHeight}
+                        onChangeText={setWeightHeight}
+                        keyboardType="numeric"
+                        placeholder="ex: 170"
+                        placeholderTextColor="#bbb"
+                        maxLength={3}
+                        returnKeyType="done"
+                      />
+                      <Text style={styles.measureUnit}>cm</Text>
+                    </View>
+
+                    {bmi !== null && (
+                      <View style={styles.bmiPreview}>
+                        <Text style={styles.bmiPreviewValue}>IMC: <Text style={{ color: bmiColor, fontWeight: '700' }}>{bmi.toFixed(1)}</Text></Text>
+                        <Text style={[styles.bmiPreviewLabel, { color: bmiColor }]}>{bmiLabel}</Text>
+                      </View>
+                    )}
+                    <ColorLegend items={BMI_LEGEND} />
+                  </>
+                );
+              })()}
 
               {!MEASURE_TYPES.includes(measureActivity?.type ?? 'custom' as ActivityType) && (
                 <>
@@ -760,6 +850,9 @@ export default function AgendaScreen() {
                   />
                 </>
               )}
+
+              {measureActivity?.type === 'bp' && <ColorLegend items={BP_LEGEND} />}
+              {measureActivity?.type === 'glucose' && <ColorLegend items={GLUCOSE_LEGEND} />}
 
               <View style={styles.modalActions}>
                 <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowMeasureModal(false)}>
@@ -1128,6 +1221,12 @@ const styles = StyleSheet.create({
   },
   measureInput: { flex: 1, fontSize: 20, fontWeight: '700', textAlign: 'center' },
   measureUnit: { fontSize: 14, fontWeight: '600', color: '#6B7280', minWidth: 44 },
+  bmiPreview: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: '#F9FAFB', borderRadius: 8, padding: 10, marginTop: 8,
+  },
+  bmiPreviewValue: { fontSize: 15, color: '#374151' },
+  bmiPreviewLabel: { fontSize: 13, fontWeight: '600' },
 
   typeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 4 },
   typeBtn: {
