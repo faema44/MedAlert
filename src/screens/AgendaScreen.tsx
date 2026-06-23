@@ -1,10 +1,10 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
-  Modal, TextInput, Alert, ScrollView, KeyboardAvoidingView, Switch, Share,
+  Modal, TextInput, Alert, ScrollView, KeyboardAvoidingView, Switch, Share, Platform,
 } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { TimePicker, ITEM_H } from '../components/TimePicker';
+import { TimePicker } from '../components/TimePicker';
 import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -12,6 +12,7 @@ import {
   getRemindersForActivity, addActivityReminder, deleteAllRemindersForActivity,
   getAppointments, addAppointment, updateAppointment, deleteAppointment,
   getActivityLogs, deleteActivityLog, ActivityLog,
+  addActivityLog, getActivityLogsForActivity,
 } from '../database/db';
 import {
   scheduleActivityReminder, cancelAllRemindersForActivity,
@@ -20,6 +21,7 @@ import {
 import { Activity, ActivityReminder, ActivityType, ACTIVITY_PRESETS, Appointment } from '../types';
 
 const ACTIVITY_TYPES: ActivityType[] = ['water', 'walk', 'physio', 'bp', 'glucose', 'weight', 'custom'];
+const MEASURE_TYPES: ActivityType[] = ['bp', 'glucose', 'weight'];
 
 function parseTime(t: string): { hour: number; minute: number } | null {
   const m = t.match(/^(\d{1,2}):(\d{2})$/);
@@ -28,14 +30,6 @@ function parseTime(t: string): { hour: number; minute: number } | null {
   const minute = parseInt(m[2], 10);
   if (hour > 23 || minute > 59) return null;
   return { hour, minute };
-}
-
-function clampTimeStr(val: string): string {
-  const m = val.match(/^(\d{1,2}):(\d{2})$/);
-  if (!m) return val;
-  const hh = Math.min(parseInt(m[1], 10), 23);
-  const mm = Math.min(parseInt(m[2], 10), 59);
-  return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
 }
 
 function formatDateBR(iso: string): string {
@@ -69,6 +63,19 @@ function isDatePast(date: string, time: string): boolean {
   const [h, mi] = time.split(':').map(Number);
   if (isNaN(y)) return false;
   return new Date(y, mo - 1, d, h, mi) < new Date();
+}
+
+function fmtLogDate(logged_at: string): string {
+  const d = new Date(logged_at);
+  const today = new Date();
+  const isToday = d.toDateString() === today.toDateString();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const isYesterday = d.toDateString() === yesterday.toDateString();
+  const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  if (isToday) return `hoje ${time}`;
+  if (isYesterday) return `ontem ${time}`;
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + time;
 }
 
 // ─── EMPTY FORMS ──────────────────────────────────────────────────────────────
@@ -108,9 +115,18 @@ export default function AgendaScreen() {
   // Activities state
   const [activities, setActivities] = useState<Activity[]>([]);
   const [remindersMap, setRemindersMap] = useState<Record<number, ActivityReminder[]>>({});
+  const [logsMap, setLogsMap] = useState<Record<number, ActivityLog[]>>({});
   const [showActivityModal, setShowActivityModal] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [actForm, setActForm] = useState(EMPTY_ACTIVITY);
+
+  // Measurement modal state
+  const [showMeasureModal, setShowMeasureModal] = useState(false);
+  const [measureActivity, setMeasureActivity] = useState<Activity | null>(null);
+  const [bpSystolic, setBpSystolic] = useState('');
+  const [bpDiastolic, setBpDiastolic] = useState('');
+  const [bpPulse, setBpPulse] = useState('');
+  const [measureValue, setMeasureValue] = useState('');
 
   // Appointments state
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -136,10 +152,13 @@ export default function AgendaScreen() {
     const list = await getActivities();
     setActivities(list);
     const map: Record<number, ActivityReminder[]> = {};
+    const lmap: Record<number, ActivityLog[]> = {};
     await Promise.all(list.map(async a => {
       map[a.id] = await getRemindersForActivity(a.id);
+      lmap[a.id] = await getActivityLogsForActivity(a.id, 5);
     }));
     setRemindersMap(map);
+    setLogsMap(lmap);
     return { list, map };
   }, []);
 
@@ -270,6 +289,50 @@ export default function AgendaScreen() {
     }));
   }
 
+  // ─── MEASUREMENT HANDLERS ───────────────────────────────────────────────────
+
+  function openMeasureModal(a: Activity) {
+    setMeasureActivity(a);
+    setBpSystolic(''); setBpDiastolic(''); setBpPulse('');
+    setMeasureValue('');
+    setShowMeasureModal(true);
+  }
+
+  async function saveMeasurement() {
+    if (!measureActivity) return;
+    let value = '';
+
+    if (measureActivity.type === 'bp') {
+      if (!bpSystolic.trim() || !bpDiastolic.trim()) {
+        Alert.alert('Obrigatório', 'Informe a pressão sistólica e diastólica.');
+        return;
+      }
+      value = `${bpSystolic}/${bpDiastolic}`;
+      if (bpPulse.trim()) value += ` · ${bpPulse}bpm`;
+    } else if (measureActivity.type === 'glucose') {
+      if (!measureValue.trim()) { Alert.alert('Obrigatório', 'Informe o valor da glicose.'); return; }
+      value = `${measureValue.trim()} mg/dL`;
+    } else if (measureActivity.type === 'weight') {
+      if (!measureValue.trim()) { Alert.alert('Obrigatório', 'Informe o peso.'); return; }
+      value = `${measureValue.trim()} kg`;
+    } else {
+      value = measureValue.trim();
+    }
+
+    await addActivityLog({
+      activity_id: measureActivity.id,
+      activity_name: measureActivity.name,
+      activity_type: measureActivity.type,
+      realized: true,
+      value,
+    });
+
+    const newLogs = await getActivityLogsForActivity(measureActivity.id, 5);
+    setLogsMap(prev => ({ ...prev, [measureActivity.id]: newLogs }));
+    setLogs(await getActivityLogs());
+    setShowMeasureModal(false);
+  }
+
   // ─── APPOINTMENT HANDLERS ───────────────────────────────────────────────────
 
   function openNewAppt() {
@@ -350,6 +413,8 @@ export default function AgendaScreen() {
 
   // ─── RENDER ─────────────────────────────────────────────────────────────────
 
+  const kvBehavior = Platform.OS === 'ios' ? 'padding' : 'height';
+
   return (
     <View style={styles.container}>
       {/* Tab Toggle */}
@@ -394,29 +459,55 @@ export default function AgendaScreen() {
           }
           renderItem={({ item }) => {
             const reminders = remindersMap[item.id] ?? [];
+            const itemLogs = logsMap[item.id] ?? [];
             const { icon } = ACTIVITY_PRESETS[item.type] ?? ACTIVITY_PRESETS.custom;
+            const isMeasure = MEASURE_TYPES.includes(item.type);
+            const btnLabel = isMeasure ? '+ Nova medição' : '+ Registrar';
+
             return (
               <View style={styles.card}>
-                <Text style={styles.actIcon}>{icon}</Text>
-                <View style={styles.cardInfo}>
-                  <Text style={styles.cardName}>{item.name}</Text>
-                  {reminders.length > 0 && (
-                    <Text style={styles.cardSub}>🔔 {reminders.map(r => r.time).join('  ·  ')}</Text>
-                  )}
+                {/* Top row */}
+                <View style={styles.cardTopRow}>
+                  <Text style={styles.actIcon}>{icon}</Text>
+                  <View style={styles.cardInfo}>
+                    <Text style={styles.cardName}>{item.name}</Text>
+                    {reminders.length > 0 && (
+                      <Text style={styles.cardSub}>🔔 {reminders.map(r => r.time).join('  ·  ')}</Text>
+                    )}
+                  </View>
+                  <View style={styles.cardActions}>
+                    <TouchableOpacity style={styles.editBtn} onPress={() => openEditActivity(item)}>
+                      <Text style={styles.editBtnText}>✏️</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDeleteActivity(item)}>
+                      <Text style={styles.deleteBtnText}>✕</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-                <View style={styles.cardActions}>
-                  <TouchableOpacity style={styles.editBtn} onPress={() => openEditActivity(item)}>
-                    <Text style={styles.editBtnText}>✏️</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDeleteActivity(item)}>
-                    <Text style={styles.deleteBtnText}>✕</Text>
-                  </TouchableOpacity>
-                </View>
+
+                {/* Last 5 measurements */}
+                {itemLogs.length > 0 && (
+                  <View style={styles.logsSection}>
+                    {itemLogs.map(log => (
+                      <View key={log.id} style={styles.logRow}>
+                        <Text style={styles.logRowValue} numberOfLines={1}>
+                          {log.value || (log.realized ? '✓ Realizado' : '✗ Não realizado')}
+                        </Text>
+                        <Text style={styles.logRowDate}>{fmtLogDate(log.logged_at)}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
+
+                {/* Add measurement button */}
+                <TouchableOpacity style={styles.addMeasureBtn} onPress={() => openMeasureModal(item)}>
+                  <Text style={styles.addMeasureBtnText}>{btnLabel}</Text>
+                </TouchableOpacity>
               </View>
             );
           }}
         />
-      ) : (
+      ) : tab === 'appointments' ? (
         <FlatList
           data={appointments}
           keyExtractor={item => String(item.id)}
@@ -432,30 +523,32 @@ export default function AgendaScreen() {
             const past = isDatePast(item.date, item.time);
             return (
               <View style={[styles.card, past && styles.cardPast]}>
-                <Text style={styles.apptIcon}>🩺</Text>
-                <View style={styles.cardInfo}>
-                  <Text style={[styles.cardName, past && styles.cardNamePast]}>
-                    Dr(a). {item.doctor_name}
-                  </Text>
-                  {!!item.specialty && <Text style={styles.cardSub}>{item.specialty}</Text>}
-                  <Text style={styles.cardSub}>
-                    {formatDateBR(item.date)} às {item.time}
-                    {item.location ? `  ·  ${item.location}` : ''}
-                  </Text>
-                </View>
-                <View style={styles.cardActions}>
-                  <TouchableOpacity style={styles.editBtn} onPress={() => openEditAppt(item)}>
-                    <Text style={styles.editBtnText}>✏️</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDeleteAppt(item)}>
-                    <Text style={styles.deleteBtnText}>✕</Text>
-                  </TouchableOpacity>
+                <View style={styles.cardTopRow}>
+                  <Text style={styles.apptIcon}>🩺</Text>
+                  <View style={styles.cardInfo}>
+                    <Text style={[styles.cardName, past && styles.cardNamePast]}>
+                      Dr(a). {item.doctor_name}
+                    </Text>
+                    {!!item.specialty && <Text style={styles.cardSub}>{item.specialty}</Text>}
+                    <Text style={styles.cardSub}>
+                      {formatDateBR(item.date)} às {item.time}
+                      {item.location ? `  ·  ${item.location}` : ''}
+                    </Text>
+                  </View>
+                  <View style={styles.cardActions}>
+                    <TouchableOpacity style={styles.editBtn} onPress={() => openEditAppt(item)}>
+                      <Text style={styles.editBtnText}>✏️</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDeleteAppt(item)}>
+                      <Text style={styles.deleteBtnText}>✕</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
             );
           }}
         />
-      )}
+      ) : null}
 
       {tab === 'history' && (() => {
         async function shareReport() {
@@ -487,7 +580,7 @@ export default function AgendaScreen() {
                 <View style={styles.empty}>
                   <Text style={styles.emptyIcon}>📋</Text>
                   <Text style={styles.emptyText}>Nenhum registro ainda.</Text>
-                  <Text style={styles.emptyHint}>Os registros aparecem quando você responde aos avisos de atividade.</Text>
+                  <Text style={styles.emptyHint}>Os registros aparecem quando você responde aos avisos de atividade ou registra manualmente.</Text>
                 </View>
               }
               renderItem={({ item }) => {
@@ -528,9 +621,146 @@ export default function AgendaScreen() {
         </TouchableOpacity>
       )}
 
+      {/* ─── MEASUREMENT MODAL ─── */}
+      <Modal visible={showMeasureModal} animationType="slide" transparent>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={kvBehavior}>
+          <View style={styles.modalOverlay}>
+            <ScrollView
+              style={styles.modalBox}
+              contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
+              keyboardShouldPersistTaps="handled"
+            >
+              <Text style={styles.modalTitle}>
+                {ACTIVITY_PRESETS[measureActivity?.type ?? 'custom']?.icon}{' '}
+                {measureActivity?.name}
+              </Text>
+
+              {measureActivity?.type === 'bp' && (
+                <>
+                  <View style={styles.measureHint}>
+                    <Text style={styles.measureHintText}>
+                      A pressão arterial é representada por dois números:{'\n'}
+                      <Text style={{ fontWeight: '700' }}>sistólica</Text> (coração contraindo) /{' '}
+                      <Text style={{ fontWeight: '700' }}>diastólica</Text> (coração relaxando)
+                    </Text>
+                  </View>
+
+                  <Text style={styles.fieldLabel}>Pressão Sistólica — número de cima</Text>
+                  <View style={styles.measureInputRow}>
+                    <TextInput
+                      style={[styles.fieldInput, styles.measureInput]}
+                      value={bpSystolic}
+                      onChangeText={setBpSystolic}
+                      keyboardType="numeric"
+                      placeholder="ex: 120"
+                      placeholderTextColor="#bbb"
+                      maxLength={3}
+                      returnKeyType="next"
+                    />
+                    <Text style={styles.measureUnit}>mmHg</Text>
+                  </View>
+
+                  <Text style={styles.fieldLabel}>Pressão Diastólica — número de baixo</Text>
+                  <View style={styles.measureInputRow}>
+                    <TextInput
+                      style={[styles.fieldInput, styles.measureInput]}
+                      value={bpDiastolic}
+                      onChangeText={setBpDiastolic}
+                      keyboardType="numeric"
+                      placeholder="ex: 80"
+                      placeholderTextColor="#bbb"
+                      maxLength={3}
+                      returnKeyType="next"
+                    />
+                    <Text style={styles.measureUnit}>mmHg</Text>
+                  </View>
+
+                  <Text style={styles.fieldLabel}>Pulsação <Text style={styles.fieldLabelOpt}>(opcional)</Text></Text>
+                  <View style={styles.measureInputRow}>
+                    <TextInput
+                      style={[styles.fieldInput, styles.measureInput]}
+                      value={bpPulse}
+                      onChangeText={setBpPulse}
+                      keyboardType="numeric"
+                      placeholder="ex: 72"
+                      placeholderTextColor="#bbb"
+                      maxLength={3}
+                      returnKeyType="done"
+                    />
+                    <Text style={styles.measureUnit}>bpm</Text>
+                  </View>
+                </>
+              )}
+
+              {measureActivity?.type === 'glucose' && (
+                <>
+                  <Text style={styles.fieldLabel}>Glicemia</Text>
+                  <View style={styles.measureInputRow}>
+                    <TextInput
+                      style={[styles.fieldInput, styles.measureInput]}
+                      value={measureValue}
+                      onChangeText={setMeasureValue}
+                      keyboardType="numeric"
+                      placeholder="ex: 100"
+                      placeholderTextColor="#bbb"
+                      maxLength={5}
+                      returnKeyType="done"
+                    />
+                    <Text style={styles.measureUnit}>mg/dL</Text>
+                  </View>
+                </>
+              )}
+
+              {measureActivity?.type === 'weight' && (
+                <>
+                  <Text style={styles.fieldLabel}>Peso</Text>
+                  <View style={styles.measureInputRow}>
+                    <TextInput
+                      style={[styles.fieldInput, styles.measureInput]}
+                      value={measureValue}
+                      onChangeText={setMeasureValue}
+                      keyboardType="decimal-pad"
+                      placeholder="ex: 70.5"
+                      placeholderTextColor="#bbb"
+                      maxLength={6}
+                      returnKeyType="done"
+                    />
+                    <Text style={styles.measureUnit}>kg</Text>
+                  </View>
+                </>
+              )}
+
+              {!MEASURE_TYPES.includes(measureActivity?.type ?? 'custom' as ActivityType) && (
+                <>
+                  <Text style={styles.fieldLabel}>Observação <Text style={styles.fieldLabelOpt}>(opcional)</Text></Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    value={measureValue}
+                    onChangeText={setMeasureValue}
+                    placeholder="ex: 30 minutos"
+                    placeholderTextColor="#bbb"
+                    autoCapitalize="sentences"
+                    returnKeyType="done"
+                  />
+                </>
+              )}
+
+              <View style={styles.modalActions}>
+                <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowMeasureModal(false)}>
+                  <Text style={styles.cancelBtnText}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.saveBtn} onPress={saveMeasurement}>
+                  <Text style={styles.saveBtnText}>Salvar</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
       {/* ─── ACTIVITY MODAL ─── */}
       <Modal visible={showActivityModal} animationType="slide" transparent>
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={kvBehavior}>
           <View style={styles.modalOverlay}>
             <ScrollView
               style={styles.modalBox}
@@ -649,7 +879,7 @@ export default function AgendaScreen() {
 
       {/* ─── APPOINTMENT MODAL ─── */}
       <Modal visible={showApptModal} animationType="slide" transparent>
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={kvBehavior}>
           <View style={styles.modalOverlay}>
             <ScrollView
               style={styles.modalBox}
@@ -732,7 +962,6 @@ export default function AgendaScreen() {
                 </TouchableOpacity>
               </View>
             </ScrollView>
-
           </View>
         </KeyboardAvoidingView>
       </Modal>
@@ -808,8 +1037,10 @@ const styles = StyleSheet.create({
 
   card: {
     backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10,
-    flexDirection: 'row', alignItems: 'center',
     borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
+  },
+  cardTopRow: {
+    flexDirection: 'row', alignItems: 'center',
   },
   cardPast: { opacity: 0.55 },
   actIcon: { fontSize: 26, marginRight: 12 },
@@ -827,6 +1058,22 @@ const styles = StyleSheet.create({
   },
   deleteBtnText: { fontSize: 11, color: '#DC2626', fontWeight: '700' },
 
+  // Logs section in card
+  logsSection: {
+    marginTop: 10, borderTopWidth: 1, borderTopColor: '#F0F2F6', paddingTop: 8,
+  },
+  logRow: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingVertical: 3,
+  },
+  logRowValue: { fontSize: 13, fontWeight: '600', color: '#1C3F7A', flex: 1 },
+  logRowDate: { fontSize: 11, color: '#9CA3AF', marginLeft: 8 },
+  addMeasureBtn: {
+    marginTop: 10, backgroundColor: '#EEF2FF', borderRadius: 8,
+    paddingVertical: 8, alignItems: 'center',
+  },
+  addMeasureBtnText: { fontSize: 13, fontWeight: '600', color: '#1C3F7A' },
+
   fab: {
     position: 'absolute', right: 20, width: 52, height: 52, borderRadius: 26,
     backgroundColor: '#1C3F7A', alignItems: 'center', justifyContent: 'center',
@@ -839,11 +1086,12 @@ const styles = StyleSheet.create({
   },
   modalBox: {
     backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20,
-    padding: 20, maxHeight: '90%',
+    padding: 20, maxHeight: '92%',
   },
   modalTitle: { fontSize: 18, fontWeight: '700', color: '#1C3F7A', marginBottom: 16 },
 
   fieldLabel: { fontSize: 13, fontWeight: '600', color: '#555', marginBottom: 4, marginTop: 12 },
+  fieldLabelOpt: { fontSize: 12, fontWeight: '400', color: '#9CA3AF' },
   fieldInput: {
     borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 8,
     paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111',
@@ -853,6 +1101,17 @@ const styles = StyleSheet.create({
   pickerBtnText: { fontSize: 14, color: '#111', flex: 1 },
   pickerBtnPlaceholder: { fontSize: 14, color: '#9CA3AF', flex: 1 },
   pickerBtnIcon: { fontSize: 16, marginLeft: 4 },
+
+  // Measurement modal
+  measureHint: {
+    backgroundColor: '#EEF2FF', borderRadius: 8, padding: 12, marginBottom: 4, marginTop: 4,
+  },
+  measureHintText: { fontSize: 13, color: '#374151', lineHeight: 20 },
+  measureInputRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 2,
+  },
+  measureInput: { flex: 1, fontSize: 20, fontWeight: '700', textAlign: 'center' },
+  measureUnit: { fontSize: 14, fontWeight: '600', color: '#6B7280', minWidth: 44 },
 
   typeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 4 },
   typeBtn: {
@@ -894,8 +1153,6 @@ const styles = StyleSheet.create({
     fontSize: 14, fontWeight: '700', color: '#1C3F7A',
     textAlign: 'center', minWidth: 48, paddingVertical: 2,
   },
-
-  rowFields: { flexDirection: 'row', alignItems: 'flex-start' },
 
   reminderInfo: {
     backgroundColor: '#EEF2FF', borderRadius: 8, padding: 10, marginTop: 12,

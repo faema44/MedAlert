@@ -461,6 +461,15 @@ export async function getActivityLogs(limit = 200): Promise<ActivityLog[]> {
   return rows.map(r => ({ ...r, realized: Boolean(r.realized) }));
 }
 
+export async function getActivityLogsForActivity(activityId: number, limit = 5): Promise<ActivityLog[]> {
+  const database = await getDb();
+  const rows = await database.getAllAsync<any>(
+    'SELECT * FROM activity_logs WHERE activity_id=? ORDER BY logged_at DESC LIMIT ?',
+    [activityId, limit],
+  );
+  return rows.map(r => ({ ...r, realized: Boolean(r.realized) }));
+}
+
 export async function deleteActivityLog(id: number): Promise<void> {
   const database = await getDb();
   await database.runAsync('DELETE FROM activity_logs WHERE id=?', [id]);
