@@ -177,15 +177,10 @@ export default function AgendaScreen() {
     const openApptId = route.params?.openAppointmentId;
     if (route.params?.tab) setTab(route.params.tab);
 
-    loadActivities().then(({ list, map }) => {
+    loadActivities().then(({ list }) => {
       if (openActId) {
         const act = list.find(a => a.id === openActId);
-        if (act) {
-          const times = (map[act.id] ?? []).map(r => r.time);
-          setEditingActivity(act);
-          setActForm({ type: act.type, name: act.name, notes: act.notes, times: times.length ? times : [''] });
-          setShowActivityModal(true);
-        }
+        if (act) openMeasureModal(act);
       }
     });
 
