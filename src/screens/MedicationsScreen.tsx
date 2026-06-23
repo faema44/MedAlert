@@ -740,7 +740,7 @@ export default function MedicationsScreen() {
 
       {/* Add medication modal */}
       <Modal visible={showModal} animationType="slide" transparent>
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled={Platform.OS === 'ios'}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <View style={styles.modalOverlay}>
           <ScrollView style={styles.modalBox} contentContainerStyle={[styles.modalContent, { paddingBottom: insets.bottom + 32 }]} keyboardShouldPersistTaps="handled">
             <Text style={styles.modalTitle}>
@@ -1044,7 +1044,7 @@ export default function MedicationsScreen() {
 
       {/* Reminders modal */}
       <Modal visible={showReminderModal} animationType="slide" transparent>
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled={Platform.OS === 'ios'}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <View style={styles.modalOverlay}>
           <ScrollView style={styles.modalBox} contentContainerStyle={[styles.modalContent, { paddingBottom: insets.bottom + 32 }]} keyboardShouldPersistTaps="handled">
             <Text style={styles.modalTitle}>⏰ Frequência</Text>
