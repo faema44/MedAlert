@@ -169,13 +169,16 @@ function AppNavigator() {
 
   if (onboardingDone === null) return null; // aguarda check de DB
 
+  if (!onboardingDone) {
+    return (
+      <SafeAreaProvider>
+        <OnboardingScreen onComplete={() => { setOnboardingDone(true); }} />
+      </SafeAreaProvider>
+    );
+  }
+
   return (
     <>
-      {!onboardingDone && (
-        <Modal visible animationType="fade" statusBarTranslucent>
-          <OnboardingScreen onComplete={() => { setOnboardingDone(true); loadCounts(); }} />
-        </Modal>
-      )}
       <NavigationContainer onStateChange={loadCounts}>
         <StatusBar style="light" />
         <Tab.Navigator
