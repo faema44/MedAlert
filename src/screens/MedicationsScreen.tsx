@@ -1264,28 +1264,33 @@ export default function MedicationsScreen() {
 
             <View style={styles.soundRow}>
               <Text style={[styles.soundLabel, { flex: 1 }]}>🔁 Repetir alarme</Text>
-              <TouchableOpacity onPress={async () => {
-                const min = repeatInterval > 0 ? 0 : 5;
-                setRepeatInterval(min);
-                if (reminderMed) {
-                  await updateAllRemindersInterval(reminderMed.id, min);
-                  await cancelAllRemindersForMedication(reminderMed.id).catch(() => {});
-                  const rs = await getRemindersForMedication(reminderMed.id);
-                  for (const rem of rs.filter(rem => rem.is_active)) {
-                    const [h, m] = rem.time.split(':').map(Number);
-                    const p = rem.period ?? 'day';
-                    try {
-                      if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, rem.with_sound, min);
-                      else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, min);
-                      else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, min);
-                      else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, rem.with_sound, min); }
-                    } catch {}
+              {repeatInterval > 0 && (
+                <Text style={[styles.soundHint, { marginRight: 8 }]}>a cada {repeatInterval} min</Text>
+              )}
+              <Switch
+                value={repeatInterval > 0}
+                onValueChange={async (val) => {
+                  const min = val ? 5 : 0;
+                  setRepeatInterval(min);
+                  if (reminderMed) {
+                    await updateAllRemindersInterval(reminderMed.id, min);
+                    await cancelAllRemindersForMedication(reminderMed.id).catch(() => {});
+                    const rs = await getRemindersForMedication(reminderMed.id);
+                    for (const rem of rs.filter(rem => rem.is_active)) {
+                      const [h, m] = rem.time.split(':').map(Number);
+                      const p = rem.period ?? 'day';
+                      try {
+                        if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, rem.with_sound, min);
+                        else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, min);
+                        else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, min);
+                        else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, rem.with_sound, min); }
+                      } catch {}
+                    }
                   }
-                }
-              }}>
-                <Text style={styles.soundHint}>{repeatInterval > 0 ? `a cada ${repeatInterval} min` : 'desligado'}</Text>
-              </TouchableOpacity>
-              <Text style={[styles.soundHint, { marginLeft: 12 }]}>{withSound ? 'com som' : 'sem som'}</Text>
+                }}
+                trackColor={{ true: '#1a3a6b', false: '#ccc' }}
+                thumbColor="#fff"
+              />
             </View>
 
             {(() => {
