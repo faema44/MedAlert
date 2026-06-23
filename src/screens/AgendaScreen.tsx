@@ -413,7 +413,7 @@ export default function AgendaScreen() {
 
   // ─── RENDER ─────────────────────────────────────────────────────────────────
 
-  const kvBehavior = Platform.OS === 'ios' ? 'padding' : 'height';
+  const kvEnabled = Platform.OS === 'ios';
 
   return (
     <View style={styles.container}>
@@ -623,7 +623,7 @@ export default function AgendaScreen() {
 
       {/* ─── MEASUREMENT MODAL ─── */}
       <Modal visible={showMeasureModal} animationType="slide" transparent>
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={kvBehavior}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled={kvEnabled}>
           <View style={styles.modalOverlay}>
             <ScrollView
               style={styles.modalBox}
@@ -760,7 +760,7 @@ export default function AgendaScreen() {
 
       {/* ─── ACTIVITY MODAL ─── */}
       <Modal visible={showActivityModal} animationType="slide" transparent>
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={kvBehavior}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled={kvEnabled}>
           <View style={styles.modalOverlay}>
             <ScrollView
               style={styles.modalBox}
@@ -879,7 +879,7 @@ export default function AgendaScreen() {
 
       {/* ─── APPOINTMENT MODAL ─── */}
       <Modal visible={showApptModal} animationType="slide" transparent>
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={kvBehavior}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled={kvEnabled}>
           <View style={styles.modalOverlay}>
             <ScrollView
               style={styles.modalBox}
