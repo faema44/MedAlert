@@ -391,7 +391,7 @@ export default function AgendaScreen() {
     } else if (measureActivity.type === 'weight') {
       if (!measureValue.trim()) { Alert.alert('Obrigatório', 'Informe o peso.'); return; }
       value = `${measureValue.trim()} kg`;
-      const hCm = parseFloat(weightHeight.replace(',', '.'));
+      const hCm = parseInt(weightHeight, 10);
       const w = parseFloat(measureValue.replace(',', '.'));
       if (hCm > 0 && w > 0) {
         const hM = hCm / 100;
@@ -792,7 +792,7 @@ export default function AgendaScreen() {
               )}
 
               {measureActivity?.type === 'weight' && (() => {
-                const hCm = parseFloat(weightHeight.replace(',', '.'));
+                const hCm = parseInt(weightHeight, 10);
                 const w = parseFloat(measureValue.replace(',', '.'));
                 const bmi = (hCm > 0 && w > 0) ? (w / Math.pow(hCm / 100, 2)) : null;
                 const bmiColor = bmi ? measureColor('weight', `IMC ${bmi.toFixed(1)}`) : '#9CA3AF';
@@ -819,8 +819,8 @@ export default function AgendaScreen() {
                       <TextInput
                         style={[styles.fieldInput, styles.measureInput]}
                         value={weightHeight}
-                        onChangeText={setWeightHeight}
-                        keyboardType="numeric"
+                        onChangeText={v => setWeightHeight(v.replace(/\D/g, ''))}
+                        keyboardType="number-pad"
                         placeholder="ex: 170"
                         placeholderTextColor="#bbb"
                         maxLength={3}
