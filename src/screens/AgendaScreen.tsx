@@ -13,6 +13,7 @@ import {
   getAppointments, addAppointment, updateAppointment, deleteAppointment,
   getActivityLogs, deleteActivityLog, ActivityLog,
   addActivityLog, getActivityLogsForActivity,
+  getKV, setKV,
 } from '../database/db';
 import {
   scheduleActivityReminder, cancelAllRemindersForActivity,
@@ -364,10 +365,12 @@ export default function AgendaScreen() {
 
   // ─── MEASUREMENT HANDLERS ───────────────────────────────────────────────────
 
-  function openMeasureModal(a: Activity) {
+  async function openMeasureModal(a: Activity) {
     setMeasureActivity(a);
     setBpSystolic(''); setBpDiastolic(''); setBpPulse('');
-    setMeasureValue(''); setWeightHeight('');
+    setMeasureValue('');
+    const savedHeight = a.type === 'weight' ? (await getKV('weight_height') ?? '') : '';
+    setWeightHeight(savedHeight);
     setShowMeasureModal(true);
   }
 
@@ -394,6 +397,7 @@ export default function AgendaScreen() {
         const hM = hCm / 100;
         const bmi = (w / (hM * hM)).toFixed(1);
         value += ` · ${hCm}cm · IMC ${bmi}`;
+        await setKV('weight_height', String(hCm));
       }
     } else {
       value = measureValue.trim();
