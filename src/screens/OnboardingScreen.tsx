@@ -51,7 +51,7 @@ function WelcomeStep({ onStart, onSkip }: { onStart: () => void; onSkip: () => v
     <View style={[s.screen, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}>
       <View style={s.welcomeBody}>
         <Text style={s.welcomeIcon}>💊</Text>
-        <Text style={s.welcomeTitle}>Bem-vindo ao{'\n'}MedAlert</Text>
+        <Text style={s.welcomeTitle}>Bem-vindo ao{'\n'}Alerta Médico</Text>
         <Text style={s.welcomeSubtitle}>
           Seu assistente pessoal de saúde.{'\n'}
           Em menos de 2 minutos você terá tudo configurado.
@@ -209,7 +209,7 @@ function MedicationStep({ onNext, onSkip }: { onNext: (name: string, dose: strin
             autoCapitalize="words"
             returnKeyType="next"
           />
-          <FieldHint text="O MedAlert verifica interações entre seus medicamentos e te avisa sobre riscos." />
+          <FieldHint text="O Alerta Médico verifica interações entre seus medicamentos e te avisa sobre riscos." />
         </View>
 
         <View style={s.fieldBlock}>
@@ -336,7 +336,7 @@ function DoneStep({ summary, onComplete }: { summary: { profile: boolean; med: b
     <View style={[s.screen, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 24 }]}>
       <Text style={s.doneIcon}>🎉</Text>
       <Text style={s.stepTitle}>Tudo pronto!</Text>
-      <Text style={s.stepSubtitle}>Seu MedAlert está configurado e pronto para te ajudar.</Text>
+      <Text style={s.stepSubtitle}>Seu Alerta Médico está configurado e pronto para te ajudar.</Text>
 
       <View style={s.summaryCards}>
         <View style={[s.summaryCard, summary.profile && s.summaryCardDone]}>
