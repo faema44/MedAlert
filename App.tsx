@@ -210,9 +210,9 @@ function AppNavigator() {
         >
           <Tab.Screen name="Home"         component={HomeScreen}         options={{ tabBarLabel: 'Início' }} />
           <Tab.Screen name="Profile"      component={ProfileScreen}      options={{ tabBarLabel: 'Perfil' }} />
-          <Tab.Screen name="Medications"  component={MedicationsScreen}  options={{ tabBarLabel: 'Remédios', tabBarBadge: medCount > 0 ? medCount : undefined, tabBarBadgeStyle: { backgroundColor: '#1C3F7A', minWidth: 17, height: 17, borderRadius: 9 } }} />
+          <Tab.Screen name="Medications"  component={MedicationsScreen}  options={{ tabBarLabel: 'Medicamentos', tabBarBadge: medCount > 0 ? medCount : undefined, tabBarBadgeStyle: { backgroundColor: '#1C3F7A', minWidth: 17, height: 17, borderRadius: 9 } }} />
           <Tab.Screen name="Contacts"     component={ContactsScreen}     options={{ tabBarLabel: 'Contatos', tabBarBadge: contactCount > 0 ? contactCount : undefined, tabBarBadgeStyle: { backgroundColor: '#1C3F7A', minWidth: 17, height: 17, borderRadius: 9 } }} />
-          <Tab.Screen name="Agenda"       component={AgendaScreen}       options={{ tabBarLabel: 'Ativ.' }} />
+          <Tab.Screen name="Agenda"       component={AgendaScreen}       options={{ tabBarLabel: 'Atividades' }} />
           <Tab.Screen name="Interactions" component={InteractionsScreen} options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tab.Screen name="Help"         component={HelpScreen}         options={{ tabBarItemStyle: { display: 'none' } }} />
         </Tab.Navigator>
