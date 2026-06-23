@@ -472,6 +472,9 @@ export default function AgendaScreen() {
                     <TouchableOpacity style={styles.editBtn} onPress={() => openEditActivity(item)}>
                       <Text style={styles.editBtnText}>✏️</Text>
                     </TouchableOpacity>
+                    <TouchableOpacity style={styles.addCircleBtn} onPress={() => openMeasureModal(item)}>
+                      <Text style={styles.addCircleBtnText}>+</Text>
+                    </TouchableOpacity>
                     <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDeleteActivity(item)}>
                       <Text style={styles.deleteBtnText}>✕</Text>
                     </TouchableOpacity>
@@ -491,11 +494,6 @@ export default function AgendaScreen() {
                     ))}
                   </View>
                 )}
-
-                {/* Add measurement button */}
-                <TouchableOpacity style={styles.addMeasureBtn} onPress={() => openMeasureModal(item)}>
-                  <Text style={styles.addMeasureBtnText}>{btnLabel}</Text>
-                </TouchableOpacity>
               </View>
             );
           }}
@@ -1061,11 +1059,11 @@ const styles = StyleSheet.create({
   },
   logRowValue: { fontSize: 13, fontWeight: '600', color: '#1C3F7A', flex: 1 },
   logRowDate: { fontSize: 11, color: '#9CA3AF', marginLeft: 8 },
-  addMeasureBtn: {
-    marginTop: 10, backgroundColor: '#EEF2FF', borderRadius: 8,
-    paddingVertical: 8, alignItems: 'center',
+  addCircleBtn: {
+    width: 28, height: 28, borderRadius: 14, backgroundColor: '#EEF2FF',
+    alignItems: 'center', justifyContent: 'center',
   },
-  addMeasureBtnText: { fontSize: 13, fontWeight: '600', color: '#1C3F7A' },
+  addCircleBtnText: { fontSize: 18, color: '#1C3F7A', fontWeight: '600', lineHeight: 22 },
 
   fab: {
     position: 'absolute', right: 20, width: 52, height: 52, borderRadius: 26,
