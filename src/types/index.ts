@@ -27,6 +27,7 @@ export interface EmergencyContact {
   relationship: string;
   is_primary: boolean;
   is_doctor: boolean;
+  show_on_lock: boolean;
 }
 
 export interface DrugInteraction {
@@ -61,8 +62,8 @@ export const ACTIVITY_PRESETS: Record<ActivityType, { icon: string; defaultName:
   water:   { icon: '💧', defaultName: 'Tomar água' },
   walk:    { icon: '🚶', defaultName: 'Caminhada' },
   physio:  { icon: '🏋️', defaultName: 'Fisioterapia' },
-  bp:      { icon: '❤️', defaultName: 'Medir pressão' },
-  glucose: { icon: '🩸', defaultName: 'Medir glicose' },
+  bp:      { icon: '❤️', defaultName: 'Medir Pressão' },
+  glucose: { icon: '🩸', defaultName: 'Medir Glicose' },
   weight:  { icon: '⚖️', defaultName: 'Pesar-se' },
   custom:  { icon: '📌', defaultName: '' },
 };

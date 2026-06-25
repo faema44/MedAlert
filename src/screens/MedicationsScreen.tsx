@@ -2,14 +2,14 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
   Modal, TextInput, Switch, Alert, ScrollView, Share,
-  KeyboardAvoidingView, Platform, ActivityIndicator,
+  KeyboardAvoidingView, Platform, ActivityIndicator, Keyboard,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   getMedications, addMedication, updateMedication, deleteMedication,
-  getRemindersForMedication, addReminder, deleteReminder, toggleReminderActive, updateAllRemindersSound, updateReminderSound, updateMedicationStock, updateAllRemindersInterval,
+  getRemindersForMedication, addReminder, deleteReminder, updateAllRemindersSound, updateMedicationStock,
 } from '../database/db';
 import {
   scheduleReminderWeekly, scheduleReminderMonthly, scheduleReminderEveryNMonths,
@@ -17,10 +17,10 @@ import {
 import { getProfile } from '../database/db';
 import {
   updateEmergencyNotification,
-  scheduleReminder, cancelReminderByTime, cancelAllRemindersForMedication,
+  scheduleReminder, cancelAllRemindersForMedication,
 } from '../services/notifications';
 import { Medication, MedicationReminder, DrugInteraction } from '../types';
-import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, checkInteractions, checkSubstanceInteractions, isPhytotherapic, getPhytotherapics } from '../utils/drugSearch';
+import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, checkInteractions, checkSubstanceInteractions, isPhytotherapic } from '../utils/drugSearch';
 import { useBulaViewer } from '../utils/useBulaViewer';
 import { reportMissingDrug } from '../services/reportMissing';
 // ──────────────────────────────────────────────────────────────────────────────
@@ -59,12 +59,16 @@ function addDays(days: number): string {
 }
 
 const TIMES_PER_DAY_OPTIONS = [1, 2, 3, 4, 6];
+const DOSE_UNITS = ['mg', 'g', 'mcg', 'UI', 'mL', '%'];
 type ReminderPeriod = 'day' | 'week' | 'month' | 'year';
+type WizardStep = 'type' | 'name' | 'dose' | 'period' | 'times_per_day' | 'weekdays' | 'month_days' | 'n_months' | 'time' | 'deadline' | 'sound' | 'repeat' | 'stock';
+
 const WEEKDAYS = [
   { label: 'Dom', value: 1 }, { label: 'Seg', value: 2 }, { label: 'Ter', value: 3 },
   { label: 'Qua', value: 4 }, { label: 'Qui', value: 5 }, { label: 'Sex', value: 6 },
   { label: 'Sáb', value: 7 },
 ];
+
 function periodLabel(period: string, time: string): string {
   if (!period || period === 'day') return time;
   if (period.startsWith('week:')) {
@@ -98,26 +102,39 @@ function computeTimes(startTime: string, timesPerDay: number): string[] {
   });
 }
 
+function getStepSequence(period: ReminderPeriod, isNew: boolean): WizardStep[] {
+  const base: WizardStep[] = isNew
+    ? ['type', 'name', 'dose', 'period']
+    : ['name', 'dose', 'period'];
+  if (period === 'day') base.push('times_per_day');
+  else if (period === 'week') base.push('weekdays');
+  else if (period === 'month') base.push('month_days');
+  else base.push('n_months');
+  base.push('time', 'deadline', 'sound', 'repeat', 'stock');
+  return base;
+}
+
 export default function MedicationsScreen() {
   const { openBula, modal: bulaModal } = useBulaViewer();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const [medications, setMedications] = useState<Medication[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(EMPTY_MED);
   const [suggestions, setSuggestions] = useState<DrugSuggestion[]>([]);
-  const [reportedDrug, setReportedDrug] = useState<string>('');
-  const [reportingName, setReportingName] = useState<string | null>(null);
   const [knownDrug, setKnownDrug] = useState<boolean>(false);
   const [commercialSuggestions, setCommercialSuggestions] = useState<DrugSuggestion[]>([]);
   const [interactions, setInteractions] = useState<DrugInteraction[]>([]);
   const [substanceInteractions, setSubstanceInteractions] = useState<DrugInteraction[]>([]);
+  const [postSaveInteractions, setPostSaveInteractions] = useState<DrugInteraction[]>([]);
   const [entryType, setEntryType] = useState<'medicamento' | 'fitoterapico'>('medicamento');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [cardInteractions, setCardInteractions] = useState<Map<number, DrugInteraction[]>>(new Map());
   const [interactionModal, setInteractionModal] = useState<DrugInteraction[] | null>(null);
   const [stockInput, setStockInput] = useState('');
   const [durationDays, setDurationDays] = useState('');
+  const [hasDeadline, setHasDeadline] = useState(false);
   const [showStockHelp, setShowStockHelp] = useState(false);
   const [showInteractionWarning, setShowInteractionWarning] = useState(false);
   const [stockActionMed, setStockActionMed] = useState<Medication | null>(null);
@@ -126,12 +143,11 @@ export default function MedicationsScreen() {
     if (stockActionMed) setStockEditValue(String(stockActionMed.stock_quantity ?? 0));
   }, [stockActionMed]);
 
-  // Reminder state
+  // Wizard
+  const [wizardStep, setWizardStep] = useState<WizardStep>('name');
+
+  // Reminder / picker state
   const [reminderHasSound, setReminderHasSound] = useState<Map<number, boolean>>(new Map());
-  const [showReminderModal, setShowReminderModal] = useState(false);
-  const [reminderMed, setReminderMed] = useState<Medication | null>(null);
-  const [reminderIsDraft, setReminderIsDraft] = useState(false);
-  const [reminderFromEditFlow, setReminderFromEditFlow] = useState(false);
   const [reminders, setReminders] = useState<MedicationReminder[]>([]);
   const [pickerH, setPickerH] = useState<number | null>(null);
   const [pickerM, setPickerM] = useState<number | null>(null);
@@ -139,17 +155,23 @@ export default function MedicationsScreen() {
   const [customM, setCustomM] = useState<number | null>(null);
   const [showHorarioPicker, setShowHorarioPicker] = useState(false);
   const [showCustomPicker, setShowCustomPicker] = useState(false);
+  const [doseValue, setDoseValue] = useState('');
+  const [doseUnit, setDoseUnit] = useState('mg');
+  const [doseUnitTouched, setDoseUnitTouched] = useState(false);
   const [timesPerDay, setTimesPerDay] = useState(1);
+  const [timesPerDayTouched, setTimesPerDayTouched] = useState(false);
   const [reminderTimes, setReminderTimes] = useState<Map<number, string[]>>(new Map());
   const [customTimes, setCustomTimes] = useState('');
   const [specificModeActive, setSpecificModeActive] = useState(false);
   const [withSound, setWithSound] = useState(true);
   const [repeatInterval, setRepeatInterval] = useState(0);
   const [reminderPeriod, setReminderPeriod] = useState<ReminderPeriod>('day');
-  const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([2]);
-  const [selectedMonthDays, setSelectedMonthDays] = useState<number[]>([1]);
+  const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([]);
+  const [selectedMonthDays, setSelectedMonthDays] = useState<number[]>([]);
   const [nMonths, setNMonths] = useState('1');
   const [monthDay, setMonthDay] = useState('1');
+
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const pickerDisplay = pickerH !== null ? fmtHM(pickerH, pickerM ?? 0) : '';
   const customInputDisplay = customH !== null ? fmtHM(customH, customM ?? 0) : '';
@@ -211,20 +233,25 @@ export default function MedicationsScreen() {
   }
 
   function handleGenericNameChange(v: string) {
+    // Update form immediately so the input feels responsive
     setForm(f => ({ ...f, generic_name: v }));
-    setSuggestions(getSuggestions(v, 7, entryType === 'fitoterapico' ? 'Fitoterápico' : undefined));
-    setCommercialSuggestions([]);
     setKnownDrug(false);
-    if (reportedDrug && v !== reportedDrug) setReportedDrug('');
-    setReportingName(null);
-    const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
-    const drugInts = checkInteractions(v, others);
-    const seenIds = new Set(drugInts.map(i => i.id));
-    setInteractions(drugInts);
-    setSubstanceInteractions(checkSubstanceInteractions(v, others).filter(i => !seenIds.has(i.id)));
+
+    // Debounce expensive operations (search + interactions) so they don't block every keystroke
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => {
+      setSuggestions(getSuggestions(v, 7, entryType === 'fitoterapico' ? 'Fitoterápico' : undefined));
+      setCommercialSuggestions([]);
+      const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
+      const drugInts = checkInteractions(v, others);
+      const seenIds = new Set(drugInts.map(i => i.id));
+      setInteractions(drugInts);
+      setSubstanceInteractions(checkSubstanceInteractions(v, others).filter(i => !seenIds.has(i.id)));
+    }, 300);
   }
 
   function applySuggestion(s: DrugSuggestion) {
+    Keyboard.dismiss();
     const commercial = s.brandName ?? s.firstBrand;
     setForm(f => ({
       ...f,
@@ -232,16 +259,18 @@ export default function MedicationsScreen() {
       commercial_name: f.commercial_name.trim() ? f.commercial_name : (commercial ?? ''),
     }));
     setSuggestions([]);
+    setCommercialSuggestions([]);
     setKnownDrug(true);
     setInteractions([]);
     setSubstanceInteractions([]);
+    // Delay interaction check so keyboard dismiss + UI render settle first
     setTimeout(() => {
       const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
       const drugInts = checkInteractions(s.genericName, others);
       const seenIds = new Set(drugInts.map(i => i.id));
       setInteractions(drugInts);
       setSubstanceInteractions(checkSubstanceInteractions(s.genericName, others).filter(i => !seenIds.has(i.id)));
-    }, 0);
+    }, 250);
   }
 
   function handleCommercialNameChange(v: string) {
@@ -252,6 +281,7 @@ export default function MedicationsScreen() {
   }
 
   function applyCommercialSuggestion(s: DrugSuggestion) {
+    Keyboard.dismiss();
     setForm(f => ({
       ...f,
       commercial_name: s.brandName ?? s.genericName,
@@ -261,109 +291,6 @@ export default function MedicationsScreen() {
     if (!form.generic_name.trim()) {
       setInteractions(checkInteractions(s.genericName, medications.map(m => m.generic_name)));
     }
-  }
-
-  async function doSave() {
-    try {
-      const isCritical = interactions.some(i => i.risk_level === 'critical' || i.risk_level === 'high');
-      const stockQty = stockInput.trim() ? parseInt(stockInput.trim(), 10) : null;
-      const endDate = durationDays.trim() ? addDays(parseInt(durationDays.trim(), 10)) : null;
-      const data = { ...form, generic_name: form.generic_name.trim(), commercial_name: form.commercial_name.trim(), is_critical: isCritical, stock_quantity: stockQty, end_date: endDate };
-      let newMedId: number | null = null;
-      if (editingId !== null) {
-        await updateMedication({ ...data, id: editingId });
-      } else {
-        newMedId = await addMedication(data);
-      }
-      const updated = await getMedications();
-      setMedications(updated);
-      setShowModal(false);
-      setSuggestions([]);
-      setCommercialSuggestions([]);
-      setInteractions([]);
-      setSubstanceInteractions([]);
-      setEditingId(null);
-      setKnownDrug(false);
-      setReportedDrug('');
-      setReportingName(null);
-      setStockInput('');
-      setDurationDays('');
-      await syncNotification(updated);
-      if (newMedId !== null && reminders.length > 0) {
-        const newMed = updated.find(m => m.id === newMedId);
-        if (newMed) {
-          for (const r of reminders) {
-            const [h, m] = r.time.split(':').map(Number);
-            const p = r.period ?? 'day';
-            try {
-              const ri = r.repeat_interval ?? 0;
-              if (p === 'day') {
-                await scheduleReminder(newMedId, newMed.generic_name, newMed.dose, h, m, r.with_sound, ri);
-              } else if (p.startsWith('week:')) {
-                const wds = p.split(':')[1].split(',').map(Number);
-                await scheduleReminderWeekly(newMedId, newMed.generic_name, newMed.dose, wds, h, m, r.with_sound, ri);
-              } else if (p.startsWith('month:')) {
-                const days = p.split(':')[1].split(',').map(Number);
-                await scheduleReminderMonthly(newMedId, newMed.generic_name, newMed.dose, days, h, m, r.with_sound, ri);
-              } else if (p.startsWith('nmonths:')) {
-                const [, nStr, dStr] = p.split(':');
-                await scheduleReminderEveryNMonths(newMedId, newMed.generic_name, newMed.dose, Number(nStr), Number(dStr), h, m, r.with_sound, ri);
-              }
-            } catch {}
-            await addReminder({ medication_id: newMedId, time: r.time, period: r.period, with_sound: r.with_sound, is_active: true, repeat_interval: r.repeat_interval ?? 0 }).catch(() => {});
-          }
-        }
-      }
-      if (newMedId !== null) await refreshReminderTimes(newMedId).catch(() => {});
-      setReminders([]);
-      setReminderIsDraft(false);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
-      Alert.alert('Erro ao salvar', msg);
-    }
-  }
-
-  async function handleSave() {
-    if (!form.generic_name.trim()) {
-      Alert.alert('Campo obrigatório', 'Informe o nome genérico do medicamento.');
-      return;
-    }
-    if (interactions.length > 0) {
-      setShowInteractionWarning(true);
-      return;
-    }
-    await doSave();
-  }
-
-  function openEdit(item: Medication) {
-    setForm({
-      generic_name: item.generic_name,
-      commercial_name: item.commercial_name,
-      dose: item.dose,
-      frequency: item.frequency,
-      is_critical: item.is_critical,
-      notes: item.notes,
-      stock_quantity: item.stock_quantity,
-      end_date: item.end_date,
-    });
-    setStockInput(item.stock_quantity != null ? String(item.stock_quantity) : '');
-    setDurationDays(item.end_date ? String(Math.max(0, daysRemaining(item.end_date))) : '');
-    setEditingId(item.id);
-    setSuggestions([]);
-    setCommercialSuggestions([]);
-    setKnownDrug(true);
-    setReportedDrug('');
-    setEntryType(isPhytotherapic(item.generic_name) ? 'fitoterapico' : 'medicamento');
-    setInteractions([]);
-    setSubstanceInteractions([]);
-    setShowModal(true); // abre imediatamente
-    setTimeout(() => {  // interações calculadas após render
-      const others = medications.filter(m => m.id !== item.id).map(m => m.generic_name);
-      const drugInts = checkInteractions(item.generic_name, others);
-      const seenIds = new Set(drugInts.map(i => i.id));
-      setInteractions(drugInts);
-      setSubstanceInteractions(checkSubstanceInteractions(item.generic_name, others).filter(i => !seenIds.has(i.id)));
-    }, 0);
   }
 
   async function handleDelete(id: number, name: string) {
@@ -392,9 +319,9 @@ export default function MedicationsScreen() {
   function resetPickerState() {
     setPickerH(null); setPickerM(null); setCustomH(null); setCustomM(null);
     setShowHorarioPicker(false); setShowCustomPicker(false);
-    setTimesPerDay(1); setSpecificModeActive(false);
+    setTimesPerDay(1); setTimesPerDayTouched(false); setSpecificModeActive(false);
     setCustomTimes(''); setWithSound(true); setRepeatInterval(0); setReminderPeriod('day');
-    setSelectedWeekdays([2]); setSelectedMonthDays([1]); setNMonths('1'); setMonthDay('1');
+    setSelectedWeekdays([]); setSelectedMonthDays([]); setNMonths('1'); setMonthDay('1');
   }
 
   function populatePickerFromReminders(rs: MedicationReminder[]) {
@@ -403,13 +330,13 @@ export default function MedicationsScreen() {
     if (!first) { resetPickerState(); return; }
     const [h, m] = first.time.split(':').map(Number);
     setPickerH(h); setPickerM(m);
-    setCustomTimes('');
-    setCustomH(null); setCustomM(null);
+    setCustomTimes(''); setCustomH(null); setCustomM(null);
     const p = first.period ?? 'day';
     if (p === 'day') {
       setReminderPeriod('day');
       const dayRs = rs.filter(r => (r.period ?? 'day') === 'day');
       setTimesPerDay(dayRs.length || 1);
+      setTimesPerDayTouched(true);
       if (dayRs.length > 1) {
         setCustomTimes(dayRs.map(r => r.time.substring(0, 5)).join(' '));
         setPickerH(null); setPickerM(null);
@@ -425,28 +352,8 @@ export default function MedicationsScreen() {
       const [, nStr, dStr] = p.split(':');
       setNMonths(nStr); setMonthDay(dStr);
     }
-  }
-
-  async function openReminders(med: Medication, fromEditFlow = false) {
-    setReminderMed(med);
-    setReminderIsDraft(false);
-    setReminderFromEditFlow(fromEditFlow);
-    setReminders([]);
-    resetPickerState();
-    setShowReminderModal(true); // abre imediatamente
-    const rs = await getRemindersForMedication(med.id); // carrega após render
-    setReminders(rs);
     setWithSound(rs.some(r => r.with_sound));
     setRepeatInterval(rs[0]?.repeat_interval ?? 0);
-    if (rs.length > 0) populatePickerFromReminders(rs);
-  }
-
-  function openRemindersForNewMed() {
-    setReminderMed(null);
-    setReminderIsDraft(true);
-    setReminderFromEditFlow(false);
-    resetPickerState();
-    setShowReminderModal(true);
   }
 
   async function handleToggleSound(item: Medication) {
@@ -464,15 +371,16 @@ export default function MedicationsScreen() {
         if (p === 'day') await scheduleReminder(item.id, item.generic_name, item.dose, h, m, newSound, ri);
         else if (p.startsWith('week:')) await scheduleReminderWeekly(item.id, item.generic_name, item.dose, p.split(':')[1].split(',').map(Number), h, m, newSound, ri);
         else if (p.startsWith('month:')) await scheduleReminderMonthly(item.id, item.generic_name, item.dose, p.split(':')[1].split(',').map(Number), h, m, newSound, ri);
-        else if (p.startsWith('nmonths:')) { const [,nStr,dStr] = p.split(':'); await scheduleReminderEveryNMonths(item.id, item.generic_name, item.dose, Number(nStr), Number(dStr), h, m, newSound, ri); }
+        else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(item.id, item.generic_name, item.dose, Number(nStr), Number(dStr), h, m, newSound, ri); }
       } catch {}
     }
     setReminderHasSound(prev => new Map(prev).set(item.id, newSound));
   }
 
-  async function handleSaveReminder() {
+  async function doSaveWizard() {
     try {
-      let newEntries: MedicationReminder[] = [];
+      const effectiveTime = startTime || '08:00';
+      let newEntries: Omit<MedicationReminder, 'id'>[] = [];
 
       if (reminderPeriod === 'day') {
         let times: string[] = [];
@@ -480,148 +388,638 @@ export default function MedicationsScreen() {
           const raw = customTimes.trim();
           const num = parseInt(raw, 10);
           if (!isNaN(num) && /^\d+$/.test(raw)) {
-            times = computeTimes(startTime, num);
+            times = computeTimes(effectiveTime, num);
           } else {
             times = raw.split(/[,\s]+/).map(t => t.trim()).filter(t => /^\d{1,2}:\d{2}$/.test(t));
           }
         } else {
-          times = computedTimes;
+          const ct = computeTimes(effectiveTime, timesPerDay);
+          times = ct.length > 0 ? ct : [effectiveTime];
         }
-        if (times.length === 0) { Alert.alert('Erro', 'Nenhum horário válido informado.'); return; }
-        newEntries = times.map((time, i) => ({
-          id: reminderIsDraft ? -(Date.now() + i) : 0,
-          medication_id: reminderMed?.id ?? 0,
-          time, period: 'day', with_sound: withSound, is_active: true, repeat_interval: repeatInterval,
+        newEntries = times.map(time => ({
+          medication_id: 0, time, period: 'day',
+          with_sound: withSound, is_active: true, repeat_interval: repeatInterval,
         }));
       } else if (reminderPeriod === 'week') {
-        if (selectedWeekdays.length === 0) { Alert.alert('Erro', 'Selecione ao menos um dia da semana.'); return; }
-        const [h, m] = startTime.split(':').map(Number);
-        if (isNaN(h) || isNaN(m)) { Alert.alert('Erro', 'Horário inválido.'); return; }
-        newEntries = [{ id: reminderIsDraft ? -Date.now() : 0, medication_id: reminderMed?.id ?? 0, time: startTime, period: `week:${selectedWeekdays.sort((a,b)=>a-b).join(',')}`, with_sound: withSound, is_active: true, repeat_interval: repeatInterval }];
+        newEntries = [{
+          medication_id: 0, time: effectiveTime,
+          period: `week:${selectedWeekdays.sort((a, b) => a - b).join(',')}`,
+          with_sound: withSound, is_active: true, repeat_interval: repeatInterval,
+        }];
       } else if (reminderPeriod === 'month') {
-        if (selectedMonthDays.length === 0) { Alert.alert('Erro', 'Selecione ao menos um dia do mês.'); return; }
-        const [h, m] = startTime.split(':').map(Number);
-        if (isNaN(h) || isNaN(m)) { Alert.alert('Erro', 'Horário inválido.'); return; }
-        newEntries = [{ id: reminderIsDraft ? -Date.now() : 0, medication_id: reminderMed?.id ?? 0, time: startTime, period: `month:${selectedMonthDays.sort((a,b)=>a-b).join(',')}`, with_sound: withSound, is_active: true, repeat_interval: repeatInterval }];
+        newEntries = [{
+          medication_id: 0, time: effectiveTime,
+          period: `month:${selectedMonthDays.sort((a, b) => a - b).join(',')}`,
+          with_sound: withSound, is_active: true, repeat_interval: repeatInterval,
+        }];
       } else if (reminderPeriod === 'year') {
-        const n = parseInt(nMonths, 10);
-        const d = parseInt(monthDay, 10);
-        const [h, mi] = startTime.split(':').map(Number);
-        if (isNaN(n) || n < 1) { Alert.alert('Erro', 'Informe o intervalo em meses (mínimo 1).'); return; }
-        if (isNaN(d) || d < 1 || d > 28) { Alert.alert('Erro', 'Dia do mês deve ser entre 1 e 28.'); return; }
-        if (isNaN(h) || isNaN(mi)) { Alert.alert('Erro', 'Horário inválido.'); return; }
-        newEntries = [{ id: reminderIsDraft ? -Date.now() : 0, medication_id: reminderMed?.id ?? 0, time: startTime, period: `nmonths:${n}:${d}`, with_sound: withSound, is_active: true, repeat_interval: repeatInterval }];
+        newEntries = [{
+          medication_id: 0, time: effectiveTime,
+          period: `nmonths:${nMonths}:${monthDay}`,
+          with_sound: withSound, is_active: true, repeat_interval: repeatInterval,
+        }];
       }
 
-      if (reminderIsDraft) {
-        setReminders(prev => [...prev, ...newEntries]);
-        setShowReminderModal(false);
-        setTimeout(() => setShowModal(true), 100);
-        return;
-      } else if (reminderMed) {
-        // Determina o tipo de período sendo salvo
-        const p0 = newEntries[0]?.period ?? 'day';
-        const periodType = (p: string) => p.startsWith('week:') ? 'week' : p.startsWith('month:') ? 'month' : p.startsWith('nmonths:') ? 'nmonths' : 'day';
-        // Apaga todos os reminders do mesmo tipo (substitui em vez de acumular)
-        for (const r of reminders) {
-          if (periodType(r.period ?? 'day') === periodType(p0)) {
-            await deleteReminder(r.id).catch(() => {});
-          }
-        }
-        // Adiciona os novos
-        for (const e of newEntries) {
-          await addReminder({ medication_id: reminderMed.id, time: e.time, period: e.period, with_sound: withSound, is_active: true, repeat_interval: repeatInterval });
-        }
-        // Cancela tudo e reagenda todos os reminders restantes + novos
-        await cancelAllRemindersForMedication(reminderMed.id).catch(() => {});
-        const allRem = await getRemindersForMedication(reminderMed.id);
-        for (const rem of allRem.filter(rem => rem.is_active)) {
-          const [h, m] = rem.time.split(':').map(Number);
-          const p = rem.period ?? 'day';
-          try {
-            const ri = rem.repeat_interval ?? 0;
-            if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, rem.with_sound, ri);
-            else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, ri);
-            else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, ri);
-            else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, rem.with_sound, ri); }
-          } catch {}
-        }
-        setReminders(allRem);
-        await refreshReminderTimes(reminderMed.id);
-      }
+      const isCritical = interactions.some(i => i.risk_level === 'critical' || i.risk_level === 'high');
+      const stockQty = stockInput.trim() ? parseInt(stockInput.trim(), 10) : null;
+      const endDate = hasDeadline && durationDays.trim() ? addDays(parseInt(durationDays.trim(), 10)) : null;
+      const data = {
+        ...form,
+        generic_name: form.generic_name.trim(),
+        commercial_name: form.commercial_name.trim(),
+        is_critical: isCritical,
+        stock_quantity: stockQty,
+        end_date: endDate,
+      };
 
-      if (reminderFromEditFlow) {
-        setReminderFromEditFlow(false);
-        setShowReminderModal(false);
-        setTimeout(() => setShowModal(true), 100);
+      let savedMedId: number;
+      if (editingId !== null) {
+        await updateMedication({ ...data, id: editingId });
+        savedMedId = editingId;
+        await cancelAllRemindersForMedication(savedMedId).catch(() => {});
+        const existing = await getRemindersForMedication(savedMedId);
+        for (const r of existing) await deleteReminder(r.id).catch(() => {});
       } else {
-        resetPickerState();
+        savedMedId = await addMedication(data);
       }
-    } catch {
-      Alert.alert('Erro', 'Não foi possível salvar o lembrete.');
+
+      for (const e of newEntries) {
+        const [h, m] = e.time.split(':').map(Number);
+        const p = e.period ?? 'day';
+        const ri = e.repeat_interval ?? 0;
+        try {
+          if (p === 'day') await scheduleReminder(savedMedId, data.generic_name, data.dose, h, m, e.with_sound, ri);
+          else if (p.startsWith('week:')) await scheduleReminderWeekly(savedMedId, data.generic_name, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri);
+          else if (p.startsWith('month:')) await scheduleReminderMonthly(savedMedId, data.generic_name, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri);
+          else if (p.startsWith('nmonths:')) {
+            const [, nStr, dStr] = p.split(':');
+            await scheduleReminderEveryNMonths(savedMedId, data.generic_name, data.dose, Number(nStr), Number(dStr), h, m, e.with_sound, ri);
+          }
+        } catch {}
+        await addReminder({ medication_id: savedMedId, time: e.time, period: e.period, with_sound: e.with_sound, is_active: true, repeat_interval: ri }).catch(() => {});
+      }
+
+      const isNew = editingId === null;
+      const updated = await getMedications();
+      setMedications(updated);
+      setShowModal(false);
+
+      const savedInts = [...interactions];
+      setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setSubstanceInteractions([]);
+      setEditingId(null); setKnownDrug(false);
+      setStockInput(''); setDurationDays(''); setHasDeadline(false);
+      setReminders([]); resetPickerState(); setWizardStep('name');
+      await syncNotification(updated);
+      await refreshReminderTimes(savedMedId).catch(() => {});
+
+      if (isNew && savedInts.length === 0) {
+        navigation.navigate('Home' as never);
+      } else if (savedInts.length > 0) {
+        setPostSaveInteractions(savedInts);
+        setShowInteractionWarning(true);
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      Alert.alert('Erro ao salvar', msg);
     }
   }
 
-  async function handleDeleteReminder(r: MedicationReminder) {
-    if (reminderIsDraft) {
-      setReminders(prev => prev.filter(x => x.id !== r.id));
+  async function handleSave() {
+    if (!form.generic_name.trim()) {
+      Alert.alert('Campo obrigatório', 'Informe o nome do medicamento.');
       return;
     }
-    await cancelReminderByTime(r.medication_id, r.time, r.period).catch(() => {});
-    await deleteReminder(r.id);
-    setReminders(await getRemindersForMedication(r.medication_id));
-    await refreshReminderTimes(r.medication_id);
+    await doSaveWizard();
   }
 
-  async function handleToggleActive(r: MedicationReminder) {
-    if (reminderIsDraft) {
-      setReminders(prev => prev.map(x => x.id === r.id ? { ...x, is_active: !x.is_active } : x));
+  function parseDose(dose: string): { value: string; unit: string } {
+    const parts = dose.trim().split(' ');
+    const last = parts[parts.length - 1];
+    if (parts.length > 1 && DOSE_UNITS.includes(last)) {
+      return { value: parts.slice(0, -1).join(' '), unit: last };
+    }
+    return { value: dose, unit: 'mg' };
+  }
+
+  function openWizard() {
+    setForm(EMPTY_MED);
+    setDoseValue(''); setDoseUnit('mg'); setDoseUnitTouched(false);
+    setEditingId(null);
+    setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setSubstanceInteractions([]);
+    setEntryType('medicamento'); setKnownDrug(false);
+    setReminders([]); setStockInput(''); setDurationDays(''); setHasDeadline(false);
+    resetPickerState();
+    setWizardStep('type');
+    setShowModal(true);
+  }
+
+  function openEdit(item: Medication) {
+    setForm({
+      generic_name: item.generic_name,
+      commercial_name: item.commercial_name,
+      dose: item.dose,
+      frequency: item.frequency,
+      is_critical: item.is_critical,
+      notes: item.notes,
+      stock_quantity: item.stock_quantity,
+      end_date: item.end_date,
+    });
+    const parsed = parseDose(item.dose);
+    setDoseValue(parsed.value); setDoseUnit(parsed.unit); setDoseUnitTouched(!!item.dose);
+    setStockInput(item.stock_quantity != null ? String(item.stock_quantity) : '');
+    setDurationDays(item.end_date ? String(Math.max(0, daysRemaining(item.end_date))) : '');
+    setHasDeadline(!!item.end_date);
+    setEditingId(item.id);
+    setSuggestions([]); setCommercialSuggestions([]); setKnownDrug(true);
+    setEntryType(isPhytotherapic(item.generic_name) ? 'fitoterapico' : 'medicamento');
+    setInteractions([]); setSubstanceInteractions([]);
+    resetPickerState(); setReminders([]);
+    setWizardStep('name');
+    setShowModal(true);
+    getRemindersForMedication(item.id).then(rs => {
+      setReminders(rs);
+      if (rs.length > 0) populatePickerFromReminders(rs);
+    }).catch(() => {});
+    setTimeout(() => {
+      const others = medications.filter(m => m.id !== item.id).map(m => m.generic_name);
+      const drugInts = checkInteractions(item.generic_name, others);
+      const seenIds = new Set(drugInts.map(i => i.id));
+      setInteractions(drugInts);
+      setSubstanceInteractions(checkSubstanceInteractions(item.generic_name, others).filter(i => !seenIds.has(i.id)));
+    }, 0);
+  }
+
+  function stepNeedsNext(): boolean {
+    if (editingId !== null) return true;
+    switch (wizardStep) {
+      case 'type':
+      case 'period':
+      case 'sound':
+      case 'repeat':
+        return false;
+      case 'times_per_day':
+        return false;
+      case 'deadline':
+        return hasDeadline;
+      default:
+        return true;
+    }
+  }
+
+  // overridePeriod: pass the new period when calling from the period tap handler,
+  // because React state won't have updated yet at call time.
+  function wizGoNext(overridePeriod?: ReminderPeriod) {
+    const p = overridePeriod ?? reminderPeriod;
+    const isNew = editingId === null;
+    const seq = getStepSequence(p, isNew);
+    const idx = seq.indexOf(wizardStep);
+
+    if (wizardStep === 'name' && !form.generic_name.trim()) {
+      Alert.alert('Campo obrigatório', 'Informe o nome do medicamento.');
       return;
     }
-    const newActive = !r.is_active;
-    await toggleReminderActive(r.id, newActive);
-    if (newActive && reminderMed) {
-      const [h, m] = r.time.split(':').map(Number);
-      const p = r.period ?? 'day';
-      const ri = r.repeat_interval ?? 0;
-      if (p === 'day') {
-        await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, r.with_sound, ri).catch(() => {});
-      } else if (p.startsWith('week:')) {
-        const wds = p.split(':')[1].split(',').map(Number);
-        await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, wds, h, m, r.with_sound, ri).catch(() => {});
-      } else if (p.startsWith('month:')) {
-        const days = p.split(':')[1].split(',').map(Number);
-        await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, days, h, m, r.with_sound, ri).catch(() => {});
-      } else if (p.startsWith('nmonths:')) {
-        const [, n, d] = p.split(':');
-        await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(n), Number(d), h, m, r.with_sound, ri).catch(() => {});
-      }
+    // Silently report drug names not found in the local database
+    if (wizardStep === 'name' && !knownDrug && form.generic_name.trim().length >= 3) {
+      reportMissingDrug(form.generic_name.trim()).catch(() => {});
+    }
+    if (wizardStep === 'weekdays' && selectedWeekdays.length === 0) {
+      Alert.alert('Selecione', 'Selecione ao menos um dia da semana.');
+      return;
+    }
+    if (wizardStep === 'month_days' && selectedMonthDays.length === 0) {
+      Alert.alert('Selecione', 'Selecione ao menos um dia do mês.');
+      return;
+    }
+    if (wizardStep === 'time' && pickerH === null) {
+      Alert.alert('Obrigatório', 'Defina o horário do primeiro aviso.');
+      return;
+    }
+
+    if (idx >= seq.length - 1) {
+      handleSave();
     } else {
-      await cancelReminderByTime(r.medication_id, r.time, r.period).catch(() => {});
+      setWizardStep(seq[idx + 1]);
     }
-    setReminders(await getRemindersForMedication(r.medication_id));
-    await refreshReminderTimes(r.medication_id);
   }
 
-  async function handleToggleReminderSound(r: MedicationReminder) {
-    if (!reminderMed) return;
-    await updateReminderSound(r.id, !r.with_sound);
-    await cancelAllRemindersForMedication(reminderMed.id).catch(() => {});
-    const rs = await getRemindersForMedication(reminderMed.id);
-    for (const rem of rs.filter(rem => rem.is_active)) {
-      const [h, m] = rem.time.split(':').map(Number);
-      const p = rem.period ?? 'day';
-      try {
-        const ri = rem.repeat_interval ?? 0;
-        if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, rem.with_sound, ri);
-        else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, ri);
-        else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, ri);
-        else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, rem.with_sound, ri); }
-      } catch {}
+  function wizGoBack() {
+    const isNew = editingId === null;
+    const seq = getStepSequence(reminderPeriod, isNew);
+    const idx = seq.indexOf(wizardStep);
+    if (idx <= 0) {
+      setShowModal(false);
+    } else {
+      setWizardStep(seq[idx - 1]);
     }
-    setReminders(rs);
-    setWithSound(rs.some(rem => rem.with_sound));
-    await refreshReminderTimes(reminderMed.id);
+  }
+
+  function renderWizardStep() {
+    switch (wizardStep) {
+      case 'type':
+        return (
+          <>
+            <Text style={styles.wizLabel}>O que deseja adicionar?</Text>
+            <View style={[styles.yesNoRow, { marginTop: 24, flexDirection: 'column', gap: 16 }]}>
+              <TouchableOpacity
+                style={styles.typeCardBtn}
+                onPress={() => { setEntryType('medicamento'); setSuggestions([]); setForm(f => ({ ...f, generic_name: '' })); wizGoNext(); }}
+              >
+                <Text style={styles.typeCardIcon}>💊</Text>
+                <Text style={styles.typeCardText}>Medicamento</Text>
+                <Text style={styles.typeCardHint}>Prescritos ou de uso contínuo</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.typeCardBtn}
+                onPress={() => { setEntryType('fitoterapico'); setSuggestions([]); setForm(f => ({ ...f, generic_name: '' })); wizGoNext(); }}
+              >
+                <Text style={styles.typeCardIcon}>🌿</Text>
+                <Text style={styles.typeCardText}>Fitoterápico</Text>
+                <Text style={styles.typeCardHint}>Plantas medicinais e suplementos</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        );
+
+      case 'name':
+        return (
+          <>
+            <Text style={styles.wizLabel}>{entryType === 'fitoterapico' ? 'Nome do fitoterápico' : 'Nome do medicamento'}</Text>
+            <Text style={styles.wizHint}>Digite o nome genérico ou comercial</Text>
+
+            <View style={[styles.fieldLabelRow, { marginTop: 14 }]}>
+              {form.generic_name.length >= 2 && suggestions.length === 0 && !knownDrug && (
+                <ActivityIndicator size="small" color="#1C3F7A" style={{ marginLeft: 2, marginRight: 6 }} />
+              )}
+            </View>
+            <TextInput
+              style={[styles.fieldInput, styles.wizBigInput]}
+              value={form.generic_name}
+              onChangeText={handleGenericNameChange}
+              autoCapitalize="words"
+              placeholder={entryType === 'fitoterapico' ? 'Ex: Ginkgo Biloba...' : 'Ex: Losartana...'}
+              placeholderTextColor="#bbb"
+            />
+
+            {entryType === 'fitoterapico' && form.generic_name.length > 0 && (
+              <View style={styles.phytoGrid}>
+                {getSuggestions(form.generic_name, 34, 'Fitoterápico').map(p => {
+                  const popular = p.firstBrand ?? p.genericName;
+                  const scientific = p.genericName.replace(/\s*\(.*\)/, '').trim();
+                  return (
+                    <TouchableOpacity key={p.genericName} style={styles.phytoCard} onPress={() => applySuggestion(p)}>
+                      <Text style={styles.phytoCardName} numberOfLines={2}>{popular}</Text>
+                      <Text style={styles.phytoCardScientific} numberOfLines={1}>{scientific}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
+
+
+
+            {(interactions.length > 0 || substanceInteractions.length > 0) && (
+              <Text style={styles.interactionDisclaimer}>
+                ⚠️ Possíveis interações detectadas. Será exibido aviso após salvar.
+              </Text>
+            )}
+            {interactions.map(i => {
+              const isC = i.risk_level === 'critical';
+              const isH = i.risk_level === 'high';
+              const color = isC ? '#CC0000' : isH ? '#e65c00' : '#b58900';
+              const bg = isC ? '#fff0f0' : isH ? '#fff5f0' : '#fffaf0';
+              const label = isC ? 'CRÍTICO' : isH ? 'ALTO' : 'MODERADO';
+              return (
+                <View key={i.id} style={[styles.interactionCard, { borderLeftColor: color, backgroundColor: bg }]}>
+                  <Text style={[styles.interactionBadge, { color }]}>⚡ {label}</Text>
+                  <Text style={styles.interactionDrugs}>{i.drug1}  +  {i.drug2}</Text>
+                  <Text style={styles.interactionDesc}>{i.risk_description}</Text>
+                </View>
+              );
+            })}
+            {interactions.some(i => i.risk_level === 'critical' || i.risk_level === 'high') && (
+              <View style={styles.doctorAdviceBox}>
+                <Text style={styles.doctorAdviceTitle}>Avise seu médico</Text>
+                <Text style={styles.doctorAdviceText}>
+                  Você já usa medicamentos com interação com{' '}
+                  <Text style={{ fontWeight: '700' }}>{form.generic_name || 'este medicamento'}</Text>.
+                  Informe seu médico antes de iniciar.
+                </Text>
+                <TouchableOpacity
+                  style={styles.doctorShareBtn}
+                  onPress={() => Share.share({ message: buildDoctorMessage(form.generic_name, interactions) })}
+                >
+                  <Text style={styles.doctorShareBtnText}>Compartilhar aviso com médico</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </>
+        );
+
+      case 'dose':
+        return (
+          <>
+            <Text style={styles.wizLabel}>Dose</Text>
+            <Text style={styles.wizHint}>Quantidade e unidade (opcional)</Text>
+            <View style={styles.doseRow}>
+              <TextInput
+                style={[styles.fieldInput, styles.doseValueInput]}
+                value={doseValue}
+                onChangeText={v => {
+                  setDoseValue(v);
+                  setForm(f => ({ ...f, dose: v ? `${v} ${doseUnit}` : '' }));
+                }}
+                keyboardType="numeric"
+                autoCapitalize="none"
+              />
+              <View style={styles.doseUnitRow}>
+                {DOSE_UNITS.map(u => (
+                  <TouchableOpacity
+                    key={u}
+                    style={[styles.doseUnitBtn, doseUnitTouched && doseUnit === u && styles.doseUnitBtnActive]}
+                    onPress={() => {
+                      setDoseUnit(u); setDoseUnitTouched(true);
+                      setForm(f => ({ ...f, dose: doseValue ? `${doseValue} ${u}` : '' }));
+                    }}
+                  >
+                    <Text style={[styles.doseUnitText, doseUnitTouched && doseUnit === u && styles.doseUnitTextActive]}>{u}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+            <Text style={[styles.fieldLabel, { marginTop: 18 }]}>Observações (opcional)</Text>
+            <TextInput
+              style={[styles.fieldInput, { minHeight: 60, textAlignVertical: 'top', marginTop: 4 }]}
+              value={form.notes}
+              onChangeText={v => setForm(f => ({ ...f, notes: v }))}
+              multiline
+            />
+          </>
+        );
+
+      case 'period':
+        return (
+          <>
+            <Text style={styles.wizLabel}>Com que frequência?</Text>
+            <Text style={styles.wizHint}>Toque em uma opção para continuar</Text>
+            <View style={styles.periodCardRow}>
+              {([
+                { p: 'day',   icon: '☀️', label: 'Todo Dia',  hint: 'Repetição diária' },
+                { p: 'week',  icon: '📅', label: 'Semanal',   hint: 'Alguns dias da semana' },
+                { p: 'month', icon: '🗓', label: 'Mensal',    hint: 'Alguns dias do mês' },
+                { p: 'year',  icon: '📆', label: 'Livre',     hint: 'A cada N meses' },
+              ] as { p: ReminderPeriod; icon: string; label: string; hint: string }[]).map(({ p, icon, label, hint }) => (
+                <TouchableOpacity
+                  key={p}
+                  style={[styles.periodCardBtn, editingId !== null && reminderPeriod === p && styles.periodCardBtnActive]}
+                  onPress={() => { setReminderPeriod(p); wizGoNext(p); }}
+                >
+                  <Text style={styles.periodCardIcon}>{icon}</Text>
+                  <Text style={[styles.periodCardText, editingId !== null && reminderPeriod === p && styles.periodCardTextActive]}>{label}</Text>
+                  <Text style={[styles.periodCardHint, editingId !== null && reminderPeriod === p && { color: 'rgba(255,255,255,0.7)' }]}>{hint}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        );
+
+      case 'times_per_day':
+        return (
+          <>
+            <Text style={styles.wizLabel}>Vezes por dia</Text>
+            <Text style={styles.wizHint}>Toque em uma opção para continuar</Text>
+            <View style={[styles.timesRow, { marginTop: 20 }]}>
+              {TIMES_PER_DAY_OPTIONS.map(n => (
+                <TouchableOpacity
+                  key={n}
+                  style={[styles.timesBtn, timesPerDayTouched && timesPerDay === n && styles.timesBtnActive]}
+                  onPress={() => { setTimesPerDay(n); setTimesPerDayTouched(true); setCustomTimes(''); setSpecificModeActive(false); wizGoNext(); }}
+                >
+                  <Text style={[styles.timesBtnText, timesPerDayTouched && timesPerDay === n && styles.timesBtnTextActive]}>{n}x</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        );
+
+      case 'weekdays':
+        return (
+          <>
+            <Text style={styles.wizLabel}>Dias da semana</Text>
+            <Text style={styles.wizHint}>Selecione um ou mais dias</Text>
+            <View style={[styles.weekdayRow, { marginTop: 16 }]}>
+              {WEEKDAYS.map(wd => {
+                const sel = selectedWeekdays.includes(wd.value);
+                return (
+                  <TouchableOpacity
+                    key={wd.value}
+                    style={[styles.weekdayBtn, sel && styles.weekdayBtnActive]}
+                    onPress={() => setSelectedWeekdays(prev =>
+                      sel ? prev.filter(v => v !== wd.value) : [...prev, wd.value]
+                    )}
+                  >
+                    <Text style={[styles.weekdayBtnText, sel && styles.weekdayBtnTextActive]}>{wd.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </>
+        );
+
+      case 'month_days':
+        return (
+          <>
+            <Text style={styles.wizLabel}>Dias do mês</Text>
+            <Text style={styles.wizHint}>Selecione um ou mais dias</Text>
+            <View style={[styles.monthGrid, { marginTop: 16 }]}>
+              {Array.from({ length: 31 }, (_, i) => i + 1).map(d => {
+                const sel = selectedMonthDays.includes(d);
+                return (
+                  <TouchableOpacity
+                    key={d}
+                    style={[styles.monthDayBtn, sel && styles.monthDayBtnActive]}
+                    onPress={() => setSelectedMonthDays(prev =>
+                      sel ? prev.filter(v => v !== d) : [...prev, d]
+                    )}
+                  >
+                    <Text style={[styles.monthDayBtnText, sel && styles.monthDayBtnTextActive]}>{d}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </>
+        );
+
+      case 'n_months':
+        return (
+          <>
+            <Text style={styles.wizLabel}>Intervalo livre</Text>
+            <Text style={styles.wizHint}>Para uso esporádico (ex: vitamina trimestral)</Text>
+            <Text style={[styles.fieldLabel, { marginTop: 18 }]}>Repetir a cada quantos meses</Text>
+            <TextInput
+              style={[styles.fieldInput, styles.wizBigInput]}
+              value={nMonths}
+              onChangeText={setNMonths}
+              keyboardType="number-pad"
+              maxLength={2}
+            />
+            <Text style={[styles.fieldLabel, { marginTop: 14 }]}>No dia do mês (1–28)</Text>
+            <TextInput
+              style={[styles.fieldInput, styles.wizBigInput]}
+              value={monthDay}
+              onChangeText={setMonthDay}
+              keyboardType="number-pad"
+              maxLength={2}
+            />
+          </>
+        );
+
+      case 'time':
+        return (
+          <>
+            <Text style={styles.wizLabel}>Horário do primeiro aviso</Text>
+            <Text style={styles.wizHint}>Obrigatório — toque no relógio para definir</Text>
+            <TouchableOpacity style={styles.wizTimePicker} onPress={() => setShowHorarioPicker(true)}>
+              <Text style={styles.wizTimePickerText}>{pickerDisplay || '——:——'}</Text>
+              <Text style={styles.wizTimePickerHint}>{pickerDisplay ? 'Toque para alterar' : 'Toque para definir o horário'}</Text>
+            </TouchableOpacity>
+            {showHorarioPicker && (
+              <DateTimePicker
+                value={(() => { const d = new Date(); d.setHours(pickerH ?? 8, pickerM ?? 0, 0, 0); return d; })()}
+                mode="time"
+                is24Hour={true}
+                onChange={(e, d) => {
+                  setShowHorarioPicker(false);
+                  if (e.type === 'set' && d) {
+                    setPickerH(d.getHours()); setPickerM(d.getMinutes());
+                  }
+                }}
+              />
+            )}
+          </>
+        );
+
+      case 'deadline':
+        return (
+          <>
+            <Text style={styles.wizLabel}>Prazo do tratamento</Text>
+            <Text style={styles.wizHint}>O tratamento tem uma data para terminar?</Text>
+            <View style={[styles.yesNoRow, { marginTop: 20 }]}>
+              <TouchableOpacity
+                style={[styles.yesNoBtn, editingId !== null && hasDeadline && styles.yesNoBtnActive]}
+                onPress={() => setHasDeadline(true)}
+              >
+                <Text style={[styles.yesNoBtnText, editingId !== null && hasDeadline && styles.yesNoBtnTextActive]}>Sim</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.yesNoBtn, editingId !== null && !hasDeadline && styles.yesNoBtnActive]}
+                onPress={() => { setHasDeadline(false); wizGoNext(); }}
+              >
+                <Text style={[styles.yesNoBtnText, editingId !== null && !hasDeadline && styles.yesNoBtnTextActive]}>Não</Text>
+              </TouchableOpacity>
+            </View>
+            {hasDeadline && (
+              <>
+                <Text style={[styles.fieldLabel, { marginTop: 18 }]}>Duração em dias</Text>
+                <TextInput
+                  style={[styles.fieldInput, styles.wizBigInput]}
+                  value={durationDays}
+                  onChangeText={setDurationDays}
+                  keyboardType="number-pad"
+                  placeholder="Ex: 7"
+                  placeholderTextColor="#bbb"
+                />
+                {durationDays.trim() !== '' && !isNaN(parseInt(durationDays)) && (
+                  <Text style={styles.stockEndDatePreview}>
+                    Termina em: {formatEndDate(addDays(parseInt(durationDays)))}
+                  </Text>
+                )}
+              </>
+            )}
+          </>
+        );
+
+      case 'sound':
+        return (
+          <>
+            <Text style={styles.wizLabel}>Alarme sonoro</Text>
+            <Text style={styles.wizHint}>Deseja que o aviso toque um som?</Text>
+            <View style={[styles.yesNoRow, { marginTop: 20 }]}>
+              <TouchableOpacity
+                style={[styles.yesNoBtn, editingId !== null && withSound && styles.yesNoBtnActive]}
+                onPress={() => { setWithSound(true); wizGoNext(); }}
+              >
+                <Text style={[styles.yesNoBtnText, editingId !== null && withSound && styles.yesNoBtnTextActive]}>🔔 Sim</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.yesNoBtn, editingId !== null && !withSound && styles.yesNoBtnActive]}
+                onPress={() => { setWithSound(false); wizGoNext(); }}
+              >
+                <Text style={[styles.yesNoBtnText, editingId !== null && !withSound && styles.yesNoBtnTextActive]}>🔕 Não</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        );
+
+      case 'repeat':
+        return (
+          <>
+            <Text style={styles.wizLabel}>Repetir alarme</Text>
+            <Text style={styles.wizHint}>
+              Deseja que o alarme toque a cada 5 minutos até você confirmar em{' '}
+              <Text style={{ fontWeight: '700' }}>Tomei</Text> ou{' '}
+              <Text style={{ fontWeight: '700' }}>Não Tomei</Text>?
+            </Text>
+            <Text style={[styles.wizHint, { marginTop: 6, color: '#999', fontSize: 12 }]}>
+              Necessário caso deseje Controlar o Estoque.
+            </Text>
+            <View style={[styles.yesNoRow, { marginTop: 20 }]}>
+              <TouchableOpacity
+                style={[styles.yesNoBtn, editingId !== null && repeatInterval > 0 && styles.yesNoBtnActive]}
+                onPress={() => { setRepeatInterval(5); wizGoNext(); }}
+              >
+                <Text style={[styles.yesNoBtnText, editingId !== null && repeatInterval > 0 && styles.yesNoBtnTextActive]}>🔁 Sim</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.yesNoBtn, editingId !== null && repeatInterval === 0 && styles.yesNoBtnActive]}
+                onPress={() => { setRepeatInterval(0); wizGoNext(); }}
+              >
+                <Text style={[styles.yesNoBtnText, editingId !== null && repeatInterval === 0 && styles.yesNoBtnTextActive]}>Não</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        );
+
+      case 'stock':
+        return (
+          <>
+            <Text style={styles.wizLabel}>Controle de estoque</Text>
+            <Text style={styles.wizHint}>Quantos comprimidos/doses você tem em casa?</Text>
+            <Text style={[styles.wizHint, { marginTop: 6, color: '#999', fontSize: 12 }]}>
+              Com o controle ativo, o aviso fica na tela até você tocar em <Text style={{ fontWeight: '700' }}>Tomei</Text> ou <Text style={{ fontWeight: '700' }}>Não Tomei</Text>. Se repetir alarme estiver ativado, o alarme toca a cada 5 min. A cada <Text style={{ fontWeight: '700' }}>Tomei</Text> o estoque diminui 1. Quando faltar doses para 3 dias, você será avisado.
+            </Text>
+            <TextInput
+              style={[styles.fieldInput, styles.wizBigInput, { marginTop: 16 }]}
+              value={stockInput}
+              onChangeText={setStockInput}
+              keyboardType="number-pad"
+              placeholder="Ex: 30"
+              placeholderTextColor="#bbb"
+            />
+            <Text style={{ fontSize: 12, color: '#999', marginTop: 6, marginLeft: 2 }}>
+              Deixe em branco para não controlar o estoque
+            </Text>
+            <TouchableOpacity
+              style={[styles.stockHelpBtn2, { marginTop: 10 }]}
+              onPress={() => setShowStockHelp(true)}
+            >
+              <Text style={styles.stockHelpBtn2Text}>Como funciona o controle de estoque?</Text>
+            </TouchableOpacity>
+          </>
+        );
+
+      default:
+        return null;
+    }
   }
 
   return (
@@ -646,14 +1044,15 @@ export default function MedicationsScreen() {
           const hasHighRisk = itemInteractions.some(i => i.risk_level === 'critical' || i.risk_level === 'high');
           return (
           <View style={[styles.medCard, hasHighRisk && styles.medCardCritical]}>
+            <View style={styles.medHeader}>
+              {hasHighRisk && <Text style={styles.criticalIcon}>⚠️</Text>}
+              <Text style={styles.medGeneric}>
+                {item.commercial_name ? `${item.commercial_name} — ${item.generic_name}` : item.generic_name}
+              </Text>
+            </View>
             <View style={styles.medCardRow}>
               <TouchableOpacity style={styles.medInfo} activeOpacity={0.6} onPress={() => openEdit(item)}>
-                <View style={styles.medHeader}>
-                  {hasHighRisk && <Text style={styles.criticalIcon}>⚠️</Text>}
-                  <Text style={styles.medGeneric}>{item.generic_name}</Text>
-                </View>
-                {item.commercial_name ? <Text style={styles.medCommercial}>{item.commercial_name}</Text> : null}
-                {item.dose ? <Text style={styles.medDetail}>💊 {item.dose}</Text> : null}
+                {item.dose ? <Text style={styles.medDetail}>⚖️ {item.dose}</Text> : null}
                 {(reminderTimes.get(item.id)?.length ?? 0) > 0 ? (
                   <Text style={styles.medDetail}>🕐 {reminderTimes.get(item.id)!.join('  ·  ')}</Text>
                 ) : item.frequency ? (
@@ -661,10 +1060,7 @@ export default function MedicationsScreen() {
                 ) : null}
                 {item.notes ? <Text style={styles.medNotes}>{item.notes}</Text> : null}
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.bellBtn}
-                onPress={() => handleToggleSound(item)}
-              >
+              <TouchableOpacity style={styles.bellBtn} onPress={() => handleToggleSound(item)}>
                 <Text style={styles.bellBtnText}>
                   {(reminderTimes.get(item.id)?.length ?? 0) > 0 && (reminderHasSound.get(item.id) ?? false) ? '🔔' : '🔕'}
                 </Text>
@@ -681,7 +1077,6 @@ export default function MedicationsScreen() {
                 <Text style={styles.deleteBtnText}>✕</Text>
               </TouchableOpacity>
             </View>
-            {/* Stock row */}
             {item.stock_quantity != null && (
               <View style={styles.stockRow}>
                 {(() => {
@@ -694,10 +1089,7 @@ export default function MedicationsScreen() {
                         💊 {item.stock_quantity} restante{item.stock_quantity !== 1 ? 's' : ''} · ~{daysLeft} dia{daysLeft !== 1 ? 's' : ''}
                         {isLow ? '  ⚠ estoque baixo' : ''}
                       </Text>
-                      <TouchableOpacity
-                        style={styles.takenBtn}
-                        onPress={() => setStockActionMed(item)}
-                      >
+                      <TouchableOpacity style={styles.takenBtn} onPress={() => setStockActionMed(item)}>
                         <Text style={styles.takenBtnText}>Tomar</Text>
                       </TouchableOpacity>
                     </>
@@ -712,7 +1104,6 @@ export default function MedicationsScreen() {
                   : `📅 Tratamento encerrado em ${formatEndDate(item.end_date)}`}
               </Text>
             )}
-
             {itemInteractions.length > 0 && (
               <TouchableOpacity style={styles.cardInteractionRow} activeOpacity={0.7} onPress={() => setInteractionModal(itemInteractions)}>
                 {itemInteractions.slice(0, 3).map(i => {
@@ -734,631 +1125,117 @@ export default function MedicationsScreen() {
         }}
       />
 
-      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={() => { setForm(EMPTY_MED); setEditingId(null); setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setSubstanceInteractions([]); setEntryType('medicamento'); setKnownDrug(false); setReportedDrug(''); setReportingName(null); setReminders([]); setReminderIsDraft(false); setStockInput(''); setDurationDays(''); setShowModal(true); }}>
+      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={openWizard}>
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 
-      {/* Add medication modal */}
+      {/* Wizard modal */}
       <Modal visible={showModal} animationType="slide" transparent>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-        <View style={styles.modalOverlay}>
-          <ScrollView style={styles.modalBox} contentContainerStyle={[styles.modalContent, { paddingBottom: insets.bottom + 32 }]} keyboardShouldPersistTaps="handled">
-            <Text style={styles.modalTitle}>
-              {editingId !== null
-                ? (entryType === 'fitoterapico' ? 'Editar Fitoterápico' : 'Editar Medicamento')
-                : (entryType === 'fitoterapico' ? 'Novo Fitoterápico' : 'Novo Medicamento')}
-            </Text>
-
-            {editingId === null && (
-              <View style={styles.typeRow}>
-                <TouchableOpacity
-                  style={[styles.typeBtn, entryType === 'medicamento' && styles.typeBtnActive]}
-                  onPress={() => { setEntryType('medicamento'); setSuggestions([]); setForm(f => ({ ...f, generic_name: '' })); }}
-                >
-                  <Text style={[styles.typeBtnText, entryType === 'medicamento' && styles.typeBtnTextActive]}>💊 Medicamento</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.typeBtn, entryType === 'fitoterapico' && styles.typeBtnActiveGreen]}
-                  onPress={() => { setEntryType('fitoterapico'); setSuggestions([]); setForm(f => ({ ...f, generic_name: '' })); }}
-                >
-                  <Text style={[styles.typeBtnText, entryType === 'fitoterapico' && styles.typeBtnTextActive]}>🌿 Fitoterápico</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
-            <View style={styles.fieldLabelRow}>
-              <Text style={styles.fieldLabel}>{entryType === 'fitoterapico' ? 'Nome do fitoterápico / planta *' : 'Nome genérico *'}</Text>
-              {form.generic_name.length >= 2 && suggestions.length === 0 && !knownDrug && (
-                <ActivityIndicator size="small" color="#1C3F7A" style={{ marginLeft: 6 }} />
-              )}
-            </View>
-            <TextInput
-              style={styles.fieldInput}
-              value={form.generic_name}
-              onChangeText={handleGenericNameChange}
-              autoCapitalize="words"
-            />
-            {entryType === 'fitoterapico' && form.generic_name.length > 0 && (
-              <View style={styles.phytoGrid}>
-                {getSuggestions(form.generic_name, 34, 'Fitoterápico').map(p => {
-                  const popular = p.firstBrand ?? p.genericName;
-                  const scientific = p.genericName.replace(/\s*\(.*\)/, '').trim();
-                  return (
-                    <TouchableOpacity key={p.genericName} style={styles.phytoCard} onPress={() => applySuggestion(p)}>
-                      <Text style={styles.phytoCardName} numberOfLines={2}>{popular}</Text>
-                      <Text style={styles.phytoCardScientific} numberOfLines={1}>{scientific}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            )}
-
-            {suggestions.length > 0 && entryType !== 'fitoterapico' && (
-              <View style={styles.suggestionsBox}>
-                {suggestions.map(s => (
-                  <View key={s.label} style={styles.suggestionRow}>
-                    <TouchableOpacity
-                      style={[styles.suggestionChip, s.isBrand && styles.suggestionChipBrand]}
-                      onPress={() => applySuggestion(s)}
-                    >
-                      <Text style={[styles.suggestionChipText, s.isBrand && styles.suggestionChipTextBrand]} numberOfLines={1}>
-                        {s.label}
-                      </Text>
-                      {s.category ? (
-                        <Text style={[styles.suggestionCategory, s.isBrand && styles.suggestionCategoryBrand]}>
-                          {s.category}
-                        </Text>
-                      ) : null}
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.bulaBtn}
-                      onPress={() => openBula(s.bulaUrl)}
-                    >
-                      <Text style={styles.bulaBtnText}>📋</Text>
-                    </TouchableOpacity>
-                  </View>
-                ))}
-              </View>
-            )}
-            {suggestions.length === 0 && !knownDrug && form.generic_name.trim().length >= 3 && (
-              reportedDrug === form.generic_name.trim() ? (
-                <Text style={styles.reportedText}>✓ Reportado — obrigado!</Text>
-              ) : reportingName !== null ? (
-                <View style={styles.reportConfirmBox}>
-                  <Text style={styles.reportConfirmLabel}>Nome completo do medicamento:</Text>
-                  <TextInput
-                    style={styles.reportConfirmInput}
-                    value={reportingName}
-                    onChangeText={setReportingName}
-                    autoFocus
-                    autoCapitalize="words"
-                    placeholder="Ex: Amoxicilina Tri-hidratada"
-                  />
-                  <View style={styles.reportConfirmBtns}>
-                    <TouchableOpacity
-                      style={styles.reportCancelBtn}
-                      onPress={() => setReportingName(null)}
-                    >
-                      <Text style={styles.reportCancelText}>Cancelar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.reportSendBtn, !reportingName.trim() && { opacity: 0.4 }]}
-                      disabled={!reportingName.trim()}
-                      onPress={async () => {
-                        const name = reportingName.trim();
-                        setReportingName(null);
-                        setReportedDrug(form.generic_name.trim());
-                        await reportMissingDrug(name);
-                      }}
-                    >
-                      <Text style={styles.reportSendText}>Enviar</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ) : (
-                <TouchableOpacity
-                  style={styles.reportMissingBtn}
-                  onPress={() => setReportingName(form.generic_name.trim())}
-                >
-                  <Text style={styles.reportMissingText}>
-                    Não encontrado no banco — Reportar faltante
-                  </Text>
-                </TouchableOpacity>
-              )
-            )}
-            <Text style={styles.fieldLabel}>Nome comercial</Text>
-            <TextInput
-              style={styles.fieldInput}
-              value={form.commercial_name}
-              onChangeText={handleCommercialNameChange}
-              onFocus={() => setSuggestions([])}
-              autoCapitalize="words"
-            />
-            {commercialSuggestions.length > 0 && (
-              <View style={styles.suggestionsBox}>
-                {commercialSuggestions.map(s => (
-                  <View key={s.label} style={styles.suggestionRow}>
-                    <TouchableOpacity
-                      style={[styles.suggestionChip, styles.suggestionChipBrand]}
-                      onPress={() => applyCommercialSuggestion(s)}
-                    >
-                      <Text style={[styles.suggestionChipText, styles.suggestionChipTextBrand]} numberOfLines={1}>
-                        {s.brandName}
-                      </Text>
-                      {s.category ? (
-                        <Text style={[styles.suggestionCategory, styles.suggestionCategoryBrand]}>
-                          {s.genericName} · {s.category}
-                        </Text>
-                      ) : null}
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.bulaBtn}
-                      onPress={() => openBula(s.bulaUrl)}
-                    >
-                      <Text style={styles.bulaBtnText}>📋</Text>
-                    </TouchableOpacity>
-                  </View>
-                ))}
-              </View>
-            )}
-
-            <Text style={styles.fieldLabel}>Dose</Text>
-            <TextInput style={styles.fieldInput} value={form.dose} onChangeText={v => setForm(f => ({ ...f, dose: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} />
-
-            <Text style={[styles.fieldLabel, { marginTop: 10 }]}>Frequência</Text>
-            <TouchableOpacity
-              style={styles.freqField}
-              onPress={() => {
-                if (editingId !== null) {
-                  const med = medications.find(m => m.id === editingId);
-                  if (med) { setShowModal(false); setTimeout(() => openReminders(med, true), 100); }
-                } else {
-                  setShowModal(false);
-                  setTimeout(() => openRemindersForNewMed(), 100);
-                }
-              }}
-            >
+          <View style={styles.modalOverlay}>
+            <View style={styles.wizModalBox}>
+              {/* Progress bar */}
               {(() => {
-                const times = editingId !== null
-                  ? (reminderTimes.get(editingId) ?? [])
-                  : reminders.filter(r => r.is_active).map(r => periodLabel(r.period, r.time));
-                return times.length > 0
-                  ? <Text style={styles.freqTimesText}>🕐 {times.join('  ·  ')}</Text>
-                  : <Text style={styles.freqPlaceholderText}>Toque para configurar →</Text>;
-              })()}
-            </TouchableOpacity>
-
-            <Text style={styles.fieldLabel}>Observações</Text>
-            <TextInput style={[styles.fieldInput, { minHeight: 60, textAlignVertical: 'top' }]} value={form.notes} onChangeText={v => setForm(f => ({ ...f, notes: v }))} onFocus={() => { setSuggestions([]); setCommercialSuggestions([]); }} multiline />
-
-            {(interactions.length > 0 || substanceInteractions.length > 0) && (
-              <Text style={styles.interactionDisclaimer}>
-                ⚠️ Possíveis interações com outros medicamentos ou substâncias que você já usa. Em caso de dúvidas, consulte seu médico.
-              </Text>
-            )}
-            {interactions.map(i => {
-              const isC = i.risk_level === 'critical';
-              const isH = i.risk_level === 'high';
-              const color = isC ? '#CC0000' : isH ? '#e65c00' : '#b58900';
-              const bg = isC ? '#fff0f0' : isH ? '#fff5f0' : '#fffaf0';
-              const label = isC ? 'CRÍTICO' : isH ? 'ALTO' : 'MODERADO';
-              return (
-                <View key={i.id} style={[styles.interactionCard, { borderLeftColor: color, backgroundColor: bg }]}>
-                  <Text style={[styles.interactionBadge, { color }]}>⚡ {label}</Text>
-                  <Text style={styles.interactionDrugs}>{i.drug1}  +  {i.drug2}</Text>
-                  <Text style={styles.interactionDesc}>{i.risk_description}</Text>
-                </View>
-              );
-            })}
-            {substanceInteractions.map(i => {
-              const isC = i.risk_level === 'critical';
-              const isH = i.risk_level === 'high';
-              const color = isC ? '#CC0000' : isH ? '#e65c00' : '#b58900';
-              const bg = isC ? '#fff0f0' : isH ? '#fff5f0' : '#fffaf0';
-              const label = isC ? 'CRÍTICO' : isH ? 'ALTO' : 'MODERADO';
-              const substance = i.drug1.toLowerCase().includes(form.generic_name.toLowerCase().slice(0, 4)) ? i.drug2 : i.drug1;
-              return (
-                <View key={i.id} style={[styles.interactionCard, { borderLeftColor: color, backgroundColor: bg }]}>
-                  <Text style={[styles.interactionBadge, { color }]}>⚠️ {label} · Substância</Text>
-                  <Text style={styles.interactionDrugs}>{i.drug1}  +  {i.drug2}</Text>
-                  <Text style={styles.interactionDesc}>{i.risk_description}</Text>
-                  <Text style={[styles.substanceWarning, { color }]}>Evite {substance} durante o tratamento</Text>
-                </View>
-              );
-            })}
-            {/* Stock & duration */}
-            {(() => {
-              const hasAlarm = editingId !== null
-                ? (reminderTimes.get(editingId)?.length ?? 0) > 0
-                : reminders.filter(r => r.is_active).length > 0;
-              return (
-                <>
-                  <View style={styles.stockSection}>
-                    <View style={styles.stockSectionHeader}>
-                      <Text style={styles.stockSectionTitle}>Controle de estoque</Text>
-                      <TouchableOpacity onPress={() => setShowStockHelp(true)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                        <Text style={styles.stockHelpBtn}>?</Text>
-                      </TouchableOpacity>
-                    </View>
-                    {!hasAlarm && (
-                      <Text style={styles.stockNoAlarm}>Configure um alarme para ativar o controle de estoque</Text>
-                    )}
-                    <Text style={styles.fieldLabel}>Quantidade atual (comprimidos/doses)</Text>
-                    <TextInput
-                      style={[styles.fieldInput, !hasAlarm && { opacity: 0.4 }]}
-                      value={stockInput}
-                      onChangeText={setStockInput}
-                      keyboardType="number-pad"
-                      editable={hasAlarm}
-                      placeholder={hasAlarm ? 'Ex: 30' : 'Requer alarme ativo'}
-                      placeholderTextColor="#bbb"
-                    />
-                    <Text style={styles.fieldLabel}>Duração do tratamento (dias)</Text>
-                    <TextInput
-                      style={styles.fieldInput}
-                      value={durationDays}
-                      onChangeText={setDurationDays}
-                      keyboardType="number-pad"
-                      placeholder="Deixe vazio para uso contínuo"
-                      placeholderTextColor="#bbb"
-                    />
-                    {durationDays.trim() !== '' && !isNaN(parseInt(durationDays)) && (
-                      <Text style={styles.stockEndDatePreview}>
-                        Termina em: {formatEndDate(addDays(parseInt(durationDays)))}
-                      </Text>
-                    )}
-                  </View>
-                </>
-              );
-            })()}
-
-            {interactions.some(i => i.risk_level === 'critical' || i.risk_level === 'high') && (
-              <View style={styles.doctorAdviceBox}>
-                <Text style={styles.doctorAdviceTitle}>Avise seu médico</Text>
-                <Text style={styles.doctorAdviceText}>
-                  Você já usa medicamentos com interação conhecida com{' '}
-                  <Text style={{ fontWeight: '700' }}>{form.generic_name || 'este medicamento'}</Text>.
-                  Informe seu médico antes de iniciar.
-                </Text>
-                <TouchableOpacity
-                  style={styles.doctorShareBtn}
-                  onPress={() => Share.share({ message: buildDoctorMessage(form.generic_name, interactions) })}
-                >
-                  <Text style={styles.doctorShareBtnText}>Compartilhar aviso com médico</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
-            <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.cancelBtn} onPress={() => { setShowModal(false); setReminders([]); setReminderIsDraft(false); setEditingId(null); }}>
-                <Text style={styles.cancelBtnText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-                <Text style={styles.saveBtnText}>{editingId !== null ? 'Atualizar' : 'Salvar'}</Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        </View>
-        </KeyboardAvoidingView>
-      </Modal>
-
-      {/* Reminders modal */}
-      <Modal visible={showReminderModal} animationType="slide" transparent>
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-        <View style={styles.modalOverlay}>
-          <ScrollView style={styles.modalBox} contentContainerStyle={[styles.modalContent, { paddingBottom: insets.bottom + 32 }]} keyboardShouldPersistTaps="handled">
-            <Text style={styles.modalTitle}>⏰ Frequência</Text>
-            {(reminderMed?.generic_name || (reminderIsDraft && form.generic_name)) && (
-              <Text style={styles.reminderMedName}>{reminderMed?.generic_name || form.generic_name}</Text>
-            )}
-
-            <Text style={styles.fieldLabel}>Período</Text>
-            <View style={styles.periodRow}>
-              {(['day', 'week', 'month', 'year'] as ReminderPeriod[]).map(p => {
-                const labels: Record<ReminderPeriod, string> = { day: 'Dia', week: 'Sem.', month: 'Mês', year: 'Livre' };
+                const seq = getStepSequence(reminderPeriod, editingId === null);
+                const idx = Math.max(0, seq.indexOf(wizardStep));
+                const pct = `${Math.round((idx + 1) / seq.length * 100)}%`;
                 return (
-                  <TouchableOpacity
-                    key={p}
-                    style={[styles.periodBtn, reminderPeriod === p && styles.periodBtnActive]}
-                    onPress={() => setReminderPeriod(p)}
-                  >
-                    <Text style={[styles.periodBtnText, reminderPeriod === p && styles.periodBtnTextActive]}>
-                      {labels[p]}
-                    </Text>
-                  </TouchableOpacity>
+                  <View style={styles.wizProgress}>
+                    <View style={[styles.wizProgressBar, { width: pct as any }]} />
+                  </View>
                 );
-              })}
-            </View>
+              })()}
 
-            {reminderPeriod === 'week' && (
-              <>
-                <Text style={styles.fieldLabel}>Dias da semana (selecione um ou mais)</Text>
-                <View style={styles.weekdayRow}>
-                  {WEEKDAYS.map(wd => {
-                    const sel = selectedWeekdays.includes(wd.value);
-                    return (
-                      <TouchableOpacity
-                        key={wd.value}
-                        style={[styles.weekdayBtn, sel && styles.weekdayBtnActive]}
-                        onPress={() => setSelectedWeekdays(prev =>
-                          sel ? prev.filter(v => v !== wd.value) : [...prev, wd.value]
-                        )}
-                      >
-                        <Text style={[styles.weekdayBtnText, sel && styles.weekdayBtnTextActive]}>
-                          {wd.label}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              </>
-            )}
-
-            {reminderPeriod === 'month' && (
-              <>
-                <Text style={styles.fieldLabel}>Dias do mês (selecione um ou mais)</Text>
-                <View style={styles.monthGrid}>
-                  {Array.from({ length: 28 }, (_, i) => i + 1).map(d => {
-                    const sel = selectedMonthDays.includes(d);
-                    return (
-                      <TouchableOpacity
-                        key={d}
-                        style={[styles.monthDayBtn, sel && styles.monthDayBtnActive]}
-                        onPress={() => setSelectedMonthDays(prev =>
-                          sel ? prev.filter(v => v !== d) : [...prev, d]
-                        )}
-                      >
-                        <Text style={[styles.monthDayBtnText, sel && styles.monthDayBtnTextActive]}>
-                          {d}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              </>
-            )}
-
-            {reminderPeriod === 'year' && (
-              <>
-                <Text style={styles.fieldLabel}>Repetir a cada quantos meses</Text>
-                <TextInput
-                  style={styles.fieldInput}
-                  value={nMonths}
-                  onChangeText={setNMonths}
-                  keyboardType="number-pad"
-                  maxLength={2}
-                />
-                <Text style={styles.fieldLabel}>No dia do mês (1–28)</Text>
-                <TextInput
-                  style={styles.fieldInput}
-                  value={monthDay}
-                  onChangeText={setMonthDay}
-                  keyboardType="number-pad"
-                  maxLength={2}
-                />
-              </>
-            )}
-
-            <View style={styles.horarioInlineRow}>
-              <Text style={styles.fieldLabel}>Horário</Text>
-              <TouchableOpacity onPress={() => setShowHorarioPicker(true)}>
-                <Text style={[styles.timeFieldInputInline, !pickerDisplay && { color: '#C0C8DC' }]}>
-                  {pickerDisplay || '--:--'}
+              {/* Header */}
+              <View style={styles.wizHeader}>
+                <Text style={styles.wizHeaderLabel}>
+                  {editingId !== null
+                    ? (entryType === 'fitoterapico' ? '✏️ Editando Fitoterápico' : '✏️ Editando Medicamento')
+                    : (entryType === 'fitoterapico' ? '🌿 Novo Fitoterápico' : '💊 Novo Medicamento')}
                 </Text>
-              </TouchableOpacity>
-            </View>
-            {showHorarioPicker && (
-              <DateTimePicker
-                value={(() => { const d = new Date(); d.setHours(pickerH ?? 8, pickerM ?? 0, 0, 0); return d; })()}
-                mode="time"
-                is24Hour={true}
-                onChange={(e, d) => {
-                  setShowHorarioPicker(false);
-                  if (e.type === 'set' && d) {
-                    setPickerH(d.getHours()); setPickerM(d.getMinutes());
-                    setCustomTimes(''); setSpecificModeActive(false);
-                  }
-                }}
-              />
-            )}
+                {form.generic_name.trim() ? (
+                  <Text style={styles.wizHeaderName} numberOfLines={1}>
+                    {form.commercial_name.trim()
+                      ? `${form.commercial_name.trim()} — ${form.generic_name.trim()}`
+                      : form.generic_name.trim()}
+                  </Text>
+                ) : null}
+              </View>
 
-            {reminderPeriod === 'day' && (
-              <>
-                <Text style={styles.fieldLabel}>Vezes por dia</Text>
-                <View style={styles.timesRow}>
-                  {TIMES_PER_DAY_OPTIONS.map(n => (
-                    <TouchableOpacity
-                      key={n}
-                      style={[styles.timesBtn, timesPerDay === n && !customTimes.trim() && styles.timesBtnActive]}
-                      onPress={() => { setTimesPerDay(n); setCustomTimes(''); setSpecificModeActive(false); }}
-                    >
-                      <Text style={[styles.timesBtnText, timesPerDay === n && !customTimes.trim() && styles.timesBtnTextActive]}>{n}x</Text>
-                    </TouchableOpacity>
+              {/* Step content */}
+              <ScrollView
+                style={{ flex: 1 }}
+                contentContainerStyle={[styles.wizContent, { paddingBottom: 24 }]}
+                keyboardShouldPersistTaps="handled"
+              >
+                {renderWizardStep()}
+              </ScrollView>
+
+              {/* Suggestions fixas acima do footer — visíveis mesmo com teclado aberto */}
+              {wizardStep === 'name' && suggestions.length > 0 && entryType !== 'fitoterapico' && (
+                <ScrollView
+                  style={styles.suggestionsFloating}
+                  keyboardShouldPersistTaps="handled"
+                  showsVerticalScrollIndicator={false}
+                >
+                  {suggestions.map(s => (
+                    <View key={s.label} style={styles.suggestionRow}>
+                      <TouchableOpacity
+                        style={[styles.suggestionChip, s.isBrand && styles.suggestionChipBrand]}
+                        onPress={() => applySuggestion(s)}
+                      >
+                        <Text style={[styles.suggestionChipText, s.isBrand && styles.suggestionChipTextBrand]} numberOfLines={1}>
+                          {s.label}
+                        </Text>
+                        {s.category ? (
+                          <Text style={[styles.suggestionCategory, s.isBrand && styles.suggestionCategoryBrand]}>
+                            {s.category}
+                          </Text>
+                        ) : null}
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.bulaBtn} onPress={() => openBula(s.bulaUrl)}>
+                        <Text style={styles.bulaBtnText}>📋</Text>
+                      </TouchableOpacity>
+                    </View>
                   ))}
-                </View>
+                </ScrollView>
+              )}
 
-                <View style={styles.specificTimesRow}>
-                  <Text style={styles.specificTimesLabel}>Ou horários específicos</Text>
-                  <TouchableOpacity onPress={() => setShowCustomPicker(true)} style={{ marginLeft: 8 }}>
-                    <Text style={[styles.specificTimesInput, !customInputDisplay && { color: '#C0C8DC' }]}>
-                      {customInputDisplay || '--:--'}
+              {/* Footer */}
+              <View style={[styles.wizFooter, { paddingBottom: insets.bottom + 12 }]}>
+                <TouchableOpacity
+                  style={[styles.wizBackBtn, !stepNeedsNext() && { flex: 1, borderColor: '#ddd' }]}
+                  onPress={wizGoBack}
+                >
+                  <Text style={styles.wizBackBtnText}>‹ Voltar</Text>
+                </TouchableOpacity>
+                {stepNeedsNext() && (
+                  <TouchableOpacity style={styles.wizNextBtn} onPress={() => wizGoNext()}>
+                    <Text style={styles.wizNextBtnText}>
+                      {(() => {
+                        const seq = getStepSequence(reminderPeriod, editingId === null);
+                        const idx = seq.indexOf(wizardStep);
+                        return idx >= seq.length - 1 ? 'Salvar ✓' : 'Próximo ›';
+                      })()}
                     </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.addTimeBtn}
-                    onPress={() => {
-                      if (customH === null) return;
-                      const t = fmtHM(customH, customM ?? 0);
-                      if (!specificModeActive) { setCustomTimes(''); setSpecificModeActive(true); }
-                      setCustomTimes(prev => {
-                        const base = specificModeActive ? prev.trim() : '';
-                        return base ? base + ' ' + t : t;
-                      });
-                      setPickerH(null); setPickerM(null);
-                      setCustomH(null); setCustomM(null);
-                    }}
-                  >
-                    <Text style={styles.addTimeBtnText}>+</Text>
-                  </TouchableOpacity>
-                </View>
-                {showCustomPicker && (
-                  <DateTimePicker
-                    value={(() => { const d = new Date(); d.setHours(customH ?? 8, customM ?? 0, 0, 0); return d; })()}
-                    mode="time"
-                    is24Hour={true}
-                    onChange={(e, d) => {
-                      setShowCustomPicker(false);
-                      if (e.type === 'set' && d) {
-                        setCustomH(d.getHours()); setCustomM(d.getMinutes());
-                        if (!specificModeActive) { setCustomTimes(''); setSpecificModeActive(true); }
-                      }
-                    }}
-                  />
                 )}
-
-                {customTimes.trim() && (
-                  <View style={styles.customTimesBox}>
-                    <Text style={styles.customTimesText}>{customTimes}</Text>
-                  </View>
-                )}
-
-                {(customTimes.trim() ? customTimes.split(/\s+/).filter(t => /^\d{1,2}:\d{2}$/.test(t)) : computedTimes).length > 0 && (
-                  <View style={styles.timesPreview}>
-                    <Text style={styles.timesPreviewLabel}>Horários dos avisos:</Text>
-                    <View style={styles.timesChipsRow}>
-                      {(customTimes.trim() ? customTimes.split(/\s+/).filter(t => /^\d{1,2}:\d{2}$/.test(t)) : computedTimes).map(t => (
-                        <Text key={t} style={styles.timesChip}>{t}</Text>
-                      ))}
-                    </View>
-                  </View>
-                )}
-              </>
-            )}
-
-            <View style={styles.soundRow}>
-              <Text style={[styles.soundLabel, { flex: 1 }]}>🔔 Alarme</Text>
-              <TouchableOpacity onPress={async () => {
-                const val = !withSound;
-                setWithSound(val);
-                if (!reminderMed) return;
-                await updateAllRemindersSound(reminderMed.id, val);
-                await cancelAllRemindersForMedication(reminderMed.id).catch(() => {});
-                const rs = await getRemindersForMedication(reminderMed.id);
-                for (const rem of rs.filter(rem => rem.is_active)) {
-                  const [h, m] = rem.time.split(':').map(Number);
-                  const p = rem.period ?? 'day';
-                  try {
-                    const ri = rem.repeat_interval ?? 0;
-                    if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, val, ri);
-                    else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, val, ri);
-                    else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, val, ri);
-                    else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, val, ri); }
-                  } catch {}
-                }
-                setReminders(rs);
-                await refreshReminderTimes(reminderMed.id);
-              }}>
-                <Text style={styles.soundBell}>{withSound ? '🔔' : '🔕'}</Text>
-              </TouchableOpacity>
+              </View>
             </View>
-
-            <View style={styles.soundRow}>
-              <Text style={[styles.soundLabel, { flex: 1 }]}>🔁 Repetir alarme</Text>
-              {repeatInterval > 0 && (
-                <Text style={[styles.soundHint, { marginRight: 8 }]}>a cada {repeatInterval} min</Text>
-              )}
-              <Switch
-                value={repeatInterval > 0}
-                onValueChange={async (val) => {
-                  const min = val ? 5 : 0;
-                  setRepeatInterval(min);
-                  if (reminderMed) {
-                    await updateAllRemindersInterval(reminderMed.id, min);
-                    await cancelAllRemindersForMedication(reminderMed.id).catch(() => {});
-                    const rs = await getRemindersForMedication(reminderMed.id);
-                    for (const rem of rs.filter(rem => rem.is_active)) {
-                      const [h, m] = rem.time.split(':').map(Number);
-                      const p = rem.period ?? 'day';
-                      try {
-                        if (p === 'day') await scheduleReminder(reminderMed.id, reminderMed.generic_name, reminderMed.dose, h, m, rem.with_sound, min);
-                        else if (p.startsWith('week:')) await scheduleReminderWeekly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, min);
-                        else if (p.startsWith('month:')) await scheduleReminderMonthly(reminderMed.id, reminderMed.generic_name, reminderMed.dose, p.split(':')[1].split(',').map(Number), h, m, rem.with_sound, min);
-                        else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(reminderMed.id, reminderMed.generic_name, reminderMed.dose, Number(nStr), Number(dStr), h, m, rem.with_sound, min); }
-                      } catch {}
-                    }
-                  }
-                }}
-                trackColor={{ true: '#1a3a6b', false: '#ccc' }}
-                thumbColor="#fff"
-              />
-            </View>
-
-            {(() => {
-              const makeRow = (t: string, saved?: MedicationReminder) => (
-                <View key={t} style={styles.reminderRow}>
-                  <Text style={[styles.soundLabel, { flex: 1 }]}>{t}</Text>
-                  <Switch
-                    value={saved ? saved.is_active : true}
-                    onValueChange={saved ? () => handleToggleActive(saved) : () => {}}
-                    trackColor={{ true: '#1a3a6b', false: '#ccc' }}
-                    thumbColor="#fff"
-                  />
-                  {saved ? (
-                    <TouchableOpacity onPress={() => handleToggleReminderSound(saved)} style={styles.reminderBellBtn}>
-                      <Text style={styles.soundBell}>{saved.with_sound ? '🔔' : '🔕'}</Text>
-                    </TouchableOpacity>
-                  ) : (
-                    <Text style={[styles.soundBell, styles.reminderBellBtn]}>{withSound ? '🔔' : '🔕'}</Text>
-                  )}
-                </View>
-              );
-
-              if (reminderPeriod === 'day') {
-                const previewTimes = customTimes.trim()
-                  ? customTimes.split(/\s+/).filter(t => /^\d{1,2}:\d{2}$/.test(t))
-                  : computedTimes;
-                const effectiveTimes = previewTimes.length > 0
-                  ? previewTimes
-                  : reminders.filter(r => (r.period ?? 'day') === 'day').map(r => r.time);
-                return effectiveTimes.map(t => {
-                  const saved = reminders.find(r => r.time === t && (r.period ?? 'day') === 'day');
-                  return makeRow(t, saved);
-                });
-              }
-              const matchesPeriod = (p: string) => {
-                const pp = p ?? 'day';
-                if (reminderPeriod === 'week') return pp.startsWith('week:');
-                if (reminderPeriod === 'month') return pp.startsWith('month:');
-                if (reminderPeriod === 'year') return pp.startsWith('nmonths:');
-                return pp === 'day';
-              };
-              return reminders.filter(r => matchesPeriod(r.period ?? 'day')).map(r => makeRow(periodLabel(r.period, r.time), r));
-            })()}
-
-            <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.cancelBtn} onPress={() => {
-                const goBack = reminderIsDraft || reminderFromEditFlow;
-                setShowReminderModal(false);
-                setReminderFromEditFlow(false);
-                if (goBack) setTimeout(() => setShowModal(true), 100);
-              }}>
-                <Text style={styles.cancelBtnText}>Fechar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.saveBtn} onPress={handleSaveReminder}>
-                <Text style={styles.saveBtnText}>Salvar</Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        </View>
+          </View>
         </KeyboardAvoidingView>
       </Modal>
-      {/* Interaction warning modal */}
-      <Modal visible={showInteractionWarning} animationType="slide" transparent onRequestClose={() => setShowInteractionWarning(false)}>
+
+      {/* Post-save interaction warning */}
+      <Modal visible={showInteractionWarning} animationType="slide" transparent onRequestClose={() => { setShowInteractionWarning(false); setPostSaveInteractions([]); }}>
         <View style={styles.intModalOverlay}>
           <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
-            <Text style={styles.intModalTitle}>Interação com outro medicamento</Text>
-            <ScrollView style={{ maxHeight: 240 }} showsVerticalScrollIndicator={false}>
-              {interactions.map(i => {
+            <Text style={styles.intModalTitle}>⚠️ Interação detectada</Text>
+            <Text style={[styles.iwAdviceText, { marginTop: 0, marginBottom: 12 }]}>
+              Medicamento salvo. Informe seu médico sobre estas interações.
+            </Text>
+            <ScrollView style={{ maxHeight: 260 }} showsVerticalScrollIndicator={false}>
+              {postSaveInteractions.map(i => {
                 const c = i.risk_level === 'critical' ? '#CC0000' : i.risk_level === 'high' ? '#e65c00' : '#b58900';
                 const lbl = i.risk_level === 'critical' ? 'Crítico' : i.risk_level === 'high' ? 'Alto' : 'Moderado';
                 return (
@@ -1372,15 +1249,9 @@ export default function MedicationsScreen() {
                 );
               })}
             </ScrollView>
-            <Text style={styles.iwAdviceText}>Informe seu médico.</Text>
-            <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowInteractionWarning(false)}>
-                <Text style={styles.cancelBtnText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.saveBtn} onPress={() => { setShowInteractionWarning(false); doSave(); }}>
-                <Text style={styles.saveBtnText}>Salvar</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity style={styles.intModalClose} onPress={() => { setShowInteractionWarning(false); setPostSaveInteractions([]); }}>
+              <Text style={styles.intModalCloseText}>Entendi</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -1390,7 +1261,6 @@ export default function MedicationsScreen() {
         <View style={styles.intModalOverlay}>
           <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
             <Text style={styles.intModalTitle}>💊 {stockActionMed?.generic_name}</Text>
-
             <TouchableOpacity
               style={styles.stockActionBtn}
               onPress={async () => {
@@ -1405,7 +1275,6 @@ export default function MedicationsScreen() {
               <Text style={styles.stockActionBtnText}>✓ Informar Tomei</Text>
               <Text style={styles.stockActionBtnHint}>Desconta 1 do estoque atual ({stockActionMed?.stock_quantity ?? 0} restante{stockActionMed?.stock_quantity !== 1 ? 's' : ''})</Text>
             </TouchableOpacity>
-
             <View style={styles.stockActionEditRow}>
               <Text style={styles.stockActionEditLabel}>Alterar quantidade de estoque</Text>
               <View style={styles.stockActionEditInputRow}>
@@ -1432,13 +1301,11 @@ export default function MedicationsScreen() {
                 </TouchableOpacity>
               </View>
             </View>
-
             <View style={styles.stockActionInfo}>
               <Text style={styles.stockActionInfoText}>
-                O estoque é descontado automaticamente ao tocar em <Text style={{ fontWeight: '700' }}>Tomei</Text> no alarme ou em <Text style={{ fontWeight: '700' }}>Tomar</Text> aqui. Use <Text style={{ fontWeight: '700' }}>Alterar quantidade</Text> para corrigir o valor quando comprar mais medicamento.
+                O estoque é descontado automaticamente ao tocar em <Text style={{ fontWeight: '700' }}>Tomei</Text> no alarme ou em <Text style={{ fontWeight: '700' }}>Tomar</Text> aqui.
               </Text>
             </View>
-
             <TouchableOpacity style={styles.intModalClose} onPress={() => setStockActionMed(null)}>
               <Text style={styles.intModalCloseText}>Fechar</Text>
             </TouchableOpacity>
@@ -1448,6 +1315,7 @@ export default function MedicationsScreen() {
 
       {bulaModal}
 
+      {/* Interaction detail modal (from card tap) */}
       <Modal visible={!!interactionModal} animationType="slide" transparent onRequestClose={() => setInteractionModal(null)}>
         <View style={styles.intModalOverlay}>
           <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
@@ -1474,6 +1342,7 @@ export default function MedicationsScreen() {
         </View>
       </Modal>
 
+      {/* Stock help modal */}
       <Modal visible={showStockHelp} animationType="slide" transparent onRequestClose={() => setShowStockHelp(false)}>
         <View style={styles.intModalOverlay}>
           <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
@@ -1484,18 +1353,13 @@ export default function MedicationsScreen() {
               </Text>
               <Text style={styles.stockHelpSubtitle}>Como funciona</Text>
               <Text style={styles.stockHelpText}>
-                1. Informe a quantidade atual de comprimidos ou doses que você tem em casa.{'\n\n'}
-                2. Cada vez que tomar o medicamento, toque em <Text style={{ fontWeight: '700' }}>Tomei</Text> no aviso que aparece na tela quando o alarme disparar, ou em <Text style={{ fontWeight: '700' }}>Tomar</Text> no card do medicamento na aba Medicamentos. O estoque diminui automaticamente em 1.{'\n\n'}
-                O aviso de alarme permanece na tela até você tocar em <Text style={{ fontWeight: '700' }}>Tomei</Text> ou <Text style={{ fontWeight: '700' }}>Não tomei</Text>.{'\n\n'}
-                3. Quando o estoque ficar baixo (menos de 3 dias de doses), você verá um aviso de estoque baixo para providenciar a reposição.
-              </Text>
-              <Text style={styles.stockHelpSubtitle}>Duração do tratamento</Text>
-              <Text style={styles.stockHelpText}>
-                Se o médico prescreveu por um número definido de dias (ex: antibiótico por 7 dias), preencha o campo de duração. O app exibirá a data de término e avisará quando o tratamento encerrar.
+                1. Informe a quantidade atual de comprimidos que você tem em casa.{'\n\n'}
+                2. A cada vez que tomar o medicamento, toque em <Text style={{ fontWeight: '700' }}>Tomei</Text> no aviso de alarme ou em <Text style={{ fontWeight: '700' }}>Tomar</Text> no card. O estoque diminui automaticamente em 1.{'\n\n'}
+                3. Quando o estoque ficar baixo (menos de 3 dias de doses), você verá um aviso.
               </Text>
               <View style={styles.stockHelpTip}>
                 <Text style={styles.stockHelpTipText}>
-                  💡 O controle de estoque só funciona se houver um alarme ativo configurado para o medicamento.
+                  💡 O controle de estoque requer que a repetição de alarme esteja ativa.
                 </Text>
               </View>
             </ScrollView>
@@ -1510,147 +1374,142 @@ export default function MedicationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  list: { padding: 16, paddingBottom: 80 },
+  container: { flex: 1, backgroundColor: '#F2F4F8' },
+  list: { padding: 16, paddingBottom: 160 },
   empty: { alignItems: 'center', marginTop: 60 },
   emptyText: { fontSize: 16, color: '#999', marginBottom: 6 },
   emptyHint: { fontSize: 13, color: '#bbb' },
   medCard: {
     backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
     elevation: 1, shadowColor: '#000', shadowOpacity: 0.07, shadowRadius: 3,
   },
-  medCardRow: { flexDirection: 'row', alignItems: 'flex-start' },
+  medCardRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   medCardCritical: { borderLeftWidth: 4, borderLeftColor: '#CC0000' },
   medInfo: { flex: 1 },
   medHeader: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginBottom: 2 },
   criticalIcon: { fontSize: 16 },
-  medGeneric: { fontSize: 16, fontWeight: '600', color: '#222' },
-  medCommercial: { fontSize: 13, color: '#888', marginBottom: 4 },
+  medGeneric: { fontSize: 15, fontWeight: '600', color: '#222', flexShrink: 1 },
   medDetail: { fontSize: 13, color: '#555', marginTop: 2 },
   medNotes: { fontSize: 12, color: '#888', marginTop: 4, fontStyle: 'italic' },
-  medReminders: { fontSize: 12, color: '#1C3F7A', marginTop: 4, opacity: 0.75 },
   // Stock
-  stockSection: {
-    marginTop: 16, borderTopWidth: 1, borderTopColor: '#f0f0f0', paddingTop: 14,
-  },
+  stockSection: { marginTop: 16, borderTopWidth: 1, borderTopColor: '#f0f0f0', paddingTop: 14 },
   stockSectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
   stockSectionTitle: { fontSize: 13, fontWeight: '700', color: '#1C3F7A' },
-  stockHelpBtn: {
-    width: 18, height: 18, borderRadius: 9, borderWidth: 1.5, borderColor: '#1C3F7A',
-    textAlign: 'center', lineHeight: 16, fontSize: 11, fontWeight: '700', color: '#1C3F7A',
-  },
   stockHelpText: { fontSize: 13, color: '#444', lineHeight: 20, marginBottom: 8 },
   stockHelpSubtitle: { fontSize: 13, fontWeight: '700', color: '#1C3F7A', marginTop: 8, marginBottom: 4 },
-  stockHelpTip: {
-    backgroundColor: '#FFF8E7', borderRadius: 8, padding: 10, marginTop: 8,
-    borderLeftWidth: 3, borderLeftColor: '#E07B4F',
-  },
+  stockHelpTip: { backgroundColor: '#FFF8E7', borderRadius: 8, padding: 10, marginTop: 8, borderLeftWidth: 3, borderLeftColor: '#E07B4F' },
   stockHelpTipText: { fontSize: 12, color: '#7a5200', lineHeight: 18 },
-  stockNoAlarm: { fontSize: 12, color: '#E07B4F', marginBottom: 8, fontStyle: 'italic' },
   stockEndDatePreview: { fontSize: 12, color: '#1a6b3a', marginTop: 4, fontStyle: 'italic' },
   stockRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 },
   stockText: { fontSize: 12, color: '#555', flex: 1 },
   stockTextLow: { color: '#E07B4F', fontWeight: '600' },
-  takenBtn: {
-    backgroundColor: '#1C3F7A', borderRadius: 6, paddingHorizontal: 12, paddingVertical: 5,
-  },
+  takenBtn: { backgroundColor: '#1C3F7A', borderRadius: 6, paddingHorizontal: 12, paddingVertical: 5 },
   takenBtnText: { fontSize: 12, color: '#fff', fontWeight: '700' },
   endDateText: { fontSize: 12, color: '#888', marginTop: 4 },
   endDateDone: { color: '#CC0000' },
-
-  cardInteractionRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8, flexWrap: 'wrap',
-  },
-  cardInteractionBadge: {
-    borderWidth: 1, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2,
-  },
+  cardInteractionRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8, flexWrap: 'wrap' },
+  cardInteractionBadge: { borderWidth: 1, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
   cardInteractionBadgeText: { fontSize: 10, fontWeight: '600' },
   cardInteractionMore: { fontSize: 11, color: '#999' },
-
   intModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  intModalBox: {
-    backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20,
-    padding: 20, maxHeight: '70%',
-  },
+  intModalBox: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '70%' },
   intModalTitle: { fontSize: 16, fontWeight: '700', color: '#1C3F7A', marginBottom: 16 },
-  intModalItem: {
-    borderLeftWidth: 3, borderRadius: 8, padding: 10, marginBottom: 10, backgroundColor: '#fafafa',
-  },
-  intModalBadge: {
-    borderWidth: 1, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2,
-    alignSelf: 'flex-start', marginBottom: 4,
-  },
+  intModalItem: { borderLeftWidth: 3, borderRadius: 8, padding: 10, marginBottom: 10, backgroundColor: '#fafafa' },
+  intModalBadge: { borderWidth: 1, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, alignSelf: 'flex-start', marginBottom: 4 },
   intModalBadgeText: { fontSize: 10, fontWeight: '600' },
   intModalDrugs: { fontSize: 13, fontWeight: '700', color: '#222', marginBottom: 2 },
   intModalDesc: { fontSize: 12, color: '#555', fontStyle: 'italic' },
-  intModalClose: {
-    marginTop: 12, backgroundColor: '#1C3F7A', borderRadius: 10, padding: 14, alignItems: 'center',
-  },
+  intModalClose: { marginTop: 12, backgroundColor: '#1C3F7A', borderRadius: 10, padding: 14, alignItems: 'center' },
   intModalCloseText: { fontSize: 15, color: '#fff', fontWeight: '700' },
   bellBtn: { padding: 8, marginLeft: 4, borderRadius: 8 },
   bellBtnText: { fontSize: 18 },
-  horarioInlineRow: {
-    flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 4, gap: 12,
-  },
-  timeFieldInputInline: {
-    fontSize: 20, fontWeight: '700', color: '#1C3F7A',
-    paddingVertical: 2, minWidth: 72, letterSpacing: 2, textAlign: 'center',
-  },
-  freqField: {
-    borderWidth: 1, borderColor: '#ddd', borderRadius: 8,
-    paddingHorizontal: 12, paddingVertical: 12, backgroundColor: '#fafafa', minHeight: 44,
-    justifyContent: 'center',
-  },
-  freqTimesText: { fontSize: 14, color: '#1C3F7A', fontWeight: '600' },
-  freqPlaceholderText: { fontSize: 14, color: '#bbb', fontStyle: 'italic' },
   bulaCardBtn: { padding: 8, marginLeft: 4 },
   bulaCardBtnText: { fontSize: 18 },
   deleteBtn: { padding: 8, marginLeft: 4 },
   deleteBtnText: { fontSize: 16, color: '#ccc' },
   fab: {
-    position: 'absolute', bottom: 24, right: 24, width: 56, height: 56, borderRadius: 28,
+    position: 'absolute', bottom: 80, right: 24, width: 56, height: 56, borderRadius: 28,
     backgroundColor: '#1a3a6b', justifyContent: 'center', alignItems: 'center',
     elevation: 4, shadowColor: '#1a3a6b', shadowOpacity: 0.4, shadowRadius: 6,
   },
   fabText: { fontSize: 28, color: '#fff', lineHeight: 30 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  modalBox: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '90%' },
-  modalContent: { padding: 20 },
-  modalTitle: { fontSize: 18, fontWeight: '700', color: '#222', marginBottom: 4 },
+  // Wizard modal
+  wizModalBox: {
+    backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    height: '90%',
+  },
+  wizProgress: { height: 4, backgroundColor: '#f0f0f0', borderTopLeftRadius: 20, borderTopRightRadius: 20, overflow: 'hidden' },
+  wizProgressBar: { height: 4, backgroundColor: '#1C3F7A' },
+  wizHeader: { paddingHorizontal: 20, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+  wizHeaderLabel: { fontSize: 12, color: '#999', fontWeight: '500', letterSpacing: 0.3 },
+  wizHeaderName: { fontSize: 15, fontWeight: '700', color: '#1C3F7A', marginTop: 2 },
+  wizContent: { padding: 20 },
+  wizLabel: { fontSize: 20, fontWeight: '700', color: '#1C3F7A', marginBottom: 6 },
+  wizHint: { fontSize: 14, color: '#666', lineHeight: 20 },
+  wizBigInput: { fontSize: 18, fontWeight: '600', marginTop: 8 },
+  wizTimePicker: {
+    marginTop: 24, backgroundColor: '#F2F4F8', borderRadius: 16,
+    padding: 28, alignItems: 'center', borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
+  },
+  wizTimePickerText: { fontSize: 48, fontWeight: '700', color: '#1C3F7A', letterSpacing: 2 },
+  wizTimePickerHint: { fontSize: 13, color: '#999', marginTop: 8 },
+  wizFooter: {
+    flexDirection: 'row', gap: 12, paddingHorizontal: 16, paddingTop: 12,
+    borderTopWidth: 1, borderTopColor: '#f0f0f0', backgroundColor: '#fff',
+  },
+  wizBackBtn: { flex: 1, borderWidth: 1.5, borderColor: '#ccc', borderRadius: 10, padding: 14, alignItems: 'center' },
+  wizBackBtnText: { fontSize: 15, color: '#666', fontWeight: '600' },
+  wizNextBtn: { flex: 2, backgroundColor: '#1a3a6b', borderRadius: 10, padding: 14, alignItems: 'center' },
+  wizNextBtnText: { fontSize: 15, color: '#fff', fontWeight: '700' },
+  // Type selection cards
+  typeCardBtn: {
+    borderWidth: 1.5, borderColor: '#ddd', borderRadius: 16, padding: 24,
+    alignItems: 'center', backgroundColor: '#fff',
+  },
+  typeCardIcon: { fontSize: 36, marginBottom: 8 },
+  typeCardText: { fontSize: 18, fontWeight: '700', color: '#1C3F7A' },
+  typeCardHint: { fontSize: 13, color: '#888', marginTop: 4 },
+  // Yes/No
+  yesNoRow: { flexDirection: 'row', gap: 12 },
+  yesNoBtn: { flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 12, paddingVertical: 22, alignItems: 'center' },
+  yesNoBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
+  yesNoBtnText: { fontSize: 16, color: '#555', fontWeight: '700' },
+  yesNoBtnTextActive: { color: '#fff' },
+  // Period cards
+  periodCardRow: { flexDirection: 'row', gap: 8, marginTop: 16, flexWrap: 'wrap' },
+  periodCardBtn: {
+    width: '47%', borderWidth: 1.5, borderColor: '#ddd', borderRadius: 12,
+    padding: 14, alignItems: 'center', marginBottom: 8,
+  },
+  periodCardBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
+  periodCardIcon: { fontSize: 26, marginBottom: 6 },
+  periodCardText: { fontSize: 14, color: '#333', fontWeight: '700' },
+  periodCardTextActive: { color: '#fff' },
+  periodCardHint: { fontSize: 11, color: '#888', marginTop: 3 },
+  // Autocomplete
   fieldLabelRow: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 4 },
   fieldLabel: { fontSize: 13, color: '#555' },
   fieldInput: {
     borderWidth: 1, borderColor: '#ddd', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10,
     fontSize: 15, color: '#222', backgroundColor: '#fafafa',
   },
-  modalActions: { flexDirection: 'row', gap: 10, marginTop: 20 },
-  cancelBtn: { flex: 1, borderWidth: 1.5, borderColor: '#ccc', borderRadius: 10, padding: 14, alignItems: 'center' },
-  cancelBtnText: { fontSize: 15, color: '#666', fontWeight: '600' },
-  saveBtn: { flex: 1, backgroundColor: '#1a3a6b', borderRadius: 10, padding: 14, alignItems: 'center' },
-  saveBtnDisabled: { backgroundColor: '#a0aec0' },
-  saveBtnText: { fontSize: 15, color: '#fff', fontWeight: '700' },
-  // Autocomplete
   suggestionsBox: { marginTop: 6, gap: 4 },
-  suggestionRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  suggestionChip: {
-    flex: 1, backgroundColor: '#e8edf7', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8,
-    borderWidth: 1, borderColor: '#c0ccdf',
+  suggestionsFloating: {
+    maxHeight: 220, borderTopWidth: 1, borderTopColor: '#f0f0f0',
+    paddingHorizontal: 16, paddingVertical: 8, backgroundColor: '#fff', gap: 4,
   },
+  suggestionRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  suggestionChip: { flex: 1, backgroundColor: '#e8edf7', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#c0ccdf' },
   suggestionChipBrand: { backgroundColor: '#f0e8f7', borderColor: '#c8b0dd' },
   suggestionChipText: { fontSize: 14, color: '#1a3a6b', fontWeight: '600' },
   suggestionChipTextBrand: { color: '#6b1a8a' },
   suggestionCategory: { fontSize: 11, color: '#7a92b8', marginTop: 1 },
   suggestionCategoryBrand: { color: '#9a72b8' },
-  bulaBtn: {
-    width: 38, height: 38, borderRadius: 10, backgroundColor: '#f0f4ff',
-    borderWidth: 1, borderColor: '#c0ccdf', justifyContent: 'center', alignItems: 'center',
-  },
+  bulaBtn: { width: 38, height: 38, borderRadius: 10, backgroundColor: '#f0f4ff', borderWidth: 1, borderColor: '#c0ccdf', justifyContent: 'center', alignItems: 'center' },
   bulaBtnText: { fontSize: 16 },
-  reportMissingBtn: {
-    marginTop: 6, paddingVertical: 6, paddingHorizontal: 12,
-    borderRadius: 8, borderWidth: 1, borderColor: '#b0b8c8',
-    alignSelf: 'flex-start',
-  },
+  reportMissingBtn: { marginTop: 6, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8, borderWidth: 1, borderColor: '#b0b8c8', alignSelf: 'flex-start' },
   reportMissingText: { fontSize: 12, color: '#7a8099' },
   reportedText: { fontSize: 12, color: '#5a9a6a', marginTop: 6 },
   reportConfirmBox: { marginTop: 8, padding: 10, backgroundColor: '#f5f6fa', borderRadius: 8, borderWidth: 1, borderColor: '#dde' },
@@ -1661,168 +1520,79 @@ const styles = StyleSheet.create({
   reportCancelText: { fontSize: 13, color: '#888' },
   reportSendBtn: { paddingVertical: 6, paddingHorizontal: 14, backgroundColor: '#4a6fa5', borderRadius: 6 },
   reportSendText: { fontSize: 13, color: '#fff', fontWeight: '600' },
-  // Interaction warning
-  interactionCard: {
-    borderLeftWidth: 3, borderRadius: 8, padding: 10, marginTop: 8,
-  },
-  interactionDisclaimer: {
-    fontSize: 12, color: '#888', fontStyle: 'italic',
-    marginTop: 12, marginBottom: 4, lineHeight: 16,
-  },
+  // Interaction inline
+  interactionCard: { borderLeftWidth: 3, borderRadius: 8, padding: 10, marginTop: 8 },
+  interactionDisclaimer: { fontSize: 12, color: '#888', fontStyle: 'italic', marginTop: 12, marginBottom: 4, lineHeight: 16 },
   interactionBadge: { fontSize: 11, fontWeight: '700', marginBottom: 3, letterSpacing: 0.5 },
   interactionDrugs: { fontSize: 13, fontWeight: '700', color: '#222', marginBottom: 2 },
   interactionDesc: { fontSize: 12, color: '#555', fontStyle: 'italic' },
-  substanceWarning: { fontSize: 12, fontWeight: '600', marginTop: 5 },
-  doctorAdviceBox: {
-    backgroundColor: '#f0f4ff', borderRadius: 10, padding: 12, marginTop: 10,
-    borderWidth: 1, borderColor: '#c0ccdf',
-  },
+  doctorAdviceBox: { backgroundColor: '#f0f4ff', borderRadius: 10, padding: 12, marginTop: 10, borderWidth: 1, borderColor: '#c0ccdf' },
   doctorAdviceTitle: { fontSize: 13, fontWeight: '700', color: '#1a3a6b', marginBottom: 4 },
   doctorAdviceText: { fontSize: 12, color: '#444', lineHeight: 17, marginBottom: 10 },
-  doctorShareBtn: {
-    backgroundColor: '#1a3a6b', borderRadius: 8, paddingVertical: 9,
-    paddingHorizontal: 14, alignSelf: 'flex-start',
-  },
+  doctorShareBtn: { backgroundColor: '#1a3a6b', borderRadius: 8, paddingVertical: 9, paddingHorizontal: 14, alignSelf: 'flex-start' },
   doctorShareBtnText: { fontSize: 13, color: '#fff', fontWeight: '700' },
-  // Reminder modal
-  reminderMedName: { fontSize: 14, color: '#888', marginBottom: 16 },
-  reminderEmpty: { fontSize: 14, color: '#bbb', textAlign: 'center', marginVertical: 16 },
-  reminderRow: {
-    flexDirection: 'row', alignItems: 'center', paddingVertical: 10,
-    borderBottomWidth: 1, borderBottomColor: '#f0f0f0',
-  },
-  reminderTime: { fontSize: 15, fontWeight: '700', color: '#1a3a6b', flex: 1 },
-  reminderSound: { fontSize: 18, marginHorizontal: 8 },
-  reminderSwitch: { flex: 1 },
-  reminderDeleteBtn: { padding: 8 },
-  reminderDeleteText: { fontSize: 16, color: '#ccc' },
-  addReminderBtn: {
-    marginTop: 16, borderWidth: 1.5, borderColor: '#1a3a6b', borderRadius: 10,
-    padding: 14, alignItems: 'center',
-  },
-  addReminderBtnText: { fontSize: 15, color: '#1a3a6b', fontWeight: '600' },
-  // Add form
-  addForm: { marginTop: 16, borderTopWidth: 1, borderTopColor: '#f0f0f0', paddingTop: 16 },
-  addFormTitle: { fontSize: 16, fontWeight: '700', color: '#222', marginBottom: 4 },
-  periodRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
-  periodBtn: {
-    flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 8,
-    paddingVertical: 10, alignItems: 'center',
-  },
-  periodBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
-  periodBtnText: { fontSize: 13, color: '#555', fontWeight: '600' },
-  periodBtnTextActive: { color: '#fff' },
+  // Reminder day config
+  horarioInlineRow: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 4, gap: 12 },
+  horarioLabel: { fontSize: 15, fontWeight: '700', color: '#1C3F7A' },
+  timeFieldInputInline: { fontSize: 20, fontWeight: '700', color: '#1C3F7A', paddingVertical: 2, minWidth: 72, letterSpacing: 2, textAlign: 'center' },
+  timeFieldPlaceholder: { color: '#BEC8E0' },
+  timesRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
+  doseRow: { gap: 12 },
+  doseValueInput: { fontSize: 22, fontWeight: '700', textAlign: 'center' },
+  doseUnitRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 },
+  doseUnitBtn: { borderWidth: 1.5, borderColor: '#ddd', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 14, alignItems: 'center' },
+  doseUnitBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
+  doseUnitText: { fontSize: 14, color: '#555', fontWeight: '600' },
+  doseUnitTextActive: { color: '#fff' },
+  timesBtn: { flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 8, paddingVertical: 10, alignItems: 'center' },
+  timesBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
+  timesBtnText: { fontSize: 14, color: '#555', fontWeight: '600' },
+  timesBtnTextActive: { color: '#fff' },
+  specificTimesRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', marginTop: 12, marginBottom: 4 },
+  specificTimesLabel: { fontSize: 13, color: '#555', fontWeight: '600' },
+  specificTimesInput: { fontSize: 16, fontWeight: '700', color: '#1C3F7A', textAlign: 'center', minWidth: 56, paddingVertical: 1 },
+  addTimeBtn: { marginLeft: 8, backgroundColor: '#1C3F7A', borderRadius: 6, width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
+  addTimeBtnText: { color: '#fff', fontSize: 20, fontWeight: '700', lineHeight: 26 },
+  customTimesBox: { backgroundColor: '#F2F4F8', borderRadius: 8, padding: 10, marginTop: 4, borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.1)' },
+  customTimesText: { fontSize: 15, color: '#1C3F7A', fontWeight: '600', letterSpacing: 1 },
+  timesChipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 },
+  timesChip: { backgroundColor: '#1C3F7A', color: '#fff', borderRadius: 6, paddingHorizontal: 10, paddingVertical: 3, fontSize: 14, fontWeight: '700' },
+  timesPreview: { backgroundColor: '#f0f4ff', borderRadius: 8, padding: 12, marginTop: 12 },
+  timesPreviewLabel: { fontSize: 12, color: '#888', marginBottom: 4 },
   weekdayRow: { flexDirection: 'row', gap: 4, marginTop: 4, flexWrap: 'wrap' },
-  weekdayBtn: {
-    borderWidth: 1.5, borderColor: '#ddd', borderRadius: 8,
-    paddingVertical: 8, paddingHorizontal: 10, alignItems: 'center', minWidth: 44,
-  },
+  weekdayBtn: { borderWidth: 1.5, borderColor: '#ddd', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 10, alignItems: 'center', minWidth: 44 },
   weekdayBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
   weekdayBtnText: { fontSize: 12, color: '#555', fontWeight: '600' },
   weekdayBtnTextActive: { color: '#fff' },
   monthGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 4 },
-  monthDayBtn: {
-    width: 40, height: 36, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 8,
-    justifyContent: 'center', alignItems: 'center',
-  },
+  monthDayBtn: { width: 40, height: 36, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
   monthDayBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
   monthDayBtnText: { fontSize: 13, color: '#555', fontWeight: '600' },
   monthDayBtnTextActive: { color: '#fff' },
-  timesRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
-  timesBtn: {
-    flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 8,
-    paddingVertical: 10, alignItems: 'center',
-  },
-  timesBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
-  timesBtnText: { fontSize: 14, color: '#555', fontWeight: '600' },
-  timesBtnTextActive: { color: '#fff' },
-  specificTimesRow: {
-    flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',
-    marginTop: 12, marginBottom: 4,
-  },
-  specificTimesLabel: { fontSize: 13, color: '#555', fontWeight: '600' },
-  specificTimesDivider: { fontSize: 13, color: '#888' },
-  specificTimesInput: {
-    fontSize: 16, fontWeight: '700', color: '#1C3F7A',
-    textAlign: 'center', minWidth: 56, paddingVertical: 1,
-  },
-  addTimeBtn: {
-    marginLeft: 8, backgroundColor: '#1C3F7A', borderRadius: 6,
-    width: 30, height: 30, alignItems: 'center', justifyContent: 'center',
-  },
-  addTimeBtnText: { color: '#fff', fontSize: 20, fontWeight: '700', lineHeight: 26 },
-  customTimesBox: {
-    backgroundColor: '#F2F4F8', borderRadius: 8, padding: 10, marginTop: 4,
-    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.1)',
-  },
-  customTimesText: { fontSize: 15, color: '#1C3F7A', fontWeight: '600', letterSpacing: 1 },
-  timesChipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 },
-  timesChip: {
-    backgroundColor: '#1C3F7A', color: '#fff', borderRadius: 6,
-    paddingHorizontal: 10, paddingVertical: 3, fontSize: 14, fontWeight: '700',
-  },
-  timesPreview: {
-    backgroundColor: '#f0f4ff', borderRadius: 8, padding: 12, marginTop: 12,
-  },
-  timesPreviewLabel: { fontSize: 12, color: '#888', marginBottom: 4 },
-  timesPreviewValue: { fontSize: 16, color: '#1a3a6b', fontWeight: '700', letterSpacing: 1 },
-  soundRow: {
-    flexDirection: 'row', alignItems: 'center',
-    marginTop: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f0f0f0',
-  },
-  soundLabel: { fontSize: 15, fontWeight: '600', color: '#333' },
-  soundHint: { fontSize: 12, color: '#999' },
-  soundBell: { fontSize: 24 },
-  reminderBellBtn: { paddingLeft: 12 },
-  typeRow: { flexDirection: 'row', gap: 8, marginTop: 12, marginBottom: 4 },
-  typeBtn: {
-    flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 10,
-    paddingVertical: 10, alignItems: 'center',
-  },
+  typeRow: { flexDirection: 'row', gap: 8, marginTop: 4, marginBottom: 4 },
+  typeBtn: { flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 10, paddingVertical: 10, alignItems: 'center' },
   typeBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
   typeBtnActiveGreen: { backgroundColor: '#1a6b3a', borderColor: '#1a6b3a' },
   typeBtnText: { fontSize: 13, color: '#555', fontWeight: '600' },
   typeBtnTextActive: { color: '#fff' },
-  phytoGrid: {
-    flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10, marginBottom: 4,
-  },
-  phytoCard: {
-    width: '47%', backgroundColor: '#f0f7f0', borderRadius: 10,
-    borderWidth: 1, borderColor: '#a8d5a8', padding: 10,
-  },
+  phytoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10, marginBottom: 4 },
+  phytoCard: { width: '47%', backgroundColor: '#f0f7f0', borderRadius: 10, borderWidth: 1, borderColor: '#a8d5a8', padding: 10 },
   phytoCardName: { fontSize: 13, fontWeight: '700', color: '#1a6b3a', marginBottom: 2 },
   phytoCardScientific: { fontSize: 10, color: '#5a9a6a', fontStyle: 'italic' },
-  iwLevelBadge: {
-    borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6,
-    alignSelf: 'flex-start', marginBottom: 12,
-  },
-  iwLevelText: { fontSize: 13, fontWeight: '700' },
-  iwItem: {
-    borderLeftWidth: 3, borderRadius: 8, padding: 10, marginBottom: 8, backgroundColor: '#fafafa',
-  },
+  iwItem: { borderLeftWidth: 3, borderRadius: 8, padding: 10, marginBottom: 8, backgroundColor: '#fafafa' },
   iwAdviceText: { fontSize: 14, color: '#555', marginTop: 12, marginBottom: 4 },
-  stockActionBtn: {
-    backgroundColor: '#1C3F7A', borderRadius: 10, padding: 16, marginBottom: 12,
-  },
+  stockActionBtn: { backgroundColor: '#1C3F7A', borderRadius: 10, padding: 16, marginBottom: 12 },
   stockActionBtnText: { fontSize: 15, color: '#fff', fontWeight: '700' },
   stockActionBtnHint: { fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 3 },
-  stockActionEditRow: {
-    borderWidth: 1, borderColor: '#ddd', borderRadius: 10, padding: 12, marginBottom: 12,
-  },
+  stockActionEditRow: { borderWidth: 1, borderColor: '#ddd', borderRadius: 10, padding: 12, marginBottom: 12 },
   stockActionEditLabel: { fontSize: 13, fontWeight: '600', color: '#1C3F7A', marginBottom: 8 },
   stockActionEditInputRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  stockActionEditInput: {
-    flex: 1, borderWidth: 1, borderColor: '#ddd', borderRadius: 8,
-    paddingHorizontal: 12, paddingVertical: 10, fontSize: 18, color: '#222',
-    backgroundColor: '#fafafa', textAlign: 'center',
-  },
-  stockActionSaveBtn: {
-    backgroundColor: '#E07B4F', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 10,
-  },
+  stockActionEditInput: { flex: 1, borderWidth: 1, borderColor: '#ddd', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, fontSize: 18, color: '#222', backgroundColor: '#fafafa', textAlign: 'center' },
+  stockActionSaveBtn: { backgroundColor: '#E07B4F', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 10 },
   stockActionSaveBtnText: { fontSize: 14, color: '#fff', fontWeight: '700' },
-  stockActionInfo: {
-    backgroundColor: '#FFF8E7', borderRadius: 8, padding: 12, marginBottom: 14,
-    borderLeftWidth: 3, borderLeftColor: '#E07B4F',
-  },
+  stockActionInfo: { backgroundColor: '#FFF8E7', borderRadius: 8, padding: 12, marginBottom: 14, borderLeftWidth: 3, borderLeftColor: '#E07B4F' },
   stockActionInfoText: { fontSize: 12, color: '#7a5200', lineHeight: 18 },
+  stockHelpBtn: { width: 18, height: 18, borderRadius: 9, borderWidth: 1.5, borderColor: '#1C3F7A', textAlign: 'center', lineHeight: 16, fontSize: 11, fontWeight: '700', color: '#1C3F7A' },
+  stockHelpBtn2: { alignSelf: 'flex-start' },
+  stockHelpBtn2Text: { fontSize: 13, color: '#1C3F7A', textDecorationLine: 'underline' },
 });

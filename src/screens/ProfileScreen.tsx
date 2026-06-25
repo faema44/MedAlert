@@ -4,12 +4,16 @@ import {
   TouchableOpacity, Alert, ActivityIndicator,
   KeyboardAvoidingView, Platform,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getProfile, saveProfile } from '../database/db';
 import { getMedications } from '../database/db';
 import { updateEmergencyNotification } from '../services/notifications';
 import { Profile, BLOOD_TYPES } from '../types';
 
 export default function ProfileScreen() {
+  const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState('');
@@ -45,7 +49,9 @@ export default function ProfileScreen() {
       const meds = await getMedications();
       const profile = await getProfile();
       if (profile) await updateEmergencyNotification(profile, meds).catch(() => {});
-      Alert.alert('Salvo!', 'Perfil médico atualizado e alerta de emergência sincronizado.');
+      Alert.alert('Salvo!', 'Perfil atualizado.', [
+        { text: 'OK', onPress: () => navigation.navigate('Home' as never) },
+      ]);
     } catch {
       Alert.alert('Erro', 'Não foi possível salvar o perfil. Tente novamente.');
     } finally {
@@ -63,92 +69,94 @@ export default function ProfileScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled={Platform.OS === 'ios'}>
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Identificação</Text>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Identificação</Text>
 
-        <Text style={styles.label}>Nome completo *</Text>
-        <TextInput
-          style={styles.input}
-          value={name}
-          onChangeText={setName}
-          placeholder="Seu nome completo"
-          autoCapitalize="words"
-        />
+          <Text style={styles.label}>Nome completo *</Text>
+          <TextInput
+            style={styles.input}
+            value={name}
+            onChangeText={setName}
+            placeholder="Seu nome completo"
+            autoCapitalize="words"
+          />
 
-        <Text style={styles.label}>Data de nascimento</Text>
-        <TextInput
-          style={styles.input}
-          value={birthDate}
-          onChangeText={setBirthDate}
-          placeholder="DD/MM/AAAA"
-          keyboardType="numeric"
-          maxLength={10}
-        />
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Tipo Sanguíneo</Text>
-        <View style={styles.bloodTypeGrid}>
-          {BLOOD_TYPES.map(bt => (
-            <TouchableOpacity
-              key={bt}
-              style={[styles.bloodTypeBtn, bloodType === bt && styles.bloodTypeBtnSelected]}
-              onPress={() => setBloodType(bt)}
-            >
-              <Text style={[styles.bloodTypeBtnText, bloodType === bt && styles.bloodTypeBtnTextSelected]}>
-                {bt}
-              </Text>
-            </TouchableOpacity>
-          ))}
+          <Text style={styles.label}>Data de nascimento</Text>
+          <TextInput
+            style={styles.input}
+            value={birthDate}
+            onChangeText={setBirthDate}
+            placeholder="DD/MM/AAAA"
+            keyboardType="numeric"
+            maxLength={10}
+          />
         </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Tipo Sanguíneo</Text>
+          <View style={styles.bloodTypeGrid}>
+            {BLOOD_TYPES.map(bt => (
+              <TouchableOpacity
+                key={bt}
+                style={[styles.bloodTypeBtn, bloodType === bt && styles.bloodTypeBtnSelected]}
+                onPress={() => setBloodType(bt)}
+              >
+                <Text style={[styles.bloodTypeBtnText, bloodType === bt && styles.bloodTypeBtnTextSelected]}>
+                  {bt}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Informações Médicas</Text>
+
+          <Text style={styles.label}>Alergias</Text>
+          <TextInput
+            style={[styles.input, styles.inputMultiline]}
+            value={allergies}
+            onChangeText={setAllergies}
+            placeholder="Ex: Penicilina, Dipirona, látex..."
+            multiline
+            numberOfLines={3}
+          />
+
+          <Text style={styles.label}>Observações (condições, cirurgias, etc.)</Text>
+          <TextInput
+            style={[styles.input, styles.inputMultiline]}
+            value={notes}
+            onChangeText={setNotes}
+            placeholder="Ex: Diabético tipo 2, marca-passo, insuficiência renal crônica..."
+            multiline
+            numberOfLines={4}
+          />
+        </View>
+
+        <View style={styles.infoBox}>
+          <Text style={styles.infoText}>
+            ℹ️  Estas informações serão exibidas na tela de bloqueio para socorristas. Salvar atualiza automaticamente o alerta de emergência.
+          </Text>
+        </View>
+      </ScrollView>
+
+      <View style={[styles.saveBtnContainer, { paddingBottom: insets.bottom + 12 }]}>
+        <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={saving}>
+          {saving ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.saveBtnText}>Salvar Perfil</Text>
+          )}
+        </TouchableOpacity>
       </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Informações Médicas</Text>
-
-        <Text style={styles.label}>Alergias</Text>
-        <TextInput
-          style={[styles.input, styles.inputMultiline]}
-          value={allergies}
-          onChangeText={setAllergies}
-          placeholder="Ex: Penicilina, Dipirona, látex..."
-          multiline
-          numberOfLines={3}
-        />
-
-        <Text style={styles.label}>Observações (condições, cirurgias, etc.)</Text>
-        <TextInput
-          style={[styles.input, styles.inputMultiline]}
-          value={notes}
-          onChangeText={setNotes}
-          placeholder="Ex: Diabético tipo 2, marca-passo, insuficiência renal crônica..."
-          multiline
-          numberOfLines={4}
-        />
-      </View>
-
-      <View style={styles.infoBox}>
-        <Text style={styles.infoText}>
-          ℹ️  Estas informações serão exibidas na tela de bloqueio para socorristas. Salvar atualiza automaticamente o alerta de emergência.
-        </Text>
-      </View>
-
-      <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={saving}>
-        {saving ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.saveBtnText}>Salvar Perfil</Text>
-        )}
-      </TouchableOpacity>
-    </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f5f5f5' },
-  content: { padding: 16, paddingBottom: 40 },
+  content: { padding: 16, paddingBottom: 24 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   section: {
     backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 14,
@@ -170,6 +178,7 @@ const styles = StyleSheet.create({
   bloodTypeBtnTextSelected: { color: '#fff' },
   infoBox: { backgroundColor: '#e8f4fd', borderRadius: 10, padding: 12, marginBottom: 16 },
   infoText: { fontSize: 13, color: '#0066cc', lineHeight: 18 },
+  saveBtnContainer: { backgroundColor: '#fff', paddingHorizontal: 20, paddingTop: 12, borderTopWidth: 0.5, borderTopColor: '#E0E4EE' },
   saveBtn: { backgroundColor: '#1a3a6b', borderRadius: 10, padding: 16, alignItems: 'center' },
   saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
 });

@@ -7,6 +7,10 @@ interface MedEntry {
 }
 
 let DB: MedEntry[] = [];
+// Cache brand→generic resolutions so we don't scan DB on every checkInteractions call
+const resolveCache = new Map<string, string>();
+// Pre-normalized drug1/drug2 tokens for each interaction — rebuilt when interactions load
+let INTERACTION_TOKENS: Array<{ tokens1: string[]; tokens2: string[] }> = [];
 // Seed synchronously at module load so suggestions work before syncMedicationsDb completes
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -18,6 +22,7 @@ export function loadExternalDb(data: { version?: string; medications: MedEntry[]
   if (!data?.medications?.length) return;
   if (data.medications.length > DB.length) {
     DB = data.medications;
+    resolveCache.clear();
   }
 }
 let ALL_INTERACTIONS: DrugInteraction[] = [];
@@ -26,10 +31,19 @@ export function getAllInteractions(): DrugInteraction[] {
   return ALL_INTERACTIONS;
 }
 
+function buildInteractionTokens() {
+  INTERACTION_TOKENS = ALL_INTERACTIONS.map(i => ({
+    tokens1: normalize(i.drug1).split(/[\s,]+/).filter(t => t.length >= 3),
+    tokens2: normalize(i.drug2).split(/[\s,]+/).filter(t => t.length >= 3),
+  }));
+}
+
 export function loadExternalInteractions(data: DrugInteraction[]): void {
   if (!data?.length) return;
   if (data.length > ALL_INTERACTIONS.length) {
     ALL_INTERACTIONS = data;
+    resolveCache.clear();
+    buildInteractionTokens();
   }
 }
 
@@ -267,69 +281,74 @@ export function getSuggestions(input: string, max = 7, categoryFilter?: string):
 // ─── Interaction check ────────────────────────────────────────────────────────
 
 function resolveGeneric(name: string): string {
+  if (resolveCache.has(name)) return resolveCache.get(name)!;
   const n = normalize(name);
   for (const entry of DB) {
-    if (entry.brands.some(b => normalize(b) === n)) return entry.genericName;
+    if (entry.brands.some(b => normalize(b) === n)) {
+      resolveCache.set(name, entry.genericName);
+      return entry.genericName;
+    }
   }
+  resolveCache.set(name, name);
   return name;
 }
 
-function entryMatchesName(entry: string, name: string): boolean {
+// Match a name against pre-computed token array (no DB scan)
+function tokensMatchName(tokens: string[], name: string): boolean {
   const resolved = resolveGeneric(name);
   const candidates = resolved !== name ? [resolved, name] : [name];
-
   for (const c of candidates) {
     const cNorm = normalize(c);
     if (cNorm.length < 3) continue;
-    const entryNorm = normalize(entry);
-    const tokens = entryNorm.split(/[\s,]+/).filter(t => t.length >= 3);
     if (tokens.some(t => t.includes(cNorm) || cNorm.includes(t))) return true;
   }
   return false;
+}
+
+function entryMatchesName(entry: string, name: string): boolean {
+  const tokens = normalize(entry).split(/[\s,]+/).filter(t => t.length >= 3);
+  return tokensMatchName(tokens, name);
 }
 
 export function checkSubstanceInteractions(drugName: string, userMedNames: string[]): DrugInteraction[] {
   if (drugName.trim().length < 3 || userMedNames.length === 0) return [];
   const seen = new Set<string>();
   const results: DrugInteraction[] = [];
-  for (const interaction of ALL_INTERACTIONS) {
+  for (let i = 0; i < ALL_INTERACTIONS.length; i++) {
+    const interaction = ALL_INTERACTIONS[i];
     if (seen.has(interaction.id)) continue;
-    const m1 = entryMatchesName(interaction.drug1, drugName);
-    const m2 = entryMatchesName(interaction.drug2, drugName);
+    const { tokens1, tokens2 } = INTERACTION_TOKENS[i] ?? { tokens1: [], tokens2: [] };
+    const m1 = tokensMatchName(tokens1, drugName);
+    const m2 = m1 ? false : tokensMatchName(tokens2, drugName);
     if (m1) {
-      const otherIsMed = userMedNames.some(m => entryMatchesName(interaction.drug2, m));
-      if (otherIsMed) { seen.add(interaction.id); results.push(interaction); }
+      if (userMedNames.some(m => tokensMatchName(tokens2, m))) { seen.add(interaction.id); results.push(interaction); }
     } else if (m2) {
-      const otherIsMed = userMedNames.some(m => entryMatchesName(interaction.drug1, m));
-      if (otherIsMed) { seen.add(interaction.id); results.push(interaction); }
+      if (userMedNames.some(m => tokensMatchName(tokens1, m))) { seen.add(interaction.id); results.push(interaction); }
     }
   }
   const order: Record<string, number> = { critical: 0, high: 1, moderate: 2 };
   return results.sort((a, b) => (order[a.risk_level] ?? 3) - (order[b.risk_level] ?? 3));
 }
 
-export function checkInteractions(
-  newDrug: string,
-  existingMedNames: string[],
-): DrugInteraction[] {
+export function checkInteractions(newDrug: string, existingMedNames: string[]): DrugInteraction[] {
   if (newDrug.trim().length < 3 || existingMedNames.length === 0) return [];
 
   const seen = new Set<string>();
   const results: DrugInteraction[] = [];
 
-  for (const interaction of ALL_INTERACTIONS) {
+  for (let i = 0; i < ALL_INTERACTIONS.length; i++) {
+    const interaction = ALL_INTERACTIONS[i];
     if (seen.has(interaction.id)) continue;
-
-    const m1 = entryMatchesName(interaction.drug1, newDrug);
-    const m2 = entryMatchesName(interaction.drug2, newDrug);
-
-    if (m1 && existingMedNames.some(m => entryMatchesName(interaction.drug2, m))) {
+    const { tokens1, tokens2 } = INTERACTION_TOKENS[i] ?? { tokens1: [], tokens2: [] };
+    const m1 = tokensMatchName(tokens1, newDrug);
+    const m2 = m1 ? false : tokensMatchName(tokens2, newDrug);
+    if (m1 && existingMedNames.some(m => tokensMatchName(tokens2, m))) {
       seen.add(interaction.id); results.push(interaction);
-    } else if (m2 && existingMedNames.some(m => entryMatchesName(interaction.drug1, m))) {
+    } else if (m2 && existingMedNames.some(m => tokensMatchName(tokens1, m))) {
       seen.add(interaction.id); results.push(interaction);
     }
   }
 
   const order: Record<string, number> = { critical: 0, high: 1, moderate: 2 };
-  return results.sort((a, b) => order[a.risk_level] - order[b.risk_level]);
+  return results.sort((a, b) => (order[a.risk_level] ?? 3) - (order[b.risk_level] ?? 3));
 }

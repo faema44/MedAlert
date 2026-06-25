@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState, Component } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Modal, StyleSheet, Text, View, Image, TouchableOpacity, TextInput } from 'react-native';
+import { Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -28,13 +28,12 @@ import ContactsScreen from './src/screens/ContactsScreen';
 import InteractionsScreen from './src/screens/InteractionsScreen';
 import AgendaScreen from './src/screens/AgendaScreen';
 import HelpScreen from './src/screens/HelpScreen';
-import OnboardingScreen from './src/screens/OnboardingScreen';
-
 import {
   setupNotificationChannels, requestPermissions, setupReminderCategory,
-  initReminderListeners, initActivityListeners, dismissNotification,
+  initReminderListeners, initActivityListeners, initResponseListeners, dismissNotification,
   ReminderAlertPayload, ActivityAlertPayload,
   scheduleRepeatAlarm, cancelRepeatAlarm, rescheduleAllActiveNotifications,
+  snoozeActivityReminder,
 } from './src/services/notifications';
 import { getDb, getMedications, getContacts, getMedicationById, updateMedicationStock, addActivityLog, getKV } from './src/database/db';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
@@ -97,15 +96,16 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
   );
 }
 
+const navRef = createNavigationContainerRef<any>();
+
 function AppNavigator() {
   const insets = useSafeAreaInsets();
-  const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null);
+  const [dbReady, setDbReady] = useState(false);
   const [medCount, setMedCount] = useState(0);
   const [contactCount, setContactCount] = useState(0);
   const [reminderAlert, setReminderAlert] = useState<ReminderAlertPayload | null>(null);
   const alertQueueRef = useRef<ReminderAlertPayload[]>([]);
   const [activityAlert, setActivityAlert] = useState<ActivityAlertPayload | null>(null);
-  const [activityValue, setActivityValue] = useState('');
 
   function showNextAlert() {
     const next = alertQueueRef.current.shift();
@@ -137,8 +137,7 @@ function AppNavigator() {
   useEffect(() => {
     async function init() {
       await getDb();
-      const done = await getKV('onboarding_done').catch(() => '1');
-      setOnboardingDone(done === '1');
+      setDbReady(true);
       await setupNotificationChannels().catch(() => {});
       await setupReminderCategory().catch(() => {});
       await requestPermissions().catch(() => {});
@@ -161,25 +160,57 @@ function AppNavigator() {
 
     const cleanupAct = initActivityListeners((data) => {
       setActivityAlert(data);
-      setActivityValue('');
     });
 
-    return () => { cleanupMed(); cleanupAct(); };
+    const cleanupResponse = initResponseListeners({
+      onMedTook: async (medicationId, notifId) => {
+        cancelRepeatAlarm(medicationId).catch(() => {});
+        const med = await getMedicationById(medicationId).catch(() => null);
+        if (med?.stock_quantity != null && med.stock_quantity > 0) {
+          await updateMedicationStock(medicationId, med.stock_quantity - 1).catch(() => {});
+        }
+        await dismissNotification(notifId);
+      },
+      onMedSkip: (medicationId, notifId) => {
+        cancelRepeatAlarm(medicationId).catch(() => {});
+        dismissNotification(notifId);
+      },
+      onMedDefault: (payload) => {
+        setReminderAlert(current => {
+          if (current !== null) { alertQueueRef.current.push(payload); return current; }
+          return payload;
+        });
+      },
+      onActivityDone: async (activityId, activityName, activityType, notifId) => {
+        await addActivityLog({ activity_id: activityId, activity_name: activityName, activity_type: activityType, realized: true, value: '' }).catch(() => {});
+        await dismissNotification(notifId);
+      },
+      onActivitySnooze: async (activityId, activityName, activityType, notifId) => {
+        await snoozeActivityReminder(activityId, activityName, activityType, 5);
+        await dismissNotification(notifId);
+      },
+      onActivitySkip: (notifId) => {
+        dismissNotification(notifId);
+      },
+      onActivityMeasure: (activityId, notifId) => {
+        dismissNotification(notifId);
+        if (navRef.isReady()) {
+          navRef.navigate('Agenda', { tab: 'activities', openActivityId: activityId });
+        }
+      },
+      onActivityDefault: (payload) => {
+        setActivityAlert(payload);
+      },
+    });
+
+    return () => { cleanupMed(); cleanupAct(); cleanupResponse(); };
   }, [loadCounts]);
 
-  if (onboardingDone === null) return null; // aguarda check de DB
-
-  if (!onboardingDone) {
-    return (
-      <SafeAreaProvider>
-        <OnboardingScreen onComplete={() => { setOnboardingDone(true); }} />
-      </SafeAreaProvider>
-    );
-  }
+  if (!dbReady) return null;
 
   return (
     <>
-      <NavigationContainer onStateChange={loadCounts}>
+      <NavigationContainer ref={navRef} onStateChange={loadCounts}>
         <StatusBar style="light" />
         <Tab.Navigator
           screenOptions={({ route, navigation }) => ({
@@ -255,17 +286,35 @@ function AppNavigator() {
       <Modal visible={!!activityAlert} transparent animationType="fade" onRequestClose={() => setActivityAlert(null)}>
         {activityAlert && (() => {
           const isMeasurement = ['bp', 'glucose', 'weight'].includes(activityAlert.activityType);
-          const placeholder = activityAlert.activityType === 'bp' ? 'Ex: 120/80' : activityAlert.activityType === 'glucose' ? 'Ex: 95 mg/dL' : 'Ex: 70.5 kg';
-          const unit = activityAlert.activityType === 'bp' ? 'mmHg' : activityAlert.activityType === 'glucose' ? 'mg/dL' : 'kg';
 
-          async function logAndClose(realized: boolean) {
+          async function handleMedir() {
+            setActivityAlert(null);
+            await dismissNotification(activityAlert!.notificationId);
+            if (navRef.isReady()) {
+              navRef.navigate('Agenda', { tab: 'activities', openActivityId: activityAlert!.activityId });
+            }
+          }
+
+          async function handleRealizei() {
             await addActivityLog({
               activity_id: activityAlert!.activityId,
               activity_name: activityAlert!.name,
               activity_type: activityAlert!.activityType,
-              realized,
-              value: realized && isMeasurement ? activityValue.trim() : '',
+              realized: true,
+              value: '',
             }).catch(() => {});
+            await dismissNotification(activityAlert!.notificationId);
+            setActivityAlert(null);
+          }
+
+          async function handlePular() {
+            await dismissNotification(activityAlert!.notificationId);
+            setActivityAlert(null);
+          }
+
+          async function handleAdiar() {
+            await snoozeActivityReminder(activityAlert!.activityId, activityAlert!.name, activityAlert!.activityType, 5);
+            await dismissNotification(activityAlert!.notificationId);
             setActivityAlert(null);
           }
 
@@ -274,26 +323,18 @@ function AppNavigator() {
               <View style={[ras.box, { paddingBottom: insets.bottom + 16 }]}>
                 <Text style={ras.title}>⏰ Hora da atividade</Text>
                 <Text style={ras.name}>{activityAlert.name}</Text>
-                {isMeasurement && (
-                  <>
-                    <Text style={ras.dose}>Registre o valor medido ({unit})</Text>
-                    <TextInput
-                      style={ras.valueInput}
-                      value={activityValue}
-                      onChangeText={setActivityValue}
-                      placeholder={placeholder}
-                      keyboardType="numeric"
-                      autoFocus
-                    />
-                  </>
-                )}
-                <View style={ras.btnRow}>
-                  <TouchableOpacity style={ras.btnNo} onPress={() => logAndClose(false)}>
-                    <Text style={ras.btnNoText}>Não realizei</Text>
+                <View style={ras.actBtnCol}>
+                  <TouchableOpacity style={ras.btnMedir} onPress={isMeasurement ? handleMedir : handleRealizei}>
+                    <Text style={ras.btnMedirText}>{isMeasurement ? '📋 Medir' : '✓ Registrar'}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={ras.btnYes} onPress={() => logAndClose(true)}>
-                    <Text style={ras.btnYesText}>{isMeasurement ? '✓ Salvar' : '✓ Realizei'}</Text>
-                  </TouchableOpacity>
+                  <View style={ras.actBtnRow}>
+                    <TouchableOpacity style={ras.btnSnooze} onPress={handleAdiar}>
+                      <Text style={ras.btnSnoozeText}>⏱ Adiar 5 min</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={ras.btnPular} onPress={handlePular}>
+                      <Text style={ras.btnPularText}>Pular</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
             </View>
@@ -327,12 +368,23 @@ const ras = StyleSheet.create({
     paddingVertical: 14, alignItems: 'center',
   },
   btnYesText: { color: '#fff', fontWeight: '700', fontSize: 15 },
-  valueInput: {
-    borderWidth: 1, borderColor: '#D0D5E8', borderRadius: 10,
-    paddingHorizontal: 14, paddingVertical: 12, fontSize: 18,
-    fontWeight: '600', color: '#1C3F7A', textAlign: 'center',
-    marginBottom: 4, marginTop: 8,
+  actBtnCol: { marginTop: 20, gap: 10 },
+  actBtnRow: { flexDirection: 'row', gap: 10 },
+  btnMedir: {
+    backgroundColor: '#1C3F7A', borderRadius: 10,
+    paddingVertical: 15, alignItems: 'center',
   },
+  btnMedirText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  btnSnooze: {
+    flex: 1, borderWidth: 1.5, borderColor: '#1C3F7A', borderRadius: 10,
+    paddingVertical: 13, alignItems: 'center',
+  },
+  btnSnoozeText: { color: '#1C3F7A', fontWeight: '600', fontSize: 14 },
+  btnPular: {
+    flex: 1, borderWidth: 1.5, borderColor: '#ccc', borderRadius: 10,
+    paddingVertical: 13, alignItems: 'center',
+  },
+  btnPularText: { color: '#999', fontWeight: '600', fontSize: 14 },
 });
 
 export default function App() {

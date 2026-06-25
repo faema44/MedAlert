@@ -130,6 +130,9 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
   try {
     await database.execAsync('ALTER TABLE emergency_contacts ADD COLUMN is_doctor INTEGER DEFAULT 0');
   } catch {}
+  try {
+    await database.execAsync('ALTER TABLE emergency_contacts ADD COLUMN show_on_lock INTEGER DEFAULT 0');
+  } catch {}
 }
 
 // Profile
@@ -208,7 +211,7 @@ export async function getContacts(): Promise<EmergencyContact[]> {
   const rows = await database.getAllAsync<EmergencyContact>(
     'SELECT * FROM emergency_contacts ORDER BY is_primary DESC, name ASC'
   );
-  return rows.map(r => ({ ...r, is_primary: Boolean(r.is_primary), is_doctor: Boolean((r as any).is_doctor) }));
+  return rows.map(r => ({ ...r, is_primary: Boolean(r.is_primary), is_doctor: Boolean((r as any).is_doctor), show_on_lock: Boolean((r as any).show_on_lock) }));
 }
 
 export async function addContact(contact: Omit<EmergencyContact, 'id'>): Promise<void> {
@@ -217,8 +220,8 @@ export async function addContact(contact: Omit<EmergencyContact, 'id'>): Promise
     await database.runAsync('UPDATE emergency_contacts SET is_primary=0');
   }
   await database.runAsync(
-    `INSERT INTO emergency_contacts (name, phone, relationship, is_primary, is_doctor) VALUES (?, ?, ?, ?, ?)`,
-    [contact.name, contact.phone, contact.relationship, contact.is_primary ? 1 : 0, contact.is_doctor ? 1 : 0]
+    `INSERT INTO emergency_contacts (name, phone, relationship, is_primary, is_doctor, show_on_lock) VALUES (?, ?, ?, ?, ?, ?)`,
+    [contact.name, contact.phone, contact.relationship, contact.is_primary ? 1 : 0, contact.is_doctor ? 1 : 0, contact.show_on_lock ? 1 : 0]
   );
 }
 
@@ -228,8 +231,8 @@ export async function updateContact(contact: EmergencyContact): Promise<void> {
     await database.runAsync('UPDATE emergency_contacts SET is_primary=0 WHERE id != ?', [contact.id]);
   }
   await database.runAsync(
-    `UPDATE emergency_contacts SET name=?, phone=?, relationship=?, is_primary=?, is_doctor=? WHERE id=?`,
-    [contact.name, contact.phone, contact.relationship, contact.is_primary ? 1 : 0, contact.is_doctor ? 1 : 0, contact.id]
+    `UPDATE emergency_contacts SET name=?, phone=?, relationship=?, is_primary=?, is_doctor=?, show_on_lock=? WHERE id=?`,
+    [contact.name, contact.phone, contact.relationship, contact.is_primary ? 1 : 0, contact.is_doctor ? 1 : 0, contact.show_on_lock ? 1 : 0, contact.id]
   );
 }
 
@@ -447,9 +450,10 @@ export interface ActivityLog {
 
 export async function addActivityLog(log: Omit<ActivityLog, 'id' | 'logged_at'>): Promise<void> {
   const database = await getDb();
+  const now = new Date().toISOString();
   await database.runAsync(
-    `INSERT INTO activity_logs (activity_id, activity_name, activity_type, realized, value) VALUES (?, ?, ?, ?, ?)`,
-    [log.activity_id ?? null, log.activity_name, log.activity_type, log.realized ? 1 : 0, log.value],
+    `INSERT INTO activity_logs (activity_id, activity_name, activity_type, realized, value, logged_at) VALUES (?, ?, ?, ?, ?, ?)`,
+    [log.activity_id ?? null, log.activity_name, log.activity_type, log.realized ? 1 : 0, log.value, now],
   );
 }
 

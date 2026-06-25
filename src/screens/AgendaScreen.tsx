@@ -73,11 +73,13 @@ function measureColor(type: string, value: string): string {
     if (!m) return '#1C3F7A';
     const sys = parseInt(m[1], 10);
     const dia = parseInt(m[2], 10);
-    if (sys > 180 || dia > 120) return '#7F1D1D';
-    if (sys >= 140 || dia >= 90)  return '#DC2626';
-    if (sys >= 130 || dia >= 80)  return '#EA580C';
-    if (sys >= 120)               return '#D97706';
-    return '#16A34A';
+    // SBC 2020 + hipotensão
+    if (sys < 90 || dia < 60)     return '#3B82F6';  // Hipotensão
+    if (sys >= 180 || dia >= 120) return '#7F1D1D';  // Crise
+    if (sys >= 160 || dia >= 100) return '#DC2626';  // Est. 2
+    if (sys >= 140 || dia >= 90)  return '#EA580C';  // Est. 1
+    if (sys >= 130 || dia >= 85)  return '#D97706';  // Limítrofe
+    return '#16A34A';                                 // Normal
   }
   if (type === 'glucose') {
     const m = value.match(/^(\d+)/);
@@ -103,8 +105,9 @@ function measureColor(type: string, value: string): string {
 }
 
 const BP_LEGEND = [
-  { color: '#16A34A', label: 'Ótima' },
-  { color: '#D97706', label: 'Elevada' },
+  { color: '#3B82F6', label: 'Hipotens.' },
+  { color: '#16A34A', label: 'Normal' },
+  { color: '#D97706', label: 'Limítrofe' },
   { color: '#EA580C', label: 'Est. 1' },
   { color: '#DC2626', label: 'Est. 2' },
   { color: '#7F1D1D', label: 'Crise' },
@@ -143,8 +146,14 @@ const legendStyles = StyleSheet.create({
   label: { fontSize: 11, color: '#555' },
 });
 
+function parseLoggedAt(s: string): Date {
+  // SQLite CURRENT_TIMESTAMP stores UTC without 'Z'; ISO strings already have 'Z' or offset
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(s)) return new Date(s.replace(' ', 'T') + 'Z');
+  return new Date(s);
+}
+
 function fmtLogDate(logged_at: string): string {
-  const d = new Date(logged_at);
+  const d = parseLoggedAt(logged_at);
   const today = new Date();
   const isToday = d.toDateString() === today.toDateString();
   const yesterday = new Date(today);
@@ -532,6 +541,11 @@ export default function AgendaScreen() {
           data={activities}
           keyExtractor={item => String(item.id)}
           contentContainerStyle={styles.list}
+          ListHeaderComponent={
+            <TouchableOpacity style={styles.addActivityBtn} onPress={openNewActivity}>
+              <Text style={styles.addActivityBtnText}>+ Nova atividade</Text>
+            </TouchableOpacity>
+          }
           ListEmptyComponent={
             <View style={styles.empty}>
               <Text style={styles.emptyIcon}>🏃</Text>
@@ -543,26 +557,24 @@ export default function AgendaScreen() {
             const reminders = remindersMap[item.id] ?? [];
             const itemLogs = logsMap[item.id] ?? [];
             const { icon } = ACTIVITY_PRESETS[item.type] ?? ACTIVITY_PRESETS.custom;
-            const isMeasure = MEASURE_TYPES.includes(item.type);
-            const btnLabel = isMeasure ? '+ Nova medição' : '+ Registrar';
+            const realizedLogs = itemLogs.filter(log => log.realized);
 
             return (
               <View style={styles.card}>
                 {/* Top row */}
                 <View style={styles.cardTopRow}>
                   <Text style={styles.actIcon}>{icon}</Text>
-                  <View style={styles.cardInfo}>
-                    <Text style={styles.cardName}>{item.name}</Text>
+                  <TouchableOpacity style={styles.cardInfo} onPress={() => openMeasureModal(item)} activeOpacity={0.6}>
+                    <Text style={styles.cardName}>
+                      {item.name}<Text style={styles.cardNamePlus}> +</Text>
+                    </Text>
                     {reminders.length > 0 && (
                       <Text style={styles.cardSub}>🔔 {reminders.map(r => r.time).join('  ·  ')}</Text>
                     )}
-                  </View>
+                  </TouchableOpacity>
                   <View style={styles.cardActions}>
                     <TouchableOpacity style={styles.editBtn} onPress={() => openEditActivity(item)}>
                       <Text style={styles.editBtnText}>✏️</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.addCircleBtn} onPress={() => openMeasureModal(item)}>
-                      <Text style={styles.addCircleBtnText}>+</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDeleteActivity(item)}>
                       <Text style={styles.deleteBtnText}>✕</Text>
@@ -570,13 +582,13 @@ export default function AgendaScreen() {
                   </View>
                 </View>
 
-                {/* Last 5 measurements */}
-                {itemLogs.length > 0 && (
+                {/* Last 5 realized measurements */}
+                {realizedLogs.length > 0 && (
                   <View style={styles.logsSection}>
-                    {itemLogs.map(log => (
+                    {realizedLogs.map(log => (
                       <View key={log.id} style={styles.logRow}>
                         <Text style={[styles.logRowValue, { color: measureColor(item.type, log.value) }]} numberOfLines={1}>
-                          {log.value || (log.realized ? '✓ Realizado' : '✗ Não realizado')}
+                          {log.value || '✓ Realizado'}
                         </Text>
                         <Text style={styles.logRowDate}>{fmtLogDate(log.logged_at)}</Text>
                       </View>
@@ -634,7 +646,7 @@ export default function AgendaScreen() {
         async function shareReport() {
           if (logs.length === 0) { Alert.alert('Histórico vazio', 'Nenhuma atividade registrada ainda.'); return; }
           const lines = logs.map(l => {
-            const date = new Date(l.logged_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+            const date = parseLoggedAt(l.logged_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
             const status = l.realized ? '✓' : '✗';
             const val = l.value ? ` — ${l.value}` : '';
             return `${status} ${date}  ${l.activity_name}${val}`;
@@ -664,7 +676,7 @@ export default function AgendaScreen() {
                 </View>
               }
               renderItem={({ item }) => {
-                const date = new Date(item.logged_at);
+                const date = parseLoggedAt(item.logged_at);
                 const dateStr = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
                 const timeStr = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                 return (
@@ -692,10 +704,10 @@ export default function AgendaScreen() {
         );
       })()}
 
-      {tab !== 'history' && (
+      {tab === 'appointments' && (
         <TouchableOpacity
           style={[styles.fab, { bottom: 24 + insets.bottom }]}
-          onPress={tab === 'activities' ? openNewActivity : openNewAppt}
+          onPress={openNewAppt}
         >
           <Text style={styles.fabText}>+</Text>
         </TouchableOpacity>
@@ -1121,7 +1133,13 @@ const styles = StyleSheet.create({
   toggleBtnText: { fontSize: 13, fontWeight: '500', color: '#888' },
   toggleBtnTextActive: { color: '#1C3F7A', fontWeight: '700' },
 
-  list: { padding: 14, paddingTop: 10, paddingBottom: 80 },
+  list: { padding: 14, paddingTop: 10, paddingBottom: 32 },
+  addActivityBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1.5, borderColor: '#1C3F7A', borderRadius: 10, borderStyle: 'dashed',
+    paddingVertical: 11, marginBottom: 12,
+  },
+  addActivityBtnText: { fontSize: 14, fontWeight: '600', color: '#1C3F7A' },
   empty: { alignItems: 'center', marginTop: 60, paddingHorizontal: 32 },
   emptyIcon: { fontSize: 40, marginBottom: 12 },
   emptyText: { fontSize: 15, color: '#999', marginBottom: 6, fontWeight: '500' },
@@ -1160,6 +1178,7 @@ const styles = StyleSheet.create({
   apptIcon: { fontSize: 26, marginRight: 12 },
   cardInfo: { flex: 1 },
   cardName: { fontSize: 15, fontWeight: '600', color: '#1C3F7A', marginBottom: 2 },
+  cardNamePlus: { fontSize: 15, fontWeight: '700', color: '#E07B4F' },
   cardNamePast: { color: '#888' },
   cardSub: { fontSize: 12, color: '#777', marginTop: 2 },
   cardActions: { flexDirection: 'row', gap: 8, marginLeft: 8 },

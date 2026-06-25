@@ -4,13 +4,14 @@ import {
   Modal, TextInput, Switch, Alert, Linking, ScrollView,
   KeyboardAvoidingView, Platform,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getContacts, addContact, updateContact, deleteContact, getMedications, getProfile } from '../database/db';
+import { updateEmergencyNotification } from '../services/notifications';
 import { EmergencyContact, Medication } from '../types';
 
 const EMPTY: Omit<EmergencyContact, 'id'> = {
-  name: '', phone: '', relationship: '', is_primary: false, is_doctor: false,
+  name: '', phone: '', relationship: '', is_primary: false, is_doctor: false, show_on_lock: false,
 };
 
 function getInitials(name: string): string {
@@ -25,6 +26,7 @@ function buildWhatsAppNumber(phone: string): string {
 }
 
 export default function ContactsScreen() {
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [showModal, setShowModal] = useState(false);
@@ -50,7 +52,7 @@ export default function ContactsScreen() {
   }
 
   function openEdit(item: EmergencyContact) {
-    setForm({ name: item.name, phone: item.phone, relationship: item.relationship, is_primary: item.is_primary, is_doctor: item.is_doctor });
+    setForm({ name: item.name, phone: item.phone, relationship: item.relationship, is_primary: item.is_primary, is_doctor: item.is_doctor, show_on_lock: item.show_on_lock });
     setEditingId(item.id);
     setShowModal(true);
   }
@@ -60,13 +62,17 @@ export default function ContactsScreen() {
       Alert.alert('Campos obrigatórios', 'Informe nome e telefone do contato.');
       return;
     }
+    const isNew = editingId === null;
     if (editingId !== null) {
       await updateContact({ ...form, id: editingId, name: form.name.trim(), phone: form.phone.trim(), relationship: form.relationship.trim() });
     } else {
       await addContact({ ...form, name: form.name.trim(), phone: form.phone.trim(), relationship: form.relationship.trim() });
     }
-    setContacts(await getContacts());
+    const updated = await getContacts();
+    setContacts(updated);
     setShowModal(false);
+    getProfile().then(p => { if (p) getMedications().then(m => updateEmergencyNotification(p, m).catch(() => {})); }).catch(() => {});
+    if (isNew) navigation.navigate('Home' as never);
   }
 
   async function handleDelete(id: number, name: string) {
@@ -161,42 +167,47 @@ export default function ContactsScreen() {
         }
         renderItem={({ item }) => (
           <View style={[styles.card, item.is_primary && styles.cardPrimary]}>
-            <View style={[styles.avatar, item.is_primary && styles.avatarPrimary]}>
-              <Text style={[styles.avatarText, item.is_primary && styles.avatarTextPrimary]}>
-                {getInitials(item.name)}
-              </Text>
-            </View>
-
-            <View style={styles.cardInfo}>
-              <View style={styles.nameRow}>
-                <Text style={styles.contactName}>{item.name}</Text>
-                {item.is_primary && (
-                  <View style={styles.primaryBadge}>
-                    <Text style={styles.primaryBadgeText}>Principal</Text>
-                  </View>
-                )}
-                {item.is_doctor && (
-                  <View style={styles.doctorBadge}>
-                    <Text style={styles.doctorBadgeText}>Médico</Text>
-                  </View>
-                )}
+            <View style={styles.cardTop}>
+              <View style={[styles.avatar, item.is_primary && styles.avatarPrimary]}>
+                <Text style={[styles.avatarText, item.is_primary && styles.avatarTextPrimary]}>
+                  {getInitials(item.name)}
+                </Text>
               </View>
-              {item.relationship ? <Text style={styles.contactRelation}>{item.relationship}</Text> : null}
-              <Text style={styles.contactPhone}>{item.phone}</Text>
+              <View style={styles.cardInfo}>
+                <View style={styles.nameRow}>
+                  <Text style={styles.contactName} numberOfLines={1}>{item.name}</Text>
+                  {item.is_primary && (
+                    <View style={styles.primaryBadge}>
+                      <Text style={styles.primaryBadgeText}>Principal</Text>
+                    </View>
+                  )}
+                  {item.is_doctor && (
+                    <View style={styles.doctorBadge}>
+                      <Text style={styles.doctorBadgeText}>Médico</Text>
+                    </View>
+                  )}
+                  {item.show_on_lock && (
+                    <Text style={styles.lockBadge}>🔒</Text>
+                  )}
+                </View>
+                {item.relationship ? <Text style={styles.contactRelation}>{item.relationship}</Text> : null}
+                <Text style={styles.contactPhone}>{item.phone}</Text>
+              </View>
+              <View style={styles.cardMeta}>
+                <TouchableOpacity style={styles.editBtn} onPress={() => openEdit(item)}>
+                  <Text style={styles.editBtnText}>✏️</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.id, item.name)}>
+                  <Text style={styles.deleteBtnText}>✕</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-
             <View style={styles.cardActions}>
               <TouchableOpacity style={styles.callBtn} onPress={() => handleCall(item.phone)}>
-                <Text style={styles.callBtnText}>Ligar</Text>
+                <Text style={styles.callBtnText}>📞  Ligar</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.waBtn} onPress={() => openWaModal(item)}>
-                <Text style={styles.waBtnText}>💬</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.editBtn} onPress={() => openEdit(item)}>
-                <Text style={styles.editBtnText}>✏️</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.id, item.name)}>
-                <Text style={styles.deleteBtnText}>✕</Text>
+                <Text style={styles.waBtnText}>💬  WhatsApp</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -258,6 +269,18 @@ export default function ContactsScreen() {
               <Switch
                 value={form.is_doctor}
                 onValueChange={v => setForm(f => ({ ...f, is_doctor: v }))}
+                trackColor={{ true: '#1C3F7A', false: '#ccc' }}
+              />
+            </View>
+
+            <View style={styles.primaryRow}>
+              <View style={{ flex: 1, marginRight: 8 }}>
+                <Text style={styles.primaryLabel}>Exibir na tela de bloqueio 🔒</Text>
+                <Text style={styles.lockHint}>Nome e telefone aparecem sem desbloquear o celular</Text>
+              </View>
+              <Switch
+                value={form.show_on_lock}
+                onValueChange={v => setForm(f => ({ ...f, show_on_lock: v }))}
                 trackColor={{ true: '#1C3F7A', false: '#ccc' }}
               />
             </View>
@@ -344,10 +367,10 @@ const styles = StyleSheet.create({
 
   card: {
     backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10,
-    flexDirection: 'row', alignItems: 'center', gap: 12,
     borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
   },
   cardPrimary: { borderLeftWidth: 3, borderLeftColor: '#1C3F7A' },
+  cardTop: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 },
 
   avatar: {
     width: 42, height: 42, borderRadius: 21, backgroundColor: '#EEF3FF',
@@ -357,25 +380,30 @@ const styles = StyleSheet.create({
   avatarText: { fontSize: 15, fontWeight: '600', color: '#1C3F7A' },
   avatarTextPrimary: { color: '#fff' },
 
-  cardInfo: { flex: 1 },
-  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2, flexWrap: 'wrap' },
-  contactName: { fontSize: 15, fontWeight: '600', color: '#1A1F2E' },
-  primaryBadge: { backgroundColor: '#EEF3FF', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
+  cardInfo: { flex: 1, minWidth: 0 },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 },
+  contactName: { fontSize: 15, fontWeight: '600', color: '#1A1F2E', flexShrink: 1 },
+  primaryBadge: { backgroundColor: '#EEF3FF', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, flexShrink: 0 },
   primaryBadgeText: { fontSize: 10, color: '#1C3F7A', fontWeight: '600' },
-  doctorBadge: { backgroundColor: '#F0FFF4', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
+  doctorBadge: { backgroundColor: '#F0FFF4', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, flexShrink: 0 },
   doctorBadgeText: { fontSize: 10, color: '#1a6b3a', fontWeight: '600' },
   contactRelation: { fontSize: 12, color: '#8A8F9D', marginBottom: 2 },
   contactPhone: { fontSize: 13, color: '#4A5270', fontWeight: '500' },
 
-  cardActions: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  callBtn: { backgroundColor: '#1C3F7A', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 7 },
-  callBtnText: { fontSize: 12, color: '#fff', fontWeight: '600' },
-  waBtn: { backgroundColor: '#25D366', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7 },
-  waBtnText: { fontSize: 14 },
+  cardMeta: { flexDirection: 'row', alignItems: 'center', flexShrink: 0 },
   editBtn: { padding: 8 },
   editBtnText: { fontSize: 17 },
   deleteBtn: { padding: 8 },
   deleteBtnText: { fontSize: 16, color: '#ccc' },
+
+  cardActions: {
+    flexDirection: 'row', gap: 8,
+    borderTopWidth: 0.5, borderTopColor: '#F0F2F7', paddingTop: 10,
+  },
+  callBtn: { flex: 1, backgroundColor: '#1C3F7A', borderRadius: 8, paddingVertical: 8, alignItems: 'center' },
+  callBtnText: { fontSize: 13, color: '#fff', fontWeight: '600' },
+  waBtn: { flex: 1, backgroundColor: '#25D366', borderRadius: 8, paddingVertical: 8, alignItems: 'center' },
+  waBtnText: { fontSize: 13, color: '#fff', fontWeight: '600' },
 
   fab: {
     position: 'absolute', bottom: 24, right: 24, width: 56, height: 56, borderRadius: 28,
@@ -395,6 +423,8 @@ const styles = StyleSheet.create({
   },
   primaryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 },
   primaryLabel: { fontSize: 15, fontWeight: '600', color: '#1A1F2E' },
+  lockHint: { fontSize: 11, color: '#888', marginTop: 2 },
+  lockBadge: { fontSize: 14, marginLeft: 2 },
   modalActions: { flexDirection: 'row', gap: 10, marginTop: 20 },
   cancelBtn: { flex: 1, borderWidth: 1, borderColor: '#D0D5E8', borderRadius: 10, padding: 14, alignItems: 'center' },
   cancelBtnText: { fontSize: 15, color: '#6B7280', fontWeight: '600' },

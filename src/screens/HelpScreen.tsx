@@ -48,7 +48,11 @@ export default function HelpScreen() {
           </View>
           <View style={styles.heroFeatureRow}>
             <Text style={styles.heroFeatureIcon}>🔔</Text>
-            <Text style={styles.heroFeatureText}>Envia lembretes para você não esquecer de tomar seus remédios</Text>
+            <Text style={styles.heroFeatureText}>Lembretes com melodias distintas para remédios, atividades e consultas</Text>
+          </View>
+          <View style={styles.heroFeatureRow}>
+            <Text style={styles.heroFeatureIcon}>📅</Text>
+            <Text style={styles.heroFeatureText}>Agenda de atividades físicas e consultas médicas com lembretes automáticos</Text>
           </View>
         </View>
 
@@ -70,7 +74,8 @@ export default function HelpScreen() {
         <Step number="1" text="Abra a aba Perfil e preencha seu nome, tipo sanguíneo e alergias." />
         <Step number="2" text="Cadastre todos os medicamentos que você usa regularmente na aba Medicamentos. Marque como 'crítico' os que não podem ser interrompidos." />
         <Step number="3" text="Adicione ao menos um contato de emergência na aba Contatos (familiar ou médico de referência)." />
-        <Step number="4" text="Na tela Início, toque em 'Ícone na Tela de Bloqueio (Emergência)' para ativar. Sua ficha médica ficará visível na notificação persistente imediatamente." />
+        <Step number="4" text="Use a aba Agenda para registrar atividades físicas e consultas médicas — lembretes serão criados automaticamente." />
+        <Step number="5" text="Na tela Início, toque no chip de status para ativar o alerta de emergência. Sua ficha médica ficará visível na tela de bloqueio imediatamente." />
         <Text style={styles.tip}>
           💡 Após configurar lembretes, a tela Início exibe um card "Próximos lembretes" com o horário mais próximo de cada medicamento (ex.: Zyloric hoje às 14:00 · Glifage amanhã às 08:00). Toque no card para ir à lista de medicamentos.
         </Text>
@@ -116,19 +121,19 @@ export default function HelpScreen() {
         </Text>
         <View style={styles.riskRow}>
           <View style={[styles.riskBadge, { backgroundColor: '#fff0f0', borderLeftColor: '#CC0000' }]}>
-            <Text style={[styles.riskLabel, { color: '#CC0000' }]}>⚡ CRÍTICO</Text>
+            <Text style={[styles.riskLabel, { color: '#CC0000' }]}>⚡ Crítico</Text>
             <Text style={styles.riskDesc}>Combinação contraindicada. Informe imediatamente seu médico.</Text>
           </View>
         </View>
         <View style={styles.riskRow}>
           <View style={[styles.riskBadge, { backgroundColor: '#fff5f0', borderLeftColor: '#e65c00' }]}>
-            <Text style={[styles.riskLabel, { color: '#e65c00' }]}>⚡ ALTO</Text>
+            <Text style={[styles.riskLabel, { color: '#e65c00' }]}>⚡ Alto</Text>
             <Text style={styles.riskDesc}>Risco significativo. Monitoramento médico necessário.</Text>
           </View>
         </View>
         <View style={styles.riskRow}>
           <View style={[styles.riskBadge, { backgroundColor: '#fffbf0', borderLeftColor: '#b58900' }]}>
-            <Text style={[styles.riskLabel, { color: '#b58900' }]}>⚡ MODERADO</Text>
+            <Text style={[styles.riskLabel, { color: '#b58900' }]}>⚡ Moderado</Text>
             <Text style={styles.riskDesc}>Atenção recomendada. Converse com seu médico ou farmacêutico.</Text>
           </View>
         </View>
@@ -159,8 +164,55 @@ export default function HelpScreen() {
         <Bullet text="Dias específicos da semana (ex.: seg, qua e sex)" />
         <Bullet text="Dias específicos do mês (ex.: dias 1 e 15)" />
         <Bullet text="Intervalo periódico (ex.: a cada 2 meses, no dia 10)" />
+        <Bullet text="Repetição do alarme em intervalos de minutos" />
         <Text style={styles.tip}>
           💡 Lembretes funcionam offline. Nenhuma conexão é necessária para receber as notificações.
+        </Text>
+      </Section>
+
+      {/* Sons diferenciados */}
+      <Section title="🎵 Sons diferenciados por tipo">
+        <Text style={styles.bodyText}>
+          Cada tipo de lembrete toca uma melodia diferente para você identificar o aviso antes mesmo de olhar para o celular:
+        </Text>
+        <Bullet text="💊 Remédios — três notas ascendentes (ding-ding-ding), mais urgentes" />
+        <Bullet text="🏃 Atividades — dois tons suaves e crescentes" />
+        <Bullet text="🩺 Consultas — dois tons descendentes e calmos" />
+        <Text style={styles.tip}>
+          💡 Na tela Início, toque em 🔔 / 🔕 ao lado de qualquer item para silenciar ou reativar o som daquele lembrete individualmente.
+        </Text>
+      </Section>
+
+      {/* Agenda */}
+      <Section title="📅 Atividades e Consultas">
+        <Text style={styles.bodyText}>
+          A aba Agenda permite registrar dois tipos de compromissos de saúde:
+        </Text>
+        <Bullet text="Atividades de rotina — caminhada, fisioterapia, tomar água e outras com lembretes diários" />
+        <Bullet text="Medições de saúde — pressão arterial (❤️), glicose (🩸) e peso/IMC (⚖️) com histórico e faixas de referência coloridas" />
+        <Bullet text="Consultas — médico, dentista, exames, com lembretes automáticos 1 dia e 1 hora antes" />
+        <Text style={styles.bodyText}>
+          Para registrar uma medição (pressão, glicose ou peso), toque no ícone de lápis ao lado da atividade na lista.
+          O app calcula o IMC automaticamente ao pesar.
+        </Text>
+        <Text style={styles.tip}>
+          💡 Consultas passadas não aparecem nos lembretes — apenas futuras são exibidas.
+        </Text>
+      </Section>
+
+      {/* Busca de medicamentos */}
+      <Section title="🔍 Busca e bula de medicamentos">
+        <Text style={styles.bodyText}>
+          Ao cadastrar um medicamento, o app sugere nomes automaticamente conforme você digita,
+          buscando na base da ANVISA. Toque em uma sugestão para preencher o nome correto.
+        </Text>
+        <Text style={styles.bodyText}>
+          Nos cartões de medicamento, toque no ícone 📄 para abrir a bula oficial diretamente
+          pelo Bulário Eletrônico da ANVISA — sem sair do aplicativo.
+        </Text>
+        <Text style={styles.tip}>
+          💡 A busca funciona por nome genérico e comercial. Se um medicamento não aparecer,
+          verifique a grafia ou consulte o Bulário em bulario.anvisa.gov.br.
         </Text>
       </Section>
 
@@ -251,7 +303,7 @@ export default function HelpScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: { flex: 1, backgroundColor: '#F2F4F8' },
   content: { padding: 16, paddingBottom: 40 },
 
   hero: {

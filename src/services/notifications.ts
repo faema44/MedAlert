@@ -2,24 +2,53 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { Profile, Medication, MedicationReminder, ActivityReminder } from '../types';
 import { postMedNotification, cancelMedNotification } from './medNotification';
-import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity } from '../database/db';
+import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity, getContacts } from '../database/db';
 
 const CHANNEL_ID = 'medalert_emergency_v3';
 const NOTIF_ID = 'emergency';
 const REMINDER_SOUND_CHANNEL = 'medalert_reminder_sound';
 const REMINDER_SILENT_CHANNEL = 'medalert_reminder_silent';
 const REMINDER_CATEGORY = 'reminder_action';
+// v2: PUBLIC lock-screen visibility + action buttons
+const MED_SOUND_CHANNEL = 'medalert_med_sound_v2';
+const ACTIVITY_SOUND_CHANNEL = 'medalert_activity_sound_v2';
+const APPT_SOUND_CHANNEL = 'medalert_appt_sound_v1';
+
+const MED_ACTION_CATEGORY = 'med_action';
+const ACTIVITY_MEASURE_CATEGORY = 'activity_measure_action';
+const ACTIVITY_BASIC_CATEGORY = 'activity_basic_action';
+const MEASURE_ACTIVITY_TYPES = ['bp', 'glucose', 'weight'];
 
 export async function setupReminderCategory(): Promise<void> {
-  // setNotificationCategoryAsync triggers push-token infrastructure in expo-notifications,
-  // which was removed from Expo Go in SDK 53. No-op here; categories work in production builds.
+  // Categories don't work in Expo Go (SDK 53+); work normally in production APK/AAB.
+  try {
+    await Notifications.setNotificationCategoryAsync(MED_ACTION_CATEGORY, [
+      { identifier: 'TOOK', buttonTitle: '✓ Tomei',    options: { opensAppToForeground: false } },
+      { identifier: 'SKIP', buttonTitle: 'Não tomei',  options: { opensAppToForeground: false } },
+    ]);
+    await Notifications.setNotificationCategoryAsync(ACTIVITY_MEASURE_CATEGORY, [
+      { identifier: 'MEASURE',  buttonTitle: '📋 Medir',      options: { opensAppToForeground: true  } },
+      { identifier: 'SNOOZE',   buttonTitle: '⏱ Adiar 5 min', options: { opensAppToForeground: false } },
+      { identifier: 'SKIP_ACT', buttonTitle: 'Pular',          options: { opensAppToForeground: false } },
+    ]);
+    await Notifications.setNotificationCategoryAsync(ACTIVITY_BASIC_CATEGORY, [
+      { identifier: 'DONE',     buttonTitle: '✓ Realizei',    options: { opensAppToForeground: false } },
+      { identifier: 'SNOOZE',   buttonTitle: '⏱ Adiar 5 min', options: { opensAppToForeground: false } },
+      { identifier: 'SKIP_ACT', buttonTitle: 'Pular',          options: { opensAppToForeground: false } },
+    ]);
+  } catch {
+    // Silently ignore in Expo Go
+  }
 }
 
 export async function setupNotificationChannels(): Promise<void> {
   if (Platform.OS !== 'android') return;
 
-  // Clean up channels from previous installs
-  for (const old of ['medalert_emergency', 'medalert_emergency_v2', 'medalert_lockscreen', 'medalert_detail']) {
+  // Clean up channels from previous installs (v1 med/activity channels get PUBLIC replacements)
+  for (const old of [
+    'medalert_emergency', 'medalert_emergency_v2', 'medalert_lockscreen', 'medalert_detail',
+    'medalert_med_sound_v1', 'medalert_activity_sound_v1',
+  ]) {
     await Notifications.deleteNotificationChannelAsync(old).catch(() => {});
   }
 
@@ -45,6 +74,29 @@ export async function setupNotificationChannels(): Promise<void> {
     importance: Notifications.AndroidImportance.DEFAULT,
     lockscreenVisibility: Notifications.AndroidNotificationVisibility.PRIVATE,
     sound: null,
+  });
+
+  await Notifications.setNotificationChannelAsync(MED_SOUND_CHANNEL, {
+    name: 'Lembrete de Medicamento',
+    importance: Notifications.AndroidImportance.HIGH,
+    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+    sound: 'med_reminder',
+    vibrationPattern: [0, 250, 150, 250],
+  });
+
+  await Notifications.setNotificationChannelAsync(ACTIVITY_SOUND_CHANNEL, {
+    name: 'Lembrete de Atividade',
+    importance: Notifications.AndroidImportance.HIGH,
+    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+    sound: 'activity_reminder',
+  });
+
+  await Notifications.setNotificationChannelAsync(APPT_SOUND_CHANNEL, {
+    name: 'Lembrete de Consulta',
+    importance: Notifications.AndroidImportance.HIGH,
+    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+    sound: 'appt_reminder',
+    vibrationPattern: [0, 300, 100, 300],
   });
 }
 
@@ -148,31 +200,45 @@ export async function updateEmergencyNotification(
 
   if (!profile?.name) return;
 
-  const meds8 = medications.slice(0, 8);
+  // Ordena: críticos primeiro, depois alfabético pelo nome principal
+  const sortedMeds = [...medications].sort((a, b) => {
+    if (a.is_critical !== b.is_critical) return a.is_critical ? -1 : 1;
+    const nameA = a.commercial_name || a.generic_name;
+    const nameB = b.commercial_name || b.generic_name;
+    return nameA.localeCompare(nameB, 'pt');
+  });
+  const meds8 = sortedMeds.slice(0, 8);
 
   // Carrega lembretes de cada medicamento para mostrar próximo horário
   const medReminders = meds8.length
     ? await Promise.all(meds8.map(m => getRemindersForMedication(m.id).catch(() => [] as MedicationReminder[])))
     : [];
 
-  // bigText: ficha completa, exibida ao expandir (▼)
-  const lines: string[] = [`👤 ${profile.name}`];
-  if (profile.blood_type && profile.blood_type !== 'Desconhecido') lines.push(`🩸 ${profile.blood_type}`);
+  // Título: nome + tipo sanguíneo (libera linhas no bigText)
+  const bloodSuffix = (profile.blood_type && profile.blood_type !== 'Desconhecido') ? `  🩸 ${profile.blood_type}` : '';
+  const title = `👤 ${profile.name}${bloodSuffix}`;
+
+  // bigText: ficha expandida — contatos primeiro para não serem truncados
+  const lines: string[] = [];
+
+  const lockContacts = (await getContacts().catch(() => [])).filter(c => c.show_on_lock);
+  lockContacts.forEach(c => {
+    const firstName = c.name.split(' ')[0];
+    lines.push(`📞 ${firstName}: ${c.phone}`);
+  });
+
   if (meds8.length) {
-    lines.push('');
-    meds8.forEach((m, idx) => {
-      const label = m.commercial_name ? `${m.generic_name} (${m.commercial_name})` : m.generic_name;
-      const info = nextReminderInfo(medReminders[idx] ?? []);
-      const timeStr = info ? `  🔔 ${info.label}` : '';
-      lines.push(`${m.is_critical ? '⚠️' : '💊'} ${label}${m.dose ? '  ' + m.dose : ''}${timeStr}`);
+    if (lines.length > 0) lines.push('');
+    meds8.forEach(m => {
+      const name = m.commercial_name ? m.commercial_name : m.generic_name;
+      lines.push(`${m.is_critical ? '⚠️' : '💊'} ${name}${m.dose ? '  ' + m.dose : ''}`);
     });
-    if (medications.length > 8) lines.push(`  +${medications.length - 8} outros`);
+    if (medications.length > 8) lines.push(`+${medications.length - 8} medicamentos no app`);
   }
-  if (profile.allergies) { lines.push(''); lines.push(`🚫 Alergia: ${profile.allergies}`); }
+  if (profile.allergies) { lines.push(''); lines.push(`🚫 ${profile.allergies}`); }
   if (profile.notes)     { lines.push(''); lines.push(`📋 ${profile.notes}`); }
 
   // contentText: próximo lembrete do dia (visível no modo colapsado)
-  // só mostra medicamentos com lembrete ainda hoje (não exibe os que já passaram)
   const todayEnd = new Date();
   todayEnd.setHours(23, 59, 59, 999);
   const upcoming: { sortMs: number; name: string; label: string }[] = [];
@@ -188,7 +254,7 @@ export async function updateEmergencyNotification(
     : '';
 
   try {
-    postMedNotification('✚  Informações Médicas', contentText, lines.join('\n'), CHANNEL_ID);
+    postMedNotification(title, contentText, lines.join('\n'), CHANNEL_ID);
   } catch {}
 }
 
@@ -232,6 +298,7 @@ function reminderContent(medicationName: string, dose: string, medicationId: num
     body: dose || 'Hora de tomar o medicamento',
     data: { type: 'reminder', medicationId, name: medicationName, dose, repeatInterval },
     sticky: true,
+    categoryIdentifier: MED_ACTION_CATEGORY,
   };
 }
 
@@ -256,7 +323,7 @@ export async function scheduleReminder(
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
       hour,
       minute,
-      channelId: withSound ? REMINDER_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+      channelId: withSound ? MED_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
     },
   });
 }
@@ -280,7 +347,7 @@ export async function scheduleReminderWeekly(
         weekday: wd,
         hour,
         minute,
-        channelId: withSound ? REMINDER_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+        channelId: withSound ? MED_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
       },
     });
   }
@@ -306,7 +373,7 @@ export async function scheduleReminderMonthly(
         day,
         hour,
         minute,
-        channelId: withSound ? REMINDER_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+        channelId: withSound ? MED_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
       } as any,
     });
   }
@@ -340,7 +407,7 @@ export async function scheduleReminderEveryNMonths(
         day: next.getDate(),
         hour,
         minute,
-        channelId: withSound ? REMINDER_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+        channelId: withSound ? MED_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
       } as any,
     });
     next.setMonth(next.getMonth() + intervalMonths);
@@ -399,7 +466,7 @@ export async function scheduleRepeatAlarm(
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
       seconds: intervalMinutes * 60,
-      channelId: withSound ? REMINDER_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+      channelId: withSound ? MED_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
     },
   });
 }
@@ -440,18 +507,43 @@ export async function scheduleActivityReminder(
   activityType = 'custom',
 ): Promise<void> {
   const tp = timePart(hour, minute);
+  const isMeasure = MEASURE_ACTIVITY_TYPES.includes(activityType);
   await Notifications.scheduleNotificationAsync({
     identifier: `activity_${activityId}_${tp}`,
     content: {
       title: activityName,
-      body: 'Hora da sua atividade',
+      body: isMeasure ? 'Hora de medir' : 'Hora da sua atividade',
       data: { type: 'activity', activityId, activityName, activityType },
+      categoryIdentifier: isMeasure ? ACTIVITY_MEASURE_CATEGORY : ACTIVITY_BASIC_CATEGORY,
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
       hour,
       minute,
-      channelId: withSound ? REMINDER_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+      channelId: withSound ? ACTIVITY_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+    },
+  });
+}
+
+export async function snoozeActivityReminder(
+  activityId: number,
+  activityName: string,
+  activityType: string,
+  snoozeMinutes = 5,
+): Promise<void> {
+  const isMeasureSnooze = MEASURE_ACTIVITY_TYPES.includes(activityType);
+  await Notifications.scheduleNotificationAsync({
+    identifier: `snooze_activity_${activityId}_${Date.now()}`,
+    content: {
+      title: activityName,
+      body: 'Lembrete adiado',
+      data: { type: 'activity', activityId, activityName, activityType },
+      categoryIdentifier: isMeasureSnooze ? ACTIVITY_MEASURE_CATEGORY : ACTIVITY_BASIC_CATEGORY,
+    },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+      seconds: snoozeMinutes * 60,
+      channelId: ACTIVITY_SOUND_CHANNEL,
     },
   });
 }
@@ -495,7 +587,7 @@ export async function scheduleAppointmentReminders(
         day: d1.getDate(),
         hour: d1.getHours(),
         minute: d1.getMinutes(),
-        channelId: REMINDER_SOUND_CHANNEL,
+        channelId: APPT_SOUND_CHANNEL,
       } as any,
     }).catch(() => {});
   }
@@ -517,7 +609,7 @@ export async function scheduleAppointmentReminders(
         day: h1.getDate(),
         hour: h1.getHours(),
         minute: h1.getMinutes(),
-        channelId: REMINDER_SOUND_CHANNEL,
+        channelId: APPT_SOUND_CHANNEL,
       } as any,
     }).catch(() => {});
   }
@@ -578,12 +670,69 @@ export async function rescheduleRemindersForActivity(
   }
 }
 
+export interface NotificationResponseHandlers {
+  onMedTook:        (medicationId: number, notifId: string) => void;
+  onMedSkip:        (medicationId: number, notifId: string) => void;
+  onMedDefault:     (payload: ReminderAlertPayload) => void;
+  onActivityDone:   (activityId: number, activityName: string, activityType: string, notifId: string) => void;
+  onActivitySnooze: (activityId: number, activityName: string, activityType: string, notifId: string) => void;
+  onActivitySkip:   (notifId: string) => void;
+  onActivityMeasure:(activityId: number, notifId: string) => void;
+  onActivityDefault:(payload: ActivityAlertPayload) => void;
+}
+
+export function initResponseListeners(handlers: NotificationResponseHandlers): () => void {
+  const sub = Notifications.addNotificationResponseReceivedListener((response) => {
+    const { actionIdentifier, notification } = response;
+    const data = notification.request.content.data as any;
+    const notifId = notification.request.identifier;
+
+    if (data?.type === 'reminder') {
+      if (actionIdentifier === 'TOOK') {
+        handlers.onMedTook(data.medicationId, notifId);
+      } else if (actionIdentifier === 'SKIP') {
+        handlers.onMedSkip(data.medicationId, notifId);
+      } else {
+        // Default action: user tapped the notification body (app opens)
+        handlers.onMedDefault({
+          notificationId: notifId,
+          medicationId: data.medicationId,
+          name: data.name || notification.request.content.title || '',
+          dose: data.dose || '',
+          repeatInterval: data.repeatInterval || 0,
+        });
+      }
+    }
+
+    if (data?.type === 'activity') {
+      if (actionIdentifier === 'DONE') {
+        handlers.onActivityDone(data.activityId, data.activityName, data.activityType, notifId);
+      } else if (actionIdentifier === 'SNOOZE') {
+        handlers.onActivitySnooze(data.activityId, data.activityName, data.activityType, notifId);
+      } else if (actionIdentifier === 'SKIP_ACT') {
+        handlers.onActivitySkip(notifId);
+      } else if (actionIdentifier === 'MEASURE') {
+        handlers.onActivityMeasure(data.activityId, notifId);
+      } else {
+        // Default action: user tapped the notification body (app opens)
+        handlers.onActivityDefault({
+          notificationId: notifId,
+          activityId: data.activityId,
+          name: data.activityName || notification.request.content.title || '',
+          activityType: data.activityType || 'custom',
+        });
+      }
+    }
+  });
+  return () => sub.remove();
+}
+
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
-    const isReminder = notification.request.content.data?.type === 'reminder';
+    const t = notification.request.content.data?.type;
     return {
       shouldShowBanner: true,
-      shouldPlaySound: isReminder,
+      shouldPlaySound: t === 'reminder' || t === 'activity',
       shouldSetBadge: false,
       shouldShowList: true,
     };
