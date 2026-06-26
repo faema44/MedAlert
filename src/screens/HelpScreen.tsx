@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 
 const PRIVACY_URL = 'https://alertamedico.ia.br/privacy.html';
 const CARDIODF_URL = 'https://www.youtube.com/watch?v=lPaP_QgjEW4';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      {children}
+      <TouchableOpacity style={styles.sectionHeader} onPress={() => setOpen(o => !o)} activeOpacity={0.7}>
+        <Text style={styles.sectionTitle}>{title}</Text>
+        <Text style={styles.sectionArrow}>{open ? '▼' : '›'}</Text>
+      </TouchableOpacity>
+      {open && <View style={styles.sectionContent}>{children}</View>}
     </View>
   );
 }
@@ -333,7 +337,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 3,
   },
-  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#1a3a6b', marginBottom: 12 },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#1a3a6b', flex: 1 },
+  sectionArrow: { fontSize: 20, color: '#1a3a6b', fontWeight: '600', paddingLeft: 8, lineHeight: 24 },
+  sectionContent: { marginTop: 12 },
 
   stepRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
   stepBadge: {

@@ -1,7 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
-  Modal, TextInput, Alert, ScrollView, KeyboardAvoidingView, Switch, Share, Platform,
+  Modal, TextInput, Alert, ScrollView, KeyboardAvoidingView, Share, Platform,
 } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { TimePicker } from '../components/TimePicker';
@@ -11,17 +11,22 @@ import {
   getActivities, addActivity, updateActivity, deleteActivity,
   getRemindersForActivity, addActivityReminder, deleteAllRemindersForActivity,
   getAppointments, addAppointment, updateAppointment, deleteAppointment,
-  getActivityLogs, deleteActivityLog, ActivityLog,
+  getActivityLogs, deleteActivityLog, deleteActivityLogsBefore, clearAllActivityLogs, ActivityLog,
   addActivityLog, getActivityLogsForActivity,
   getKV, setKV,
 } from '../database/db';
 import {
-  scheduleActivityReminder, cancelAllRemindersForActivity,
+  scheduleActivityReminder, scheduleActivityReminderWeekly, cancelAllRemindersForActivity,
   scheduleAppointmentReminders, cancelAppointmentReminders,
 } from '../services/notifications';
 import { Activity, ActivityReminder, ActivityType, ACTIVITY_PRESETS, Appointment } from '../types';
 
 const ACTIVITY_TYPES: ActivityType[] = ['water', 'walk', 'physio', 'bp', 'glucose', 'weight', 'custom'];
+const WEEKDAYS_ACT = [
+  { label: 'Dom', value: 1 }, { label: 'Seg', value: 2 }, { label: 'Ter', value: 3 },
+  { label: 'Qua', value: 4 }, { label: 'Qui', value: 5 }, { label: 'Sex', value: 6 },
+  { label: 'Sáb', value: 7 },
+];
 const MEASURE_TYPES: ActivityType[] = ['bp', 'glucose', 'weight'];
 
 function parseTime(t: string): { hour: number; minute: number } | null {
@@ -189,11 +194,25 @@ function generateRepeatTimes(fromH: number, fromM: number, toH: number, toM: num
 
 // ─── MAIN SCREEN ──────────────────────────────────────────────────────────────
 
+const HIST_PERIODS: { key: 'month' | 'year' | 'all'; label: string }[] = [
+  { key: 'month', label: 'Último mês' },
+  { key: 'year',  label: 'Último ano' },
+  { key: 'all',   label: 'Todo o período' },
+];
+
+const LOG_ICONS: Record<string, string> = {
+  water: '💧', walk: '🚶', physio: '🏋️', bp: '❤️', glucose: '🩸', weight: '⚖️', custom: '📌',
+};
+
 export default function AgendaScreen() {
   const insets = useSafeAreaInsets();
   const route = useRoute<RouteProp<{ Agenda: { tab?: 'activities' | 'appointments'; openActivityId?: number; openAppointmentId?: number } }, 'Agenda'>>();
   const [tab, setTab] = useState<'activities' | 'appointments' | 'history'>(route.params?.tab ?? 'activities');
   const [logs, setLogs] = useState<ActivityLog[]>([]);
+  const [histPeriod, setHistPeriod] = useState<'month' | 'year' | 'all'>('all');
+  const [histActivityFilter, setHistActivityFilter] = useState<number | null>(null);
+  const [showHistFilter, setShowHistFilter] = useState(false);
+  const [showClearModal, setShowClearModal] = useState(false);
 
   useFocusEffect(useCallback(() => {
     if (route.params?.tab) setTab(route.params.tab);
@@ -215,6 +234,8 @@ export default function AgendaScreen() {
   const [bpPulse, setBpPulse] = useState('');
   const [measureValue, setMeasureValue] = useState('');
   const [weightHeight, setWeightHeight] = useState('');
+  const [walkTime, setWalkTime] = useState('');
+  const [walkDistance, setWalkDistance] = useState('');
 
   // Appointments state
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -223,6 +244,9 @@ export default function AgendaScreen() {
   const [apptForm, setApptForm] = useState(EMPTY_APPT);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [pickerDate, setPickerDate] = useState(new Date());
+
+  // Activity weekday filter
+  const [actWeekdays, setActWeekdays] = useState<number[]>([]);
 
   // Activity time state
   const [actTimeStr, setActTimeStr] = useState('08:00');
@@ -259,6 +283,44 @@ export default function AgendaScreen() {
   const loadLogs = useCallback(async () => {
     setLogs(await getActivityLogs());
   }, []);
+
+  const logActivities = useMemo(() => {
+    const seen = new Map<number, string>();
+    for (const l of logs) {
+      if (l.activity_id !== null && !seen.has(l.activity_id)) {
+        seen.set(l.activity_id, l.activity_name);
+      }
+    }
+    return Array.from(seen.entries()).map(([id, name]) => ({ id, name }));
+  }, [logs]);
+
+  const filteredLogs = useMemo(() => {
+    const now = Date.now();
+    const cutoff = histPeriod === 'month'
+      ? new Date(now - 30 * 24 * 60 * 60 * 1000)
+      : histPeriod === 'year'
+      ? new Date(now - 365 * 24 * 60 * 60 * 1000)
+      : null;
+    return logs.filter(l => {
+      if (cutoff && parseLoggedAt(l.logged_at) < cutoff) return false;
+      if (histActivityFilter !== null && l.activity_id !== histActivityFilter) return false;
+      return true;
+    });
+  }, [logs, histPeriod, histActivityFilter]);
+
+  async function handleShareReport() {
+    if (filteredLogs.length === 0) { Alert.alert('Histórico vazio', 'Nenhuma atividade no período selecionado.'); return; }
+    const lines = filteredLogs.map(l => {
+      const date = parseLoggedAt(l.logged_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+      const val = l.value ? ` — ${l.value}` : '';
+      return `${l.realized ? '✓' : '✗'} ${date}  ${l.activity_name}${val}`;
+    }).join('\n');
+    await Share.share({ message: `📋 Relatório de Atividades\n\n${lines}` });
+  }
+
+  function handleClearLogs() {
+    setShowClearModal(true);
+  }
 
   useFocusEffect(useCallback(() => {
     const openActId = route.params?.openActivityId;
@@ -305,14 +367,22 @@ export default function AgendaScreen() {
     setActForm(EMPTY_ACTIVITY);
     setActRepeat(false); setActTimeStr('08:00');
     setActItvInput('1'); setActToStr('20:00');
+    setActWeekdays([]);
     setShowActivityModal(true);
   }
 
   function openEditActivity(a: Activity) {
     setEditingActivity(a);
-    const times = (remindersMap[a.id] ?? []).map(r => r.time);
+    const reminders = remindersMap[a.id] ?? [];
+    const times = reminders.map(r => r.time);
     setActForm({ type: a.type, name: a.name, notes: a.notes, times: times.length ? times : [''] });
     initActWheelFromTimes(times);
+    const firstR = reminders[0];
+    if (firstR?.period?.startsWith('week:')) {
+      setActWeekdays(firstR.period.split(':')[1].split(',').map(Number));
+    } else {
+      setActWeekdays([]);
+    }
     setShowActivityModal(true);
   }
 
@@ -338,11 +408,19 @@ export default function AgendaScreen() {
       actId = await addActivity({ type: actForm.type, name: actForm.name.trim(), notes: actForm.notes.trim() });
     }
 
+    const hasWeekdays = actWeekdays.length > 0;
+    const sortedWd = [...actWeekdays].sort((a, b) => a - b);
+    const period = hasWeekdays ? `week:${sortedWd.join(',')}` : 'day';
+
     for (const t of times) {
       const parsed = parseTime(t);
       if (!parsed) continue;
-      await addActivityReminder({ activity_id: actId, time: t, is_active: true, with_sound: true });
-      await scheduleActivityReminder(actId, actForm.name.trim(), parsed.hour, parsed.minute, true, actForm.type).catch(() => {});
+      await addActivityReminder({ activity_id: actId, time: t, is_active: true, with_sound: true, period });
+      if (hasWeekdays) {
+        await scheduleActivityReminderWeekly(actId, actForm.name.trim(), sortedWd, parsed.hour, parsed.minute, true, actForm.type).catch(() => {});
+      } else {
+        await scheduleActivityReminder(actId, actForm.name.trim(), parsed.hour, parsed.minute, true, actForm.type).catch(() => {});
+      }
     }
 
     setShowActivityModal(false);
@@ -363,6 +441,7 @@ export default function AgendaScreen() {
   }
 
   function onTypeSelect(type: ActivityType) {
+    if (!['water', 'bp', 'glucose'].includes(type)) setActRepeat(false);
     setActForm(f => ({
       ...f,
       type,
@@ -378,6 +457,7 @@ export default function AgendaScreen() {
     setMeasureActivity(a);
     setBpSystolic(''); setBpDiastolic(''); setBpPulse('');
     setMeasureValue('');
+    setWalkTime(''); setWalkDistance('');
     const savedHeight = a.type === 'weight' ? (await getKV('weight_height') ?? '') : '';
     setWeightHeight(savedHeight);
     setShowMeasureModal(true);
@@ -408,6 +488,15 @@ export default function AgendaScreen() {
         value += ` · ${hCm}cm · IMC ${bmi}`;
         await setKV('weight_height', String(hCm));
       }
+    } else if (measureActivity.type === 'walk') {
+      if (!walkTime.trim() && !walkDistance.trim()) {
+        Alert.alert('Obrigatório', 'Informe pelo menos o tempo ou o percurso.');
+        return;
+      }
+      const parts: string[] = [];
+      if (walkTime.trim()) parts.push(`${walkTime.trim()} min`);
+      if (walkDistance.trim()) parts.push(`${walkDistance.trim()} km`);
+      value = parts.join(' · ');
     } else {
       value = measureValue.trim();
     }
@@ -528,7 +617,7 @@ export default function AgendaScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.toggleBtn, tab === 'history' && styles.toggleBtnActive]}
-          onPress={() => { setTab('history'); loadLogs(); }}
+          onPress={() => { setTab('history'); loadLogs(); setShowHistFilter(true); }}
         >
           <Text style={[styles.toggleBtnText, tab === 'history' && styles.toggleBtnTextActive]}>
             Histórico
@@ -568,9 +657,13 @@ export default function AgendaScreen() {
                     <Text style={styles.cardName}>
                       {item.name}<Text style={styles.cardNamePlus}> +</Text>
                     </Text>
-                    {reminders.length > 0 && (
-                      <Text style={styles.cardSub}>🔔 {reminders.map(r => r.time).join('  ·  ')}</Text>
-                    )}
+                    {reminders.length > 0 && (() => {
+                      const firstR = reminders[0];
+                      const wdLabel = firstR?.period?.startsWith('week:')
+                        ? '  · ' + firstR.period.split(':')[1].split(',').map(v => WEEKDAYS_ACT.find(w => w.value === Number(v))?.label ?? '').join(', ')
+                        : '';
+                      return <Text style={styles.cardSub}>🔔 {reminders.map(r => r.time).join('  ·  ')}{wdLabel}</Text>;
+                    })()}
                   </TouchableOpacity>
                   <View style={styles.cardActions}>
                     <TouchableOpacity style={styles.editBtn} onPress={() => openEditActivity(item)}>
@@ -642,67 +735,60 @@ export default function AgendaScreen() {
         />
       ) : null}
 
-      {tab === 'history' && (() => {
-        async function shareReport() {
-          if (logs.length === 0) { Alert.alert('Histórico vazio', 'Nenhuma atividade registrada ainda.'); return; }
-          const lines = logs.map(l => {
-            const date = parseLoggedAt(l.logged_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-            const status = l.realized ? '✓' : '✗';
-            const val = l.value ? ` — ${l.value}` : '';
-            return `${status} ${date}  ${l.activity_name}${val}`;
-          }).join('\n');
-          await Share.share({ message: `📋 Relatório de Atividades\n\n${lines}` });
-        }
-
-        function logIcon(type: string) {
-          const icons: Record<string, string> = { water: '💧', walk: '🚶', physio: '🏋️', bp: '❤️', glucose: '🩸', weight: '⚖️', custom: '📌' };
-          return icons[type] ?? '📌';
-        }
-
-        return (
-          <View style={{ flex: 1 }}>
-            <TouchableOpacity style={styles.reportBtn} onPress={shareReport}>
-              <Text style={styles.reportBtnText}>📤 Compartilhar relatório</Text>
-            </TouchableOpacity>
-            <FlatList
-              data={logs}
-              keyExtractor={item => String(item.id)}
-              contentContainerStyle={styles.list}
-              ListEmptyComponent={
-                <View style={styles.empty}>
-                  <Text style={styles.emptyIcon}>📋</Text>
-                  <Text style={styles.emptyText}>Nenhum registro ainda.</Text>
-                  <Text style={styles.emptyHint}>Os registros aparecem quando você responde aos avisos de atividade ou registra manualmente.</Text>
-                </View>
-              }
-              renderItem={({ item }) => {
-                const date = parseLoggedAt(item.logged_at);
-                const dateStr = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                const timeStr = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                return (
-                  <View style={[styles.logCard, !item.realized && styles.logCardMissed]}>
-                    <Text style={styles.logIcon}>{logIcon(item.activity_type)}</Text>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.logName}>{item.activity_name}</Text>
-                      {!!item.value && <Text style={styles.logValue}>{item.value}</Text>}
-                      <Text style={styles.logDate}>{dateStr} às {timeStr}</Text>
-                    </View>
-                    <View style={[styles.logBadge, item.realized ? styles.logBadgeOk : styles.logBadgeMissed]}>
-                      <Text style={styles.logBadgeText}>{item.realized ? 'Realizado' : 'Não realiz.'}</Text>
-                    </View>
-                    <TouchableOpacity onPress={() => Alert.alert('Remover', 'Remover este registro?', [
-                      { text: 'Cancelar', style: 'cancel' },
-                      { text: 'Remover', style: 'destructive', onPress: async () => { await deleteActivityLog(item.id); loadLogs(); } },
-                    ])} style={{ padding: 8 }}>
-                      <Text style={{ color: '#ccc', fontSize: 14 }}>✕</Text>
-                    </TouchableOpacity>
-                  </View>
-                );
-              }}
-            />
+      {tab === 'history' && (
+        <View style={{ flex: 1 }}>
+          <View style={styles.histHeader}>
+            <Text style={styles.histCount}>{filteredLogs.length} registro(s)</Text>
+            <View style={styles.histHeaderActions}>
+              <TouchableOpacity style={[styles.histIconBtn, { backgroundColor: '#25D366' }]} onPress={handleShareReport}>
+                <Text style={styles.histIconBtnText}>📲</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.histIconBtn, { backgroundColor: '#1C3F7A' }]} onPress={() => setShowHistFilter(true)}>
+                <Text style={styles.histIconBtnText}>⚙️</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.histIconBtn, { backgroundColor: '#E07B4F' }]} onPress={handleClearLogs}>
+                <Text style={styles.histIconBtnText}>🗑️</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        );
-      })()}
+          <FlatList
+            data={filteredLogs}
+            keyExtractor={item => String(item.id)}
+            contentContainerStyle={styles.list}
+            ListEmptyComponent={
+              <View style={styles.empty}>
+                <Text style={styles.emptyIcon}>📋</Text>
+                <Text style={styles.emptyText}>Nenhum registro no período.</Text>
+                <Text style={styles.emptyHint}>Use Filtrar para ajustar o período ou a atividade.</Text>
+              </View>
+            }
+            renderItem={({ item }) => {
+              const date = parseLoggedAt(item.logged_at);
+              const dateStr = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+              const timeStr = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+              return (
+                <View style={[styles.logCard, !item.realized && styles.logCardMissed]}>
+                  <Text style={styles.logIcon}>{LOG_ICONS[item.activity_type] ?? '📌'}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.logName}>{item.activity_name}</Text>
+                    {!!item.value && <Text style={styles.logValue}>{item.value}</Text>}
+                    <Text style={styles.logDate}>{dateStr} · 🕐 {timeStr}</Text>
+                  </View>
+                  <View style={[styles.logBadge, item.realized ? styles.logBadgeOk : styles.logBadgeMissed]}>
+                    <Text style={styles.logBadgeText}>{item.realized ? 'Realizado' : 'Não realiz.'}</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => Alert.alert('Remover', 'Remover este registro?', [
+                    { text: 'Cancelar', style: 'cancel' },
+                    { text: 'Remover', style: 'destructive', onPress: async () => { await deleteActivityLog(item.id); loadLogs(); } },
+                  ])} style={{ padding: 8 }}>
+                    <Text style={{ color: '#ccc', fontSize: 14 }}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            }}
+          />
+        </View>
+      )}
 
       {tab === 'appointments' && (
         <TouchableOpacity
@@ -852,14 +938,47 @@ export default function AgendaScreen() {
                 );
               })()}
 
-              {!MEASURE_TYPES.includes(measureActivity?.type ?? 'custom' as ActivityType) && (
+              {measureActivity?.type === 'walk' && (
                 <>
-                  <Text style={styles.fieldLabel}>Observação <Text style={styles.fieldLabelOpt}>(opcional)</Text></Text>
+                  <Text style={styles.fieldLabel}>Tempo <Text style={styles.fieldLabelOpt}>(opcional)</Text></Text>
+                  <View style={styles.measureInputRow}>
+                    <TextInput
+                      style={[styles.fieldInput, styles.measureInput]}
+                      value={walkTime}
+                      onChangeText={setWalkTime}
+                      keyboardType="numeric"
+                      placeholder="ex: 30"
+                      placeholderTextColor="#bbb"
+                      maxLength={4}
+                      returnKeyType="next"
+                    />
+                    <Text style={styles.measureUnit}>min</Text>
+                  </View>
+                  <Text style={styles.fieldLabel}>Percurso <Text style={styles.fieldLabelOpt}>(opcional)</Text></Text>
+                  <View style={styles.measureInputRow}>
+                    <TextInput
+                      style={[styles.fieldInput, styles.measureInput]}
+                      value={walkDistance}
+                      onChangeText={setWalkDistance}
+                      keyboardType="decimal-pad"
+                      placeholder="ex: 2.5"
+                      placeholderTextColor="#bbb"
+                      maxLength={6}
+                      returnKeyType="done"
+                    />
+                    <Text style={styles.measureUnit}>km</Text>
+                  </View>
+                </>
+              )}
+
+              {!MEASURE_TYPES.includes(measureActivity?.type ?? 'custom' as ActivityType) && measureActivity?.type !== 'walk' && (
+                <>
+                  <Text style={styles.fieldLabel}>Valor <Text style={styles.fieldLabelOpt}>(opcional)</Text></Text>
                   <TextInput
                     style={styles.fieldInput}
                     value={measureValue}
                     onChangeText={setMeasureValue}
-                    placeholder="ex: 30 minutos"
+                    placeholder="ex: 2 copos, 40 minutos…"
                     placeholderTextColor="#bbb"
                     autoCapitalize="sentences"
                     returnKeyType="done"
@@ -943,16 +1062,22 @@ export default function AgendaScreen() {
                 />
               )}
 
-              <View style={styles.repeatToggleRow}>
-                <Text style={styles.repeatToggleLabel}>Repetir Lembrete</Text>
-                <Switch
-                  value={actRepeat}
-                  onValueChange={v => setActRepeat(v)}
-                  trackColor={{ true: '#1C3F7A' }}
-                />
-              </View>
+              {['water', 'bp', 'glucose'].includes(actForm.type) && (
+                <TouchableOpacity
+                  style={[styles.repeatToggleBtn, actRepeat && styles.repeatToggleBtnActive]}
+                  onPress={() => setActRepeat(v => !v)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.repeatToggleBtnText, actRepeat && styles.repeatToggleBtnTextActive]}>
+                    🔁  Repetir lembrete{actRepeat ? ' — Ativado' : ''}
+                  </Text>
+                  <Text style={[styles.repeatToggleBtnHint, actRepeat && { color: 'rgba(255,255,255,0.65)' }]}>
+                    {actRepeat ? 'Toque para desativar' : 'Repete o aviso em intervalos durante o dia'}
+                  </Text>
+                </TouchableOpacity>
+              )}
 
-              {actRepeat && (
+              {actRepeat && ['water', 'bp', 'glucose'].includes(actForm.type) && (
                 <View style={styles.repeatInlineRow}>
                   <Text style={styles.repeatInlineText}>Repete a cada </Text>
                   <TextInput
@@ -979,6 +1104,24 @@ export default function AgendaScreen() {
                   }}
                 />
               )}
+
+              <Text style={styles.fieldLabel}>
+                Dias da semana <Text style={styles.fieldLabelOpt}>(vazio = todos os dias)</Text>
+              </Text>
+              <View style={styles.actWeekdayRow}>
+                {WEEKDAYS_ACT.map(wd => {
+                  const sel = actWeekdays.includes(wd.value);
+                  return (
+                    <TouchableOpacity
+                      key={wd.value}
+                      style={[styles.actWeekdayBtn, sel && styles.actWeekdayBtnActive]}
+                      onPress={() => setActWeekdays(prev => sel ? prev.filter(v => v !== wd.value) : [...prev, wd.value])}
+                    >
+                      <Text style={[styles.actWeekdayBtnText, sel && styles.actWeekdayBtnTextActive]}>{wd.label}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
 
               <Text style={styles.fieldLabel}>Observações</Text>
               <TextInput
@@ -1091,6 +1234,104 @@ export default function AgendaScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
+      {/* ─── CLEAR MODAL ─── */}
+      <Modal visible={showClearModal} animationType="slide" transparent>
+        <TouchableOpacity style={styles.filterOverlay} activeOpacity={1} onPress={() => setShowClearModal(false)}>
+          <TouchableOpacity activeOpacity={1} style={styles.filterSheet}>
+            <View style={styles.filterSheetHandle} />
+            <Text style={styles.filterTitle}>Limpar histórico</Text>
+            <Text style={{ color: '#888', fontSize: 14, marginBottom: 20 }}>O que deseja fazer?</Text>
+
+            <TouchableOpacity style={styles.clearOptionBtn} onPress={async () => {
+              setShowClearModal(false);
+              await deleteActivityLogsBefore(new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString());
+              loadLogs();
+            }}>
+              <Text style={styles.clearOptionText}>Manter último ano</Text>
+              <Text style={styles.clearOptionHint}>Apaga registros com mais de 365 dias</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.clearOptionBtn} onPress={async () => {
+              setShowClearModal(false);
+              await deleteActivityLogsBefore(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+              loadLogs();
+            }}>
+              <Text style={styles.clearOptionText}>Manter últimos 30 dias</Text>
+              <Text style={styles.clearOptionHint}>Apaga registros com mais de 30 dias</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.clearOptionBtn, styles.clearOptionDestructive]} onPress={() => {
+              setShowClearModal(false);
+              Alert.alert('Confirmar', 'Apagar todos os registros permanentemente?', [
+                { text: 'Cancelar', style: 'cancel' },
+                { text: 'Apagar tudo', style: 'destructive', onPress: async () => { await clearAllActivityLogs(); loadLogs(); } },
+              ]);
+            }}>
+              <Text style={[styles.clearOptionText, { color: '#DC2626' }]}>Apagar tudo</Text>
+              <Text style={styles.clearOptionHint}>Remove todos os registros permanentemente</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.applyBtn} onPress={() => setShowClearModal(false)}>
+              <Text style={styles.applyBtnText}>Cancelar</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* ─── FILTER MODAL ─── */}
+      <Modal visible={showHistFilter} animationType="slide" transparent>
+        <TouchableOpacity style={styles.filterOverlay} activeOpacity={1} onPress={() => setShowHistFilter(false)}>
+          <TouchableOpacity activeOpacity={1} style={styles.filterSheet}>
+            <View style={styles.filterSheetHandle} />
+            <Text style={styles.filterTitle}>Filtros</Text>
+
+            <Text style={styles.filterSectionLabel}>Período</Text>
+            <View style={styles.filterPeriodRow}>
+              {HIST_PERIODS.map(p => (
+                <TouchableOpacity
+                  key={p.key}
+                  style={[styles.filterChip, histPeriod === p.key && styles.filterChipActive]}
+                  onPress={() => setHistPeriod(p.key)}
+                >
+                  <Text style={[styles.filterChipText, histPeriod === p.key && styles.filterChipTextActive]}>
+                    {p.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {logActivities.length > 0 && (
+              <>
+                <Text style={styles.filterSectionLabel}>Atividade</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, paddingBottom: 4 }}>
+                  <TouchableOpacity
+                    style={[styles.filterChip, histActivityFilter === null && styles.filterChipActive]}
+                    onPress={() => setHistActivityFilter(null)}
+                  >
+                    <Text style={[styles.filterChipText, histActivityFilter === null && styles.filterChipTextActive]}>Todas</Text>
+                  </TouchableOpacity>
+                  {logActivities.map(a => (
+                    <TouchableOpacity
+                      key={a.id}
+                      style={[styles.filterChip, histActivityFilter === a.id && styles.filterChipActive]}
+                      onPress={() => setHistActivityFilter(a.id)}
+                    >
+                      <Text style={[styles.filterChipText, histActivityFilter === a.id && styles.filterChipTextActive]}>{a.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </>
+            )}
+
+            <TouchableOpacity style={styles.applyBtn} onPress={() => setShowHistFilter(false)}>
+              <Text style={styles.applyBtnText}>
+                Ver {filteredLogs.length} registro{filteredLogs.length !== 1 ? 's' : ''}
+              </Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
+
       {showDatePicker && (
         <DateTimePicker
           value={pickerDate}
@@ -1145,11 +1386,52 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: 15, color: '#999', marginBottom: 6, fontWeight: '500' },
   emptyHint: { fontSize: 13, color: '#bbb', textAlign: 'center' },
 
-  reportBtn: {
-    margin: 14, marginBottom: 4, backgroundColor: '#1C3F7A', borderRadius: 10,
-    paddingVertical: 12, alignItems: 'center',
+  histHeader: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    marginHorizontal: 14, marginTop: 10, marginBottom: 8,
   },
-  reportBtnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
+  histCount: { fontSize: 13, color: '#888', fontWeight: '600' },
+  histHeaderActions: { flexDirection: 'row', gap: 8 },
+  histIconBtn: {
+    width: 36, height: 36, borderRadius: 18,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  histIconBtnText: { fontSize: 18 },
+
+  filterOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end',
+  },
+  filterSheet: {
+    backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    padding: 20, paddingBottom: 36,
+  },
+  filterSheetHandle: {
+    width: 40, height: 4, borderRadius: 2, backgroundColor: '#D0D5E0',
+    alignSelf: 'center', marginBottom: 16,
+  },
+  filterTitle: { fontSize: 18, fontWeight: '700', color: '#1C3F7A', marginBottom: 16 },
+  filterSectionLabel: { fontSize: 13, fontWeight: '700', color: '#555', marginBottom: 8, marginTop: 12 },
+  filterPeriodRow: { flexDirection: 'row', gap: 8 },
+  filterChip: {
+    paddingVertical: 8, paddingHorizontal: 14, borderRadius: 20,
+    backgroundColor: '#F2F4F8', borderWidth: 1, borderColor: '#D0D5E0',
+  },
+  filterChipActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
+  filterChipText: { fontSize: 13, color: '#555', fontWeight: '600' },
+  filterChipTextActive: { color: '#fff' },
+  applyBtn: {
+    marginTop: 24, backgroundColor: '#1C3F7A', borderRadius: 12,
+    paddingVertical: 14, alignItems: 'center',
+  },
+  applyBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+
+  clearOptionBtn: {
+    paddingVertical: 14, paddingHorizontal: 16, borderRadius: 10,
+    backgroundColor: '#F2F4F8', marginBottom: 8,
+  },
+  clearOptionDestructive: { backgroundColor: '#FEF2F2' },
+  clearOptionText: { fontSize: 15, fontWeight: '700', color: '#1C3F7A', marginBottom: 2 },
+  clearOptionHint: { fontSize: 12, color: '#999' },
 
   logCard: {
     backgroundColor: '#fff', borderRadius: 12, padding: 12, marginBottom: 8,
@@ -1278,6 +1560,15 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   repeatToggleLabel: { fontSize: 13, color: '#555', flex: 1, marginRight: 10 },
+  repeatToggleBtn: {
+    borderWidth: 1.5, borderColor: '#D1D5DB', borderRadius: 10,
+    paddingVertical: 12, paddingHorizontal: 14, marginTop: 10,
+    backgroundColor: '#F9FAFB',
+  },
+  repeatToggleBtnActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
+  repeatToggleBtnText: { fontSize: 14, fontWeight: '700', color: '#374151' },
+  repeatToggleBtnTextActive: { color: '#fff' },
+  repeatToggleBtnHint: { fontSize: 12, color: '#9CA3AF', marginTop: 3 },
   repeatInlineRow: {
     flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',
     backgroundColor: '#F2F4F8', borderRadius: 10, padding: 10, marginTop: 4, gap: 2,
@@ -1291,6 +1582,15 @@ const styles = StyleSheet.create({
     fontSize: 14, fontWeight: '700', color: '#1C3F7A',
     textAlign: 'center', minWidth: 48, paddingVertical: 2,
   },
+
+  actWeekdayRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8, marginBottom: 4 },
+  actWeekdayBtn: {
+    paddingHorizontal: 10, paddingVertical: 8, borderRadius: 8,
+    borderWidth: 1.5, borderColor: '#D1D5DB', backgroundColor: '#F9FAFB', minWidth: 44, alignItems: 'center',
+  },
+  actWeekdayBtnActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
+  actWeekdayBtnText: { fontSize: 13, fontWeight: '600', color: '#555' },
+  actWeekdayBtnTextActive: { color: '#fff' },
 
   reminderInfo: {
     backgroundColor: '#EEF2FF', borderRadius: 8, padding: 10, marginTop: 12,

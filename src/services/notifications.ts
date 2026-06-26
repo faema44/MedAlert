@@ -525,6 +525,37 @@ export async function scheduleActivityReminder(
   });
 }
 
+export async function scheduleActivityReminderWeekly(
+  activityId: number,
+  activityName: string,
+  weekdays: number[],
+  hour: number,
+  minute: number,
+  withSound = true,
+  activityType = 'custom',
+): Promise<void> {
+  const tp = timePart(hour, minute);
+  const isMeasure = MEASURE_ACTIVITY_TYPES.includes(activityType);
+  for (const wd of weekdays) {
+    await Notifications.scheduleNotificationAsync({
+      identifier: `activity_${activityId}_w${wd}_${tp}`,
+      content: {
+        title: activityName,
+        body: isMeasure ? 'Hora de medir' : 'Hora da sua atividade',
+        data: { type: 'activity', activityId, activityName, activityType },
+        categoryIdentifier: isMeasure ? ACTIVITY_MEASURE_CATEGORY : ACTIVITY_BASIC_CATEGORY,
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+        weekday: wd,
+        hour,
+        minute,
+        channelId: withSound ? ACTIVITY_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+      },
+    });
+  }
+}
+
 export async function snoozeActivityReminder(
   activityId: number,
   activityName: string,
@@ -666,7 +697,13 @@ export async function rescheduleRemindersForActivity(
     if (!r.is_active) continue;
     const [h, m] = r.time.split(':').map(Number);
     if (isNaN(h)) continue;
-    await scheduleActivityReminder(activityId, activityName, h, m, r.with_sound ?? true).catch(() => {});
+    const p = r.period ?? 'day';
+    if (p.startsWith('week:')) {
+      const wds = p.split(':')[1].split(',').map(Number);
+      await scheduleActivityReminderWeekly(activityId, activityName, wds, h, m, r.with_sound ?? true).catch(() => {});
+    } else {
+      await scheduleActivityReminder(activityId, activityName, h, m, r.with_sound ?? true).catch(() => {});
+    }
   }
 }
 

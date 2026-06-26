@@ -59,7 +59,7 @@ function addDays(days: number): string {
 }
 
 const TIMES_PER_DAY_OPTIONS = [1, 2, 3, 4, 6];
-const DOSE_UNITS = ['mg', 'g', 'mcg', 'UI', 'mL', '%'];
+const DOSE_UNITS = ['mg', 'g', 'mcg', 'UI', 'mL', '%', 'cáps'];
 type ReminderPeriod = 'day' | 'week' | 'month' | 'year';
 type WizardStep = 'type' | 'name' | 'dose' | 'period' | 'times_per_day' | 'weekdays' | 'month_days' | 'n_months' | 'time' | 'deadline' | 'sound' | 'repeat' | 'stock';
 
@@ -102,7 +102,7 @@ function computeTimes(startTime: string, timesPerDay: number): string[] {
   });
 }
 
-function getStepSequence(period: ReminderPeriod, isNew: boolean): WizardStep[] {
+function getStepSequence(period: ReminderPeriod, isNew: boolean, skipTime = false): WizardStep[] {
   const base: WizardStep[] = isNew
     ? ['type', 'name', 'dose', 'period']
     : ['name', 'dose', 'period'];
@@ -110,7 +110,8 @@ function getStepSequence(period: ReminderPeriod, isNew: boolean): WizardStep[] {
   else if (period === 'week') base.push('weekdays');
   else if (period === 'month') base.push('month_days');
   else base.push('n_months');
-  base.push('time', 'deadline', 'sound', 'repeat', 'stock');
+  if (!skipTime) base.push('time');
+  base.push('deadline', 'sound', 'repeat', 'stock');
   return base;
 }
 
@@ -170,6 +171,13 @@ export default function MedicationsScreen() {
   const [selectedMonthDays, setSelectedMonthDays] = useState<number[]>([]);
   const [nMonths, setNMonths] = useState('1');
   const [monthDay, setMonthDay] = useState('1');
+
+  // Meal time mode for notifications
+  const [mealMode, setMealMode] = useState(false);
+  const [mealCafe, setMealCafe] = useState('');
+  const [mealAlmoco, setMealAlmoco] = useState('');
+  const [mealJanta, setMealJanta] = useState('');
+  const [mealPickerTarget, setMealPickerTarget] = useState<number | null>(null);
 
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -322,6 +330,7 @@ export default function MedicationsScreen() {
     setTimesPerDay(1); setTimesPerDayTouched(false); setSpecificModeActive(false);
     setCustomTimes(''); setWithSound(true); setRepeatInterval(0); setReminderPeriod('day');
     setSelectedWeekdays([]); setSelectedMonthDays([]); setNMonths('1'); setMonthDay('1');
+    setMealMode(false); setMealCafe(''); setMealAlmoco(''); setMealJanta(''); setMealPickerTarget(null);
   }
 
   function populatePickerFromReminders(rs: MedicationReminder[]) {
@@ -558,7 +567,7 @@ export default function MedicationsScreen() {
       case 'repeat':
         return false;
       case 'times_per_day':
-        return false;
+        return mealMode;
       case 'deadline':
         return hasDeadline;
       default:
@@ -571,7 +580,7 @@ export default function MedicationsScreen() {
   function wizGoNext(overridePeriod?: ReminderPeriod) {
     const p = overridePeriod ?? reminderPeriod;
     const isNew = editingId === null;
-    const seq = getStepSequence(p, isNew);
+    const seq = getStepSequence(p, isNew, mealMode);
     const idx = seq.indexOf(wizardStep);
 
     if (wizardStep === 'name' && !form.generic_name.trim()) {
@@ -581,6 +590,16 @@ export default function MedicationsScreen() {
     // Silently report drug names not found in the local database
     if (wizardStep === 'name' && !knownDrug && form.generic_name.trim().length >= 3) {
       reportMissingDrug(form.generic_name.trim()).catch(() => {});
+    }
+    if (wizardStep === 'times_per_day' && mealMode) {
+      const times = [mealCafe, mealAlmoco, mealJanta].filter(t => /^\d{1,2}:\d{2}$/.test(t));
+      if (times.length === 0) {
+        Alert.alert('Obrigatório', 'Informe ao menos um horário.');
+        return;
+      }
+      setCustomTimes(times.join(' '));
+      setTimesPerDay(times.length);
+      setTimesPerDayTouched(true);
     }
     if (wizardStep === 'weekdays' && selectedWeekdays.length === 0) {
       Alert.alert('Selecione', 'Selecione ao menos um dia da semana.');
@@ -604,7 +623,7 @@ export default function MedicationsScreen() {
 
   function wizGoBack() {
     const isNew = editingId === null;
-    const seq = getStepSequence(reminderPeriod, isNew);
+    const seq = getStepSequence(reminderPeriod, isNew, mealMode);
     const idx = seq.indexOf(wizardStep);
     if (idx <= 0) {
       setShowModal(false);
@@ -782,7 +801,54 @@ export default function MedicationsScreen() {
           </>
         );
 
-      case 'times_per_day':
+      case 'times_per_day': {
+        if (mealMode) {
+          const mealItems = [
+            { label: '☕ Café da manhã', value: mealCafe, setter: setMealCafe, defaultH: 7 },
+            { label: '🍽 Almoço', value: mealAlmoco, setter: setMealAlmoco, defaultH: 12 },
+            { label: '🌙 Jantar', value: mealJanta, setter: setMealJanta, defaultH: 19 },
+          ];
+          return (
+            <>
+              <Text style={styles.wizLabel}>Horários das refeições</Text>
+              <Text style={styles.wizHint}>Informe 1, 2 ou 3 horários</Text>
+              {mealItems.map((item, idx) => (
+                <View key={idx} style={{ marginTop: 14 }}>
+                  <Text style={styles.fieldLabel}>
+                    {item.label}
+                    {idx > 0 ? <Text style={{ color: '#bbb', fontWeight: '400' }}> (opcional)</Text> : null}
+                  </Text>
+                  <TouchableOpacity
+                    style={[styles.wizTimePicker, { padding: 16, marginTop: 6 }]}
+                    onPress={() => setMealPickerTarget(idx)}
+                  >
+                    <Text style={[styles.wizTimePickerText, { fontSize: 36 }]}>{item.value || '——:——'}</Text>
+                    <Text style={styles.wizTimePickerHint}>{item.value ? 'Toque para alterar' : 'Toque para definir'}</Text>
+                  </TouchableOpacity>
+                  {mealPickerTarget === idx && (
+                    <DateTimePicker
+                      value={(() => {
+                        const d = new Date();
+                        if (item.value) { const [h, m] = item.value.split(':').map(Number); d.setHours(h, m, 0, 0); }
+                        else d.setHours(item.defaultH, 0, 0, 0);
+                        return d;
+                      })()}
+                      mode="time"
+                      is24Hour={true}
+                      onChange={(e, d) => {
+                        setMealPickerTarget(null);
+                        if (e.type === 'set' && d) item.setter(fmtHM(d.getHours(), d.getMinutes()));
+                      }}
+                    />
+                  )}
+                </View>
+              ))}
+              <TouchableOpacity style={{ marginTop: 20 }} onPress={() => setMealMode(false)}>
+                <Text style={[styles.wizBackBtnText, { color: '#888' }]}>‹ Outras opções</Text>
+              </TouchableOpacity>
+            </>
+          );
+        }
         return (
           <>
             <Text style={styles.wizLabel}>Vezes por dia</Text>
@@ -798,8 +864,15 @@ export default function MedicationsScreen() {
                 </TouchableOpacity>
               ))}
             </View>
+            <TouchableOpacity
+              style={[styles.yesNoBtn, { marginTop: 20, borderColor: '#E07B4F', width: '100%' }]}
+              onPress={() => { setMealMode(true); setTimesPerDayTouched(false); }}
+            >
+              <Text style={[styles.yesNoBtnText, { color: '#E07B4F', fontSize: 14 }]}>🍽 Usar horários das refeições</Text>
+            </TouchableOpacity>
           </>
         );
+      }
 
       case 'weekdays':
         return (
@@ -1136,7 +1209,7 @@ export default function MedicationsScreen() {
             <View style={styles.wizModalBox}>
               {/* Progress bar */}
               {(() => {
-                const seq = getStepSequence(reminderPeriod, editingId === null);
+                const seq = getStepSequence(reminderPeriod, editingId === null, mealMode);
                 const idx = Math.max(0, seq.indexOf(wizardStep));
                 const pct = `${Math.round((idx + 1) / seq.length * 100)}%`;
                 return (
@@ -1213,7 +1286,7 @@ export default function MedicationsScreen() {
                   <TouchableOpacity style={styles.wizNextBtn} onPress={() => wizGoNext()}>
                     <Text style={styles.wizNextBtnText}>
                       {(() => {
-                        const seq = getStepSequence(reminderPeriod, editingId === null);
+                        const seq = getStepSequence(reminderPeriod, editingId === null, mealMode);
                         const idx = seq.indexOf(wizardStep);
                         return idx >= seq.length - 1 ? 'Salvar ✓' : 'Próximo ›';
                       })()}

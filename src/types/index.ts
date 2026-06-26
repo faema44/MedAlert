@@ -82,6 +82,7 @@ export interface ActivityReminder {
   time: string;
   is_active: boolean;
   with_sound: boolean;
+  period?: string;  // 'day' | 'week:1,2,3...' (1=Dom, 2=Seg...7=Sáb)
 }
 
 export interface Appointment {

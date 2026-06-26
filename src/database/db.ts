@@ -120,6 +120,10 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
   try {
     await database.execAsync('ALTER TABLE activity_reminders ADD COLUMN with_sound INTEGER DEFAULT 1');
   } catch {}
+  // Add period to activity_reminders for weekday scheduling
+  try {
+    await database.execAsync("ALTER TABLE activity_reminders ADD COLUMN period TEXT DEFAULT 'day'");
+  } catch {}
   // Repair: restore is_active=1 for reminders broken by previous bell-mute implementation
   try {
     await database.execAsync('UPDATE medication_reminders SET is_active=1 WHERE is_active=0');
@@ -380,14 +384,14 @@ export async function getRemindersForActivity(activityId: number): Promise<Activ
     'SELECT * FROM activity_reminders WHERE activity_id=? ORDER BY time ASC',
     [activityId]
   );
-  return rows.map(r => ({ ...r, is_active: Boolean(r.is_active), with_sound: r.with_sound !== 0 }));
+  return rows.map(r => ({ ...r, is_active: Boolean(r.is_active), with_sound: r.with_sound !== 0, period: r.period ?? 'day' }));
 }
 
 export async function addActivityReminder(r: Omit<ActivityReminder, 'id'>): Promise<void> {
   const database = await getDb();
   await database.runAsync(
-    'INSERT INTO activity_reminders (activity_id, time, is_active, with_sound) VALUES (?, ?, 1, 1)',
-    [r.activity_id, r.time]
+    'INSERT INTO activity_reminders (activity_id, time, is_active, with_sound, period) VALUES (?, ?, 1, 1, ?)',
+    [r.activity_id, r.time, r.period ?? 'day']
   );
 }
 
@@ -457,7 +461,7 @@ export async function addActivityLog(log: Omit<ActivityLog, 'id' | 'logged_at'>)
   );
 }
 
-export async function getActivityLogs(limit = 200): Promise<ActivityLog[]> {
+export async function getActivityLogs(limit = 5000): Promise<ActivityLog[]> {
   const database = await getDb();
   const rows = await database.getAllAsync<any>(
     'SELECT * FROM activity_logs ORDER BY logged_at DESC LIMIT ?', [limit],
@@ -477,4 +481,14 @@ export async function getActivityLogsForActivity(activityId: number, limit = 5):
 export async function deleteActivityLog(id: number): Promise<void> {
   const database = await getDb();
   await database.runAsync('DELETE FROM activity_logs WHERE id=?', [id]);
+}
+
+export async function deleteActivityLogsBefore(isoDate: string): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('DELETE FROM activity_logs WHERE logged_at < ?', [isoDate]);
+}
+
+export async function clearAllActivityLogs(): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('DELETE FROM activity_logs');
 }
