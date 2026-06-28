@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Política de Privacidade — Alerta Médico</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #F2F4F8;
+      color: #1A1F2E;
+      padding: 24px 16px 48px;
+    }
+    .card {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px 28px;
+      border: 0.5px solid rgba(0,0,0,0.08);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: #1C3F7A;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #fff;
+    }
+    .logo-text h1 { font-size: 20px; font-weight: 700; color: #1C3F7A; }
+    .logo-text p  { font-size: 13px; color: #888; margin-top: 2px; }
+    .updated { font-size: 12px; color: #aaa; margin-bottom: 28px; }
+    h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1C3F7A;
+      margin: 28px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1.5px solid #E8EDF5;
+    }
+    p, li { font-size: 14px; line-height: 1.75; color: #444; }
+    ul { padding-left: 20px; margin-top: 6px; }
+    li { margin-bottom: 4px; }
+    .highlight {
+      background: #EEF3FA;
+      border-left: 3px solid #1C3F7A;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      margin: 12px 0;
+      font-size: 14px;
+      color: #1C3F7A;
+    }
+    .badge {
+      display: inline-block;
+      background: #E8F5E9;
+      color: #2E7D32;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 2px 8px;
+      margin-bottom: 8px;
+    }
+    a { color: #1C3F7A; }
+    footer {
+      max-width: 720px;
+      margin: 24px auto 0;
+      font-size: 12px;
+      color: #aaa;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">🚨</div>
+    <div class="logo-text">
+      <h1>Alerta Médico</h1>
+      <p>Política de Privacidade</p>
+    </div>
+  </div>
+  <p class="updated">Última atualização: junho de 2026</p>
+
+  <div class="highlight">
+    <span class="badge">Resumo</span><br>
+    O Alerta Médico <strong>não coleta, transmite nem vende nenhum dado seu</strong>. Todas as informações são armazenadas exclusivamente no seu dispositivo.
+  </div>
+
+  <h2>1. Quem somos</h2>
+  <p>
+    O <strong>Alerta Médico</strong> é um aplicativo Android desenvolvido por Fabio (<a href="mailto:faema44@gmail.com">faema44@gmail.com</a>)
+    com o objetivo de auxiliar no gerenciamento de medicamentos, atividades de saúde e alertas de emergência.
+  </p>
+
+  <h2>2. Dados que o app utiliza</h2>
+  <p>O aplicativo armazena as seguintes informações <strong>localmente no seu dispositivo</strong>, em um banco de dados SQLite:</p>
+  <ul>
+    <li>Nome, data de nascimento e tipo sanguíneo</li>
+    <li>Alergias e condições médicas (anotações livres)</li>
+    <li>Lista de medicamentos e horários de uso</li>
+    <li>Contatos de emergência</li>
+    <li>Atividades de saúde e registros de monitoramento</li>
+    <li>Histórico de tomada de medicamentos e atividades realizadas</li>
+    <li>Consultas médicas agendadas</li>
+  </ul>
+
+  <h2>3. Como esses dados são usados</h2>
+  <p>Os dados são usados exclusivamente para:</p>
+  <ul>
+    <li>Exibir alertas de medicamentos e atividades no momento programado</li>
+    <li>Mostrar informações médicas na tela de bloqueio em caso de emergência</li>
+    <li>Registrar histórico de adesão ao tratamento</li>
+    <li>Gerar arquivo de backup exportável pelo próprio usuário</li>
+  </ul>
+
+  <h2>4. Compartilhamento de dados</h2>
+  <div class="highlight">
+    Os dados <strong>nunca são enviados</strong> a servidores externos, terceiros, empresas de publicidade ou qualquer outro destinatário. Não há rastreamento, analytics nem telemetria.
+  </div>
+
+  <h2>5. Permissões solicitadas</h2>
+  <ul>
+    <li>
+      <strong>Notificações (POST_NOTIFICATIONS)</strong> — necessária para enviar lembretes de medicamentos e atividades no horário programado.
+    </li>
+    <li>
+      <strong>Exibir sobre outros apps (SYSTEM_ALERT_WINDOW)</strong> — necessária para mostrar o alerta de medicamento como sobreposição sobre qualquer aplicativo em primeiro plano, garantindo que o lembrete seja visto mesmo que outro app esteja aberto.
+    </li>
+    <li>
+      <strong>Iniciar na inicialização (RECEIVE_BOOT_COMPLETED)</strong> — necessária para reagendar os lembretes após o dispositivo ser reiniciado.
+    </li>
+  </ul>
+
+  <h2>6. Armazenamento e segurança</h2>
+  <p>
+    Todos os dados ficam no banco de dados privado do app (<code>medalert.db</code>) no armazenamento interno do dispositivo,
+    protegido pelas políticas de isolamento de apps do Android. Nenhum dado é gravado em armazenamento externo sem ação explícita do usuário (exportar backup).
+  </p>
+
+  <h2>7. Crianças</h2>
+  <p>
+    O aplicativo é destinado a adultos e não coleta intencionalmente dados de menores de 13 anos.
+    Em caso de uso por menores, um responsável deve gerenciar as informações inseridas.
+  </p>
+
+  <h2>8. Seus direitos (LGPD)</h2>
+  <p>Nos termos da Lei Geral de Proteção de Dados (Lei 13.709/2018), você tem direito a:</p>
+  <ul>
+    <li>Acessar todos os dados armazenados — visíveis diretamente nas telas do aplicativo</li>
+    <li>Corrigir dados a qualquer momento nas telas de Perfil, Medicamentos e Contatos</li>
+    <li>Excluir todos os dados — desinstalando o aplicativo ou apagando dados nas Configurações do Android</li>
+    <li>Exportar seus dados — via função "Exportar backup" na tela de Perfil</li>
+  </ul>
+
+  <h2>9. Aviso médico</h2>
+  <p>
+    O Alerta Médico é uma ferramenta auxiliar de organização e <strong>não substitui avaliação, diagnóstico ou orientação médica profissional</strong>.
+    As informações inseridas no app são de responsabilidade exclusiva do usuário.
+  </p>
+
+  <h2>10. Alterações nesta política</h2>
+  <p>
+    Eventuais atualizações desta política serão publicadas nesta página com nova data de revisão.
+    O uso continuado do aplicativo após mudanças implica aceite das novas condições.
+  </p>
+
+  <h2>11. Contato</h2>
+  <p>
+    Para dúvidas, solicitações ou exercício de direitos relacionados a esta política, entre em contato pelo e-mail:
+    <a href="mailto:faema44@gmail.com">faema44@gmail.com</a>
+  </p>
+</div>
+
+<footer>
+  &copy; 2026 Alerta Médico &mdash; Todos os direitos reservados
+</footer>
+
+</body>
+</html>
