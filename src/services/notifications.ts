@@ -18,12 +18,14 @@ const MED_ACTION_CATEGORY = 'med_action';
 const ACTIVITY_MEASURE_CATEGORY = 'activity_measure_action';
 const ACTIVITY_BASIC_CATEGORY = 'activity_basic_action';
 const MEASURE_ACTIVITY_TYPES = ['bp', 'glucose', 'weight'];
+const TREATMENT_ENDED_CHANNEL = 'medalert_treatment_ended_v1';
+const TREATMENT_ENDED_CATEGORY = 'treatment_ended_action';
 
 export async function setupReminderCategory(): Promise<void> {
   // Categories don't work in Expo Go (SDK 53+); work normally in production APK/AAB.
   try {
     await Notifications.setNotificationCategoryAsync(MED_ACTION_CATEGORY, [
-      { identifier: 'TOOK', buttonTitle: '✓ Tomei',    options: { opensAppToForeground: false } },
+      { identifier: 'TOOK', buttonTitle: 'Tomei',       options: { opensAppToForeground: false } },
       { identifier: 'SKIP', buttonTitle: 'Não tomei',  options: { opensAppToForeground: false } },
     ]);
     await Notifications.setNotificationCategoryAsync(ACTIVITY_MEASURE_CATEGORY, [
@@ -35,6 +37,9 @@ export async function setupReminderCategory(): Promise<void> {
       { identifier: 'DONE',     buttonTitle: '✓ Realizei',    options: { opensAppToForeground: false } },
       { identifier: 'SNOOZE',   buttonTitle: '⏱ Adiar 5 min', options: { opensAppToForeground: false } },
       { identifier: 'SKIP_ACT', buttonTitle: 'Pular',          options: { opensAppToForeground: false } },
+    ]);
+    await Notifications.setNotificationCategoryAsync(TREATMENT_ENDED_CATEGORY, [
+      { identifier: 'END_OK', buttonTitle: 'OK', options: { opensAppToForeground: false } },
     ]);
   } catch {
     // Silently ignore in Expo Go
@@ -97,6 +102,13 @@ export async function setupNotificationChannels(): Promise<void> {
     lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
     sound: 'appt_reminder',
     vibrationPattern: [0, 300, 100, 300],
+  });
+
+  await Notifications.setNotificationChannelAsync(TREATMENT_ENDED_CHANNEL, {
+    name: 'Tratamento Encerrado',
+    importance: Notifications.AndroidImportance.HIGH,
+    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+    sound: null,
   });
 }
 
@@ -199,6 +211,7 @@ export async function updateEmergencyNotification(
   await clearEmergency();
 
   if (!profile?.name) return;
+  if (profile.emergency_card_enabled === false) return;
 
   // Ordena: críticos primeiro, depois alfabético pelo nome principal
   const sortedMeds = [...medications].sort((a, b) => {
@@ -245,7 +258,7 @@ export async function updateEmergencyNotification(
   meds8.forEach((m, idx) => {
     const info = nextReminderInfo(medReminders[idx] ?? []);
     if (info && info.sortMs <= todayEnd.getTime()) {
-      upcoming.push({ name: m.generic_name, label: info.label, sortMs: info.sortMs });
+      upcoming.push({ name: m.commercial_name?.trim() || m.generic_name, label: info.label, sortMs: info.sortMs });
     }
   });
   upcoming.sort((a, b) => a.sortMs - b.sortMs);
@@ -292,10 +305,11 @@ export function initReminderListeners(
   return () => sub.remove();
 }
 
-function reminderContent(medicationName: string, dose: string, medicationId: number, repeatInterval = 0) {
+function reminderContent(medicationName: string, dose: string, medicationId: number, repeatInterval = 0, stockWarning?: string) {
+  const bodyBase = dose || 'Hora de tomar o medicamento';
   return {
     title: medicationName,
-    body: dose || 'Hora de tomar o medicamento',
+    body: stockWarning ? `${bodyBase} · ${stockWarning}` : bodyBase,
     data: { type: 'reminder', medicationId, name: medicationName, dose, repeatInterval },
     sticky: true,
     categoryIdentifier: MED_ACTION_CATEGORY,
@@ -314,11 +328,12 @@ export async function scheduleReminder(
   minute: number,
   withSound: boolean,
   repeatInterval = 0,
+  stockWarning?: string,
 ): Promise<void> {
   const id = `reminder_${medicationId}_${timePart(hour, minute)}`;
   await Notifications.scheduleNotificationAsync({
     identifier: id,
-    content: reminderContent(medicationName, dose, medicationId, repeatInterval),
+    content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning),
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
       hour,
@@ -337,11 +352,12 @@ export async function scheduleReminderWeekly(
   minute: number,
   withSound: boolean,
   repeatInterval = 0,
+  stockWarning?: string,
 ): Promise<void> {
   for (const wd of weekdays) {
     await Notifications.scheduleNotificationAsync({
       identifier: `reminder_${medicationId}_w${wd}_${timePart(hour, minute)}`,
-      content: reminderContent(medicationName, dose, medicationId, repeatInterval),
+      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning),
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
         weekday: wd,
@@ -362,11 +378,12 @@ export async function scheduleReminderMonthly(
   minute: number,
   withSound: boolean,
   repeatInterval = 0,
+  stockWarning?: string,
 ): Promise<void> {
   for (const day of days) {
     await Notifications.scheduleNotificationAsync({
       identifier: `reminder_${medicationId}_m${day}_${timePart(hour, minute)}`,
-      content: reminderContent(medicationName, dose, medicationId, repeatInterval),
+      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning),
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
         repeats: true,
@@ -389,6 +406,7 @@ export async function scheduleReminderEveryNMonths(
   minute: number,
   withSound: boolean,
   repeatInterval = 0,
+  stockWarning?: string,
 ): Promise<void> {
   const tp = timePart(hour, minute);
   const now = new Date();
@@ -398,7 +416,7 @@ export async function scheduleReminderEveryNMonths(
     const dateStr = `${next.getFullYear()}${String(next.getMonth() + 1).padStart(2, '0')}${String(next.getDate()).padStart(2, '0')}`;
     await Notifications.scheduleNotificationAsync({
       identifier: `reminder_${medicationId}_nm_${dateStr}_${tp}`,
-      content: reminderContent(medicationName, dose, medicationId, repeatInterval),
+      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning),
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
         repeats: false,
@@ -654,22 +672,24 @@ export async function cancelAppointmentReminders(appointmentId: number): Promise
 export async function rescheduleRemindersForMedication(
   med: Medication,
   reminders: MedicationReminder[],
+  stockWarning?: string,
 ): Promise<void> {
+  const notifName = med.commercial_name?.trim() || med.generic_name;
   for (const r of reminders) {
     if (!r.is_active) continue;
     const [h, m] = r.time.split(':').map(Number);
     if (isNaN(h)) continue;
     if (!r.period || r.period === 'day') {
-      await scheduleReminder(med.id, med.generic_name, med.dose, h, m, r.with_sound, r.repeat_interval).catch(() => {});
+      await scheduleReminder(med.id, notifName, med.dose, h, m, r.with_sound, r.repeat_interval, stockWarning).catch(() => {});
     } else if (r.period.startsWith('week:')) {
       const wds = r.period.split(':')[1].split(',').map(Number);
-      await scheduleReminderWeekly(med.id, med.generic_name, med.dose, wds, h, m, r.with_sound, r.repeat_interval).catch(() => {});
+      await scheduleReminderWeekly(med.id, notifName, med.dose, wds, h, m, r.with_sound, r.repeat_interval, stockWarning).catch(() => {});
     } else if (r.period.startsWith('month:')) {
       const days = r.period.split(':')[1].split(',').map(Number);
-      await scheduleReminderMonthly(med.id, med.generic_name, med.dose, days, h, m, r.with_sound, r.repeat_interval).catch(() => {});
+      await scheduleReminderMonthly(med.id, notifName, med.dose, days, h, m, r.with_sound, r.repeat_interval, stockWarning).catch(() => {});
     } else if (r.period.startsWith('nmonths:')) {
       const [, nStr, dStr] = r.period.split(':');
-      await scheduleReminderEveryNMonths(med.id, med.generic_name, med.dose, parseInt(nStr), parseInt(dStr), h, m, r.with_sound, r.repeat_interval).catch(() => {});
+      await scheduleReminderEveryNMonths(med.id, notifName, med.dose, parseInt(nStr), parseInt(dStr), h, m, r.with_sound, r.repeat_interval, stockWarning).catch(() => {});
     }
   }
 }
@@ -679,7 +699,15 @@ export async function rescheduleAllActiveNotifications(): Promise<void> {
     const [meds, acts] = await Promise.all([getMedications(), getActivities()]);
     await Promise.all(meds.map(async med => {
       const reminders = await getRemindersForMedication(med.id).catch(() => [] as MedicationReminder[]);
-      await rescheduleRemindersForMedication(med, reminders);
+      let stockWarning: string | undefined;
+      if (med.stock_quantity != null) {
+        const activeDoses = reminders.filter(r => r.is_active).length || 1;
+        const daysLeft = Math.floor(med.stock_quantity / activeDoses);
+        if (daysLeft <= 3) {
+          stockWarning = `⚠️ Estoque: ~${daysLeft}d`;
+        }
+      }
+      await rescheduleRemindersForMedication(med, reminders, stockWarning);
     }));
     await Promise.all(acts.map(async act => {
       const reminders = await getRemindersForActivity(act.id).catch(() => []);
@@ -708,14 +736,15 @@ export async function rescheduleRemindersForActivity(
 }
 
 export interface NotificationResponseHandlers {
-  onMedTook:        (medicationId: number, notifId: string) => void;
-  onMedSkip:        (medicationId: number, notifId: string) => void;
-  onMedDefault:     (payload: ReminderAlertPayload) => void;
-  onActivityDone:   (activityId: number, activityName: string, activityType: string, notifId: string) => void;
-  onActivitySnooze: (activityId: number, activityName: string, activityType: string, notifId: string) => void;
-  onActivitySkip:   (notifId: string) => void;
-  onActivityMeasure:(activityId: number, notifId: string) => void;
-  onActivityDefault:(payload: ActivityAlertPayload) => void;
+  onMedTook:           (medicationId: number, notifId: string, name: string, dose: string) => void;
+  onMedSkip:           (medicationId: number, notifId: string, name: string, dose: string) => void;
+  onMedDefault:        (payload: ReminderAlertPayload) => void;
+  onActivityDone:      (activityId: number, activityName: string, activityType: string, notifId: string) => void;
+  onActivitySnooze:    (activityId: number, activityName: string, activityType: string, notifId: string) => void;
+  onActivitySkip:      (activityId: number, activityName: string, activityType: string, notifId: string) => void;
+  onActivityMeasure:   (activityId: number, notifId: string) => void;
+  onActivityDefault:   (payload: ActivityAlertPayload) => void;
+  onTreatmentEndedOk:  (medicationId: number) => void;
 }
 
 export function initResponseListeners(handlers: NotificationResponseHandlers): () => void {
@@ -726,9 +755,9 @@ export function initResponseListeners(handlers: NotificationResponseHandlers): (
 
     if (data?.type === 'reminder') {
       if (actionIdentifier === 'TOOK') {
-        handlers.onMedTook(data.medicationId, notifId);
+        handlers.onMedTook(data.medicationId, notifId, data.name ?? '', data.dose ?? '');
       } else if (actionIdentifier === 'SKIP') {
-        handlers.onMedSkip(data.medicationId, notifId);
+        handlers.onMedSkip(data.medicationId, notifId, data.name ?? '', data.dose ?? '');
       } else {
         // Default action: user tapped the notification body (app opens)
         handlers.onMedDefault({
@@ -747,7 +776,7 @@ export function initResponseListeners(handlers: NotificationResponseHandlers): (
       } else if (actionIdentifier === 'SNOOZE') {
         handlers.onActivitySnooze(data.activityId, data.activityName, data.activityType, notifId);
       } else if (actionIdentifier === 'SKIP_ACT') {
-        handlers.onActivitySkip(notifId);
+        handlers.onActivitySkip(data.activityId, data.activityName, data.activityType, notifId);
       } else if (actionIdentifier === 'MEASURE') {
         handlers.onActivityMeasure(data.activityId, notifId);
       } else {
@@ -760,8 +789,51 @@ export function initResponseListeners(handlers: NotificationResponseHandlers): (
         });
       }
     }
+
+    if (data?.type === 'treatment_ended') {
+      if (actionIdentifier === 'END_OK' || actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) {
+        handlers.onTreatmentEndedOk(data.medicationId as number);
+      }
+    }
   });
   return () => sub.remove();
+}
+
+export async function notifyTreatmentEnded(medicationId: number, medicationName: string): Promise<void> {
+  await Notifications.scheduleNotificationAsync({
+    identifier: `treatment_ended_${medicationId}`,
+    content: {
+      title: 'Tratamento encerrado',
+      body: `${medicationName} — tratamento concluído. Verifique com seu médico.`,
+      data: { type: 'treatment_ended', medicationId, medicationName },
+      categoryIdentifier: TREATMENT_ENDED_CATEGORY,
+    },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+      seconds: 1,
+      channelId: TREATMENT_ENDED_CHANNEL,
+    } as any,
+  });
+}
+
+export async function notifyLowStock(medicationId: number, medicationName: string, daysLeft: number): Promise<void> {
+  await Notifications.scheduleNotificationAsync({
+    identifier: `low_stock_${medicationId}`,
+    content: {
+      title: '💊 Estoque baixo',
+      body: `${medicationName} — restam ~${daysLeft} dia${daysLeft !== 1 ? 's' : ''} de doses. Providencie a reposição.`,
+      data: { type: 'low_stock', medicationId },
+    },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+      seconds: 1,
+      channelId: REMINDER_CHANNEL,
+    } as any,
+  });
+}
+
+export async function getLastResponse(): Promise<Notifications.NotificationResponse | null> {
+  return Notifications.getLastNotificationResponseAsync().catch(() => null);
 }
 
 Notifications.setNotificationHandler({

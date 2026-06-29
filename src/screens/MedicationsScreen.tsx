@@ -8,8 +8,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  getMedications, addMedication, updateMedication, deleteMedication,
-  getRemindersForMedication, addReminder, deleteReminder, updateAllRemindersSound, updateMedicationStock,
+  getMedications, addMedication, updateMedication, archiveMedication,
+  getRemindersForMedication, addReminder, deleteReminder, updateAllRemindersSound, updateMedicationStock, addMedicationLog, markMedicationLogTaken,
 } from '../database/db';
 import {
   scheduleReminderWeekly, scheduleReminderMonthly, scheduleReminderEveryNMonths,
@@ -17,9 +17,10 @@ import {
 import { getProfile } from '../database/db';
 import {
   updateEmergencyNotification,
-  scheduleReminder, cancelAllRemindersForMedication,
+  scheduleReminder, cancelAllRemindersForMedication, notifyLowStock,
 } from '../services/notifications';
 import { Medication, MedicationReminder, DrugInteraction } from '../types';
+import MedDisclaimer from '../components/MedDisclaimer';
 import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, checkInteractions, checkSubstanceInteractions, isPhytotherapic } from '../utils/drugSearch';
 import { useBulaViewer } from '../utils/useBulaViewer';
 import { reportMissingDrug } from '../services/reportMissing';
@@ -138,11 +139,6 @@ export default function MedicationsScreen() {
   const [hasDeadline, setHasDeadline] = useState(false);
   const [showStockHelp, setShowStockHelp] = useState(false);
   const [showInteractionWarning, setShowInteractionWarning] = useState(false);
-  const [stockActionMed, setStockActionMed] = useState<Medication | null>(null);
-  const [stockEditValue, setStockEditValue] = useState('');
-  useEffect(() => {
-    if (stockActionMed) setStockEditValue(String(stockActionMed.stock_quantity ?? 0));
-  }, [stockActionMed]);
 
   // Wizard
   const [wizardStep, setWizardStep] = useState<WizardStep>('name');
@@ -260,11 +256,10 @@ export default function MedicationsScreen() {
 
   function applySuggestion(s: DrugSuggestion) {
     Keyboard.dismiss();
-    const commercial = s.brandName ?? s.firstBrand;
     setForm(f => ({
       ...f,
       generic_name: s.genericName,
-      commercial_name: f.commercial_name.trim() ? f.commercial_name : (commercial ?? ''),
+      commercial_name: f.commercial_name.trim() ? f.commercial_name : (s.brandName ?? ''),
     }));
     setSuggestions([]);
     setCommercialSuggestions([]);
@@ -307,7 +302,7 @@ export default function MedicationsScreen() {
       {
         text: 'Remover', style: 'destructive', onPress: async () => {
           await cancelAllRemindersForMedication(id).catch(() => {});
-          await deleteMedication(id);
+          await archiveMedication(id);
           const updated = await getMedications();
           setMedications(updated);
           await syncNotification(updated);
@@ -346,8 +341,17 @@ export default function MedicationsScreen() {
       const dayRs = rs.filter(r => (r.period ?? 'day') === 'day');
       setTimesPerDay(dayRs.length || 1);
       setTimesPerDayTouched(true);
+      const dayTimes = dayRs.map(r => r.time.substring(0, 5));
+      // Pre-populate meal fields by time-of-day so "Usar horários das refeições" shows saved times
+      setMealCafe(''); setMealAlmoco(''); setMealJanta('');
+      for (const t of dayTimes) {
+        const hh = parseInt(t.split(':')[0], 10);
+        if (hh < 10) setMealCafe(t);
+        else if (hh < 15) setMealAlmoco(t);
+        else setMealJanta(t);
+      }
       if (dayRs.length > 1) {
-        setCustomTimes(dayRs.map(r => r.time.substring(0, 5)).join(' '));
+        setCustomTimes(dayTimes.join(' '));
         setPickerH(null); setPickerM(null);
       }
     } else if (p.startsWith('week:')) {
@@ -365,6 +369,37 @@ export default function MedicationsScreen() {
     setRepeatInterval(rs[0]?.repeat_interval ?? 0);
   }
 
+  async function handleTomei(item: Medication) {
+    const medDisplayName = item.commercial_name?.trim() || item.generic_name;
+    const notifId = `manual_${item.id}_${Date.now()}`;
+    await addMedicationLog({
+      medication_id: item.id,
+      medication_name: medDisplayName,
+      dose: item.dose ?? '',
+      notification_id: notifId,
+      scheduled_at: new Date().toISOString(),
+    }).then(() => markMedicationLogTaken(notifId, true)).catch(() => {});
+
+    if (item.stock_quantity != null) {
+      const next = Math.max(0, item.stock_quantity - 1);
+      await updateMedicationStock(item.id, next);
+      const reminders = await getRemindersForMedication(item.id).catch(() => []);
+      const dailyDoses = reminders.filter((r: any) => r.is_active).length || 1;
+      const daysLeft = Math.floor(next / dailyDoses);
+      const shouldWarn = (() => {
+        if (daysLeft > 3) return false;
+        if (item.end_date) {
+          const daysUntilEnd = Math.ceil((new Date(item.end_date + 'T23:59:59').getTime() - Date.now()) / 86400000);
+          if (daysLeft >= daysUntilEnd) return false;
+        }
+        return true;
+      })();
+      if (shouldWarn) notifyLowStock(item.id, medDisplayName, daysLeft).catch(() => {});
+      setMedications(meds => meds.map(m => m.id === item.id ? { ...m, stock_quantity: next } : m));
+      if (next === 0) Alert.alert('Estoque zerado', `O estoque de ${medDisplayName} acabou. Providencie a reposição.`);
+    }
+  }
+
   async function handleToggleSound(item: Medication) {
     const rs = await getRemindersForMedication(item.id);
     if (rs.length === 0) return;
@@ -377,10 +412,11 @@ export default function MedicationsScreen() {
       const p = r.period ?? 'day';
       try {
         const ri = r.repeat_interval ?? 0;
-        if (p === 'day') await scheduleReminder(item.id, item.generic_name, item.dose, h, m, newSound, ri);
-        else if (p.startsWith('week:')) await scheduleReminderWeekly(item.id, item.generic_name, item.dose, p.split(':')[1].split(',').map(Number), h, m, newSound, ri);
-        else if (p.startsWith('month:')) await scheduleReminderMonthly(item.id, item.generic_name, item.dose, p.split(':')[1].split(',').map(Number), h, m, newSound, ri);
-        else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(item.id, item.generic_name, item.dose, Number(nStr), Number(dStr), h, m, newSound, ri); }
+        const notifName = item.commercial_name.trim() || item.generic_name;
+        if (p === 'day') await scheduleReminder(item.id, notifName, item.dose, h, m, newSound, ri);
+        else if (p.startsWith('week:')) await scheduleReminderWeekly(item.id, notifName, item.dose, p.split(':')[1].split(',').map(Number), h, m, newSound, ri);
+        else if (p.startsWith('month:')) await scheduleReminderMonthly(item.id, notifName, item.dose, p.split(':')[1].split(',').map(Number), h, m, newSound, ri);
+        else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(item.id, notifName, item.dose, Number(nStr), Number(dStr), h, m, newSound, ri); }
       } catch {}
     }
     setReminderHasSound(prev => new Map(prev).set(item.id, newSound));
@@ -457,12 +493,13 @@ export default function MedicationsScreen() {
         const p = e.period ?? 'day';
         const ri = e.repeat_interval ?? 0;
         try {
-          if (p === 'day') await scheduleReminder(savedMedId, data.generic_name, data.dose, h, m, e.with_sound, ri);
-          else if (p.startsWith('week:')) await scheduleReminderWeekly(savedMedId, data.generic_name, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri);
-          else if (p.startsWith('month:')) await scheduleReminderMonthly(savedMedId, data.generic_name, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri);
+          const notifName = data.commercial_name.trim() || data.generic_name;
+          if (p === 'day') await scheduleReminder(savedMedId, notifName, data.dose, h, m, e.with_sound, ri);
+          else if (p.startsWith('week:')) await scheduleReminderWeekly(savedMedId, notifName, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri);
+          else if (p.startsWith('month:')) await scheduleReminderMonthly(savedMedId, notifName, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri);
           else if (p.startsWith('nmonths:')) {
             const [, nStr, dStr] = p.split(':');
-            await scheduleReminderEveryNMonths(savedMedId, data.generic_name, data.dose, Number(nStr), Number(dStr), h, m, e.with_sound, ri);
+            await scheduleReminderEveryNMonths(savedMedId, notifName, data.dose, Number(nStr), Number(dStr), h, m, e.with_sound, ri);
           }
         } catch {}
         await addReminder({ medication_id: savedMedId, time: e.time, period: e.period, with_sound: e.with_sound, is_active: true, repeat_interval: ri }).catch(() => {});
@@ -853,6 +890,17 @@ export default function MedicationsScreen() {
           <>
             <Text style={styles.wizLabel}>Vezes por dia</Text>
             <Text style={styles.wizHint}>Toque em uma opção para continuar</Text>
+            {(() => {
+              const registered = customTimes.trim()
+                ? customTimes.trim().split(/\s+/).filter(t => /^\d{1,2}:\d{2}$/.test(t))
+                : pickerH !== null ? [fmtHM(pickerH, pickerM ?? 0)] : [];
+              if (registered.length === 0) return null;
+              return (
+                <Text style={{ marginTop: 10, color: '#555', fontSize: 13, textAlign: 'center' }}>
+                  Registrado: {registered.join('  ·  ')}
+                </Text>
+              );
+            })()}
             <View style={[styles.timesRow, { marginTop: 20 }]}>
               {TIMES_PER_DAY_OPTIONS.map(n => (
                 <TouchableOpacity
@@ -1150,26 +1198,22 @@ export default function MedicationsScreen() {
                 <Text style={styles.deleteBtnText}>✕</Text>
               </TouchableOpacity>
             </View>
-            {item.stock_quantity != null && (
-              <View style={styles.stockRow}>
-                {(() => {
-                  const dailyDoses = reminderTimes.get(item.id)?.length ?? 1;
-                  const daysLeft = Math.floor(item.stock_quantity / dailyDoses);
-                  const isLow = daysLeft <= 3;
-                  return (
-                    <>
-                      <Text style={[styles.stockText, isLow && styles.stockTextLow]}>
-                        💊 {item.stock_quantity} restante{item.stock_quantity !== 1 ? 's' : ''} · ~{daysLeft} dia{daysLeft !== 1 ? 's' : ''}
-                        {isLow ? '  ⚠ estoque baixo' : ''}
-                      </Text>
-                      <TouchableOpacity style={styles.takenBtn} onPress={() => setStockActionMed(item)}>
-                        <Text style={styles.takenBtnText}>Tomar</Text>
-                      </TouchableOpacity>
-                    </>
-                  );
-                })()}
-              </View>
-            )}
+            <View style={styles.stockRow}>
+              {item.stock_quantity != null && (() => {
+                const dailyDoses = reminderTimes.get(item.id)?.length ?? 1;
+                const daysLeft = Math.floor(item.stock_quantity / dailyDoses);
+                const isLow = daysLeft <= 3;
+                return (
+                  <Text style={[styles.stockText, isLow && styles.stockTextLow]}>
+                    💊 {item.stock_quantity} restante{item.stock_quantity !== 1 ? 's' : ''} · ~{daysLeft} dia{daysLeft !== 1 ? 's' : ''}
+                    {isLow ? '  ⚠ estoque baixo' : ''}
+                  </Text>
+                );
+              })()}
+              <TouchableOpacity style={styles.takenBtn} onPress={() => handleTomei(item)}>
+                <Text style={styles.takenBtnText}>Tomei</Text>
+              </TouchableOpacity>
+            </View>
             {item.end_date && (
               <Text style={[styles.endDateText, daysRemaining(item.end_date) <= 0 && styles.endDateDone]}>
                 {daysRemaining(item.end_date) > 0
@@ -1304,9 +1348,10 @@ export default function MedicationsScreen() {
         <View style={styles.intModalOverlay}>
           <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
             <Text style={styles.intModalTitle}>⚠️ Interação detectada</Text>
-            <Text style={[styles.iwAdviceText, { marginTop: 0, marginBottom: 12 }]}>
+            <Text style={[styles.iwAdviceText, { marginTop: 0, marginBottom: 8 }]}>
               Medicamento salvo. Informe seu médico sobre estas interações.
             </Text>
+            <MedDisclaimer />
             <ScrollView style={{ maxHeight: 260 }} showsVerticalScrollIndicator={false}>
               {postSaveInteractions.map(i => {
                 const c = i.risk_level === 'critical' ? '#CC0000' : i.risk_level === 'high' ? '#e65c00' : '#b58900';
@@ -1324,63 +1369,6 @@ export default function MedicationsScreen() {
             </ScrollView>
             <TouchableOpacity style={styles.intModalClose} onPress={() => { setShowInteractionWarning(false); setPostSaveInteractions([]); }}>
               <Text style={styles.intModalCloseText}>Entendi</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Stock action modal */}
-      <Modal visible={!!stockActionMed} animationType="slide" transparent onRequestClose={() => setStockActionMed(null)}>
-        <View style={styles.intModalOverlay}>
-          <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
-            <Text style={styles.intModalTitle}>💊 {stockActionMed?.generic_name}</Text>
-            <TouchableOpacity
-              style={styles.stockActionBtn}
-              onPress={async () => {
-                if (!stockActionMed) return;
-                const next = Math.max(0, (stockActionMed.stock_quantity ?? 0) - 1);
-                await updateMedicationStock(stockActionMed.id, next);
-                setMedications(prev => prev.map(m => m.id === stockActionMed.id ? { ...m, stock_quantity: next } : m));
-                setStockActionMed(null);
-                if (next === 0) Alert.alert('Estoque zerado', `O estoque de ${stockActionMed.generic_name} acabou. Providencie a reposição.`);
-              }}
-            >
-              <Text style={styles.stockActionBtnText}>✓ Informar Tomei</Text>
-              <Text style={styles.stockActionBtnHint}>Desconta 1 do estoque atual ({stockActionMed?.stock_quantity ?? 0} restante{stockActionMed?.stock_quantity !== 1 ? 's' : ''})</Text>
-            </TouchableOpacity>
-            <View style={styles.stockActionEditRow}>
-              <Text style={styles.stockActionEditLabel}>Alterar quantidade de estoque</Text>
-              <View style={styles.stockActionEditInputRow}>
-                <TextInput
-                  style={styles.stockActionEditInput}
-                  value={stockEditValue}
-                  onChangeText={setStockEditValue}
-                  keyboardType="number-pad"
-                  placeholder="0"
-                  placeholderTextColor="#bbb"
-                />
-                <TouchableOpacity
-                  style={styles.stockActionSaveBtn}
-                  onPress={async () => {
-                    if (!stockActionMed) return;
-                    const qty = parseInt(stockEditValue, 10);
-                    if (isNaN(qty) || qty < 0) { Alert.alert('Valor inválido', 'Informe um número maior ou igual a zero.'); return; }
-                    await updateMedicationStock(stockActionMed.id, qty);
-                    setMedications(prev => prev.map(m => m.id === stockActionMed.id ? { ...m, stock_quantity: qty } : m));
-                    setStockActionMed(null);
-                  }}
-                >
-                  <Text style={styles.stockActionSaveBtnText}>Salvar</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            <View style={styles.stockActionInfo}>
-              <Text style={styles.stockActionInfoText}>
-                O estoque é descontado automaticamente ao tocar em <Text style={{ fontWeight: '700' }}>Tomei</Text> no alarme ou em <Text style={{ fontWeight: '700' }}>Tomar</Text> aqui.
-              </Text>
-            </View>
-            <TouchableOpacity style={styles.intModalClose} onPress={() => setStockActionMed(null)}>
-              <Text style={styles.intModalCloseText}>Fechar</Text>
             </TouchableOpacity>
           </View>
         </View>

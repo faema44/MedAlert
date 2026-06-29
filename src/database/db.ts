@@ -100,6 +100,17 @@ async function initSchema(database: SQLite.SQLiteDatabase): Promise<void> {
       value TEXT DEFAULT '',
       logged_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS medication_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      medication_id INTEGER,
+      medication_name TEXT NOT NULL,
+      dose TEXT DEFAULT '',
+      notification_id TEXT,
+      scheduled_at TEXT NOT NULL,
+      taken INTEGER,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
   `);
 }
 
@@ -137,28 +148,42 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
   try {
     await database.execAsync('ALTER TABLE emergency_contacts ADD COLUMN show_on_lock INTEGER DEFAULT 0');
   } catch {}
+  try {
+    await database.execAsync('ALTER TABLE medications ADD COLUMN archived INTEGER DEFAULT 0');
+  } catch {}
+  try {
+    await database.execAsync('ALTER TABLE profile ADD COLUMN emergency_card_enabled INTEGER DEFAULT 1');
+  } catch {}
+  // Unique index so INSERT OR IGNORE works for background-notification upsert
+  try {
+    await database.execAsync(
+      'CREATE UNIQUE INDEX IF NOT EXISTS idx_medlog_notif ON medication_log(notification_id) WHERE notification_id IS NOT NULL'
+    );
+  } catch {}
 }
 
 // Profile
 export async function getProfile(): Promise<Profile | null> {
   const database = await getDb();
-  const row = await database.getFirstAsync<Profile>('SELECT * FROM profile WHERE id = 1');
-  return row ?? null;
+  const row = await database.getFirstAsync<any>('SELECT * FROM profile WHERE id = 1');
+  if (!row) return null;
+  return { ...row, emergency_card_enabled: row.emergency_card_enabled !== 0 };
 }
 
 export async function saveProfile(data: Partial<Profile>): Promise<void> {
   const database = await getDb();
   const existing = await getProfile();
 
+  const ecEnabled = data.emergency_card_enabled !== false ? 1 : 0;
   if (existing) {
     await database.runAsync(
-      `UPDATE profile SET name=?, blood_type=?, birth_date=?, allergies=?, notes=?, updated_at=CURRENT_TIMESTAMP WHERE id=1`,
-      [data.name ?? '', data.blood_type ?? 'Desconhecido', data.birth_date ?? '', data.allergies ?? '', data.notes ?? '']
+      `UPDATE profile SET name=?, blood_type=?, birth_date=?, allergies=?, notes=?, emergency_card_enabled=?, updated_at=CURRENT_TIMESTAMP WHERE id=1`,
+      [data.name ?? '', data.blood_type ?? 'Desconhecido', data.birth_date ?? '', data.allergies ?? '', data.notes ?? '', ecEnabled]
     );
   } else {
     await database.runAsync(
-      `INSERT INTO profile (id, name, blood_type, birth_date, allergies, notes) VALUES (1, ?, ?, ?, ?, ?)`,
-      [data.name ?? '', data.blood_type ?? 'Desconhecido', data.birth_date ?? '', data.allergies ?? '', data.notes ?? '']
+      `INSERT INTO profile (id, name, blood_type, birth_date, allergies, notes, emergency_card_enabled) VALUES (1, ?, ?, ?, ?, ?, ?)`,
+      [data.name ?? '', data.blood_type ?? 'Desconhecido', data.birth_date ?? '', data.allergies ?? '', data.notes ?? '', ecEnabled]
     );
   }
 }
@@ -166,7 +191,7 @@ export async function saveProfile(data: Partial<Profile>): Promise<void> {
 // Medications
 export async function getMedications(): Promise<Medication[]> {
   const database = await getDb();
-  const rows = await database.getAllAsync<Medication>('SELECT * FROM medications ORDER BY is_critical DESC, generic_name ASC');
+  const rows = await database.getAllAsync<Medication>('SELECT * FROM medications WHERE archived=0 OR archived IS NULL ORDER BY is_critical DESC, generic_name ASC');
   return rows.map(r => ({
     ...r,
     is_critical: Boolean(r.is_critical),
@@ -491,4 +516,175 @@ export async function deleteActivityLogsBefore(isoDate: string): Promise<void> {
 export async function clearAllActivityLogs(): Promise<void> {
   const database = await getDb();
   await database.runAsync('DELETE FROM activity_logs');
+}
+
+// Medication Log
+export interface MedicationLogEntry {
+  id: number;
+  medication_id: number | null;
+  medication_name: string;
+  dose: string;
+  notification_id: string | null;
+  scheduled_at: string;
+  taken: number | null;
+  created_at: string;
+}
+
+export async function addMedicationLog(entry: {
+  medication_id: number;
+  medication_name: string;
+  dose: string;
+  notification_id: string;
+  scheduled_at: string;
+}): Promise<void> {
+  const database = await getDb();
+  await database.runAsync(
+    `INSERT OR IGNORE INTO medication_log (medication_id, medication_name, dose, notification_id, scheduled_at) VALUES (?, ?, ?, ?, ?)`,
+    [entry.medication_id, entry.medication_name, entry.dose, entry.notification_id, entry.scheduled_at]
+  );
+}
+
+// Garante que a entrada existe (cria se não existir) e atualiza o status taken.
+// Necessário quando a notificação disparou em background e o received listener não rodou.
+export async function upsertMedicationLogTaken(
+  notifId: string,
+  medicationId: number,
+  name: string,
+  dose: string,
+  taken: boolean,
+): Promise<void> {
+  const database = await getDb();
+  const scheduledAt = new Date().toISOString();
+  await database.runAsync(
+    `INSERT OR IGNORE INTO medication_log (medication_id, medication_name, dose, notification_id, scheduled_at) VALUES (?, ?, ?, ?, ?)`,
+    [medicationId, name, dose, notifId, scheduledAt]
+  );
+  await database.runAsync(
+    'UPDATE medication_log SET taken=? WHERE notification_id=?',
+    [taken ? 1 : 0, notifId]
+  );
+}
+
+export async function markMedicationLogTaken(notification_id: string, taken: boolean): Promise<void> {
+  const database = await getDb();
+  await database.runAsync(
+    'UPDATE medication_log SET taken=? WHERE notification_id=?',
+    [taken ? 1 : 0, notification_id]
+  );
+}
+
+export async function getMedicationLog(opts?: { medication_id?: number; since_iso?: string }): Promise<MedicationLogEntry[]> {
+  const database = await getDb();
+  const conditions: string[] = [];
+  const params: any[] = [];
+  if (opts?.medication_id != null) { conditions.push('medication_id=?'); params.push(opts.medication_id); }
+  if (opts?.since_iso) { conditions.push('scheduled_at >= ?'); params.push(opts.since_iso); }
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+  const rows = await database.getAllAsync<MedicationLogEntry>(
+    `SELECT * FROM medication_log ${where} ORDER BY scheduled_at DESC LIMIT 500`,
+    params
+  );
+  return rows;
+}
+
+export async function deleteMedicationLog(mode: 'year' | 'all'): Promise<void> {
+  const database = await getDb();
+  if (mode === 'all') {
+    await database.runAsync('DELETE FROM medication_log');
+  } else {
+    await database.runAsync("DELETE FROM medication_log WHERE scheduled_at < date('now','-1 year')");
+  }
+}
+
+export async function archiveMedication(id: number): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('UPDATE medications SET archived=1 WHERE id=?', [id]);
+}
+
+export async function getExpiredUnarchivedMedications(): Promise<Medication[]> {
+  const database = await getDb();
+  const rows = await database.getAllAsync<Medication>(
+    "SELECT * FROM medications WHERE end_date IS NOT NULL AND end_date < date('now') AND (archived IS NULL OR archived=0)"
+  );
+  return rows.map(r => ({
+    ...r,
+    is_critical: Boolean(r.is_critical),
+    stock_quantity: r.stock_quantity ?? null,
+    end_date: r.end_date ?? null,
+  }));
+}
+
+// Backup / Restore
+export async function exportBackup(): Promise<string> {
+  const database = await getDb();
+  const [profile, medications, med_reminders, contacts, activities, act_reminders, appointments] = await Promise.all([
+    database.getFirstAsync<any>('SELECT * FROM profile WHERE id=1'),
+    database.getAllAsync<any>('SELECT * FROM medications'),
+    database.getAllAsync<any>('SELECT * FROM medication_reminders'),
+    database.getAllAsync<any>('SELECT * FROM emergency_contacts'),
+    database.getAllAsync<any>('SELECT * FROM activities'),
+    database.getAllAsync<any>('SELECT * FROM activity_reminders'),
+    database.getAllAsync<any>('SELECT * FROM appointments'),
+  ]);
+  return JSON.stringify({
+    version: 1,
+    exported_at: new Date().toISOString(),
+    data: { profile, medications, medication_reminders: med_reminders, emergency_contacts: contacts, activities, activity_reminders: act_reminders, appointments },
+  });
+}
+
+export async function importBackup(json: string): Promise<void> {
+  const parsed = JSON.parse(json);
+  if (!parsed?.data || parsed.version !== 1) throw new Error('Formato de backup inválido');
+  const { profile, medications, medication_reminders, emergency_contacts, activities, activity_reminders, appointments } = parsed.data;
+
+  const database = await getDb();
+  await database.withTransactionAsync(async () => {
+    await database.execAsync(
+      'DELETE FROM activity_reminders; DELETE FROM medication_reminders; DELETE FROM appointments; DELETE FROM activities; DELETE FROM emergency_contacts; DELETE FROM medications; DELETE FROM profile;'
+    );
+
+    if (profile) {
+      await database.runAsync(
+        'INSERT INTO profile (id, name, blood_type, birth_date, allergies, notes) VALUES (?,?,?,?,?,?)',
+        [1, profile.name ?? '', profile.blood_type ?? 'Desconhecido', profile.birth_date ?? '', profile.allergies ?? '', profile.notes ?? '']
+      );
+    }
+    for (const m of (medications ?? [])) {
+      await database.runAsync(
+        'INSERT INTO medications (id, generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, end_date, archived) VALUES (?,?,?,?,?,?,?,?,?,?)',
+        [m.id, m.generic_name ?? '', m.commercial_name ?? '', m.dose ?? '', m.frequency ?? '', m.is_critical ?? 0, m.notes ?? '', m.stock_quantity ?? null, m.end_date ?? null, m.archived ?? 0]
+      );
+    }
+    for (const r of (medication_reminders ?? [])) {
+      await database.runAsync(
+        'INSERT INTO medication_reminders (id, medication_id, time, days, with_sound, is_active, repeat_interval) VALUES (?,?,?,?,?,?,?)',
+        [r.id, r.medication_id, r.time, r.days ?? '["seg","ter","qua","qui","sex","sab","dom"]', r.with_sound ?? 1, r.is_active ?? 1, r.repeat_interval ?? 0]
+      );
+    }
+    for (const c of (emergency_contacts ?? [])) {
+      await database.runAsync(
+        'INSERT INTO emergency_contacts (id, name, phone, relationship, is_primary, is_doctor, show_on_lock) VALUES (?,?,?,?,?,?,?)',
+        [c.id, c.name ?? '', c.phone ?? '', c.relationship ?? '', c.is_primary ?? 0, c.is_doctor ?? 0, c.show_on_lock ?? 0]
+      );
+    }
+    for (const a of (activities ?? [])) {
+      await database.runAsync(
+        'INSERT INTO activities (id, type, name, notes) VALUES (?,?,?,?)',
+        [a.id, a.type ?? 'custom', a.name ?? '', a.notes ?? '']
+      );
+    }
+    for (const r of (activity_reminders ?? [])) {
+      await database.runAsync(
+        'INSERT INTO activity_reminders (id, activity_id, time, is_active, with_sound, period) VALUES (?,?,?,?,?,?)',
+        [r.id, r.activity_id, r.time, r.is_active ?? 1, r.with_sound ?? 1, r.period ?? 'day']
+      );
+    }
+    for (const a of (appointments ?? [])) {
+      await database.runAsync(
+        'INSERT INTO appointments (id, doctor_name, specialty, date, time, location, notes) VALUES (?,?,?,?,?,?,?)',
+        [a.id, a.doctor_name ?? '', a.specialty ?? '', a.date ?? '', a.time ?? '08:00', a.location ?? '', a.notes ?? '']
+      );
+    }
+  });
 }

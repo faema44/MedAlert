@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, StyleSheet, ScrollView,
   TouchableOpacity, Alert, ActivityIndicator,
-  KeyboardAvoidingView, Platform,
+  KeyboardAvoidingView, Platform, Switch,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getProfile, saveProfile } from '../database/db';
+import { File, Paths } from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
+import * as DocumentPicker from 'expo-document-picker';
+import { getProfile, saveProfile, exportBackup, importBackup } from '../database/db';
 import { getMedications } from '../database/db';
 import { updateEmergencyNotification } from '../services/notifications';
 import { Profile, BLOOD_TYPES } from '../types';
@@ -21,6 +24,7 @@ export default function ProfileScreen() {
   const [birthDate, setBirthDate] = useState('');
   const [allergies, setAllergies] = useState('');
   const [notes, setNotes] = useState('');
+  const [emergencyCardEnabled, setEmergencyCardEnabled] = useState(true);
 
   useEffect(() => {
     loadProfile();
@@ -34,8 +38,45 @@ export default function ProfileScreen() {
       setBirthDate(profile.birth_date);
       setAllergies(profile.allergies);
       setNotes(profile.notes);
+      setEmergencyCardEnabled(profile.emergency_card_enabled !== false);
     }
     setLoading(false);
+  }
+
+  async function handleExport() {
+    try {
+      const json = await exportBackup();
+      const date = new Date().toISOString().slice(0, 10);
+      const file = new File(Paths.document, `medalert_backup_${date}.json`);
+      file.write(json);
+      await Sharing.shareAsync(file.uri, { mimeType: 'application/json', dialogTitle: 'Exportar backup MedAlert' });
+    } catch {
+      Alert.alert('Erro', 'Não foi possível exportar o backup.');
+    }
+  }
+
+  async function handleImport() {
+    Alert.alert(
+      'Restaurar backup',
+      'Isso substituirá todos os seus dados atuais (medicamentos, contatos, atividades, consultas). Histórico de registros não é afetado. Continuar?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Escolher arquivo',
+          onPress: async () => {
+            try {
+              const result = await DocumentPicker.getDocumentAsync({ type: 'application/json', copyToCacheDirectory: true });
+              if (result.canceled || !result.assets?.length) return;
+              const json = await new File(result.assets[0].uri).text();
+              await importBackup(json);
+              Alert.alert('Backup restaurado', 'Dados restaurados com sucesso. Reinicie o app para atualizar os lembretes.');
+            } catch (e: any) {
+              Alert.alert('Erro ao restaurar', e?.message ?? 'Arquivo inválido ou corrompido.');
+            }
+          },
+        },
+      ]
+    );
   }
 
   async function handleSave() {
@@ -45,7 +86,7 @@ export default function ProfileScreen() {
     }
     setSaving(true);
     try {
-      await saveProfile({ name: name.trim(), blood_type: bloodType, birth_date: birthDate, allergies: allergies.trim(), notes: notes.trim() });
+      await saveProfile({ name: name.trim(), blood_type: bloodType, birth_date: birthDate, allergies: allergies.trim(), notes: notes.trim(), emergency_card_enabled: emergencyCardEnabled });
       const meds = await getMedications();
       const profile = await getProfile();
       if (profile) await updateEmergencyNotification(profile, meds).catch(() => {});
@@ -134,6 +175,33 @@ export default function ProfileScreen() {
           />
         </View>
 
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Alerta de Emergência</Text>
+          <View style={styles.switchRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.switchLabel}>Mostrar cartão na barra de status</Text>
+              <Text style={styles.switchHint}>Exibe nome, tipo sanguíneo e medicamentos na barra e na tela de bloqueio</Text>
+            </View>
+            <Switch
+              value={emergencyCardEnabled}
+              onValueChange={setEmergencyCardEnabled}
+              trackColor={{ false: '#ccc', true: '#1C3F7A' }}
+              thumbColor="#fff"
+            />
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Backup de Dados</Text>
+          <Text style={styles.backupHint}>Exporte seus medicamentos, contatos e atividades para um arquivo JSON. Útil ao trocar de celular.</Text>
+          <TouchableOpacity style={styles.backupBtn} onPress={handleExport}>
+            <Text style={styles.backupBtnText}>Exportar backup</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.backupBtn, styles.backupBtnImport]} onPress={handleImport}>
+            <Text style={[styles.backupBtnText, styles.backupBtnTextImport]}>Restaurar backup</Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.infoBox}>
           <Text style={styles.infoText}>
             ℹ️  Estas informações serão exibidas na tela de bloqueio para socorristas. Salvar atualiza automaticamente o alerta de emergência.
@@ -176,6 +244,16 @@ const styles = StyleSheet.create({
   bloodTypeBtnSelected: { borderColor: '#1a3a6b', backgroundColor: '#1a3a6b' },
   bloodTypeBtnText: { fontSize: 14, color: '#444', fontWeight: '600' },
   bloodTypeBtnTextSelected: { color: '#fff' },
+  backupHint: { fontSize: 13, color: '#666', marginBottom: 12, lineHeight: 18 },
+  backupBtn: {
+    backgroundColor: '#1C3F7A', borderRadius: 8, paddingVertical: 12, alignItems: 'center', marginBottom: 8,
+  },
+  backupBtnImport: { backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#1C3F7A' },
+  backupBtnText: { fontSize: 14, fontWeight: '700', color: '#fff' },
+  backupBtnTextImport: { color: '#1C3F7A' },
+  switchRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  switchLabel: { fontSize: 14, color: '#222', fontWeight: '600', marginBottom: 2 },
+  switchHint: { fontSize: 12, color: '#888', lineHeight: 16 },
   infoBox: { backgroundColor: '#e8f4fd', borderRadius: 10, padding: 12, marginBottom: 16 },
   infoText: { fontSize: 13, color: '#0066cc', lineHeight: 18 },
   saveBtnContainer: { backgroundColor: '#fff', paddingHorizontal: 20, paddingTop: 12, borderTopWidth: 0.5, borderTopColor: '#E0E4EE' },
