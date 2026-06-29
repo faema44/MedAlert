@@ -165,25 +165,23 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
 // Profile
 export async function getProfile(): Promise<Profile | null> {
   const database = await getDb();
-  const row = await database.getFirstAsync<any>('SELECT * FROM profile WHERE id = 1');
-  if (!row) return null;
-  return { ...row, emergency_card_enabled: row.emergency_card_enabled !== 0 };
+  const row = await database.getFirstAsync<Profile>('SELECT * FROM profile WHERE id = 1');
+  return row ?? null;
 }
 
 export async function saveProfile(data: Partial<Profile>): Promise<void> {
   const database = await getDb();
   const existing = await getProfile();
 
-  const ecEnabled = data.emergency_card_enabled !== false ? 1 : 0;
   if (existing) {
     await database.runAsync(
-      `UPDATE profile SET name=?, blood_type=?, birth_date=?, allergies=?, notes=?, emergency_card_enabled=?, updated_at=CURRENT_TIMESTAMP WHERE id=1`,
-      [data.name ?? '', data.blood_type ?? 'Desconhecido', data.birth_date ?? '', data.allergies ?? '', data.notes ?? '', ecEnabled]
+      `UPDATE profile SET name=?, blood_type=?, birth_date=?, allergies=?, notes=?, updated_at=CURRENT_TIMESTAMP WHERE id=1`,
+      [data.name ?? '', data.blood_type ?? 'Desconhecido', data.birth_date ?? '', data.allergies ?? '', data.notes ?? '']
     );
   } else {
     await database.runAsync(
-      `INSERT INTO profile (id, name, blood_type, birth_date, allergies, notes, emergency_card_enabled) VALUES (1, ?, ?, ?, ?, ?, ?)`,
-      [data.name ?? '', data.blood_type ?? 'Desconhecido', data.birth_date ?? '', data.allergies ?? '', data.notes ?? '', ecEnabled]
+      `INSERT INTO profile (id, name, blood_type, birth_date, allergies, notes) VALUES (1, ?, ?, ?, ?, ?)`,
+      [data.name ?? '', data.blood_type ?? 'Desconhecido', data.birth_date ?? '', data.allergies ?? '', data.notes ?? '']
     );
   }
 }

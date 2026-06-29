@@ -211,7 +211,6 @@ export async function updateEmergencyNotification(
   await clearEmergency();
 
   if (!profile?.name) return;
-  if (profile.emergency_card_enabled === false) return;
 
   // Ordena: críticos primeiro, depois alfabético pelo nome principal
   const sortedMeds = [...medications].sort((a, b) => {

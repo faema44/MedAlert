@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, StyleSheet, ScrollView,
   TouchableOpacity, Alert, ActivityIndicator,
-  KeyboardAvoidingView, Platform, Switch,
+  KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -24,7 +24,6 @@ export default function ProfileScreen() {
   const [birthDate, setBirthDate] = useState('');
   const [allergies, setAllergies] = useState('');
   const [notes, setNotes] = useState('');
-  const [emergencyCardEnabled, setEmergencyCardEnabled] = useState(true);
 
   useEffect(() => {
     loadProfile();
@@ -38,7 +37,6 @@ export default function ProfileScreen() {
       setBirthDate(profile.birth_date);
       setAllergies(profile.allergies);
       setNotes(profile.notes);
-      setEmergencyCardEnabled(profile.emergency_card_enabled !== false);
     }
     setLoading(false);
   }
@@ -86,7 +84,7 @@ export default function ProfileScreen() {
     }
     setSaving(true);
     try {
-      await saveProfile({ name: name.trim(), blood_type: bloodType, birth_date: birthDate, allergies: allergies.trim(), notes: notes.trim(), emergency_card_enabled: emergencyCardEnabled });
+      await saveProfile({ name: name.trim(), blood_type: bloodType, birth_date: birthDate, allergies: allergies.trim(), notes: notes.trim() });
       const meds = await getMedications();
       const profile = await getProfile();
       if (profile) await updateEmergencyNotification(profile, meds).catch(() => {});
@@ -176,22 +174,6 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Alerta de Emergência</Text>
-          <View style={styles.switchRow}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.switchLabel}>Mostrar cartão na barra de status</Text>
-              <Text style={styles.switchHint}>Exibe nome, tipo sanguíneo e medicamentos na barra e na tela de bloqueio</Text>
-            </View>
-            <Switch
-              value={emergencyCardEnabled}
-              onValueChange={setEmergencyCardEnabled}
-              trackColor={{ false: '#ccc', true: '#1C3F7A' }}
-              thumbColor="#fff"
-            />
-          </View>
-        </View>
-
-        <View style={styles.section}>
           <Text style={styles.sectionTitle}>Backup de Dados</Text>
           <Text style={styles.backupHint}>Exporte seus medicamentos, contatos e atividades para um arquivo JSON. Útil ao trocar de celular.</Text>
           <TouchableOpacity style={styles.backupBtn} onPress={handleExport}>
@@ -251,9 +233,6 @@ const styles = StyleSheet.create({
   backupBtnImport: { backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#1C3F7A' },
   backupBtnText: { fontSize: 14, fontWeight: '700', color: '#fff' },
   backupBtnTextImport: { color: '#1C3F7A' },
-  switchRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  switchLabel: { fontSize: 14, color: '#222', fontWeight: '600', marginBottom: 2 },
-  switchHint: { fontSize: 12, color: '#888', lineHeight: 16 },
   infoBox: { backgroundColor: '#e8f4fd', borderRadius: 10, padding: 12, marginBottom: 16 },
   infoText: { fontSize: 13, color: '#0066cc', lineHeight: 18 },
   saveBtnContainer: { backgroundColor: '#fff', paddingHorizontal: 20, paddingTop: 12, borderTopWidth: 0.5, borderTopColor: '#E0E4EE' },

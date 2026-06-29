@@ -6,7 +6,6 @@ export interface Profile {
   allergies: string;
   notes: string;
   updated_at: string;
-  emergency_card_enabled: boolean;
 }
 
 export interface Medication {
