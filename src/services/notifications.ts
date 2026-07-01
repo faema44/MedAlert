@@ -2,10 +2,11 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { Profile, Medication, MedicationReminder, ActivityReminder } from '../types';
 import { postMedNotification, cancelMedNotification } from './medNotification';
-import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity, getContacts } from '../database/db';
+import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity, getContacts, getKV, setKV } from '../database/db';
 
-const CHANNEL_ID = 'medalert_emergency_v3';
+const CHANNEL_ID = 'medalert_emergency_v4';
 const NOTIF_ID = 'emergency';
+const EMERGENCY_SIGNATURE_KV = 'emergency_notif_signature';
 const REMINDER_SOUND_CHANNEL = 'medalert_reminder_sound';
 const REMINDER_SILENT_CHANNEL = 'medalert_reminder_silent';
 const REMINDER_CATEGORY = 'reminder_action';
@@ -53,15 +54,17 @@ export async function setupNotificationChannels(): Promise<void> {
 
   // Clean up channels from previous installs (v1 med/activity channels get PUBLIC replacements)
   for (const old of [
-    'medalert_emergency', 'medalert_emergency_v2', 'medalert_lockscreen', 'medalert_detail',
+    'medalert_emergency', 'medalert_emergency_v2', 'medalert_emergency_v3', 'medalert_lockscreen', 'medalert_detail',
     'medalert_med_sound_v1', 'medalert_activity_sound_v1',
   ]) {
     await Notifications.deleteNotificationChannelAsync(old).catch(() => {});
   }
 
+  // DEFAULT (não HIGH/MAX): fica na barra e na tela de bloqueio sem aparecer como
+  // banner heads-up toda vez que é reenviada (ver updateEmergencyNotification).
   await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
     name: 'Alerta de Emergência Médica',
-    importance: Notifications.AndroidImportance.MAX,
+    importance: Notifications.AndroidImportance.DEFAULT,
     lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
     bypassDnd: true,
     sound: null,
@@ -218,9 +221,11 @@ export async function updateEmergencyNotification(
   profile: Profile | null,
   medications: Medication[]
 ): Promise<void> {
-  await clearEmergency();
-
-  if (!profile?.name) return;
+  if (!profile?.name) {
+    await clearEmergency();
+    await setKV(EMERGENCY_SIGNATURE_KV, '').catch(() => {});
+    return;
+  }
 
   // Ordena: críticos primeiro, depois alfabético pelo nome principal
   const sortedMeds = [...medications].sort((a, b) => {
@@ -275,13 +280,23 @@ export async function updateEmergencyNotification(
     ? `${upcoming[0].name} · ${upcoming[0].label}`
     : '';
 
+  // Só recria a notificação se o conteúdo realmente mudou — evita cancelar+repostar
+  // (e reacender o banner heads-up) a cada load() da Home sem nada de novo.
+  const bigText = lines.join('\n');
+  const signature = `${title}|${contentText}|${bigText}`;
+  const lastSignature = await getKV(EMERGENCY_SIGNATURE_KV).catch(() => null);
+  if (lastSignature === signature) return;
+
+  await clearEmergency();
   try {
-    postMedNotification(title, contentText, lines.join('\n'), CHANNEL_ID);
+    postMedNotification(title, contentText, bigText, CHANNEL_ID);
   } catch {}
+  await setKV(EMERGENCY_SIGNATURE_KV, signature).catch(() => {});
 }
 
 export async function cancelEmergencyNotification(): Promise<void> {
   await clearEmergency();
+  await setKV(EMERGENCY_SIGNATURE_KV, '').catch(() => {});
 }
 
 export async function dismissNotification(id: string): Promise<void> {

@@ -58,6 +58,7 @@ export interface MedicationReminder {
   with_sound: boolean;
   is_active: boolean;
   repeat_interval: number; // minutes between repeat alarms (0 = no repeat)
+  created_at?: string; // UTC, "YYYY-MM-DD HH:MM:SS" (SQLite CURRENT_TIMESTAMP)
 }
 
 export const BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Desconhecido'];

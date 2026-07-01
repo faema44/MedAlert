@@ -84,6 +84,19 @@ function todayDateStr(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+// Um lembrete criado hoje, depois do horário de hoje já ter passado, não conta como
+// dose perdida (não existia ainda pra ser tomada) — só passa a valer a partir de amanhã.
+function reminderExistedBeforeSlot(r: MedicationReminder, rMins: number, nowD: Date): boolean {
+  if (!r.created_at) return true;
+  const createdAt = new Date(r.created_at.replace(' ', 'T') + 'Z');
+  if (isNaN(createdAt.getTime())) return true;
+  const createdToday = createdAt.getFullYear() === nowD.getFullYear()
+    && createdAt.getMonth() === nowD.getMonth()
+    && createdAt.getDate() === nowD.getDate();
+  if (!createdToday) return true;
+  return (createdAt.getHours() * 60 + createdAt.getMinutes()) <= rMins;
+}
+
 function nextDailyInfo(reminders: ActivityReminder[]): { label: string; sortMs: number } | null {
   const now = new Date();
   let bestMs = Infinity;
@@ -245,10 +258,12 @@ export default function HomeScreen() {
           const [h, rm] = r.time.split(':').map(Number);
           if (isNaN(h)) return false;
           const rMins = h * 60 + rm;
-          if (!r.period || r.period === 'day') return rMins <= nowMins;
-          if (r.period.startsWith('week:')) return r.period.split(':')[1].split(',').map(Number).includes(todayWd) && rMins <= nowMins;
-          if (r.period.startsWith('month:')) return r.period.split(':')[1].split(',').map(Number).includes(todayDate) && rMins <= nowMins;
-          return false;
+          let dueToday: boolean;
+          if (!r.period || r.period === 'day') dueToday = rMins <= nowMins;
+          else if (r.period.startsWith('week:')) dueToday = r.period.split(':')[1].split(',').map(Number).includes(todayWd) && rMins <= nowMins;
+          else if (r.period.startsWith('month:')) dueToday = r.period.split(':')[1].split(',').map(Number).includes(todayDate) && rMins <= nowMins;
+          else dueToday = false;
+          return dueToday && reminderExistedBeforeSlot(r, rMins, nowD);
         })
         .filter(r => !isSlotTaken(med.id, todayStr, r.time))
         .map(r => r.time).sort()[0];
