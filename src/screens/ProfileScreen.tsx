@@ -107,7 +107,7 @@ export default function ProfileScreen() {
   }
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled={Platform.OS === 'ios'}>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Identificação</Text>

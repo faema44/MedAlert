@@ -10,6 +10,7 @@ import {
 } from '../utils/drugSearch';
 import { useBulaViewer } from '../utils/useBulaViewer';
 import { DrugInteraction, Medication } from '../types';
+import MedDisclaimer from '../components/MedDisclaimer';
 
 const RISK_CONFIG = {
   critical: { label: 'Crítico',  color: '#CC3322', bg: '#FEE9E9' },
@@ -189,6 +190,8 @@ export default function InteractionsScreen() {
           ))}
         </View>
       </View>
+
+      <MedDisclaimer />
 
       {/* Interactions tab */}
       {tab === 'interactions' && (

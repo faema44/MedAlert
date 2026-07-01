@@ -154,11 +154,36 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
   try {
     await database.execAsync('ALTER TABLE profile ADD COLUMN emergency_card_enabled INTEGER DEFAULT 1');
   } catch {}
+  try {
+    await database.execAsync('ALTER TABLE medications ADD COLUMN home_reminder INTEGER DEFAULT 1');
+  } catch {}
   // Unique index so INSERT OR IGNORE works for background-notification upsert
   try {
     await database.execAsync(
       'CREATE UNIQUE INDEX IF NOT EXISTS idx_medlog_notif ON medication_log(notification_id) WHERE notification_id IS NOT NULL'
     );
+  } catch {}
+  // Track overdue alerts that have fired (so "não informados" only shows real alerts, not historical guesses)
+  try {
+    await database.execAsync(`
+      CREATE TABLE IF NOT EXISTS medication_overdue_log (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        medication_id INTEGER NOT NULL,
+        alert_date TEXT NOT NULL,
+        alert_time TEXT NOT NULL,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    await database.execAsync(
+      'CREATE UNIQUE INDEX IF NOT EXISTS idx_overdue_slot ON medication_overdue_log(medication_id, alert_date, alert_time)'
+    );
+  } catch {}
+  try {
+    await database.execAsync('ALTER TABLE medication_log ADD COLUMN taken_at TEXT');
+  } catch {}
+  // Reset home_reminder=1 for all medications (fix accidental lock-only mode)
+  try {
+    await database.execAsync('UPDATE medications SET home_reminder=1 WHERE home_reminder IS NULL OR home_reminder=0');
   } catch {}
 }
 
@@ -195,14 +220,15 @@ export async function getMedications(): Promise<Medication[]> {
     is_critical: Boolean(r.is_critical),
     stock_quantity: r.stock_quantity ?? null,
     end_date: r.end_date ?? null,
+    home_reminder: r.home_reminder ?? 1,
   }));
 }
 
 export async function addMedication(med: Omit<Medication, 'id'>): Promise<number> {
   const database = await getDb();
   const result = await database.runAsync(
-    `INSERT INTO medications (generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [med.generic_name ?? '', med.commercial_name ?? '', med.dose ?? '', med.frequency ?? '', med.is_critical ? 1 : 0, med.notes ?? '', med.stock_quantity ?? null, med.end_date ?? null]
+    `INSERT INTO medications (generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, end_date, home_reminder) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [med.generic_name ?? '', med.commercial_name ?? '', med.dose ?? '', med.frequency ?? '', med.is_critical ? 1 : 0, med.notes ?? '', med.stock_quantity ?? null, med.end_date ?? null, med.home_reminder ?? 1]
   );
   return result.lastInsertRowId;
 }
@@ -210,8 +236,8 @@ export async function addMedication(med: Omit<Medication, 'id'>): Promise<number
 export async function updateMedication(med: Medication): Promise<void> {
   const database = await getDb();
   await database.runAsync(
-    `UPDATE medications SET generic_name=?, commercial_name=?, dose=?, frequency=?, is_critical=?, notes=?, stock_quantity=?, end_date=? WHERE id=?`,
-    [med.generic_name, med.commercial_name, med.dose, med.frequency, med.is_critical ? 1 : 0, med.notes, med.stock_quantity ?? null, med.end_date ?? null, med.id]
+    `UPDATE medications SET generic_name=?, commercial_name=?, dose=?, frequency=?, is_critical=?, notes=?, stock_quantity=?, end_date=?, home_reminder=? WHERE id=?`,
+    [med.generic_name, med.commercial_name, med.dose, med.frequency, med.is_critical ? 1 : 0, med.notes, med.stock_quantity ?? null, med.end_date ?? null, med.home_reminder ?? 1, med.id]
   );
 }
 
@@ -524,6 +550,7 @@ export interface MedicationLogEntry {
   dose: string;
   notification_id: string | null;
   scheduled_at: string;
+  taken_at: string | null;
   taken: number | null;
   created_at: string;
 }
@@ -534,11 +561,12 @@ export async function addMedicationLog(entry: {
   dose: string;
   notification_id: string;
   scheduled_at: string;
+  taken_at?: string;
 }): Promise<void> {
   const database = await getDb();
   await database.runAsync(
-    `INSERT OR IGNORE INTO medication_log (medication_id, medication_name, dose, notification_id, scheduled_at) VALUES (?, ?, ?, ?, ?)`,
-    [entry.medication_id, entry.medication_name, entry.dose, entry.notification_id, entry.scheduled_at]
+    `INSERT OR IGNORE INTO medication_log (medication_id, medication_name, dose, notification_id, scheduled_at, taken_at) VALUES (?, ?, ?, ?, ?, ?)`,
+    [entry.medication_id, entry.medication_name, entry.dose, entry.notification_id, entry.scheduled_at, entry.taken_at ?? null]
   );
 }
 
@@ -569,6 +597,34 @@ export async function markMedicationLogTaken(notification_id: string, taken: boo
     'UPDATE medication_log SET taken=? WHERE notification_id=?',
     [taken ? 1 : 0, notification_id]
   );
+}
+
+export async function logOverdueAlert(medicationId: number, alertDate: string, alertTime: string): Promise<void> {
+  const database = await getDb();
+  await database.runAsync(
+    'INSERT OR IGNORE INTO medication_overdue_log (medication_id, alert_date, alert_time) VALUES (?, ?, ?)',
+    [medicationId, alertDate, alertTime]
+  );
+}
+
+export interface OverdueAlertEntry {
+  id: number;
+  medication_id: number;
+  alert_date: string;
+  alert_time: string;
+  created_at: string;
+}
+
+export async function getOverdueAlerts(): Promise<OverdueAlertEntry[]> {
+  const database = await getDb();
+  return database.getAllAsync<OverdueAlertEntry>(
+    'SELECT * FROM medication_overdue_log ORDER BY alert_date DESC, alert_time ASC'
+  );
+}
+
+export async function pruneOverdueAlerts(keepFromDate: string): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('DELETE FROM medication_overdue_log WHERE alert_date < ?', [keepFromDate]);
 }
 
 export async function getMedicationLog(opts?: { medication_id?: number; since_iso?: string }): Promise<MedicationLogEntry[]> {

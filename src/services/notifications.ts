@@ -11,6 +11,8 @@ const REMINDER_SILENT_CHANNEL = 'medalert_reminder_silent';
 const REMINDER_CATEGORY = 'reminder_action';
 // v2: PUBLIC lock-screen visibility + action buttons
 const MED_SOUND_CHANNEL = 'medalert_med_sound_v2';
+// HIGH importance sem som — usado quando home_reminder=1 e with_sound=false para exibir heads-up
+const MED_SILENT_HEADSUP_CHANNEL = 'medalert_med_silent_headsup_v1';
 const ACTIVITY_SOUND_CHANNEL = 'medalert_activity_sound_v2';
 const APPT_SOUND_CHANNEL = 'medalert_appt_sound_v1';
 
@@ -109,6 +111,14 @@ export async function setupNotificationChannels(): Promise<void> {
     importance: Notifications.AndroidImportance.HIGH,
     lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
     sound: null,
+  });
+
+  await Notifications.setNotificationChannelAsync(MED_SILENT_HEADSUP_CHANNEL, {
+    name: 'Lembrete de Medicamento (silencioso)',
+    importance: Notifications.AndroidImportance.HIGH,
+    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+    sound: null,
+    vibrationPattern: [0, 250, 150, 250],
   });
 }
 
@@ -319,6 +329,11 @@ function timePart(hour: number, minute: number) {
   return `${String(hour).padStart(2,'0')}${String(minute).padStart(2,'0')}`;
 }
 
+function medChannel(withSound: boolean, homeReminder: boolean): string {
+  if (withSound) return MED_SOUND_CHANNEL;
+  return homeReminder ? MED_SILENT_HEADSUP_CHANNEL : REMINDER_SILENT_CHANNEL;
+}
+
 export async function scheduleReminder(
   medicationId: number,
   medicationName: string,
@@ -328,6 +343,7 @@ export async function scheduleReminder(
   withSound: boolean,
   repeatInterval = 0,
   stockWarning?: string,
+  homeReminder = false,
 ): Promise<void> {
   const id = `reminder_${medicationId}_${timePart(hour, minute)}`;
   await Notifications.scheduleNotificationAsync({
@@ -337,7 +353,7 @@ export async function scheduleReminder(
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
       hour,
       minute,
-      channelId: withSound ? MED_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+      channelId: medChannel(withSound, homeReminder),
     },
   });
 }
@@ -352,6 +368,7 @@ export async function scheduleReminderWeekly(
   withSound: boolean,
   repeatInterval = 0,
   stockWarning?: string,
+  homeReminder = false,
 ): Promise<void> {
   for (const wd of weekdays) {
     await Notifications.scheduleNotificationAsync({
@@ -362,7 +379,7 @@ export async function scheduleReminderWeekly(
         weekday: wd,
         hour,
         minute,
-        channelId: withSound ? MED_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+        channelId: medChannel(withSound, homeReminder),
       },
     });
   }
@@ -378,6 +395,7 @@ export async function scheduleReminderMonthly(
   withSound: boolean,
   repeatInterval = 0,
   stockWarning?: string,
+  homeReminder = false,
 ): Promise<void> {
   for (const day of days) {
     await Notifications.scheduleNotificationAsync({
@@ -389,7 +407,7 @@ export async function scheduleReminderMonthly(
         day,
         hour,
         minute,
-        channelId: withSound ? MED_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+        channelId: medChannel(withSound, homeReminder),
       } as any,
     });
   }
@@ -406,6 +424,7 @@ export async function scheduleReminderEveryNMonths(
   withSound: boolean,
   repeatInterval = 0,
   stockWarning?: string,
+  homeReminder = false,
 ): Promise<void> {
   const tp = timePart(hour, minute);
   const now = new Date();
@@ -424,7 +443,7 @@ export async function scheduleReminderEveryNMonths(
         day: next.getDate(),
         hour,
         minute,
-        channelId: withSound ? MED_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+        channelId: medChannel(withSound, homeReminder),
       } as any,
     });
     next.setMonth(next.getMonth() + intervalMonths);
@@ -674,21 +693,22 @@ export async function rescheduleRemindersForMedication(
   stockWarning?: string,
 ): Promise<void> {
   const notifName = med.commercial_name?.trim() || med.generic_name;
+  const homeReminder = med.home_reminder !== 0;
   for (const r of reminders) {
     if (!r.is_active) continue;
     const [h, m] = r.time.split(':').map(Number);
     if (isNaN(h)) continue;
     if (!r.period || r.period === 'day') {
-      await scheduleReminder(med.id, notifName, med.dose, h, m, r.with_sound, r.repeat_interval, stockWarning).catch(() => {});
+      await scheduleReminder(med.id, notifName, med.dose, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder).catch(() => {});
     } else if (r.period.startsWith('week:')) {
       const wds = r.period.split(':')[1].split(',').map(Number);
-      await scheduleReminderWeekly(med.id, notifName, med.dose, wds, h, m, r.with_sound, r.repeat_interval, stockWarning).catch(() => {});
+      await scheduleReminderWeekly(med.id, notifName, med.dose, wds, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder).catch(() => {});
     } else if (r.period.startsWith('month:')) {
       const days = r.period.split(':')[1].split(',').map(Number);
-      await scheduleReminderMonthly(med.id, notifName, med.dose, days, h, m, r.with_sound, r.repeat_interval, stockWarning).catch(() => {});
+      await scheduleReminderMonthly(med.id, notifName, med.dose, days, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder).catch(() => {});
     } else if (r.period.startsWith('nmonths:')) {
       const [, nStr, dStr] = r.period.split(':');
-      await scheduleReminderEveryNMonths(med.id, notifName, med.dose, parseInt(nStr), parseInt(dStr), h, m, r.with_sound, r.repeat_interval, stockWarning).catch(() => {});
+      await scheduleReminderEveryNMonths(med.id, notifName, med.dose, parseInt(nStr), parseInt(dStr), h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder).catch(() => {});
     }
   }
 }
@@ -833,6 +853,12 @@ export async function notifyLowStock(medicationId: number, medicationName: strin
 
 export async function getLastResponse(): Promise<Notifications.NotificationResponse | null> {
   return Notifications.getLastNotificationResponseAsync().catch(() => null);
+}
+
+export async function dismissPresentedForMedication(medicationId: number): Promise<void> {
+  const presented = await Notifications.getPresentedNotificationsAsync().catch(() => []);
+  const toRemove = presented.filter(n => (n.request.content.data as any)?.medicationId === medicationId);
+  await Promise.all(toRemove.map(n => Notifications.dismissNotificationAsync(n.request.identifier).catch(() => {})));
 }
 
 Notifications.setNotificationHandler({

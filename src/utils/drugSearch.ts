@@ -4,6 +4,7 @@ interface MedEntry {
   genericName: string;
   brands: string[];
   category: string;
+  rxcui?: string; // só presente para substâncias únicas — combos são decompostos em runtime
 }
 
 let DB: MedEntry[] = [];
@@ -11,18 +12,42 @@ let DB: MedEntry[] = [];
 const resolveCache = new Map<string, string>();
 // Pre-normalized drug1/drug2 tokens for each interaction — rebuilt when interactions load
 let INTERACTION_TOKENS: Array<{ tokens1: string[]; tokens2: string[] }> = [];
+// normalized genericName -> rxcui — rebuilt whenever DB changes
+let RXCUI_BY_NAME: Map<string, string> = new Map();
+const rxcuiSetCache = new Map<string, Set<string>>();
+
+function buildRxcuiIndex() {
+  RXCUI_BY_NAME = new Map();
+  for (const entry of DB) {
+    if (entry.rxcui) RXCUI_BY_NAME.set(normalize(entry.genericName), entry.rxcui);
+  }
+  rxcuiSetCache.clear();
+}
+
+let DB_VERSION: string | undefined;
+
 // Seed synchronously at module load so suggestions work before syncMedicationsDb completes
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const bundled = require('../data/medications-db.json');
-  if (bundled?.medications?.length) DB = bundled.medications;
+  if (bundled?.medications?.length) { DB = bundled.medications; DB_VERSION = bundled.version; }
 } catch { /* bundled data unavailable, syncMedicationsDb will fill later */ }
+buildRxcuiIndex();
 
 export function loadExternalDb(data: { version?: string; medications: MedEntry[] }): void {
   if (!data?.medications?.length) return;
-  if (data.medications.length > DB.length) {
+  // Prefer by version (e.g. "2026-06-30") when both sides have one — a curated cleanup
+  // can *shrink* the list (removing a duplicate, a bad entry), and a stale cached copy
+  // with more rows must not win just because it's bigger. Fall back to length only when
+  // version info is missing (older cached payloads).
+  const isNewer = data.version && DB_VERSION
+    ? data.version > DB_VERSION
+    : data.medications.length > DB.length;
+  if (isNewer) {
     DB = data.medications;
+    DB_VERSION = data.version;
     resolveCache.clear();
+    buildRxcuiIndex();
   }
 }
 let ALL_INTERACTIONS: DrugInteraction[] = [];
@@ -31,10 +56,14 @@ export function getAllInteractions(): DrugInteraction[] {
   return ALL_INTERACTIONS;
 }
 
+// "ácido" recurs across unrelated drugs (Ácido Valpróico, Ácido Acetilsalicílico, Ácido Fólico...);
+// as a standalone token it causes false-positive interaction matches between them.
+const GENERIC_QUALIFIER_TOKENS = new Set(['acido', 'acida']);
+
 function buildInteractionTokens() {
   INTERACTION_TOKENS = ALL_INTERACTIONS.map(i => ({
-    tokens1: normalize(i.drug1).split(/[\s,]+/).filter(t => t.length >= 3),
-    tokens2: normalize(i.drug2).split(/[\s,]+/).filter(t => t.length >= 3),
+    tokens1: normalize(i.drug1).split(/[\s,]+/).filter(t => t.length >= 3 && !GENERIC_QUALIFIER_TOKENS.has(t)),
+    tokens2: normalize(i.drug2).split(/[\s,]+/).filter(t => t.length >= 3 && !GENERIC_QUALIFIER_TOKENS.has(t)),
   }));
 }
 
@@ -254,21 +283,23 @@ export function getSuggestions(input: string, max = 7, categoryFilter?: string):
       continue;
     }
 
-    const matchedBrand = entry.brands.find(b => normalize(b).includes(q));
-    if (matchedBrand && !addedGenerics.has(gNorm)) {
-      const bNorm = normalize(matchedBrand);
-      scored.push({
-        score: bNorm.startsWith(q) ? 1 : 3,
-        s: {
-          label: `${matchedBrand}  →  ${entry.genericName}`,
-          genericName: entry.genericName,
-          brandName: matchedBrand,
-          category: entry.category,
-          bulaUrl: getBulaUrl(entry.genericName, matchedBrand),
-          isBrand: true,
-        },
-      });
+    const matchedBrands = entry.brands.filter(b => normalize(b).includes(q));
+    if (matchedBrands.length > 0 && !addedGenerics.has(gNorm)) {
       addedGenerics.add(gNorm);
+      for (const matchedBrand of matchedBrands) {
+        const bNorm = normalize(matchedBrand);
+        scored.push({
+          score: bNorm.startsWith(q) ? 1 : 3,
+          s: {
+            label: `${matchedBrand}  →  ${entry.genericName}`,
+            genericName: entry.genericName,
+            brandName: matchedBrand,
+            category: entry.category,
+            bulaUrl: getBulaUrl(entry.genericName, matchedBrand),
+            isBrand: true,
+          },
+        });
+      }
     }
   }
 
@@ -305,6 +336,36 @@ function tokensMatchName(tokens: string[], name: string): boolean {
   return false;
 }
 
+// RxCUI(s) for a med name — decomposes combo names ("X + Y") into each ingredient's
+// own RxCUI rather than trusting a single combo-product id (those differ from the
+// ids of their components, which would silently break combo matching).
+function rxcuisForName(name: string): Set<string> {
+  if (rxcuiSetCache.has(name)) return rxcuiSetCache.get(name)!;
+  const resolved = resolveGeneric(name);
+  const parts = resolved.split(/[+/]/).map(p => normalize(p)).filter(p => p.length >= 3);
+  const set = new Set<string>();
+  for (const p of parts) {
+    const r = RXCUI_BY_NAME.get(p);
+    if (r) set.add(r);
+  }
+  rxcuiSetCache.set(name, set);
+  return set;
+}
+
+// Fuzzy text match OR'd with an exact RxCUI match — RxCUI can only ADD a match the
+// fuzzy text comparison missed (synonyms/spelling variants with no shared word, e.g.
+// "Aspirina" vs "AAS (Ácido Acetilsalicílico)"). It never overrides/rejects a fuzzy
+// match: this dataset routinely uses one representative drug for a whole family
+// (e.g. "Citalopram" standing in for Escitalopram too), and RxCUI is strict per
+// substance — using it to reject would silently drop real, sometimes critical interactions.
+function matchesSide(tokens: string[], rxcuis: string[] | undefined, name: string): boolean {
+  if (tokensMatchName(tokens, name)) return true;
+  if (!rxcuis || !rxcuis.length) return false;
+  const candidateRxcuis = rxcuisForName(name);
+  if (!candidateRxcuis.size) return false;
+  return rxcuis.some(r => candidateRxcuis.has(r));
+}
+
 function entryMatchesName(entry: string, name: string): boolean {
   const tokens = normalize(entry).split(/[\s,]+/).filter(t => t.length >= 3);
   return tokensMatchName(tokens, name);
@@ -318,12 +379,12 @@ export function checkSubstanceInteractions(drugName: string, userMedNames: strin
     const interaction = ALL_INTERACTIONS[i];
     if (seen.has(interaction.id)) continue;
     const { tokens1, tokens2 } = INTERACTION_TOKENS[i] ?? { tokens1: [], tokens2: [] };
-    const m1 = tokensMatchName(tokens1, drugName);
-    const m2 = m1 ? false : tokensMatchName(tokens2, drugName);
+    const m1 = matchesSide(tokens1, interaction.drug1_rxcuis, drugName);
+    const m2 = m1 ? false : matchesSide(tokens2, interaction.drug2_rxcuis, drugName);
     if (m1) {
-      if (userMedNames.some(m => tokensMatchName(tokens2, m))) { seen.add(interaction.id); results.push(interaction); }
+      if (userMedNames.some(m => matchesSide(tokens2, interaction.drug2_rxcuis, m))) { seen.add(interaction.id); results.push(interaction); }
     } else if (m2) {
-      if (userMedNames.some(m => tokensMatchName(tokens1, m))) { seen.add(interaction.id); results.push(interaction); }
+      if (userMedNames.some(m => matchesSide(tokens1, interaction.drug1_rxcuis, m))) { seen.add(interaction.id); results.push(interaction); }
     }
   }
   const order: Record<string, number> = { critical: 0, high: 1, moderate: 2 };
@@ -340,11 +401,11 @@ export function checkInteractions(newDrug: string, existingMedNames: string[]): 
     const interaction = ALL_INTERACTIONS[i];
     if (seen.has(interaction.id)) continue;
     const { tokens1, tokens2 } = INTERACTION_TOKENS[i] ?? { tokens1: [], tokens2: [] };
-    const m1 = tokensMatchName(tokens1, newDrug);
-    const m2 = m1 ? false : tokensMatchName(tokens2, newDrug);
-    if (m1 && existingMedNames.some(m => tokensMatchName(tokens2, m))) {
+    const m1 = matchesSide(tokens1, interaction.drug1_rxcuis, newDrug);
+    const m2 = m1 ? false : matchesSide(tokens2, interaction.drug2_rxcuis, newDrug);
+    if (m1 && existingMedNames.some(m => matchesSide(tokens2, interaction.drug2_rxcuis, m))) {
       seen.add(interaction.id); results.push(interaction);
-    } else if (m2 && existingMedNames.some(m => tokensMatchName(tokens1, m))) {
+    } else if (m2 && existingMedNames.some(m => matchesSide(tokens1, interaction.drug1_rxcuis, m))) {
       seen.add(interaction.id); results.push(interaction);
     }
   }

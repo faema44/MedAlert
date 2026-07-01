@@ -18,6 +18,7 @@ export interface Medication {
   notes: string;
   stock_quantity: number | null;
   end_date: string | null; // ISO "YYYY-MM-DD"
+  home_reminder?: number; // 1 = show overdue banner on HomeScreen (default), 0 = off
 }
 
 export interface EmergencyContact {
@@ -37,6 +38,11 @@ export interface DrugInteraction {
   risk_level: 'critical' | 'high' | 'moderate';
   risk_description: string;
   mechanism: string;
+  // RxCUI (RxNorm) de cada lado — só presentes quando TODO o texto do lado foi resolvido
+  // (ver scripts/build_interactions_rxcui.py). Usados apenas para CONFIRMAR matches
+  // que o fuzzy já não pegou (sinônimos/grafias sem palavra em comum) — nunca para rejeitar.
+  drug1_rxcuis?: string[];
+  drug2_rxcuis?: string[];
 }
 
 export interface MedicationReminder {

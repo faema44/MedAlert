@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-26",
+  "version": "2026-06-30b",
   "source": "Curadoria manual + ANVISA (base expandida)",
   "medications": [
     {
@@ -11,7 +11,8 @@
         "Glifage XR",
         "Glucoformin"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "6809"
     },
     {
       "genericName": "Glibenclamida",
@@ -19,7 +20,8 @@
         "Daonil",
         "Euglucon"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "4815"
     },
     {
       "genericName": "Gliclazida",
@@ -27,7 +29,8 @@
         "Diamicron",
         "Glicomin"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "4816"
     },
     {
       "genericName": "Glimepirida",
@@ -35,14 +38,16 @@
         "Amaryl",
         "Glimepil"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "25789"
     },
     {
       "genericName": "Acarbose",
       "brands": [
         "Glucobay"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "16681"
     },
     {
       "genericName": "Sitagliptina",
@@ -50,7 +55,8 @@
         "Januvia",
         "Janumet"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "593411"
     },
     {
       "genericName": "Metformina + Sitagliptina",
@@ -64,7 +70,8 @@
       "brands": [
         "Galvus"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "596554"
     },
     {
       "genericName": "Metformina + Vildagliptina",
@@ -72,14 +79,16 @@
         "Galvus Met",
         "Vildamet"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "596554"
     },
     {
       "genericName": "Empagliflozina",
       "brands": [
         "Jardiance"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "1545653"
     },
     {
       "genericName": "Metformina + Empagliflozina",
@@ -94,7 +103,8 @@
       "brands": [
         "Forxiga"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "1488564"
     },
     {
       "genericName": "Metformina + Dapagliflozina",
@@ -109,7 +119,8 @@
       "brands": [
         "Onglyza"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "857974"
     },
     {
       "genericName": "Metformina + Saxagliptina",
@@ -124,7 +135,8 @@
       "brands": [
         "Trajenta"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "1100699"
     },
     {
       "genericName": "Metformina + Linagliptina",
@@ -139,14 +151,16 @@
       "brands": [
         "Invokana"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "1373458"
     },
     {
       "genericName": "Liraglutida",
       "brands": [
         "Victoza"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "475968"
     },
     {
       "genericName": "Semaglutida",
@@ -155,14 +169,16 @@
         "Rybelsus",
         "Wegovy"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "1991302"
     },
     {
       "genericName": "Dulaglutida",
       "brands": [
         "Trulicity"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "1551291"
     },
     {
       "genericName": "Insulina NPH",
@@ -170,7 +186,8 @@
         "Humulin N",
         "Insulatard"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "1605101"
     },
     {
       "genericName": "Insulina Regular",
@@ -178,7 +195,8 @@
         "Humulin R",
         "Actrapid"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "253182"
     },
     {
       "genericName": "Insulina Glargina",
@@ -186,7 +204,8 @@
         "Lantus",
         "Toujeo"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "274783"
     },
     {
       "genericName": "Insulina Aspart",
@@ -194,7 +213,8 @@
         "Novorapid",
         "Fiasp"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "51428"
     },
     {
       "genericName": "Insulina Lispro",
@@ -202,7 +222,8 @@
         "Humalog",
         "Admelog"
       ],
-      "category": "Antidiabético"
+      "category": "Antidiabético",
+      "rxcui": "86009"
     },
     {
       "genericName": "Losartana",
@@ -221,7 +242,8 @@
         "Lotanol",
         "Valtrian"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "52175"
     },
     {
       "genericName": "Losartana + Hidroclorotiazida",
@@ -238,7 +260,8 @@
         "Valsacor",
         "Valsartana Sódica"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "69749"
     },
     {
       "genericName": "Valsartana + Hidroclorotiazida",
@@ -246,7 +269,8 @@
         "Diovan HCT",
         "Co-Diovan"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "5487"
     },
     {
       "genericName": "Valsartana + Amlodipino",
@@ -254,14 +278,16 @@
         "Exforge",
         "Vamloset"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "17767"
     },
     {
       "genericName": "Valsartana + Amlodipino + Hidroclorotiazida",
       "brands": [
         "Exforge HCT"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "5487"
     },
     {
       "genericName": "Olmesartana",
@@ -270,7 +296,8 @@
         "Olmetec",
         "Olmecip"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "321064"
     },
     {
       "genericName": "Olmesartana + Hidroclorotiazida",
@@ -278,14 +305,16 @@
         "Benicar HCT",
         "Olmetec Plus"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "5487"
     },
     {
       "genericName": "Olmesartana + Amlodipino",
       "brands": [
         "Azor"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "17767"
     },
     {
       "genericName": "Candesartana",
@@ -294,14 +323,16 @@
         "Atacand",
         "Blopress"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "214354"
     },
     {
       "genericName": "Candesartana + Hidroclorotiazida",
       "brands": [
         "Blopress Plus"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "5487"
     },
     {
       "genericName": "Irbesartana",
@@ -309,14 +340,16 @@
         "Irbesartana",
         "Aprovel"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "83818"
     },
     {
       "genericName": "Irbesartana + Hidroclorotiazida",
       "brands": [
         "Avalide"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "5487"
     },
     {
       "genericName": "Enalapril",
@@ -335,7 +368,8 @@
         "Enalabal",
         "Pressomed"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "3827"
     },
     {
       "genericName": "Enalapril + Hidroclorotiazida",
@@ -353,7 +387,8 @@
         "Capoten",
         "Captopress"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "1998"
     },
     {
       "genericName": "Ramipril",
@@ -362,7 +397,8 @@
         "Altace",
         "Ramipress"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "35296"
     },
     {
       "genericName": "Ramipril + Amlodipino",
@@ -370,7 +406,8 @@
         "Triapin",
         "Ramicard"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "35296"
     },
     {
       "genericName": "Lisinopril",
@@ -379,7 +416,8 @@
         "Prinivil",
         "Lisopril"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "29046"
     },
     {
       "genericName": "Lisinopril + Hidroclorotiazida",
@@ -395,7 +433,8 @@
         "Coversyl",
         "Prexanil"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "54552"
     },
     {
       "genericName": "Perindopril + Amlodipino",
@@ -415,22 +454,26 @@
     },
     {
       "genericName": "Amlodipino",
-      "brands": [],
-      "category": "Anti-hipertensivo"
-    },
-    {
-      "genericName": "Anlodipina",
       "brands": [
-        "Amlor"
+        "Amlor",
+        "Anlo",
+        "Besilapin",
+        "Norvasc",
+        "Pressat",
+        "Tenlopin",
+        "Cordarex",
+        "Nemodine"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "17767"
     },
     {
       "genericName": "Nifedipina",
       "brands": [
         "Adalat"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "7417"
     },
     {
       "genericName": "Diltiazem",
@@ -438,7 +481,8 @@
         "Cardizem",
         "Balcor"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "3443"
     },
     {
       "genericName": "Verapamil",
@@ -446,7 +490,8 @@
         "Cloridrato de Verapamil",
         "Dilacoron"
       ],
-      "category": "Cardiovascular"
+      "category": "Cardiovascular",
+      "rxcui": "11170"
     },
     {
       "genericName": "Metoprolol",
@@ -456,7 +501,8 @@
         "Seloken",
         "Selozok"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "6918"
     },
     {
       "genericName": "Atenolol",
@@ -473,7 +519,8 @@
         "Ateneo",
         "Tenolon"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "1202"
     },
     {
       "genericName": "Propranolol",
@@ -481,7 +528,8 @@
         "Inderal",
         "Cloridrato de Propranolol"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "8787"
     },
     {
       "genericName": "Carvedilol",
@@ -489,7 +537,8 @@
         "Coreg",
         "Divelol"
       ],
-      "category": "Cardiovascular"
+      "category": "Cardiovascular",
+      "rxcui": "20352"
     },
     {
       "genericName": "Bisoprolol",
@@ -498,14 +547,16 @@
         "Bisobloc",
         "Fumarato de Bisoprolol"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "19484"
     },
     {
       "genericName": "Nebivolol",
       "brands": [
         "Cloridrato de Nebivolol"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "31555"
     },
     {
       "genericName": "Atorvastatina",
@@ -519,7 +570,8 @@
         "Atorvastatina Cálcica",
         "Citalor"
       ],
-      "category": "Hipolipemiante"
+      "category": "Hipolipemiante",
+      "rxcui": "83367"
     },
     {
       "genericName": "Sinvastatina",
@@ -529,7 +581,8 @@
         "Vaslip",
         "Liponorm"
       ],
-      "category": "Hipolipemiante"
+      "category": "Hipolipemiante",
+      "rxcui": "36567"
     },
     {
       "genericName": "Rosuvastatina",
@@ -541,14 +594,16 @@
         "RosuvaCor",
         "Rosumed"
       ],
-      "category": "Hipolipemiante"
+      "category": "Hipolipemiante",
+      "rxcui": "301542"
     },
     {
       "genericName": "Pravastatina",
       "brands": [
         "Mevalotin"
       ],
-      "category": "Hipolipemiante"
+      "category": "Hipolipemiante",
+      "rxcui": "42463"
     },
     {
       "genericName": "Lovastatina",
@@ -556,7 +611,8 @@
         "Mevacor",
         "Lovacor"
       ],
-      "category": "Hipolipemiante"
+      "category": "Hipolipemiante",
+      "rxcui": "6472"
     },
     {
       "genericName": "Pitavastatina",
@@ -564,7 +620,8 @@
         "Livalo",
         "Pivast"
       ],
-      "category": "Hipolipemiante"
+      "category": "Hipolipemiante",
+      "rxcui": "861634"
     },
     {
       "genericName": "Ezetimiba",
@@ -573,7 +630,8 @@
         "Ezetrol",
         "Ezetgen"
       ],
-      "category": "Hipolipemiante"
+      "category": "Hipolipemiante",
+      "rxcui": "341248"
     },
     {
       "genericName": "Rosuvastatina + Ezetimiba",
@@ -585,7 +643,8 @@
         "Ezetimiba + Rosuvastatina",
         "Zinpass + Ezetimibe"
       ],
-      "category": "Hipolipemiante"
+      "category": "Hipolipemiante",
+      "rxcui": "301542"
     },
     {
       "genericName": "Sinvastatina + Ezetimiba",
@@ -593,7 +652,8 @@
         "Vytorin",
         "Ezetimiba + Sinvastatina"
       ],
-      "category": "Hipolipemiante"
+      "category": "Hipolipemiante",
+      "rxcui": "341248"
     },
     {
       "genericName": "Atorvastatina + Ezetimiba",
@@ -602,7 +662,8 @@
         "Liptruzet",
         "Ezetimiba + Atorvastatina"
       ],
-      "category": "Hipolipemiante"
+      "category": "Hipolipemiante",
+      "rxcui": "341248"
     },
     {
       "genericName": "Fenofibrato",
@@ -612,14 +673,16 @@
         "Tricor",
         "Fenotrat"
       ],
-      "category": "Hipolipemiante"
+      "category": "Hipolipemiante",
+      "rxcui": "8703"
     },
     {
       "genericName": "Genfibrozila",
       "brands": [
         "Lopid"
       ],
-      "category": "Hipolipemiante"
+      "category": "Hipolipemiante",
+      "rxcui": "4719"
     },
     {
       "genericName": "Hidroclorotiazida",
@@ -636,14 +699,16 @@
         "Drenol",
         "Hidroless"
       ],
-      "category": "Diurético"
+      "category": "Diurético",
+      "rxcui": "5487"
     },
     {
       "genericName": "Clortalidona",
       "brands": [
         "Hygroton"
       ],
-      "category": "Diurético"
+      "category": "Diurético",
+      "rxcui": "2409"
     },
     {
       "genericName": "Furosemida",
@@ -660,7 +725,8 @@
         "Neosemide",
         "Furosemide"
       ],
-      "category": "Diurético"
+      "category": "Diurético",
+      "rxcui": "4603"
     },
     {
       "genericName": "Espironolactona",
@@ -669,19 +735,22 @@
         "Aldactone",
         "Espironol"
       ],
-      "category": "Diurético"
+      "category": "Diurético",
+      "rxcui": "9997"
     },
     {
       "genericName": "Amilorida",
       "brands": [
         "Midamor"
       ],
-      "category": "Diurético"
+      "category": "Diurético",
+      "rxcui": "644"
     },
     {
       "genericName": "Torasemida",
       "brands": [],
-      "category": "Diurético"
+      "category": "Diurético",
+      "rxcui": "38413"
     },
     {
       "genericName": "Omeprazol",
@@ -702,7 +771,8 @@
         "Loprazol",
         "Proton"
       ],
-      "category": "Gastroprotetor"
+      "category": "Gastroprotetor",
+      "rxcui": "7646"
     },
     {
       "genericName": "Pantoprazol",
@@ -711,14 +781,16 @@
         "Pantoc",
         "Pantoprazol Sódico"
       ],
-      "category": "Gastroprotetor"
+      "category": "Gastroprotetor",
+      "rxcui": "40790"
     },
     {
       "genericName": "Esomeprazol",
       "brands": [
         "Nexium"
       ],
-      "category": "Gastroprotetor"
+      "category": "Gastroprotetor",
+      "rxcui": "283742"
     },
     {
       "genericName": "Lansoprazol",
@@ -726,14 +798,16 @@
         "Prevacid",
         "Zoton"
       ],
-      "category": "Gastroprotetor"
+      "category": "Gastroprotetor",
+      "rxcui": "17128"
     },
     {
       "genericName": "Rabeprazol",
       "brands": [
         "Pariet"
       ],
-      "category": "Gastroprotetor"
+      "category": "Gastroprotetor",
+      "rxcui": "114979"
     },
     {
       "genericName": "Amoxicilina",
@@ -747,7 +821,8 @@
         "Moxiplus",
         "Novocilin"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "723"
     },
     {
       "genericName": "Amoxicilina + Clavulanato",
@@ -762,14 +837,16 @@
         "Emyclan",
         "Sinot Clav"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "723"
     },
     {
       "genericName": "Ampicilina",
       "brands": [
         "Binotal"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "733"
     },
     {
       "genericName": "Piperacilina + Tazobactam",
@@ -792,7 +869,8 @@
         "Zitromax",
         "Zitromil"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "18631"
     },
     {
       "genericName": "Claritromicina",
@@ -800,14 +878,16 @@
         "Klacid",
         "Klaricid"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "21212"
     },
     {
       "genericName": "Eritromicina",
       "brands": [
         "Ilosone"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "4053"
     },
     {
       "genericName": "Ciprofloxacino",
@@ -816,7 +896,8 @@
         "Ciproflox",
         "Cloridrato de Ciprofloxacino"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "2551"
     },
     {
       "genericName": "Levofloxacino",
@@ -824,19 +905,22 @@
         "Tavanic",
         "Cloridrato de Levofloxacino"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "82122"
     },
     {
       "genericName": "Norfloxacino",
       "brands": [],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "7517"
     },
     {
       "genericName": "Moxifloxacino",
       "brands": [
         "Cloridrato de Moxifloxacino"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "139462"
     },
     {
       "genericName": "Cefalexina",
@@ -855,28 +939,32 @@
         "Keforal",
         "Neo Ceflex"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "2231"
     },
     {
       "genericName": "Ceftriaxona",
       "brands": [
         "Rocefin"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "2193"
     },
     {
       "genericName": "Cefuroxima",
       "brands": [
         "Zinnat"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "2194"
     },
     {
       "genericName": "Cefazolina",
       "brands": [
         "Kefazol"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "2180"
     },
     {
       "genericName": "Metronidazol",
@@ -886,35 +974,40 @@
         "Neo Metrodazol",
         "Rozex"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "6922"
     },
     {
       "genericName": "Tinidazol",
       "brands": [
         "Fasigyn"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "10612"
     },
     {
       "genericName": "Gentamicina",
       "brands": [
         "Garamicina"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "1596450"
     },
     {
       "genericName": "Tobramicina",
       "brands": [
         "Tobrex"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "10627"
     },
     {
       "genericName": "Amicacina",
       "brands": [
         "Novamin"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "641"
     },
     {
       "genericName": "Fluconazol",
@@ -926,19 +1019,22 @@
         "Unizol",
         "Flucolich"
       ],
-      "category": "Antifúngico"
+      "category": "Antifúngico",
+      "rxcui": "4450"
     },
     {
       "genericName": "Itraconazol",
       "brands": [
         "Itranax"
       ],
-      "category": "Antifúngico"
+      "category": "Antifúngico",
+      "rxcui": "28031"
     },
     {
       "genericName": "Voriconazol",
       "brands": [],
-      "category": "Antifúngico"
+      "category": "Antifúngico",
+      "rxcui": "121243"
     },
     {
       "genericName": "Fluoxetina",
@@ -953,7 +1049,8 @@
         "Verotina S",
         "Cloridrato de Fluoxetina"
       ],
-      "category": "Antidepressivo"
+      "category": "Antidepressivo",
+      "rxcui": "4493"
     },
     {
       "genericName": "Sertralina",
@@ -964,7 +1061,8 @@
         "Serenata",
         "Cloridrato de Sertralina"
       ],
-      "category": "Antidepressivo"
+      "category": "Antidepressivo",
+      "rxcui": "36437"
     },
     {
       "genericName": "Paroxetina",
@@ -972,21 +1070,24 @@
         "Aropax",
         "Cloridrato de Paroxetina"
       ],
-      "category": "Antidepressivo"
+      "category": "Antidepressivo",
+      "rxcui": "32937"
     },
     {
       "genericName": "Escitalopram",
       "brands": [
         "Lexapro"
       ],
-      "category": "Antidepressivo"
+      "category": "Antidepressivo",
+      "rxcui": "321988"
     },
     {
       "genericName": "Citalopram",
       "brands": [
         "Cipramil"
       ],
-      "category": "Antidepressivo"
+      "category": "Antidepressivo",
+      "rxcui": "2556"
     },
     {
       "genericName": "Venlafaxina",
@@ -995,7 +1096,8 @@
         "Venlift",
         "Efexor"
       ],
-      "category": "Antidepressivo"
+      "category": "Antidepressivo",
+      "rxcui": "39786"
     },
     {
       "genericName": "Duloxetina",
@@ -1003,14 +1105,16 @@
         "Cloridrato de Duloxetina",
         "Cymbalta"
       ],
-      "category": "Antidepressivo"
+      "category": "Antidepressivo",
+      "rxcui": "72625"
     },
     {
       "genericName": "Desvenlafaxina",
       "brands": [
         "Pristiq"
       ],
-      "category": "Antidepressivo"
+      "category": "Antidepressivo",
+      "rxcui": "734064"
     },
     {
       "genericName": "Amitriptilina",
@@ -1018,21 +1122,24 @@
         "Tryptanol",
         "Cloridrato de Amitriptilina"
       ],
-      "category": "Antidepressivo Tricíclico"
+      "category": "Antidepressivo Tricíclico",
+      "rxcui": "704"
     },
     {
       "genericName": "Nortriptilina",
       "brands": [
         "Cloridrato de Nortriptilina"
       ],
-      "category": "Antidepressivo Tricíclico"
+      "category": "Antidepressivo Tricíclico",
+      "rxcui": "7531"
     },
     {
       "genericName": "Imipramina",
       "brands": [
         "Cloridrato de Imipramina"
       ],
-      "category": "Antidepressivo Tricíclico"
+      "category": "Antidepressivo Tricíclico",
+      "rxcui": "5691"
     },
     {
       "genericName": "Clomipramina",
@@ -1040,7 +1147,8 @@
         "Anafranil",
         "Cloridrato de Clomipramina"
       ],
-      "category": "Antidepressivo Tricíclico"
+      "category": "Antidepressivo Tricíclico",
+      "rxcui": "2597"
     },
     {
       "genericName": "Diazepam",
@@ -1048,7 +1156,8 @@
         "Valium",
         "Compaz"
       ],
-      "category": "Benzodiazepínico"
+      "category": "Benzodiazepínico",
+      "rxcui": "3322"
     },
     {
       "genericName": "Clonazepam",
@@ -1057,7 +1166,8 @@
         "Clonotril",
         "Cloridrato de Clonazepam"
       ],
-      "category": "Benzodiazepínico"
+      "category": "Benzodiazepínico",
+      "rxcui": "2598"
     },
     {
       "genericName": "Alprazolam",
@@ -1065,7 +1175,8 @@
         "Xanax",
         "Frontal"
       ],
-      "category": "Benzodiazepínico"
+      "category": "Benzodiazepínico",
+      "rxcui": "596"
     },
     {
       "genericName": "Lorazepam",
@@ -1073,14 +1184,16 @@
         "Lorax",
         "Lorivan"
       ],
-      "category": "Benzodiazepínico"
+      "category": "Benzodiazepínico",
+      "rxcui": "6470"
     },
     {
       "genericName": "Midazolam",
       "brands": [
         "Dormicum"
       ],
-      "category": "Benzodiazepínico"
+      "category": "Benzodiazepínico",
+      "rxcui": "6960"
     },
     {
       "genericName": "Ibuprofeno",
@@ -1102,7 +1215,8 @@
         "Danilon",
         "Doraplax"
       ],
-      "category": "Anti-inflamatório (AINE)"
+      "category": "Anti-inflamatório (AINE)",
+      "rxcui": "5640"
     },
     {
       "genericName": "Naproxeno",
@@ -1111,7 +1225,8 @@
         "Naprox",
         "Naproxeno Sódico"
       ],
-      "category": "Anti-inflamatório (AINE)"
+      "category": "Anti-inflamatório (AINE)",
+      "rxcui": "7258"
     },
     {
       "genericName": "Diclofenaco",
@@ -1139,7 +1254,8 @@
         "Maxilerg",
         "Neotaflan"
       ],
-      "category": "Anti-inflamatório (AINE)"
+      "category": "Anti-inflamatório (AINE)",
+      "rxcui": "3355"
     },
     {
       "genericName": "Cetoprofeno",
@@ -1153,7 +1269,8 @@
         "Flamador",
         "Artrosil"
       ],
-      "category": "Anti-inflamatório (AINE)"
+      "category": "Anti-inflamatório (AINE)",
+      "rxcui": "6142"
     },
     {
       "genericName": "Meloxicam",
@@ -1161,19 +1278,22 @@
         "Mobic",
         "Movatec"
       ],
-      "category": "Anti-inflamatório (AINE)"
+      "category": "Anti-inflamatório (AINE)",
+      "rxcui": "41493"
     },
     {
       "genericName": "Celecoxibe",
       "brands": [
         "Celecib"
       ],
-      "category": "Anti-inflamatório (AINE)"
+      "category": "Anti-inflamatório (AINE)",
+      "rxcui": "140587"
     },
     {
       "genericName": "Etoricoxibe",
       "brands": [],
-      "category": "Anti-inflamatório (AINE)"
+      "category": "Anti-inflamatório (AINE)",
+      "rxcui": "307296"
     },
     {
       "genericName": "Paracetamol",
@@ -1191,7 +1311,8 @@
         "Ben-U-ron",
         "Panasorbe"
       ],
-      "category": "Analgésico/Antipirético"
+      "category": "Analgésico/Antipirético",
+      "rxcui": "161"
     },
     {
       "genericName": "Dipirona",
@@ -1208,16 +1329,20 @@
         "Dipidor",
         "Lomdor"
       ],
-      "category": "Analgésico/Antipirético"
+      "category": "Analgésico/Antipirético",
+      "rxcui": "3523"
     },
     {
       "genericName": "AAS (Ácido Acetilsalicílico)",
       "brands": [
         "AAS",
+        "Aspirina",
         "Cardioaspirina",
+        "Somalgin Cardio",
         "Somalgin Infantil"
       ],
-      "category": "Antiagregante/Analgésico"
+      "category": "Antiagregante/Analgésico",
+      "rxcui": "1191"
     },
     {
       "genericName": "Tramadol",
@@ -1234,7 +1359,8 @@
         "Dorless",
         "Sinedol"
       ],
-      "category": "Analgésico Opioide"
+      "category": "Analgésico Opioide",
+      "rxcui": "10689"
     },
     {
       "genericName": "Codeína",
@@ -1244,7 +1370,8 @@
         "Codein",
         "Cloridrato de Codeína"
       ],
-      "category": "Analgésico Opioide"
+      "category": "Analgésico Opioide",
+      "rxcui": "2670"
     },
     {
       "genericName": "Morfina",
@@ -1254,7 +1381,8 @@
         "Dimorf",
         "Sulfato de Morfina"
       ],
-      "category": "Analgésico Opioide"
+      "category": "Analgésico Opioide",
+      "rxcui": "7052"
     },
     {
       "genericName": "Oxicodona",
@@ -1262,7 +1390,8 @@
         "OxyContin",
         "Targin"
       ],
-      "category": "Analgésico Opioide"
+      "category": "Analgésico Opioide",
+      "rxcui": "7804"
     },
     {
       "genericName": "Gabapentina",
@@ -1270,14 +1399,16 @@
         "Neurontin",
         "Gabapentin"
       ],
-      "category": "Anticonvulsivante/Neuropático"
+      "category": "Anticonvulsivante/Neuropático",
+      "rxcui": "25480"
     },
     {
       "genericName": "Pregabalina",
       "brands": [
         "Lyrica"
       ],
-      "category": "Anticonvulsivante/Neuropático"
+      "category": "Anticonvulsivante/Neuropático",
+      "rxcui": "187832"
     },
     {
       "genericName": "Varfarina",
@@ -1287,7 +1418,8 @@
         "Varfarina Sódica",
         "Warfarin"
       ],
-      "category": "Anticoagulante"
+      "category": "Anticoagulante",
+      "rxcui": "11289"
     },
     {
       "genericName": "Clopidogrel",
@@ -1295,70 +1427,80 @@
         "Plavix",
         "Iscover"
       ],
-      "category": "Antiagregante Plaquetário"
+      "category": "Antiagregante Plaquetário",
+      "rxcui": "32968"
     },
     {
       "genericName": "Ticagrelor",
       "brands": [
         "Brilinta"
       ],
-      "category": "Antiagregante Plaquetário"
+      "category": "Antiagregante Plaquetário",
+      "rxcui": "1116632"
     },
     {
       "genericName": "Prasugrel",
       "brands": [
         "Efient"
       ],
-      "category": "Antiagregante Plaquetário"
+      "category": "Antiagregante Plaquetário",
+      "rxcui": "613391"
     },
     {
       "genericName": "Rivaroxabana",
       "brands": [
         "Xarelto"
       ],
-      "category": "Anticoagulante"
+      "category": "Anticoagulante",
+      "rxcui": "1114195"
     },
     {
       "genericName": "Apixabana",
       "brands": [
         "Eliquis"
       ],
-      "category": "Anticoagulante"
+      "category": "Anticoagulante",
+      "rxcui": "1364430"
     },
     {
       "genericName": "Dabigatrana",
       "brands": [
         "Pradaxa"
       ],
-      "category": "Anticoagulante"
+      "category": "Anticoagulante",
+      "rxcui": "1546356"
     },
     {
       "genericName": "Edoxabana",
       "brands": [
         "Lixiana"
       ],
-      "category": "Anticoagulante"
+      "category": "Anticoagulante",
+      "rxcui": "1599538"
     },
     {
       "genericName": "Enoxaparina",
       "brands": [
         "Clexane"
       ],
-      "category": "Anticoagulante"
+      "category": "Anticoagulante",
+      "rxcui": "67108"
     },
     {
       "genericName": "Heparina",
       "brands": [
         "Liquemine"
       ],
-      "category": "Anticoagulante"
+      "category": "Anticoagulante",
+      "rxcui": "5224"
     },
     {
       "genericName": "Digoxina",
       "brands": [
         "Lanoxin"
       ],
-      "category": "Cardiovascular"
+      "category": "Cardiovascular",
+      "rxcui": "3407"
     },
     {
       "genericName": "Amiodarona",
@@ -1367,7 +1509,8 @@
         "Cordarone",
         "Cloridrato de Amiodarona"
       ],
-      "category": "Antiarrítmico"
+      "category": "Antiarrítmico",
+      "rxcui": "703"
     },
     {
       "genericName": "Sildenafila",
@@ -1375,7 +1518,8 @@
         "Viagra",
         "Revatio"
       ],
-      "category": "Urológico/Cardiovascular"
+      "category": "Urológico/Cardiovascular",
+      "rxcui": "136411"
     },
     {
       "genericName": "Tadalafila",
@@ -1383,7 +1527,8 @@
         "Cialis",
         "Tadala"
       ],
-      "category": "Urológico"
+      "category": "Urológico",
+      "rxcui": "358263"
     },
     {
       "genericName": "Vardenafila",
@@ -1391,7 +1536,8 @@
         "Levitra",
         "Cloridrato de Vardenafila"
       ],
-      "category": "Urológico"
+      "category": "Urológico",
+      "rxcui": "306674"
     },
     {
       "genericName": "Isossorbida",
@@ -1399,16 +1545,19 @@
         "Isordil",
         "Monocordil"
       ],
-      "category": "Cardiovascular"
+      "category": "Cardiovascular",
+      "rxcui": "6057"
     },
     {
       "genericName": "Mononitrato de Isossorbida",
       "brands": [
         "Monocordil",
         "Sustrate",
-        "Isosorb Mono"
+        "Isosorb Mono",
+        "Mononit"
       ],
-      "category": "Cardiovascular"
+      "category": "Cardiovascular",
+      "rxcui": "28004"
     },
     {
       "genericName": "Nitroglicerina",
@@ -1416,7 +1565,8 @@
         "Nitronal",
         "Nitroderm"
       ],
-      "category": "Cardiovascular"
+      "category": "Cardiovascular",
+      "rxcui": "4917"
     },
     {
       "genericName": "Levotiroxina",
@@ -1430,21 +1580,24 @@
         "Thyrax",
         "Levotiroxina Sódica"
       ],
-      "category": "Hormônio Tireoidiano"
+      "category": "Hormônio Tireoidiano",
+      "rxcui": "10582"
     },
     {
       "genericName": "Propiltiouracil",
       "brands": [
         "Propiltiouracil"
       ],
-      "category": "Antitireoidiano"
+      "category": "Antitireoidiano",
+      "rxcui": "8794"
     },
     {
       "genericName": "Metimazol",
       "brands": [
         "Tapazol"
       ],
-      "category": "Antitireoidiano"
+      "category": "Antitireoidiano",
+      "rxcui": "6835"
     },
     {
       "genericName": "Prednisona",
@@ -1457,7 +1610,8 @@
         "Alergcorten",
         "Flamacorten"
       ],
-      "category": "Corticosteroide"
+      "category": "Corticosteroide",
+      "rxcui": "8640"
     },
     {
       "genericName": "Prednisolona",
@@ -1467,7 +1621,8 @@
         "Prelone",
         "Predsim"
       ],
-      "category": "Corticosteroide"
+      "category": "Corticosteroide",
+      "rxcui": "8638"
     },
     {
       "genericName": "Dexametasona",
@@ -1488,7 +1643,8 @@
         "Uni Dexa",
         "Bexeton"
       ],
-      "category": "Corticosteroide"
+      "category": "Corticosteroide",
+      "rxcui": "3264"
     },
     {
       "genericName": "Betametasona",
@@ -1496,14 +1652,16 @@
         "Celestone",
         "Betnesol"
       ],
-      "category": "Corticosteroide"
+      "category": "Corticosteroide",
+      "rxcui": "1514"
     },
     {
       "genericName": "Hidrocortisona",
       "brands": [
         "Flebocortid"
       ],
-      "category": "Corticosteroide"
+      "category": "Corticosteroide",
+      "rxcui": "5492"
     },
     {
       "genericName": "Metilprednisolona",
@@ -1511,14 +1669,16 @@
         "Medrol",
         "Solu-Medrol"
       ],
-      "category": "Corticosteroide"
+      "category": "Corticosteroide",
+      "rxcui": "6902"
     },
     {
       "genericName": "Carbamazepina",
       "brands": [
         "Tegretol"
       ],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "2002"
     },
     {
       "genericName": "Fenitoína",
@@ -1526,14 +1686,16 @@
         "Epelin",
         "Hidantina"
       ],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "8183"
     },
     {
       "genericName": "Fenobarbital",
       "brands": [
         "Gardenal"
       ],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "8134"
     },
     {
       "genericName": "Ácido Valpróico",
@@ -1541,7 +1703,8 @@
         "Depakene",
         "Valpakine"
       ],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "11118"
     },
     {
       "genericName": "Valproato de Sódio",
@@ -1556,7 +1719,8 @@
         "Lamictal",
         "Lamitor"
       ],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "28439"
     },
     {
       "genericName": "Levetiracetam",
@@ -1564,7 +1728,8 @@
         "Keppra",
         "Levipil"
       ],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "114477"
     },
     {
       "genericName": "Topiramato",
@@ -1572,7 +1737,8 @@
         "Topamax",
         "Topirax"
       ],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "38404"
     },
     {
       "genericName": "Lítio",
@@ -1580,7 +1746,8 @@
         "Carbolim",
         "Carbonato de Lítio"
       ],
-      "category": "Estabilizador do Humor"
+      "category": "Estabilizador do Humor",
+      "rxcui": "6448"
     },
     {
       "genericName": "Quetiapina",
@@ -1589,7 +1756,8 @@
         "Quetros",
         "Fumarato de Quetiapina"
       ],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "51272"
     },
     {
       "genericName": "Risperidona",
@@ -1598,7 +1766,8 @@
         "Risperin",
         "Cloridrato de Risperidona"
       ],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "35636"
     },
     {
       "genericName": "Olanzapina",
@@ -1606,7 +1775,8 @@
         "Zyprexa",
         "Olanzin"
       ],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "61381"
     },
     {
       "genericName": "Haloperidol",
@@ -1615,14 +1785,16 @@
         "Haldol",
         "Cloridrato de Haloperidol"
       ],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "5093"
     },
     {
       "genericName": "Aripiprazol",
       "brands": [
         "Abilify"
       ],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "89013"
     },
     {
       "genericName": "Clozapina",
@@ -1630,7 +1802,8 @@
         "Leponex",
         "Cloridrato de Clozapina"
       ],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "2626"
     },
     {
       "genericName": "Metotrexato",
@@ -1638,7 +1811,8 @@
         "Methofar",
         "Metrotexato"
       ],
-      "category": "Imunossupressor"
+      "category": "Imunossupressor",
+      "rxcui": "6851"
     },
     {
       "genericName": "Ciclosporina",
@@ -1646,14 +1820,16 @@
         "Sandimmun",
         "Neoral"
       ],
-      "category": "Imunossupressor"
+      "category": "Imunossupressor",
+      "rxcui": "3008"
     },
     {
       "genericName": "Tacrolimo",
       "brands": [
         "Advagraf"
       ],
-      "category": "Imunossupressor"
+      "category": "Imunossupressor",
+      "rxcui": "42316"
     },
     {
       "genericName": "Alopurinol",
@@ -1664,7 +1840,8 @@
         "Zurim",
         "Zyloric"
       ],
-      "category": "Antigotoso"
+      "category": "Antigotoso",
+      "rxcui": "519"
     },
     {
       "genericName": "Febuxostate",
@@ -1672,7 +1849,8 @@
         "Adenuric",
         "Feburic"
       ],
-      "category": "Antigotoso"
+      "category": "Antigotoso",
+      "rxcui": "73689"
     },
     {
       "genericName": "Colchicina",
@@ -1680,7 +1858,8 @@
         "Colchimed",
         "Colcitrat"
       ],
-      "category": "Antigotoso"
+      "category": "Antigotoso",
+      "rxcui": "2683"
     },
     {
       "genericName": "Alendronato",
@@ -1688,21 +1867,24 @@
         "Fosamax",
         "Dronal"
       ],
-      "category": "Osteoporose"
+      "category": "Osteoporose",
+      "rxcui": "46041"
     },
     {
       "genericName": "Risedronato",
       "brands": [
         "Risedron"
       ],
-      "category": "Osteoporose"
+      "category": "Osteoporose",
+      "rxcui": "73056"
     },
     {
       "genericName": "Ibandronato",
       "brands": [
         "Bonviva"
       ],
-      "category": "Osteoporose"
+      "category": "Osteoporose",
+      "rxcui": "115264"
     },
     {
       "genericName": "Salbutamol",
@@ -1711,14 +1893,16 @@
         "Aerolin",
         "Aerojet"
       ],
-      "category": "Broncodilatador"
+      "category": "Broncodilatador",
+      "rxcui": "435"
     },
     {
       "genericName": "Fenoterol",
       "brands": [
         "Berotec"
       ],
-      "category": "Broncodilatador"
+      "category": "Broncodilatador",
+      "rxcui": "4333"
     },
     {
       "genericName": "Formoterol",
@@ -1727,14 +1911,16 @@
         "Oxis",
         "Fumarato de Formoterol"
       ],
-      "category": "Broncodilatador"
+      "category": "Broncodilatador",
+      "rxcui": "25255"
     },
     {
       "genericName": "Salmeterol",
       "brands": [
         "Serevent"
       ],
-      "category": "Broncodilatador"
+      "category": "Broncodilatador",
+      "rxcui": "36117"
     },
     {
       "genericName": "Budesonida",
@@ -1742,7 +1928,8 @@
         "Pulmicort",
         "Rhinocort"
       ],
-      "category": "Corticosteroide Inalatório"
+      "category": "Corticosteroide Inalatório",
+      "rxcui": "19831"
     },
     {
       "genericName": "Fluticasona",
@@ -1750,14 +1937,16 @@
         "Flixotide",
         "Flonase"
       ],
-      "category": "Corticosteroide Inalatório"
+      "category": "Corticosteroide Inalatório",
+      "rxcui": "41126"
     },
     {
       "genericName": "Beclometasona",
       "brands": [
         "Clenil"
       ],
-      "category": "Corticosteroide Inalatório"
+      "category": "Corticosteroide Inalatório",
+      "rxcui": "1347"
     },
     {
       "genericName": "Formoterol + Budesonida",
@@ -1778,7 +1967,8 @@
     {
       "genericName": "Brometo de Ipratrópio",
       "brands": [],
-      "category": "Broncodilatador"
+      "category": "Broncodilatador",
+      "rxcui": "7213"
     },
     {
       "genericName": "Tiotrópio",
@@ -1786,7 +1976,8 @@
         "Spiriva",
         "Braltus"
       ],
-      "category": "Broncodilatador"
+      "category": "Broncodilatador",
+      "rxcui": "69120"
     },
     {
       "genericName": "Tamoxifeno",
@@ -1794,7 +1985,8 @@
         "Nolvadex",
         "Tamoxifeno MK"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "10324"
     },
     {
       "genericName": "Letrozol",
@@ -1802,7 +1994,8 @@
         "Femara",
         "Letrozol Accord"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "72965"
     },
     {
       "genericName": "Anastrozol",
@@ -1810,7 +2003,8 @@
         "Arimidex",
         "Anastrozol EMS"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "84857"
     },
     {
       "genericName": "Finasterida",
@@ -1819,14 +2013,16 @@
         "Propecia",
         "Finalop"
       ],
-      "category": "Urológico"
+      "category": "Urológico",
+      "rxcui": "25025"
     },
     {
       "genericName": "Dutasterida",
       "brands": [
         "Avodart"
       ],
-      "category": "Urológico"
+      "category": "Urológico",
+      "rxcui": "228790"
     },
     {
       "genericName": "Tansulosina",
@@ -1835,7 +2031,8 @@
         "Flomax",
         "Tansul"
       ],
-      "category": "Urológico"
+      "category": "Urológico",
+      "rxcui": "77492"
     },
     {
       "genericName": "Donepezila",
@@ -1844,7 +2041,8 @@
         "Cloridrato de Donepezil",
         "Cloridrato de Donepezila"
       ],
-      "category": "Antidemência"
+      "category": "Antidemência",
+      "rxcui": "135447"
     },
     {
       "genericName": "Rivastigmina",
@@ -1852,7 +2050,8 @@
         "Exelon",
         "Prometax"
       ],
-      "category": "Antidemência"
+      "category": "Antidemência",
+      "rxcui": "183379"
     },
     {
       "genericName": "Galantamina",
@@ -1861,7 +2060,8 @@
         "Reminyl",
         "Cloridrato de Galantamina"
       ],
-      "category": "Antidemência"
+      "category": "Antidemência",
+      "rxcui": "4637"
     },
     {
       "genericName": "Memantina",
@@ -1869,7 +2069,8 @@
         "Ebixa",
         "Cloridrato de Memantina"
       ],
-      "category": "Antidemência"
+      "category": "Antidemência",
+      "rxcui": "6719"
     },
     {
       "genericName": "Sumatriptano",
@@ -1877,19 +2078,22 @@
         "Imigran",
         "Sumax"
       ],
-      "category": "Antimigranoso"
+      "category": "Antimigranoso",
+      "rxcui": "37418"
     },
     {
       "genericName": "Rizatriptano",
       "brands": [],
-      "category": "Antimigranoso"
+      "category": "Antimigranoso",
+      "rxcui": "88014"
     },
     {
       "genericName": "Zolmitriptano",
       "brands": [
         "Zomig"
       ],
-      "category": "Antimigranoso"
+      "category": "Antimigranoso",
+      "rxcui": "135775"
     },
     {
       "genericName": "Cetirizina",
@@ -1898,14 +2102,16 @@
         "Reactine",
         "Cetiz"
       ],
-      "category": "Anti-histamínico"
+      "category": "Anti-histamínico",
+      "rxcui": "20610"
     },
     {
       "genericName": "Fexofenadina",
       "brands": [
         "Allegra"
       ],
-      "category": "Anti-histamínico"
+      "category": "Anti-histamínico",
+      "rxcui": "87636"
     },
     {
       "genericName": "Loratadina",
@@ -1914,7 +2120,8 @@
         "Claritin",
         "Loratamed"
       ],
-      "category": "Anti-histamínico"
+      "category": "Anti-histamínico",
+      "rxcui": "28889"
     },
     {
       "genericName": "Dexclorfeniramina",
@@ -1934,7 +2141,8 @@
         "Maleato de Dexclorfeniramina",
         "Softez"
       ],
-      "category": "Anti-histamínico"
+      "category": "Anti-histamínico",
+      "rxcui": "22697"
     },
     {
       "genericName": "Mometasona",
@@ -1942,7 +2150,8 @@
         "Nasonex",
         "Nasomex"
       ],
-      "category": "Corticosteroide Nasal"
+      "category": "Corticosteroide Nasal",
+      "rxcui": "108118"
     },
     {
       "genericName": "Adalimumabe",
@@ -1950,7 +2159,8 @@
         "Humira",
         "Hadlima"
       ],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "327361"
     },
     {
       "genericName": "Etanercepte",
@@ -1958,7 +2168,8 @@
         "Enbrel",
         "Benepali"
       ],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "214555"
     },
     {
       "genericName": "Infliximabe",
@@ -1966,7 +2177,8 @@
         "Remicade",
         "Inflectra"
       ],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "191831"
     },
     {
       "genericName": "Levodopa + Carbidopa",
@@ -1974,35 +2186,40 @@
         "Sinemet",
         "Prolopa"
       ],
-      "category": "Antiparkinsoniano"
+      "category": "Antiparkinsoniano",
+      "rxcui": "103990"
     },
     {
       "genericName": "Efedrina",
       "brands": [
         "Efedrin"
       ],
-      "category": "Simpaticomimético"
+      "category": "Simpaticomimético",
+      "rxcui": "3966"
     },
     {
       "genericName": "Pseudoefedrina",
       "brands": [
         "Sudafed"
       ],
-      "category": "Descongestionante"
+      "category": "Descongestionante",
+      "rxcui": "8896"
     },
     {
       "genericName": "Fenelzina",
       "brands": [
         "Nardil"
       ],
-      "category": "IMAO"
+      "category": "IMAO",
+      "rxcui": "8123"
     },
     {
       "genericName": "Tranilcipromina",
       "brands": [
         "Parnate"
       ],
-      "category": "IMAO"
+      "category": "IMAO",
+      "rxcui": "10734"
     },
     {
       "genericName": "Etinilestradiol",
@@ -2011,7 +2228,8 @@
         "Yasmin",
         "Microvlar"
       ],
-      "category": "Contraceptivo"
+      "category": "Contraceptivo",
+      "rxcui": "4124"
     },
     {
       "genericName": "Contraste Iodado",
@@ -2020,33 +2238,38 @@
         "Ultravist",
         "Visipaque"
       ],
-      "category": "Diagnóstico"
+      "category": "Diagnóstico",
+      "rxcui": "5956"
     },
     {
       "genericName": "Ferro Sulfato",
       "brands": [],
-      "category": "Suplemento"
+      "category": "Suplemento",
+      "rxcui": "24947"
     },
     {
       "genericName": "Ácido Fólico",
       "brands": [
         "Folicil"
       ],
-      "category": "Vitamina"
+      "category": "Vitamina",
+      "rxcui": "4511"
     },
     {
       "genericName": "Vitamina B12",
       "brands": [
         "Rubranova"
       ],
-      "category": "Vitamina"
+      "category": "Vitamina",
+      "rxcui": "11248"
     },
     {
       "genericName": "Vitamina D",
       "brands": [
         "Colecalciferol"
       ],
-      "category": "Vitamina"
+      "category": "Vitamina",
+      "rxcui": "11253"
     },
     {
       "genericName": "Mirtazapina",
@@ -2055,7 +2278,8 @@
         "Mirtazol",
         "Mirtaz"
       ],
-      "category": "Antidepressivo"
+      "category": "Antidepressivo",
+      "rxcui": "15996"
     },
     {
       "genericName": "Bupropiona",
@@ -2065,7 +2289,8 @@
         "Zyban",
         "Bup"
       ],
-      "category": "Antidepressivo"
+      "category": "Antidepressivo",
+      "rxcui": "42347"
     },
     {
       "genericName": "Trazodona",
@@ -2073,7 +2298,8 @@
         "Trazodil",
         "Cloridrato de Trazodona"
       ],
-      "category": "Antidepressivo"
+      "category": "Antidepressivo",
+      "rxcui": "10737"
     },
     {
       "genericName": "Fluvoxamina",
@@ -2081,7 +2307,8 @@
         "Luvox",
         "Fevarin"
       ],
-      "category": "Antidepressivo"
+      "category": "Antidepressivo",
+      "rxcui": "42355"
     },
     {
       "genericName": "Agomelatina",
@@ -2097,33 +2324,38 @@
         "Brintellix",
         "Trintellix"
       ],
-      "category": "Antidepressivo"
+      "category": "Antidepressivo",
+      "rxcui": "1455099"
     },
     {
       "genericName": "Levomilnaciprana",
       "brands": [],
-      "category": "Antidepressivo"
+      "category": "Antidepressivo",
+      "rxcui": "1433212"
     },
     {
       "genericName": "Vilazodona",
       "brands": [
         "Viibryd"
       ],
-      "category": "Antidepressivo"
+      "category": "Antidepressivo",
+      "rxcui": "1086769"
     },
     {
       "genericName": "Reboxetina",
       "brands": [
         "Edronax"
       ],
-      "category": "Antidepressivo"
+      "category": "Antidepressivo",
+      "rxcui": "60842"
     },
     {
       "genericName": "Maprotilina",
       "brands": [
         "Ludiomil"
       ],
-      "category": "Antidepressivo Tricíclico"
+      "category": "Antidepressivo Tricíclico",
+      "rxcui": "6646"
     },
     {
       "genericName": "Doxepina",
@@ -2131,14 +2363,16 @@
         "Sinequan",
         "Deptran"
       ],
-      "category": "Antidepressivo Tricíclico"
+      "category": "Antidepressivo Tricíclico",
+      "rxcui": "3638"
     },
     {
       "genericName": "Trimipramina",
       "brands": [
         "Surmontil"
       ],
-      "category": "Antidepressivo Tricíclico"
+      "category": "Antidepressivo Tricíclico",
+      "rxcui": "10834"
     },
     {
       "genericName": "Ziprasidona",
@@ -2146,7 +2380,8 @@
         "Geodon",
         "Zeldox"
       ],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "115698"
     },
     {
       "genericName": "Paliperidona",
@@ -2154,31 +2389,36 @@
         "Invega",
         "Xeplion"
       ],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "679314"
     },
     {
       "genericName": "Lurasidona",
       "brands": [
         "Latuda"
       ],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "1040028"
     },
     {
       "genericName": "Amisulprida",
       "brands": [
         "Solian"
       ],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "46303"
     },
     {
       "genericName": "Asenapina",
       "brands": [],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "784649"
     },
     {
       "genericName": "Brexpiprazol",
       "brands": [],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "1658314"
     },
     {
       "genericName": "Cariprazina",
@@ -2186,12 +2426,14 @@
         "Reagila",
         "Vraylar"
       ],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "1667655"
     },
     {
       "genericName": "Iloperidona",
       "brands": [],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "73178"
     },
     {
       "genericName": "Clorpromazina",
@@ -2199,7 +2441,8 @@
         "Amplictil",
         "Thorazine"
       ],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "2403"
     },
     {
       "genericName": "Levomepromazina",
@@ -2207,12 +2450,14 @@
         "Neozine",
         "Nozinan"
       ],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "6852"
     },
     {
       "genericName": "Tioridazina",
       "brands": [],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "10502"
     },
     {
       "genericName": "Flufenazina",
@@ -2220,21 +2465,24 @@
         "Prolixin",
         "Modecate"
       ],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "4496"
     },
     {
       "genericName": "Perfenazina",
       "brands": [
         "Trilafon"
       ],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "8076"
     },
     {
       "genericName": "Pimozida",
       "brands": [
         "Orap"
       ],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "8331"
     },
     {
       "genericName": "Sulpirida",
@@ -2242,7 +2490,8 @@
         "Equilid",
         "Dogmatil"
       ],
-      "category": "Antipsicótico"
+      "category": "Antipsicótico",
+      "rxcui": "10239"
     },
     {
       "genericName": "Oxcarbazepina",
@@ -2250,40 +2499,46 @@
         "Trileptal",
         "Oxcarb"
       ],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "32624"
     },
     {
       "genericName": "Lacosamida",
       "brands": [],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "623400"
     },
     {
       "genericName": "Zonisamida",
       "brands": [
         "Zonegran"
       ],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "39998"
     },
     {
       "genericName": "Perampanel",
       "brands": [
         "Fycompa"
       ],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "1356552"
     },
     {
       "genericName": "Eslicarbazepina",
       "brands": [
         "Zebinix"
       ],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "1482502"
     },
     {
       "genericName": "Vigabatrina",
       "brands": [
         "Sabril"
       ],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "14851"
     },
     {
       "genericName": "Primidona",
@@ -2291,14 +2546,16 @@
         "Mysoline",
         "Primidon"
       ],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "8691"
     },
     {
       "genericName": "Etossuximida",
       "brands": [
         "Zarontin"
       ],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "4135"
     },
     {
       "genericName": "Clobazam",
@@ -2306,14 +2563,16 @@
         "Frisium",
         "Urbanyl"
       ],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "21241"
     },
     {
       "genericName": "Nitrazepam",
       "brands": [
         "Mogadon"
       ],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "7440"
     },
     {
       "genericName": "Rufinamida",
@@ -2321,12 +2580,14 @@
         "Inovelon",
         "Banzel"
       ],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "69036"
     },
     {
       "genericName": "Canabidiol",
       "brands": [],
-      "category": "Anticonvulsivante"
+      "category": "Anticonvulsivante",
+      "rxcui": "2045371"
     },
     {
       "genericName": "Metilfenidato",
@@ -2336,7 +2597,8 @@
         "Ritalin",
         "Medikinet"
       ],
-      "category": "TDAH"
+      "category": "TDAH",
+      "rxcui": "6901"
     },
     {
       "genericName": "Lisdexanfetamina",
@@ -2345,14 +2607,16 @@
         "Elvanse",
         "Dimesilato de Lisdexanfetamina"
       ],
-      "category": "TDAH"
+      "category": "TDAH",
+      "rxcui": "700810"
     },
     {
       "genericName": "Atomoxetina",
       "brands": [
         "Strattera"
       ],
-      "category": "TDAH"
+      "category": "TDAH",
+      "rxcui": "38400"
     },
     {
       "genericName": "Guanfacina",
@@ -2360,7 +2624,8 @@
         "Intuniv",
         "Tenex"
       ],
-      "category": "TDAH"
+      "category": "TDAH",
+      "rxcui": "40114"
     },
     {
       "genericName": "Ciclobenzaprina",
@@ -2369,7 +2634,8 @@
         "Flexeril",
         "Cloridrato de Ciclobenzaprina"
       ],
-      "category": "Relaxante Muscular"
+      "category": "Relaxante Muscular",
+      "rxcui": "21949"
     },
     {
       "genericName": "Carisoprodol",
@@ -2377,7 +2643,8 @@
         "Soma",
         "Beserol"
       ],
-      "category": "Relaxante Muscular"
+      "category": "Relaxante Muscular",
+      "rxcui": "2101"
     },
     {
       "genericName": "Baclofeno",
@@ -2385,7 +2652,8 @@
         "Lioresal",
         "Baclon"
       ],
-      "category": "Relaxante Muscular"
+      "category": "Relaxante Muscular",
+      "rxcui": "1292"
     },
     {
       "genericName": "Tizanidina",
@@ -2394,7 +2662,8 @@
         "Ternelin",
         "Cloridrato de Tizanidina"
       ],
-      "category": "Relaxante Muscular"
+      "category": "Relaxante Muscular",
+      "rxcui": "57258"
     },
     {
       "genericName": "Orfenadrina",
@@ -2403,7 +2672,8 @@
         "Norflex",
         "Citrato de Orfenadrina"
       ],
-      "category": "Relaxante Muscular"
+      "category": "Relaxante Muscular",
+      "rxcui": "7715"
     },
     {
       "genericName": "Metocarbamol",
@@ -2411,7 +2681,8 @@
         "Robaxin",
         "Robaxisal"
       ],
-      "category": "Relaxante Muscular"
+      "category": "Relaxante Muscular",
+      "rxcui": "6845"
     },
     {
       "genericName": "Clorzoxazona",
@@ -2419,14 +2690,16 @@
         "Paraflex",
         "Miorel"
       ],
-      "category": "Relaxante Muscular"
+      "category": "Relaxante Muscular",
+      "rxcui": "2410"
     },
     {
       "genericName": "Tolperisona",
       "brands": [
         "Mydocalm"
       ],
-      "category": "Relaxante Muscular"
+      "category": "Relaxante Muscular",
+      "rxcui": "10639"
     },
     {
       "genericName": "Carisoprodol + Diclofenaco + Cafeína",
@@ -2438,7 +2711,8 @@
     {
       "genericName": "Ciclobenzaprina + Diclofenaco",
       "brands": [],
-      "category": "Relaxante Muscular"
+      "category": "Relaxante Muscular",
+      "rxcui": "21949"
     },
     {
       "genericName": "Pramipexol",
@@ -2449,7 +2723,8 @@
         "Sifrol",
         "Pramipexol EMS"
       ],
-      "category": "Antiparkinsoniano"
+      "category": "Antiparkinsoniano",
+      "rxcui": "746741"
     },
     {
       "genericName": "Ropinirol",
@@ -2458,28 +2733,32 @@
         "Adartrel",
         "Cloridrato de Ropinirol"
       ],
-      "category": "Antiparkinsoniano"
+      "category": "Antiparkinsoniano",
+      "rxcui": "72302"
     },
     {
       "genericName": "Rasagilina",
       "brands": [
         "Azilect"
       ],
-      "category": "Antiparkinsoniano"
+      "category": "Antiparkinsoniano",
+      "rxcui": "134748"
     },
     {
       "genericName": "Selegilina",
       "brands": [
         "Eldepryl"
       ],
-      "category": "Antiparkinsoniano"
+      "category": "Antiparkinsoniano",
+      "rxcui": "9639"
     },
     {
       "genericName": "Entacapona",
       "brands": [
         "Comtan"
       ],
-      "category": "Antiparkinsoniano"
+      "category": "Antiparkinsoniano",
+      "rxcui": "60307"
     },
     {
       "genericName": "Levodopa + Carbidopa + Entacapona",
@@ -2495,28 +2774,32 @@
         "Mantidan",
         "Symmetrel"
       ],
-      "category": "Antiparkinsoniano"
+      "category": "Antiparkinsoniano",
+      "rxcui": "620"
     },
     {
       "genericName": "Biperideno",
       "brands": [
         "Akineton"
       ],
-      "category": "Antiparkinsoniano"
+      "category": "Antiparkinsoniano",
+      "rxcui": "1589"
     },
     {
       "genericName": "Prociclidina",
       "brands": [
         "Kemadrin"
       ],
-      "category": "Antiparkinsoniano"
+      "category": "Antiparkinsoniano",
+      "rxcui": "8718"
     },
     {
       "genericName": "Rotigotina",
       "brands": [
         "Neupro"
       ],
-      "category": "Antiparkinsoniano"
+      "category": "Antiparkinsoniano",
+      "rxcui": "616739"
     },
     {
       "genericName": "Indacaterol",
@@ -2524,26 +2807,30 @@
         "Onbrize Breezhaler",
         "Arcapta"
       ],
-      "category": "Broncodilatador"
+      "category": "Broncodilatador",
+      "rxcui": "1114326"
     },
     {
       "genericName": "Olodaterol",
       "brands": [
         "Striverdi Respimat"
       ],
-      "category": "Broncodilatador"
+      "category": "Broncodilatador",
+      "rxcui": "1546059"
     },
     {
       "genericName": "Umeclidínio",
       "brands": [],
-      "category": "Broncodilatador"
+      "category": "Broncodilatador",
+      "rxcui": "1487514"
     },
     {
       "genericName": "Aclidínio",
       "brands": [
         "Bretaris Genuair"
       ],
-      "category": "Broncodilatador"
+      "category": "Broncodilatador",
+      "rxcui": "1303098"
     },
     {
       "genericName": "Glicopirrônio",
@@ -2551,14 +2838,16 @@
         "Seebri Breezhaler",
         "Enerzair"
       ],
-      "category": "Broncodilatador"
+      "category": "Broncodilatador",
+      "rxcui": "1546438"
     },
     {
       "genericName": "Terbutalina",
       "brands": [
         "Bricanyl"
       ],
-      "category": "Broncodilatador"
+      "category": "Broncodilatador",
+      "rxcui": "10368"
     },
     {
       "genericName": "Indacaterol + Glicopirrônio",
@@ -2566,7 +2855,8 @@
         "Ultibro Breezhaler",
         "Xoterna"
       ],
-      "category": "Broncodilatador"
+      "category": "Broncodilatador",
+      "rxcui": "1114326"
     },
     {
       "genericName": "Umeclidínio + Vilanterol",
@@ -2588,14 +2878,16 @@
       "brands": [
         "Bevespi Aerosphere"
       ],
-      "category": "Broncodilatador"
+      "category": "Broncodilatador",
+      "rxcui": "25255"
     },
     {
       "genericName": "Ciclesonida",
       "brands": [
         "Alvesco"
       ],
-      "category": "Corticosteroide Inalatório"
+      "category": "Corticosteroide Inalatório",
+      "rxcui": "274964"
     },
     {
       "genericName": "Mometasona Inalatória",
@@ -2603,7 +2895,8 @@
         "Asmanex",
         "Dulera"
       ],
-      "category": "Corticosteroide Inalatório"
+      "category": "Corticosteroide Inalatório",
+      "rxcui": "108118"
     },
     {
       "genericName": "Fluticasona + Vilanterol",
@@ -2640,42 +2933,48 @@
       "brands": [
         "Montelair"
       ],
-      "category": "Anti-leucotrieno"
+      "category": "Anti-leucotrieno",
+      "rxcui": "88249"
     },
     {
       "genericName": "Teofilina",
       "brands": [
         "Aminofilina"
       ],
-      "category": "Broncodilatador"
+      "category": "Broncodilatador",
+      "rxcui": "10438"
     },
     {
       "genericName": "Omalizumabe",
       "brands": [
         "Xolair"
       ],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "302379"
     },
     {
       "genericName": "Dupilumabe",
       "brands": [
         "Dupixent"
       ],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "1876376"
     },
     {
       "genericName": "Mepolizumabe",
       "brands": [
         "Nucala"
       ],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "1720597"
     },
     {
       "genericName": "Benralizumabe",
       "brands": [
         "Fasenra"
       ],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "1989100"
     },
     {
       "genericName": "Desloratadina",
@@ -2684,14 +2983,16 @@
         "Aerius",
         "Desloratamed"
       ],
-      "category": "Anti-histamínico"
+      "category": "Anti-histamínico",
+      "rxcui": "275635"
     },
     {
       "genericName": "Levocetirizina",
       "brands": [
         "Zyxem"
       ],
-      "category": "Anti-histamínico"
+      "category": "Anti-histamínico",
+      "rxcui": "356887"
     },
     {
       "genericName": "Bilastina",
@@ -2713,47 +3014,54 @@
         "Ebastel",
         "Kestine"
       ],
-      "category": "Anti-histamínico"
+      "category": "Anti-histamínico",
+      "rxcui": "23796"
     },
     {
       "genericName": "Hidroxizina",
       "brands": [
         "Hixizine"
       ],
-      "category": "Anti-histamínico"
+      "category": "Anti-histamínico",
+      "rxcui": "5553"
     },
     {
       "genericName": "Prometazina",
       "brands": [
         "Fenergan"
       ],
-      "category": "Anti-histamínico"
+      "category": "Anti-histamínico",
+      "rxcui": "8745"
     },
     {
       "genericName": "Difenidramina",
       "brands": [
         "Benadryl"
       ],
-      "category": "Anti-histamínico"
+      "category": "Anti-histamínico",
+      "rxcui": "3498"
     },
     {
       "genericName": "Clemastina",
       "brands": [
         "Tavist"
       ],
-      "category": "Anti-histamínico"
+      "category": "Anti-histamínico",
+      "rxcui": "2578"
     },
     {
       "genericName": "Mequitazina",
       "brands": [
         "Primalan"
       ],
-      "category": "Anti-histamínico"
+      "category": "Anti-histamínico",
+      "rxcui": "29528"
     },
     {
       "genericName": "N-Acetilcisteína",
       "brands": [],
-      "category": "Mucolítico"
+      "category": "Mucolítico",
+      "rxcui": "197"
     },
     {
       "genericName": "Ambroxol",
@@ -2763,7 +3071,8 @@
         "Mucovit",
         "Ambrol"
       ],
-      "category": "Mucolítico"
+      "category": "Mucolítico",
+      "rxcui": "625"
     },
     {
       "genericName": "Bromexina",
@@ -2772,7 +3081,8 @@
         "Cloridrato de Bromexina",
         "Bisolbrume"
       ],
-      "category": "Mucolítico"
+      "category": "Mucolítico",
+      "rxcui": "1753"
     },
     {
       "genericName": "Erdosteína",
@@ -2780,7 +3090,8 @@
         "Iretus",
         "Erdomed"
       ],
-      "category": "Mucolítico"
+      "category": "Mucolítico",
+      "rxcui": "24305"
     },
     {
       "genericName": "Carbocisteína",
@@ -2788,19 +3099,22 @@
         "Mucofluid",
         "Rhinathiol"
       ],
-      "category": "Mucolítico"
+      "category": "Mucolítico",
+      "rxcui": "2023"
     },
     {
       "genericName": "Dextran",
       "brands": [],
-      "category": "Mucolítico"
+      "category": "Mucolítico",
+      "rxcui": "42635"
     },
     {
       "genericName": "Dextrometorfano",
       "brands": [
         "Robitussin"
       ],
-      "category": "Antitussígeno"
+      "category": "Antitussígeno",
+      "rxcui": "3289"
     },
     {
       "genericName": "Levodropropizina",
@@ -2808,14 +3122,16 @@
         "Levopront",
         "Antuss"
       ],
-      "category": "Antitussígeno"
+      "category": "Antitussígeno",
+      "rxcui": "52014"
     },
     {
       "genericName": "Benzonatato",
       "brands": [
         "Tessalon"
       ],
-      "category": "Antitussígeno"
+      "category": "Antitussígeno",
+      "rxcui": "18993"
     },
     {
       "genericName": "Ondansetrona",
@@ -2825,7 +3141,8 @@
         "Cloridrato de Ondansetrona",
         "Odansetron"
       ],
-      "category": "Antiemético"
+      "category": "Antiemético",
+      "rxcui": "26225"
     },
     {
       "genericName": "Granisetrona",
@@ -2834,14 +3151,16 @@
         "Granisetron",
         "Cloridrato de Granisetrona"
       ],
-      "category": "Antiemético"
+      "category": "Antiemético",
+      "rxcui": "26237"
     },
     {
       "genericName": "Palonosetrona",
       "brands": [
         "Aloxi"
       ],
-      "category": "Antiemético"
+      "category": "Antiemético",
+      "rxcui": "70561"
     },
     {
       "genericName": "Metoclopramida",
@@ -2851,7 +3170,8 @@
         "Reglan",
         "Pimperan"
       ],
-      "category": "Antiemético/Procinético"
+      "category": "Antiemético/Procinético",
+      "rxcui": "6915"
     },
     {
       "genericName": "Domperidona",
@@ -2865,7 +3185,8 @@
         "Peridal",
         "Peridona"
       ],
-      "category": "Antiemético/Procinético"
+      "category": "Antiemético/Procinético",
+      "rxcui": "3626"
     },
     {
       "genericName": "Bromoprida",
@@ -2885,7 +3206,8 @@
         "Cloridrato de Bromoprida",
         "Digesol"
       ],
-      "category": "Antiemético/Procinético"
+      "category": "Antiemético/Procinético",
+      "rxcui": "19768"
     },
     {
       "genericName": "Dimenidrinato",
@@ -2894,7 +3216,8 @@
         "Dramin B6",
         "Cloridrato de Dimenidrinato"
       ],
-      "category": "Antiemético"
+      "category": "Antiemético",
+      "rxcui": "3444"
     },
     {
       "genericName": "Escopolamina",
@@ -2909,14 +3232,16 @@
         "Uni Hioscin",
         "Butilbrometo de escopolamina"
       ],
-      "category": "Antiemético"
+      "category": "Antiemético",
+      "rxcui": "9601"
     },
     {
       "genericName": "Aprepitanto",
       "brands": [
         "Emend"
       ],
-      "category": "Antiemético"
+      "category": "Antiemético",
+      "rxcui": "358255"
     },
     {
       "genericName": "Netupitanto + Palonosetrona",
@@ -2930,7 +3255,8 @@
       "brands": [
         "Marinol"
       ],
-      "category": "Antiemético"
+      "category": "Antiemético",
+      "rxcui": "10402"
     },
     {
       "genericName": "Butilescopolamina",
@@ -2938,35 +3264,40 @@
         "Buscopan",
         "Buscapan"
       ],
-      "category": "Antiespasmódico"
+      "category": "Antiespasmódico",
+      "rxcui": "1085787"
     },
     {
       "genericName": "Mebeverina",
       "brands": [
         "Duspatalin"
       ],
-      "category": "Antiespasmódico"
+      "category": "Antiespasmódico",
+      "rxcui": "29410"
     },
     {
       "genericName": "Pinavério",
       "brands": [
         "Dicetel"
       ],
-      "category": "Antiespasmódico"
+      "category": "Antiespasmódico",
+      "rxcui": "33724"
     },
     {
       "genericName": "Diciclomina",
       "brands": [
         "Bentyl"
       ],
-      "category": "Antiespasmódico"
+      "category": "Antiespasmódico",
+      "rxcui": "3361"
     },
     {
       "genericName": "Trimebutina",
       "brands": [
         "Debridat"
       ],
-      "category": "Antiespasmódico"
+      "category": "Antiespasmódico",
+      "rxcui": "10819"
     },
     {
       "genericName": "Dipirona + Butilescopolamina",
@@ -2974,7 +3305,8 @@
         "Buscopan Composto",
         "Espasmolar Plus"
       ],
-      "category": "Antiespasmódico"
+      "category": "Antiespasmódico",
+      "rxcui": "1085787"
     },
     {
       "genericName": "Mesalazina",
@@ -2982,7 +3314,8 @@
         "Pentasa",
         "Mesacol"
       ],
-      "category": "Anti-inflamatório Intestinal"
+      "category": "Anti-inflamatório Intestinal",
+      "rxcui": "52582"
     },
     {
       "genericName": "Sulfassalazina",
@@ -2990,7 +3323,8 @@
         "Salazopyrin",
         "Azulfidine"
       ],
-      "category": "Anti-inflamatório Intestinal"
+      "category": "Anti-inflamatório Intestinal",
+      "rxcui": "9524"
     },
     {
       "genericName": "Budesonida Oral",
@@ -2998,7 +3332,8 @@
         "Entocort",
         "Budesonida Oral"
       ],
-      "category": "Anti-inflamatório Intestinal"
+      "category": "Anti-inflamatório Intestinal",
+      "rxcui": "19831"
     },
     {
       "genericName": "Infliximabe (Crohn)",
@@ -3006,19 +3341,22 @@
         "Remicade",
         "Inflectra"
       ],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "191831"
     },
     {
       "genericName": "Vedolizumabe",
       "brands": [
         "Entyvio"
       ],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "1538097"
     },
     {
       "genericName": "Ustecinumabe",
       "brands": [],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "847083"
     },
     {
       "genericName": "Lactulose",
@@ -3026,7 +3364,8 @@
         "Constilac",
         "Duphalac"
       ],
-      "category": "Laxativo"
+      "category": "Laxativo",
+      "rxcui": "6218"
     },
     {
       "genericName": "Polietilenoglicol",
@@ -3034,14 +3373,16 @@
         "Movicol",
         "Muvinlax"
       ],
-      "category": "Laxativo"
+      "category": "Laxativo",
+      "rxcui": "8516"
     },
     {
       "genericName": "Bisacodil",
       "brands": [
         "Bisacodil"
       ],
-      "category": "Laxativo"
+      "category": "Laxativo",
+      "rxcui": "1596"
     },
     {
       "genericName": "Picossulfato de Sódio",
@@ -3054,12 +3395,14 @@
     {
       "genericName": "Sene",
       "brands": [],
-      "category": "Laxativo"
+      "category": "Laxativo",
+      "rxcui": "36387"
     },
     {
       "genericName": "Plantago Ovata",
       "brands": [],
-      "category": "Laxativo"
+      "category": "Laxativo",
+      "rxcui": "1309942"
     },
     {
       "genericName": "Linaclotida",
@@ -3067,26 +3410,30 @@
         "Linzess",
         "Constella"
       ],
-      "category": "Laxativo/Pró-secretório"
+      "category": "Laxativo/Pró-secretório",
+      "rxcui": "1307404"
     },
     {
       "genericName": "Lubiprostona",
       "brands": [
         "Amitiza"
       ],
-      "category": "Laxativo/Pró-secretório"
+      "category": "Laxativo/Pró-secretório",
+      "rxcui": "623033"
     },
     {
       "genericName": "Loperamida",
       "brands": [
         "Imosec"
       ],
-      "category": "Antidiarreico"
+      "category": "Antidiarreico",
+      "rxcui": "6468"
     },
     {
       "genericName": "Raceadotril",
       "brands": [],
-      "category": "Antidiarreico"
+      "category": "Antidiarreico",
+      "rxcui": "16738"
     },
     {
       "genericName": "Rifaximina",
@@ -3094,7 +3441,8 @@
         "Xifaxan",
         "Rifacol"
       ],
-      "category": "Antibiótico Intestinal"
+      "category": "Antibiótico Intestinal",
+      "rxcui": "35619"
     },
     {
       "genericName": "Famotidina",
@@ -3103,14 +3451,16 @@
         "Pepcid",
         "Famoxal"
       ],
-      "category": "Gastroprotetor"
+      "category": "Gastroprotetor",
+      "rxcui": "4278"
     },
     {
       "genericName": "Cimetidina",
       "brands": [
         "Tagamet"
       ],
-      "category": "Gastroprotetor"
+      "category": "Gastroprotetor",
+      "rxcui": "2541"
     },
     {
       "genericName": "Sucralfato",
@@ -3118,19 +3468,22 @@
         "Sulcrafato",
         "Carafate"
       ],
-      "category": "Gastroprotetor"
+      "category": "Gastroprotetor",
+      "rxcui": "10156"
     },
     {
       "genericName": "Vonoprazana",
       "brands": [],
-      "category": "Gastroprotetor"
+      "category": "Gastroprotetor",
+      "rxcui": "2604577"
     },
     {
       "genericName": "Misoprostol",
       "brands": [
         "Cytotec"
       ],
-      "category": "Gastroprotetor"
+      "category": "Gastroprotetor",
+      "rxcui": "42331"
     },
     {
       "genericName": "Ácido Ursodesoxicólico",
@@ -3139,14 +3492,16 @@
         "Urso",
         "Ursodiol"
       ],
-      "category": "Hepatoprotetor"
+      "category": "Hepatoprotetor",
+      "rxcui": "11065"
     },
     {
       "genericName": "Silimarina",
       "brands": [
         "Siliver"
       ],
-      "category": "Hepatoprotetor"
+      "category": "Hepatoprotetor",
+      "rxcui": "9794"
     },
     {
       "genericName": "Minociclina",
@@ -3155,7 +3510,8 @@
         "Minomycin",
         "Minocin"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "6980"
     },
     {
       "genericName": "Sulfametoxazol + Trimetoprima",
@@ -3171,21 +3527,24 @@
         "Macrodantina",
         "Macrobid"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "7454"
     },
     {
       "genericName": "Fosfomicina",
       "brands": [
         "Traturil"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "4550"
     },
     {
       "genericName": "Vancomicina",
       "brands": [
         "Vancocin"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "11124"
     },
     {
       "genericName": "Clindamicina",
@@ -3193,7 +3552,8 @@
         "Dalacin C",
         "Clindacin"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "2582"
     },
     {
       "genericName": "Linezolida",
@@ -3201,7 +3561,8 @@
         "Zyvox",
         "Linezolida EMS"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "190376"
     },
     {
       "genericName": "Cefepima",
@@ -3209,14 +3570,16 @@
         "Maxcef",
         "Cefepima EMS"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "20481"
     },
     {
       "genericName": "Ceftazidima",
       "brands": [
         "Ceftazidima EMS"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "2191"
     },
     {
       "genericName": "Cefixima",
@@ -3224,7 +3587,8 @@
         "Cefspan",
         "Cefixima"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "25033"
     },
     {
       "genericName": "Cefadroxil",
@@ -3232,14 +3596,16 @@
         "Droxil",
         "Cefadroxil EMS"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "2177"
     },
     {
       "genericName": "Ceftarolina",
       "brands": [
         "Zinforo"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "1040005"
     },
     {
       "genericName": "Meropeném",
@@ -3247,7 +3613,8 @@
         "Meronem",
         "Meropenem EMS"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "29561"
     },
     {
       "genericName": "Imipeném + Cilastatina",
@@ -3261,14 +3628,16 @@
       "brands": [
         "Invanz"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "325642"
     },
     {
       "genericName": "Rifampicina",
       "brands": [
         "Rifocina"
       ],
-      "category": "Antibiótico/Antituberculoso"
+      "category": "Antibiótico/Antituberculoso",
+      "rxcui": "9384"
     },
     {
       "genericName": "Isoniazida",
@@ -3276,7 +3645,8 @@
         "INH",
         "Isoniazida EMS"
       ],
-      "category": "Antituberculoso"
+      "category": "Antituberculoso",
+      "rxcui": "6038"
     },
     {
       "genericName": "Etambutol",
@@ -3284,7 +3654,8 @@
         "Myambutol",
         "Etambutol EMS"
       ],
-      "category": "Antituberculoso"
+      "category": "Antituberculoso",
+      "rxcui": "4110"
     },
     {
       "genericName": "Pirazinamida",
@@ -3292,7 +3663,8 @@
         "PZA",
         "Pirazinamida EMS"
       ],
-      "category": "Antituberculoso"
+      "category": "Antituberculoso",
+      "rxcui": "8987"
     },
     {
       "genericName": "Rifampicina + Isoniazida + Pirazinamida + Etambutol",
@@ -3307,7 +3679,8 @@
       "brands": [
         "Dapsona EMS"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "3108"
     },
     {
       "genericName": "Cloranfenicol",
@@ -3315,33 +3688,38 @@
         "Quemicetina",
         "Cloranfenicol"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "2348"
     },
     {
       "genericName": "Teicoplanina",
       "brands": [
         "Targocid"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "57021"
     },
     {
       "genericName": "Daptomicina",
       "brands": [
         "Cubicin"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "22299"
     },
     {
       "genericName": "Tigecilina",
       "brands": [],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "384455"
     },
     {
       "genericName": "Colistina",
       "brands": [
         "Colistina EMS"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "2709"
     },
     {
       "genericName": "Terbinafina",
@@ -3351,7 +3729,8 @@
         "Lorentil",
         "Cloridrato de Terbinafina"
       ],
-      "category": "Antifúngico"
+      "category": "Antifúngico",
+      "rxcui": "37801"
     },
     {
       "genericName": "Anfotericina B",
@@ -3361,7 +3740,8 @@
     {
       "genericName": "Griseofulvina",
       "brands": [],
-      "category": "Antifúngico"
+      "category": "Antifúngico",
+      "rxcui": "5021"
     },
     {
       "genericName": "Cetoconazol",
@@ -3374,17 +3754,20 @@
         "Lozan",
         "Tedol"
       ],
-      "category": "Antifúngico"
+      "category": "Antifúngico",
+      "rxcui": "6135"
     },
     {
       "genericName": "Caspofungina",
       "brands": [],
-      "category": "Antifúngico"
+      "category": "Antifúngico",
+      "rxcui": "140108"
     },
     {
       "genericName": "Micafungina",
       "brands": [],
-      "category": "Antifúngico"
+      "category": "Antifúngico",
+      "rxcui": "325887"
     },
     {
       "genericName": "Anidulafungina",
@@ -3392,22 +3775,26 @@
         "Ecalta",
         "Eraxis"
       ],
-      "category": "Antifúngico"
+      "category": "Antifúngico",
+      "rxcui": "341018"
     },
     {
       "genericName": "Posaconazol",
       "brands": [],
-      "category": "Antifúngico"
+      "category": "Antifúngico",
+      "rxcui": "282446"
     },
     {
       "genericName": "Isavuconazol",
       "brands": [],
-      "category": "Antifúngico"
+      "category": "Antifúngico",
+      "rxcui": "1720882"
     },
     {
       "genericName": "Nistatina",
       "brands": [],
-      "category": "Antifúngico"
+      "category": "Antifúngico",
+      "rxcui": "7597"
     },
     {
       "genericName": "Aciclovir",
@@ -3422,7 +3809,8 @@
         "Zov",
         "Aciclovir Sódico"
       ],
-      "category": "Antiviral"
+      "category": "Antiviral",
+      "rxcui": "281"
     },
     {
       "genericName": "Valaciclovir",
@@ -3430,14 +3818,16 @@
         "Valaciclovir EMS",
         "Cloridrato de Valaciclovir"
       ],
-      "category": "Antiviral"
+      "category": "Antiviral",
+      "rxcui": "73645"
     },
     {
       "genericName": "Fanciclovir",
       "brands": [
         "Famvir"
       ],
-      "category": "Antiviral"
+      "category": "Antiviral",
+      "rxcui": "68099"
     },
     {
       "genericName": "Ganciclovir",
@@ -3445,21 +3835,24 @@
         "Cymevene",
         "Cytovene"
       ],
-      "category": "Antiviral"
+      "category": "Antiviral",
+      "rxcui": "4678"
     },
     {
       "genericName": "Oseltamivir",
       "brands": [
         "Tamiflu"
       ],
-      "category": "Antiviral"
+      "category": "Antiviral",
+      "rxcui": "260101"
     },
     {
       "genericName": "Zanamivir",
       "brands": [
         "Relenza"
       ],
-      "category": "Antiviral"
+      "category": "Antiviral",
+      "rxcui": "69722"
     },
     {
       "genericName": "Sofosbuvir",
@@ -3467,26 +3860,30 @@
         "Sovaldi",
         "Epclusa"
       ],
-      "category": "Antiviral (Hepatite C)"
+      "category": "Antiviral (Hepatite C)",
+      "rxcui": "1484911"
     },
     {
       "genericName": "Sofosbuvir + Velpatasvir",
       "brands": [],
-      "category": "Antiviral (Hepatite C)"
+      "category": "Antiviral (Hepatite C)",
+      "rxcui": "1799211"
     },
     {
       "genericName": "Glecaprevir + Pibrentasvir",
       "brands": [
         "Mavyret"
       ],
-      "category": "Antiviral (Hepatite C)"
+      "category": "Antiviral (Hepatite C)",
+      "rxcui": "1940702"
     },
     {
       "genericName": "Ledipasvir + Sofosbuvir",
       "brands": [
         "Harvoni"
       ],
-      "category": "Antiviral (Hepatite C)"
+      "category": "Antiviral (Hepatite C)",
+      "rxcui": "1591942"
     },
     {
       "genericName": "Tenofovir",
@@ -3494,14 +3891,16 @@
         "Viread",
         "Tenofovir EMS"
       ],
-      "category": "Antiviral (Hepatite B / HIV)"
+      "category": "Antiviral (Hepatite B / HIV)",
+      "rxcui": "117466"
     },
     {
       "genericName": "Entecavir",
       "brands": [
         "Baraclude"
       ],
-      "category": "Antiviral (Hepatite B)"
+      "category": "Antiviral (Hepatite B)",
+      "rxcui": "306266"
     },
     {
       "genericName": "Tenofovir + Emtricitabina",
@@ -3531,56 +3930,64 @@
       "brands": [
         "Tivicay"
       ],
-      "category": "Antirretroviral"
+      "category": "Antirretroviral",
+      "rxcui": "1433868"
     },
     {
       "genericName": "Bictegravir + Emtricitabina + TAF",
       "brands": [
         "Biktarvy"
       ],
-      "category": "Antirretroviral"
+      "category": "Antirretroviral",
+      "rxcui": "1999660"
     },
     {
       "genericName": "Raltegravir",
       "brands": [
         "Isentress"
       ],
-      "category": "Antirretroviral"
+      "category": "Antirretroviral",
+      "rxcui": "719872"
     },
     {
       "genericName": "Lopinavir + Ritonavir",
       "brands": [
         "Kaletra"
       ],
-      "category": "Antirretroviral"
+      "category": "Antirretroviral",
+      "rxcui": "284640"
     },
     {
       "genericName": "Darunavir",
       "brands": [
         "Prezista"
       ],
-      "category": "Antirretroviral"
+      "category": "Antirretroviral",
+      "rxcui": "460132"
     },
     {
       "genericName": "Ritonavir",
       "brands": [
         "Norvir"
       ],
-      "category": "Antirretroviral"
+      "category": "Antirretroviral",
+      "rxcui": "85762"
     },
     {
       "genericName": "Efavirenz",
       "brands": [
         "Sustiva"
       ],
-      "category": "Antirretroviral"
+      "category": "Antirretroviral",
+      "rxcui": "195085"
     },
     {
       "genericName": "Nevirapina",
       "brands": [
         "Viramune"
       ],
-      "category": "Antirretroviral"
+      "category": "Antirretroviral",
+      "rxcui": "53654"
     },
     {
       "genericName": "Albendazol",
@@ -3595,7 +4002,8 @@
         "Zolben",
         "Monozol"
       ],
-      "category": "Antiparasitário"
+      "category": "Antiparasitário",
+      "rxcui": "430"
     },
     {
       "genericName": "Mebendazol",
@@ -3603,7 +4011,8 @@
         "Pantelmin",
         "Mebendazol EMS"
       ],
-      "category": "Antiparasitário"
+      "category": "Antiparasitário",
+      "rxcui": "6672"
     },
     {
       "genericName": "Praziquantel",
@@ -3611,7 +4020,8 @@
         "Biltricide",
         "Cestox"
       ],
-      "category": "Antiparasitário"
+      "category": "Antiparasitário",
+      "rxcui": "8628"
     },
     {
       "genericName": "Nitazoxanida",
@@ -3621,7 +4031,8 @@
         "Trinida",
         "Zoxany"
       ],
-      "category": "Antiparasitário"
+      "category": "Antiparasitário",
+      "rxcui": "31819"
     },
     {
       "genericName": "Metronidazol (antiparasitário)",
@@ -3630,7 +4041,8 @@
         "Flagyl",
         "Metronix"
       ],
-      "category": "Antiparasitário"
+      "category": "Antiparasitário",
+      "rxcui": "6922"
     },
     {
       "genericName": "Cloroquina",
@@ -3639,7 +4051,8 @@
         "Difosfato de Cloroquina",
         "Reuquinol"
       ],
-      "category": "Antiparasitário/Antimalárico"
+      "category": "Antiparasitário/Antimalárico",
+      "rxcui": "2393"
     },
     {
       "genericName": "Hidroxicloroquina",
@@ -3648,14 +4061,16 @@
         "Plaquinol",
         "Quinerva"
       ],
-      "category": "Antiparasitário/Imunorregulador"
+      "category": "Antiparasitário/Imunorregulador",
+      "rxcui": "5521"
     },
     {
       "genericName": "Primaquina",
       "brands": [
         "Primaquina EMS"
       ],
-      "category": "Antimalárico"
+      "category": "Antimalárico",
+      "rxcui": "8687"
     },
     {
       "genericName": "Artemeter + Lumefantrina",
@@ -3669,7 +4084,8 @@
       "brands": [
         "Daraprim"
       ],
-      "category": "Antiprotozoário"
+      "category": "Antiprotozoário",
+      "rxcui": "9010"
     },
     {
       "genericName": "Latanoprost",
@@ -3677,7 +4093,8 @@
         "Xalatan",
         "Latanoprost EMS"
       ],
-      "category": "Oftalmológico (glaucoma)"
+      "category": "Oftalmológico (glaucoma)",
+      "rxcui": "43611"
     },
     {
       "genericName": "Bimatoprost",
@@ -3685,14 +4102,16 @@
         "Lumigan",
         "Bimatoprost EMS"
       ],
-      "category": "Oftalmológico (glaucoma)"
+      "category": "Oftalmológico (glaucoma)",
+      "rxcui": "283810"
     },
     {
       "genericName": "Travoprost",
       "brands": [
         "Travatan"
       ],
-      "category": "Oftalmológico (glaucoma)"
+      "category": "Oftalmológico (glaucoma)",
+      "rxcui": "283809"
     },
     {
       "genericName": "Tafluprost",
@@ -3700,7 +4119,8 @@
         "Saflutan",
         "Taflotan"
       ],
-      "category": "Oftalmológico (glaucoma)"
+      "category": "Oftalmológico (glaucoma)",
+      "rxcui": "1244607"
     },
     {
       "genericName": "Timolol Ocular",
@@ -3708,7 +4128,8 @@
         "Maleato de Timolol",
         "Timolol EMS"
       ],
-      "category": "Oftalmológico (glaucoma)"
+      "category": "Oftalmológico (glaucoma)",
+      "rxcui": "10600"
     },
     {
       "genericName": "Brimonidina",
@@ -3716,7 +4137,8 @@
         "Alphagan",
         "Brimonidina EMS"
       ],
-      "category": "Oftalmológico (glaucoma)"
+      "category": "Oftalmológico (glaucoma)",
+      "rxcui": "134615"
     },
     {
       "genericName": "Dorzolamida",
@@ -3724,7 +4146,8 @@
         "Trusopt",
         "Dorzolamida EMS"
       ],
-      "category": "Oftalmológico (glaucoma)"
+      "category": "Oftalmológico (glaucoma)",
+      "rxcui": "60207"
     },
     {
       "genericName": "Brinzolamida",
@@ -3732,7 +4155,8 @@
         "Azopt",
         "Brinzolamida EMS"
       ],
-      "category": "Oftalmológico (glaucoma)"
+      "category": "Oftalmológico (glaucoma)",
+      "rxcui": "194881"
     },
     {
       "genericName": "Dorzolamida + Timolol",
@@ -3747,7 +4171,8 @@
       "brands": [
         "Ganfort"
       ],
-      "category": "Oftalmológico (glaucoma)"
+      "category": "Oftalmológico (glaucoma)",
+      "rxcui": "283810"
     },
     {
       "genericName": "Latanoprost + Timolol",
@@ -3755,12 +4180,14 @@
         "Xalacom",
         "Latanoprost+Timolol"
       ],
-      "category": "Oftalmológico (glaucoma)"
+      "category": "Oftalmológico (glaucoma)",
+      "rxcui": "388053"
     },
     {
       "genericName": "Nepafenaco",
       "brands": [],
-      "category": "Oftalmológico (anti-inflamatório)"
+      "category": "Oftalmológico (anti-inflamatório)",
+      "rxcui": "298665"
     },
     {
       "genericName": "Cetorolaco Ocular",
@@ -3768,7 +4195,8 @@
         "Acular",
         "Cetorolaco EMS"
       ],
-      "category": "Oftalmológico (anti-inflamatório)"
+      "category": "Oftalmológico (anti-inflamatório)",
+      "rxcui": "35827"
     },
     {
       "genericName": "Prednisolona Ocular",
@@ -3776,7 +4204,8 @@
         "Predfort",
         "Pred Forte"
       ],
-      "category": "Oftalmológico (anti-inflamatório)"
+      "category": "Oftalmológico (anti-inflamatório)",
+      "rxcui": "8638"
     },
     {
       "genericName": "Dexametasona Ocular",
@@ -3784,7 +4213,8 @@
         "Maxidex",
         "Tobradex"
       ],
-      "category": "Oftalmológico (anti-inflamatório)"
+      "category": "Oftalmológico (anti-inflamatório)",
+      "rxcui": "3264"
     },
     {
       "genericName": "Tobramicina + Dexametasona",
@@ -3792,7 +4222,8 @@
         "Tobradex",
         "Tobrasone"
       ],
-      "category": "Oftalmológico"
+      "category": "Oftalmológico",
+      "rxcui": "10627"
     },
     {
       "genericName": "Ciprofloxacino Ocular",
@@ -3800,7 +4231,8 @@
         "Ciloxan",
         "Cipro HC"
       ],
-      "category": "Oftalmológico (antibiótico)"
+      "category": "Oftalmológico (antibiótico)",
+      "rxcui": "2551"
     },
     {
       "genericName": "Moxifloxacino Ocular",
@@ -3808,21 +4240,24 @@
         "Vigamox",
         "Moxeza"
       ],
-      "category": "Oftalmológico (antibiótico)"
+      "category": "Oftalmológico (antibiótico)",
+      "rxcui": "139462"
     },
     {
       "genericName": "Ranibizumabe",
       "brands": [
         "Lucentis"
       ],
-      "category": "Oftalmológico (anti-VEGF)"
+      "category": "Oftalmológico (anti-VEGF)",
+      "rxcui": "595060"
     },
     {
       "genericName": "Bevacizumabe",
       "brands": [
         "Avastin"
       ],
-      "category": "Oftalmológico (anti-VEGF) / Oncológico"
+      "category": "Oftalmológico (anti-VEGF) / Oncológico",
+      "rxcui": "253337"
     },
     {
       "genericName": "Aflibercept",
@@ -3830,7 +4265,8 @@
         "Eylea",
         "Zaltrap"
       ],
-      "category": "Oftalmológico (anti-VEGF)"
+      "category": "Oftalmológico (anti-VEGF)",
+      "rxcui": "1232150"
     },
     {
       "genericName": "Solifenacina",
@@ -3839,14 +4275,16 @@
         "Solifen",
         "Succinato de Solifenacina"
       ],
-      "category": "Urológico (bexiga hiperativa)"
+      "category": "Urológico (bexiga hiperativa)",
+      "rxcui": "322167"
     },
     {
       "genericName": "Tolterodina",
       "brands": [
         "Tartarato de Tolterodina"
       ],
-      "category": "Urológico (bexiga hiperativa)"
+      "category": "Urológico (bexiga hiperativa)",
+      "rxcui": "119565"
     },
     {
       "genericName": "Oxibutinina",
@@ -3855,7 +4293,8 @@
         "Oxibutinina EMS",
         "Cloridrato de Oxibutinina"
       ],
-      "category": "Urológico (bexiga hiperativa)"
+      "category": "Urológico (bexiga hiperativa)",
+      "rxcui": "32675"
     },
     {
       "genericName": "Fesoterodina",
@@ -3863,7 +4302,8 @@
         "Toviaz",
         "Fumarato de Fesoterodina"
       ],
-      "category": "Urológico (bexiga hiperativa)"
+      "category": "Urológico (bexiga hiperativa)",
+      "rxcui": "797195"
     },
     {
       "genericName": "Mirabegrona",
@@ -3871,7 +4311,8 @@
         "Betmiga",
         "Myrbetriq"
       ],
-      "category": "Urológico (bexiga hiperativa)"
+      "category": "Urológico (bexiga hiperativa)",
+      "rxcui": "1300786"
     },
     {
       "genericName": "Imidafenacina",
@@ -3884,7 +4325,8 @@
         "Cardura",
         "Doxazomed"
       ],
-      "category": "Urológico/Anti-hipertensivo"
+      "category": "Urológico/Anti-hipertensivo",
+      "rxcui": "49276"
     },
     {
       "genericName": "Terazosina",
@@ -3892,7 +4334,8 @@
         "Hytrin",
         "Itrin"
       ],
-      "category": "Urológico/Anti-hipertensivo"
+      "category": "Urológico/Anti-hipertensivo",
+      "rxcui": "37798"
     },
     {
       "genericName": "Alfuzosina",
@@ -3901,14 +4344,16 @@
         "Alfuzosin",
         "Cloridrato de Alfuzosina"
       ],
-      "category": "Urológico"
+      "category": "Urológico",
+      "rxcui": "17300"
     },
     {
       "genericName": "Silodosina",
       "brands": [
         "Silodosina EMS"
       ],
-      "category": "Urológico"
+      "category": "Urológico",
+      "rxcui": "720825"
     },
     {
       "genericName": "Dutasterida + Tansulosina",
@@ -3916,7 +4361,8 @@
         "Duodart",
         "Jalyn"
       ],
-      "category": "Urológico"
+      "category": "Urológico",
+      "rxcui": "228790"
     },
     {
       "genericName": "Desmopressina",
@@ -3924,19 +4370,16 @@
         "DDAVP",
         "Minirin"
       ],
-      "category": "Urológico/Hormonal"
+      "category": "Urológico/Hormonal",
+      "rxcui": "3251"
     },
     {
       "genericName": "Avanafila",
       "brands": [
         "Spedra"
       ],
-      "category": "Urológico"
-    },
-    {
-      "genericName": "Alfaprostadil",
-      "brands": [],
-      "category": "Urológico"
+      "category": "Urológico",
+      "rxcui": "1291301"
     },
     {
       "genericName": "Estradiol",
@@ -3945,7 +4388,8 @@
         "Climara",
         "Progynon"
       ],
-      "category": "Hormônio Feminino"
+      "category": "Hormônio Feminino",
+      "rxcui": "4083"
     },
     {
       "genericName": "Progesterona",
@@ -3953,7 +4397,8 @@
         "Prometrium",
         "Crinone"
       ],
-      "category": "Hormônio Feminino"
+      "category": "Hormônio Feminino",
+      "rxcui": "8727"
     },
     {
       "genericName": "Tibolona",
@@ -3961,7 +4406,8 @@
         "Livial",
         "Tibocina"
       ],
-      "category": "Hormônio Feminino"
+      "category": "Hormônio Feminino",
+      "rxcui": "38260"
     },
     {
       "genericName": "Noretisterona",
@@ -3969,7 +4415,8 @@
         "Primolut-Nor",
         "Noregyna"
       ],
-      "category": "Contraceptivo/Hormonal"
+      "category": "Contraceptivo/Hormonal",
+      "rxcui": "7514"
     },
     {
       "genericName": "Levonorgestrel",
@@ -3978,7 +4425,8 @@
         "Mirena",
         "Plan B"
       ],
-      "category": "Contraceptivo"
+      "category": "Contraceptivo",
+      "rxcui": "6373"
     },
     {
       "genericName": "Desogestrel",
@@ -3986,7 +4434,8 @@
         "Cerazette",
         "Nactali"
       ],
-      "category": "Contraceptivo"
+      "category": "Contraceptivo",
+      "rxcui": "22656"
     },
     {
       "genericName": "Drospirenona + Etinilestradiol",
@@ -3995,7 +4444,8 @@
         "Yaz",
         "Elani Ciclo"
       ],
-      "category": "Contraceptivo"
+      "category": "Contraceptivo",
+      "rxcui": "4124"
     },
     {
       "genericName": "Gestodeno + Etinilestradiol",
@@ -4003,7 +4453,8 @@
         "Harmonet",
         "Minulet"
       ],
-      "category": "Contraceptivo"
+      "category": "Contraceptivo",
+      "rxcui": "4124"
     },
     {
       "genericName": "Levonorgestrel + Etinilestradiol",
@@ -4020,7 +4471,8 @@
         "Mercilon",
         "Marvelon"
       ],
-      "category": "Contraceptivo"
+      "category": "Contraceptivo",
+      "rxcui": "22656"
     },
     {
       "genericName": "Norelgestromina + Etinilestradiol",
@@ -4028,7 +4480,8 @@
         "Evra",
         "Ortho Evra"
       ],
-      "category": "Contraceptivo"
+      "category": "Contraceptivo",
+      "rxcui": "326374"
     },
     {
       "genericName": "Etonogestrel",
@@ -4036,14 +4489,16 @@
         "Implanon",
         "Nexplanon"
       ],
-      "category": "Contraceptivo"
+      "category": "Contraceptivo",
+      "rxcui": "14584"
     },
     {
       "genericName": "Etonogestrel + Etinilestradiol",
       "brands": [
         "NuvaRing"
       ],
-      "category": "Contraceptivo"
+      "category": "Contraceptivo",
+      "rxcui": "14584"
     },
     {
       "genericName": "Testosterona",
@@ -4052,14 +4507,16 @@
         "Durateston",
         "Androgel"
       ],
-      "category": "Hormônio Masculino"
+      "category": "Hormônio Masculino",
+      "rxcui": "10379"
     },
     {
       "genericName": "DHEA (Desidroepiandrosterona)",
       "brands": [
         "Prasteron"
       ],
-      "category": "Hormônio"
+      "category": "Hormônio",
+      "rxcui": "3143"
     },
     {
       "genericName": "Somatropina (GH)",
@@ -4067,14 +4524,16 @@
         "Genotropin",
         "Saizen"
       ],
-      "category": "Hormônio"
+      "category": "Hormônio",
+      "rxcui": "61148"
     },
     {
       "genericName": "Zoledronato",
       "brands": [
         "Zoledrônico"
       ],
-      "category": "Osteoporose"
+      "category": "Osteoporose",
+      "rxcui": "77655"
     },
     {
       "genericName": "Denosumabe",
@@ -4082,7 +4541,8 @@
         "Prolia",
         "Xgeva"
       ],
-      "category": "Osteoporose/Oncológico"
+      "category": "Osteoporose/Oncológico",
+      "rxcui": "993449"
     },
     {
       "genericName": "Teriparatida",
@@ -4090,21 +4550,24 @@
         "Forteo",
         "Terrosa"
       ],
-      "category": "Osteoporose"
+      "category": "Osteoporose",
+      "rxcui": "32915"
     },
     {
       "genericName": "Raloxifeno",
       "brands": [
         "Evista"
       ],
-      "category": "Osteoporose/Antineoplásico"
+      "category": "Osteoporose/Antineoplásico",
+      "rxcui": "72143"
     },
     {
       "genericName": "Romosozumabe",
       "brands": [
         "Evenity"
       ],
-      "category": "Osteoporose"
+      "category": "Osteoporose",
+      "rxcui": "2123126"
     },
     {
       "genericName": "Carbonato de Cálcio",
@@ -4113,19 +4576,22 @@
         "Os-Cal",
         "Cálcio"
       ],
-      "category": "Suplemento"
+      "category": "Suplemento",
+      "rxcui": "1897"
     },
     {
       "genericName": "Carbonato de Cálcio + Vitamina D",
       "brands": [
         "Os-Cal D"
       ],
-      "category": "Suplemento"
+      "category": "Suplemento",
+      "rxcui": "1897"
     },
     {
       "genericName": "Azatioprina",
       "brands": [],
-      "category": "Imunossupressor"
+      "category": "Imunossupressor",
+      "rxcui": "1256"
     },
     {
       "genericName": "Micofenolato de Mofetila",
@@ -4133,7 +4599,8 @@
         "CellCept",
         "Mofetil"
       ],
-      "category": "Imunossupressor"
+      "category": "Imunossupressor",
+      "rxcui": "68149"
     },
     {
       "genericName": "Micofenolato de Sódio",
@@ -4145,14 +4612,16 @@
     {
       "genericName": "Sirolimo",
       "brands": [],
-      "category": "Imunossupressor"
+      "category": "Imunossupressor",
+      "rxcui": "35302"
     },
     {
       "genericName": "Everolimo",
       "brands": [
         "Afinitor"
       ],
-      "category": "Imunossupressor/Oncológico"
+      "category": "Imunossupressor/Oncológico",
+      "rxcui": "141704"
     },
     {
       "genericName": "Leflunomida",
@@ -4160,21 +4629,24 @@
         "Arava",
         "Leflunomida EMS"
       ],
-      "category": "DMARD"
+      "category": "DMARD",
+      "rxcui": "27169"
     },
     {
       "genericName": "Rituximabe",
       "brands": [
         "MabThera"
       ],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "121191"
     },
     {
       "genericName": "Abatacepte",
       "brands": [
         "Orencia"
       ],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "614391"
     },
     {
       "genericName": "Tocilizumabe",
@@ -4182,59 +4654,68 @@
         "Actemra",
         "RoActemra"
       ],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "612865"
     },
     {
       "genericName": "Secuquinumabe",
       "brands": [
         "Cosentyx"
       ],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "1599788"
     },
     {
       "genericName": "Ixequizumabe",
       "brands": [
         "Taltz"
       ],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "1745099"
     },
     {
       "genericName": "Golimumabe",
       "brands": [
         "Simponi"
       ],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "819300"
     },
     {
       "genericName": "Certolizumabe",
       "brands": [
         "Cimzia"
       ],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "709271"
     },
     {
       "genericName": "Belimumabe",
       "brands": [
         "Benlysta"
       ],
-      "category": "Imunobiológico"
+      "category": "Imunobiológico",
+      "rxcui": "1092437"
     },
     {
       "genericName": "Barisitinibe",
       "brands": [],
-      "category": "Inibidor JAK"
+      "category": "Inibidor JAK",
+      "rxcui": "2047232"
     },
     {
       "genericName": "Tofacitinibe",
       "brands": [
         "Xeljanz"
       ],
-      "category": "Inibidor JAK"
+      "category": "Inibidor JAK",
+      "rxcui": "1357536"
     },
     {
       "genericName": "Upadacitinibe",
       "brands": [],
-      "category": "Inibidor JAK"
+      "category": "Inibidor JAK",
+      "rxcui": "2196092"
     },
     {
       "genericName": "Filgotinibe",
@@ -4250,7 +4731,8 @@
         "Colchimed",
         "Colchicina EMS"
       ],
-      "category": "Antigotoso"
+      "category": "Antigotoso",
+      "rxcui": "2683"
     },
     {
       "genericName": "Capecitabina",
@@ -4258,7 +4740,8 @@
         "Xeloda",
         "Capecitabina EMS"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "194000"
     },
     {
       "genericName": "Imatinibe",
@@ -4267,49 +4750,56 @@
         "Glivec",
         "Imatinibe EMS"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "282388"
     },
     {
       "genericName": "Erlotinibe",
       "brands": [
         "Tarceva"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "337525"
     },
     {
       "genericName": "Gefitinibe",
       "brands": [
         "Iressa"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "328134"
     },
     {
       "genericName": "Osimertinibe",
       "brands": [
         "Tagrisso"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "1721559"
     },
     {
       "genericName": "Sunitinibe",
       "brands": [
         "Sutent"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "357977"
     },
     {
       "genericName": "Sorafenibe",
       "brands": [
         "Nexavar"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "495881"
     },
     {
       "genericName": "Lenalidomida",
       "brands": [
         "Revlimid"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "342369"
     },
     {
       "genericName": "Talidomida",
@@ -4317,14 +4807,16 @@
         "Thalidomide",
         "Talidomida Celgene"
       ],
-      "category": "Oncológico/Imunomodulador"
+      "category": "Oncológico/Imunomodulador",
+      "rxcui": "10432"
     },
     {
       "genericName": "Bortezomibe",
       "brands": [
         "Velcade"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "358258"
     },
     {
       "genericName": "Carboplatina",
@@ -4332,7 +4824,8 @@
         "Paraplatin",
         "Carboplatina EMS"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "40048"
     },
     {
       "genericName": "Cisplatina",
@@ -4340,7 +4833,8 @@
         "Platinol",
         "Cisplatina EMS"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "2555"
     },
     {
       "genericName": "Paclitaxel",
@@ -4348,7 +4842,8 @@
         "Taxol",
         "Paclitaxel EMS"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "56946"
     },
     {
       "genericName": "Docetaxel",
@@ -4356,7 +4851,8 @@
         "Taxotere",
         "Docetaxel EMS"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "72962"
     },
     {
       "genericName": "Doxorrubicina",
@@ -4364,7 +4860,8 @@
         "Adriamycin",
         "Caelyx"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "3639"
     },
     {
       "genericName": "Ciclofosfamida",
@@ -4372,7 +4869,8 @@
         "Cytoxan",
         "Endoxan"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "3002"
     },
     {
       "genericName": "Metotrexato (oncológico)",
@@ -4380,28 +4878,32 @@
         "MTX",
         "Methotrexate"
       ],
-      "category": "Oncológico/DMARD"
+      "category": "Oncológico/DMARD",
+      "rxcui": "6851"
     },
     {
       "genericName": "Pembrolizumabe",
       "brands": [
         "Keytruda"
       ],
-      "category": "Oncológico (imunoterapia)"
+      "category": "Oncológico (imunoterapia)",
+      "rxcui": "1547545"
     },
     {
       "genericName": "Nivolumabe",
       "brands": [
         "Opdivo"
       ],
-      "category": "Oncológico (imunoterapia)"
+      "category": "Oncológico (imunoterapia)",
+      "rxcui": "1597876"
     },
     {
       "genericName": "Atezolizumabe",
       "brands": [
         "Tecentriq"
       ],
-      "category": "Oncológico (imunoterapia)"
+      "category": "Oncológico (imunoterapia)",
+      "rxcui": "1792776"
     },
     {
       "genericName": "Trastuzumabe",
@@ -4409,21 +4911,24 @@
         "Herceptin",
         "Kanjinti"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "224905"
     },
     {
       "genericName": "Bevacizumabe (oncológico)",
       "brands": [
         "Avastin"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "253337"
     },
     {
       "genericName": "Cetuximabe",
       "brands": [
         "Erbitux"
       ],
-      "category": "Oncológico"
+      "category": "Oncológico",
+      "rxcui": "318341"
     },
     {
       "genericName": "Nimesulida",
@@ -4452,14 +4957,16 @@
         "Scalid",
         "Nimalgex"
       ],
-      "category": "Anti-inflamatório (AINE)"
+      "category": "Anti-inflamatório (AINE)",
+      "rxcui": "53694"
     },
     {
       "genericName": "Piroxicam",
       "brands": [
         "Feldene"
       ],
-      "category": "Anti-inflamatório (AINE)"
+      "category": "Anti-inflamatório (AINE)",
+      "rxcui": "8356"
     },
     {
       "genericName": "Indometacina",
@@ -4467,7 +4974,8 @@
         "Indocid",
         "Indometacina EMS"
       ],
-      "category": "Anti-inflamatório (AINE)"
+      "category": "Anti-inflamatório (AINE)",
+      "rxcui": "5781"
     },
     {
       "genericName": "Tenoxicam",
@@ -4475,7 +4983,8 @@
         "Tilatil",
         "Tenoxil"
       ],
-      "category": "Anti-inflamatório (AINE)"
+      "category": "Anti-inflamatório (AINE)",
+      "rxcui": "37790"
     },
     {
       "genericName": "Lornoxicam",
@@ -4483,7 +4992,8 @@
         "Xefo",
         "Lornox"
       ],
-      "category": "Anti-inflamatório (AINE)"
+      "category": "Anti-inflamatório (AINE)",
+      "rxcui": "20890"
     },
     {
       "genericName": "Cetorolaco",
@@ -4491,12 +5001,14 @@
         "Toradol",
         "Toragesic"
       ],
-      "category": "Anti-inflamatório (AINE)"
+      "category": "Anti-inflamatório (AINE)",
+      "rxcui": "35827"
     },
     {
       "genericName": "Parecoxibe",
       "brands": [],
-      "category": "Anti-inflamatório (COX-2)"
+      "category": "Anti-inflamatório (COX-2)",
+      "rxcui": "279950"
     },
     {
       "genericName": "Fentanila",
@@ -4506,7 +5018,8 @@
         "Durogesic",
         "Fentanest"
       ],
-      "category": "Analgésico Opioide"
+      "category": "Analgésico Opioide",
+      "rxcui": "4337"
     },
     {
       "genericName": "Buprenorfina",
@@ -4516,7 +5029,8 @@
         "Cloridrato de Buprenorfina",
         "Belbuca"
       ],
-      "category": "Analgésico Opioide"
+      "category": "Analgésico Opioide",
+      "rxcui": "1819"
     },
     {
       "genericName": "Metadona",
@@ -4525,21 +5039,24 @@
         "Metadona EMS",
         "Methadone"
       ],
-      "category": "Analgésico Opioide"
+      "category": "Analgésico Opioide",
+      "rxcui": "6813"
     },
     {
       "genericName": "Hidrocodona",
       "brands": [
         "Norco"
       ],
-      "category": "Analgésico Opioide"
+      "category": "Analgésico Opioide",
+      "rxcui": "5489"
     },
     {
       "genericName": "Nalbufina",
       "brands": [
         "Nubain"
       ],
-      "category": "Analgésico Opioide"
+      "category": "Analgésico Opioide",
+      "rxcui": "7238"
     },
     {
       "genericName": "Naloxona",
@@ -4547,7 +5064,8 @@
         "Narcan",
         "Cloridrato de Naloxona"
       ],
-      "category": "Antagonista Opioide"
+      "category": "Antagonista Opioide",
+      "rxcui": "7242"
     },
     {
       "genericName": "Naltrexona",
@@ -4556,7 +5074,8 @@
         "Vivitrol",
         "Cloridrato de Naltrexona"
       ],
-      "category": "Antagonista Opioide"
+      "category": "Antagonista Opioide",
+      "rxcui": "7243"
     },
     {
       "genericName": "Tapentadol",
@@ -4565,7 +5084,8 @@
         "Nucynta",
         "Cloridrato de Tapentadol"
       ],
-      "category": "Analgésico Opioide"
+      "category": "Analgésico Opioide",
+      "rxcui": "787390"
     },
     {
       "genericName": "Paracetamol + Codeína",
@@ -4580,7 +5100,8 @@
       "brands": [
         "Dorflex"
       ],
-      "category": "Analgésico"
+      "category": "Analgésico",
+      "rxcui": "7715"
     },
     {
       "genericName": "Propafenona",
@@ -4589,7 +5110,8 @@
         "Rytmonorm",
         "Ritmonorm"
       ],
-      "category": "Antiarrítmico"
+      "category": "Antiarrítmico",
+      "rxcui": "8754"
     },
     {
       "genericName": "Sotalol",
@@ -4598,7 +5120,8 @@
         "Betapace",
         "Cloridrato de Sotalol"
       ],
-      "category": "Antiarrítmico"
+      "category": "Antiarrítmico",
+      "rxcui": "9947"
     },
     {
       "genericName": "Flecainida",
@@ -4606,14 +5129,16 @@
         "Tambocor",
         "Acetato de Flecainida"
       ],
-      "category": "Antiarrítmico"
+      "category": "Antiarrítmico",
+      "rxcui": "4441"
     },
     {
       "genericName": "Dronedarona",
       "brands": [
         "Multaq"
       ],
-      "category": "Antiarrítmico"
+      "category": "Antiarrítmico",
+      "rxcui": "233698"
     },
     {
       "genericName": "Ivabradina",
@@ -4621,7 +5146,8 @@
         "Procoralan",
         "Coralan"
       ],
-      "category": "Cardiovascular"
+      "category": "Cardiovascular",
+      "rxcui": "1649480"
     },
     {
       "genericName": "Sacubitril + Valsartana",
@@ -4635,21 +5161,24 @@
       "brands": [
         "Jinarc"
       ],
-      "category": "Cardiovascular"
+      "category": "Cardiovascular",
+      "rxcui": "358257"
     },
     {
       "genericName": "Bosentana",
       "brands": [
         "Tracleer"
       ],
-      "category": "Hipertensão Pulmonar"
+      "category": "Hipertensão Pulmonar",
+      "rxcui": "75207"
     },
     {
       "genericName": "Macitentan",
       "brands": [
         "Opsumit"
       ],
-      "category": "Hipertensão Pulmonar"
+      "category": "Hipertensão Pulmonar",
+      "rxcui": "1442132"
     },
     {
       "genericName": "Sildenafila (HP)",
@@ -4658,7 +5187,8 @@
         "Revatio",
         "Citrato de Sildenafila"
       ],
-      "category": "Hipertensão Pulmonar/Urológico"
+      "category": "Hipertensão Pulmonar/Urológico",
+      "rxcui": "136411"
     },
     {
       "genericName": "Tadalafila (HP)",
@@ -4667,14 +5197,16 @@
         "Adcirca",
         "Cialis"
       ],
-      "category": "Hipertensão Pulmonar/Urológico"
+      "category": "Hipertensão Pulmonar/Urológico",
+      "rxcui": "358263"
     },
     {
       "genericName": "Riociguate",
       "brands": [
         "Adempas"
       ],
-      "category": "Hipertensão Pulmonar"
+      "category": "Hipertensão Pulmonar",
+      "rxcui": "1439816"
     },
     {
       "genericName": "Metoprolol Succinato",
@@ -4683,7 +5215,8 @@
         "Toprol-XL",
         "Succinato de Metoprolol"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "6918"
     },
     {
       "genericName": "Bisoprolol + Hidroclorotiazida",
@@ -4698,14 +5231,16 @@
       "brands": [
         "Nebilet Plus"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "31555"
     },
     {
       "genericName": "Carvedilol + Hidroclorotiazida",
       "brands": [
         "Dilatrend HCT"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "20352"
     },
     {
       "genericName": "Atenolol + Clortalidona",
@@ -4713,14 +5248,16 @@
         "Tenoretic",
         "Normopres"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "1202"
     },
     {
       "genericName": "Cilostazol",
       "brands": [
         "Pletal"
       ],
-      "category": "Antiagregante Plaquetário"
+      "category": "Antiagregante Plaquetário",
+      "rxcui": "21107"
     },
     {
       "genericName": "Dipiridamol",
@@ -4728,7 +5265,8 @@
         "Persantin",
         "Aggrenox"
       ],
-      "category": "Antiagregante Plaquetário"
+      "category": "Antiagregante Plaquetário",
+      "rxcui": "3521"
     },
     {
       "genericName": "Ticlopidina",
@@ -4736,38 +5274,36 @@
         "Ticlid",
         "Tyklid"
       ],
-      "category": "Antiagregante Plaquetário"
+      "category": "Antiagregante Plaquetário",
+      "rxcui": "10594"
     },
     {
       "genericName": "AAS + Clopidogrel",
       "brands": [],
-      "category": "Antiagregante Plaquetário"
+      "category": "Antiagregante Plaquetário",
+      "rxcui": "32968"
     },
     {
       "genericName": "Fondaparinux",
       "brands": [
         "Arixtra"
       ],
-      "category": "Anticoagulante"
+      "category": "Anticoagulante",
+      "rxcui": "321208"
     },
     {
       "genericName": "Dalteparina",
       "brands": [
         "Fragmin"
       ],
-      "category": "Anticoagulante"
+      "category": "Anticoagulante",
+      "rxcui": "67109"
     },
     {
       "genericName": "Nadroparina",
       "brands": [],
-      "category": "Anticoagulante"
-    },
-    {
-      "genericName": "Mononitrato de Isossorbida 60mg",
-      "brands": [
-        "Mononit"
-      ],
-      "category": "Cardiovascular"
+      "category": "Anticoagulante",
+      "rxcui": "67031"
     },
     {
       "genericName": "Dinitrato de Isossorbida",
@@ -4775,7 +5311,8 @@
         "Isordil",
         "Isoket"
       ],
-      "category": "Cardiovascular"
+      "category": "Cardiovascular",
+      "rxcui": "6058"
     },
     {
       "genericName": "Hidralazina",
@@ -4784,7 +5321,8 @@
         "Apresolina",
         "Nepresol"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "5470"
     },
     {
       "genericName": "Metildopa",
@@ -4794,7 +5332,8 @@
         "Cloridrato de Metildopa",
         "Alfa-Metildopa"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "6876"
     },
     {
       "genericName": "Clonidina",
@@ -4803,7 +5342,8 @@
         "Catapres",
         "Cloridrato de Clonidina"
       ],
-      "category": "Anti-hipertensivo"
+      "category": "Anti-hipertensivo",
+      "rxcui": "2599"
     },
     {
       "genericName": "Minoxidil",
@@ -4811,7 +5351,8 @@
         "Loniten",
         "Rogaine"
       ],
-      "category": "Anti-hipertensivo/Dermatológico"
+      "category": "Anti-hipertensivo/Dermatológico",
+      "rxcui": "6984"
     },
     {
       "genericName": "Indapamida",
@@ -4819,28 +5360,32 @@
         "Natrilix",
         "Indapamida EMS"
       ],
-      "category": "Diurético"
+      "category": "Diurético",
+      "rxcui": "5764"
     },
     {
       "genericName": "Acetazolamida",
       "brands": [
         "Diamox"
       ],
-      "category": "Diurético"
+      "category": "Diurético",
+      "rxcui": "167"
     },
     {
       "genericName": "Vitamina C (Ácido Ascórbico)",
       "brands": [
         "Ácido Ascórbico"
       ],
-      "category": "Vitamina"
+      "category": "Vitamina",
+      "rxcui": "1151"
     },
     {
       "genericName": "Vitamina E (Tocoferol)",
       "brands": [
         "E-Vit"
       ],
-      "category": "Vitamina"
+      "category": "Vitamina",
+      "rxcui": "11256"
     },
     {
       "genericName": "Vitamina K (Fitomenadiona)",
@@ -4851,14 +5396,16 @@
         "Vitamina K",
         "Mephyton"
       ],
-      "category": "Vitamina"
+      "category": "Vitamina",
+      "rxcui": "11258"
     },
     {
       "genericName": "Complexo B",
       "brands": [
         "Neurofor"
       ],
-      "category": "Vitamina"
+      "category": "Vitamina",
+      "rxcui": "11251"
     },
     {
       "genericName": "Vitamina D3 (Colecalciferol)",
@@ -4866,12 +5413,14 @@
         "Colecalciferol",
         "Addera D3"
       ],
-      "category": "Vitamina"
+      "category": "Vitamina",
+      "rxcui": "2418"
     },
     {
       "genericName": "Zinco",
       "brands": [],
-      "category": "Suplemento"
+      "category": "Suplemento",
+      "rxcui": "11416"
     },
     {
       "genericName": "Ômega-3",
@@ -4880,7 +5429,8 @@
         "DHA",
         "EPA"
       ],
-      "category": "Suplemento"
+      "category": "Suplemento",
+      "rxcui": "4301"
     },
     {
       "genericName": "Ferro Polimaltosado",
@@ -4890,28 +5440,32 @@
         "Ferro (III) Polimaltosado",
         "Complexo de Hidróxido de Ferro"
       ],
-      "category": "Suplemento"
+      "category": "Suplemento",
+      "rxcui": "219315"
     },
     {
       "genericName": "Sacarato de Hidróxido Férrico",
       "brands": [
         "Noripurum EV"
       ],
-      "category": "Suplemento"
+      "category": "Suplemento",
+      "rxcui": "6581"
     },
     {
       "genericName": "Eritropoetina Alfa",
       "brands": [
         "Eritromax"
       ],
-      "category": "Hematopoético"
+      "category": "Hematopoético",
+      "rxcui": "2045114"
     },
     {
       "genericName": "Darbepoetina Alfa",
       "brands": [
         "Aranesp"
       ],
-      "category": "Hematopoético"
+      "category": "Hematopoético",
+      "rxcui": "283838"
     },
     {
       "genericName": "Isotretinoína",
@@ -4922,14 +5476,16 @@
         "Isotrat",
         "Ácido 13-cis-Retinoico"
       ],
-      "category": "Dermatológico"
+      "category": "Dermatológico",
+      "rxcui": "6064"
     },
     {
       "genericName": "Acitretina",
       "brands": [
         "Neotigason"
       ],
-      "category": "Dermatológico"
+      "category": "Dermatológico",
+      "rxcui": "16818"
     },
     {
       "genericName": "Espironolactona (acne)",
@@ -4937,7 +5493,8 @@
         "Aldactone",
         "Spironolactone"
       ],
-      "category": "Diurético/Dermatológico"
+      "category": "Diurético/Dermatológico",
+      "rxcui": "9997"
     },
     {
       "genericName": "Doxiciclina (acne)",
@@ -4945,7 +5502,8 @@
         "Vibramicina",
         "Doryx"
       ],
-      "category": "Antibiótico/Dermatológico"
+      "category": "Antibiótico/Dermatológico",
+      "rxcui": "3640"
     },
     {
       "genericName": "Zolpidem",
@@ -4953,7 +5511,8 @@
         "Zolpidem EMS",
         "Ambien"
       ],
-      "category": "Hipnótico"
+      "category": "Hipnótico",
+      "rxcui": "39993"
     },
     {
       "genericName": "Zopiclona",
@@ -4961,26 +5520,30 @@
         "Imovane",
         "Zopiclona EMS"
       ],
-      "category": "Hipnótico"
+      "category": "Hipnótico",
+      "rxcui": "40001"
     },
     {
       "genericName": "Eszopiclona",
       "brands": [],
-      "category": "Hipnótico"
+      "category": "Hipnótico",
+      "rxcui": "461016"
     },
     {
       "genericName": "Zaleplon",
       "brands": [
         "Sonata"
       ],
-      "category": "Hipnótico"
+      "category": "Hipnótico",
+      "rxcui": "74667"
     },
     {
       "genericName": "Melatonina",
       "brands": [
         "Circadin"
       ],
-      "category": "Hipnótico"
+      "category": "Hipnótico",
+      "rxcui": "6711"
     },
     {
       "genericName": "Bromazepam",
@@ -4988,35 +5551,40 @@
         "Lexotan",
         "Bromazepam EMS"
       ],
-      "category": "Benzodiazepínico"
+      "category": "Benzodiazepínico",
+      "rxcui": "1749"
     },
     {
       "genericName": "Cloxazolam",
       "brands": [
         "Olcadil"
       ],
-      "category": "Benzodiazepínico"
+      "category": "Benzodiazepínico",
+      "rxcui": "21311"
     },
     {
       "genericName": "Clorazepato",
       "brands": [
         "Tranxilene"
       ],
-      "category": "Benzodiazepínico"
+      "category": "Benzodiazepínico",
+      "rxcui": "2353"
     },
     {
       "genericName": "Oxazepam",
       "brands": [
         "Seresta"
       ],
-      "category": "Benzodiazepínico"
+      "category": "Benzodiazepínico",
+      "rxcui": "7781"
     },
     {
       "genericName": "Triazolam",
       "brands": [
         "Halcion"
       ],
-      "category": "Benzodiazepínico"
+      "category": "Benzodiazepínico",
+      "rxcui": "10767"
     },
     {
       "genericName": "Buspirona",
@@ -5024,35 +5592,40 @@
         "Buspar",
         "Ansitec"
       ],
-      "category": "Ansiolítico"
+      "category": "Ansiolítico",
+      "rxcui": "1827"
     },
     {
       "genericName": "Naratriptano",
       "brands": [
         "Naratriptano EMS"
       ],
-      "category": "Antimigranoso"
+      "category": "Antimigranoso",
+      "rxcui": "141366"
     },
     {
       "genericName": "Almotriptano",
       "brands": [
         "Almogran"
       ],
-      "category": "Antimigranoso"
+      "category": "Antimigranoso",
+      "rxcui": "279645"
     },
     {
       "genericName": "Eletriptano",
       "brands": [
         "Relpax"
       ],
-      "category": "Antimigranoso"
+      "category": "Antimigranoso",
+      "rxcui": "231049"
     },
     {
       "genericName": "Ergotamina",
       "brands": [
         "Ergotamina EMS"
       ],
-      "category": "Antimigranoso"
+      "category": "Antimigranoso",
+      "rxcui": "4025"
     },
     {
       "genericName": "Dihidroergotamina",
@@ -5060,47 +5633,54 @@
         "Dihydergot",
         "Migranal"
       ],
-      "category": "Antimigranoso"
+      "category": "Antimigranoso",
+      "rxcui": "3418"
     },
     {
       "genericName": "Lasmiditan",
       "brands": [
         "Reyvow"
       ],
-      "category": "Antimigranoso"
+      "category": "Antimigranoso",
+      "rxcui": "2256930"
     },
     {
       "genericName": "Ubrogepanto",
       "brands": [
         "Ubrelvy"
       ],
-      "category": "Antimigranoso"
+      "category": "Antimigranoso",
+      "rxcui": "2268216"
     },
     {
       "genericName": "Rimegepanto",
       "brands": [
         "Nurtec ODT"
       ],
-      "category": "Antimigranoso"
+      "category": "Antimigranoso",
+      "rxcui": "2282307"
     },
     {
       "genericName": "Erenumabe",
       "brands": [
         "Aimovig"
       ],
-      "category": "Antimigranoso (preventivo)"
+      "category": "Antimigranoso (preventivo)",
+      "rxcui": "2045613"
     },
     {
       "genericName": "Fremanezumabe",
       "brands": [
         "Ajovy"
       ],
-      "category": "Antimigranoso (preventivo)"
+      "category": "Antimigranoso (preventivo)",
+      "rxcui": "2056691"
     },
     {
       "genericName": "Galcanezumabe",
       "brands": [],
-      "category": "Antimigranoso (preventivo)"
+      "category": "Antimigranoso (preventivo)",
+      "rxcui": "2058846"
     },
     {
       "genericName": "Vareniclina",
@@ -5108,7 +5688,8 @@
         "Champix",
         "Chantix"
       ],
-      "category": "Dependência (tabaco)"
+      "category": "Dependência (tabaco)",
+      "rxcui": "591622"
     },
     {
       "genericName": "Dissulfiram",
@@ -5116,14 +5697,16 @@
         "Antabuse",
         "Antietanol"
       ],
-      "category": "Dependência (álcool)"
+      "category": "Dependência (álcool)",
+      "rxcui": "3554"
     },
     {
       "genericName": "Acamprosato",
       "brands": [
         "Campral"
       ],
-      "category": "Dependência (álcool)"
+      "category": "Dependência (álcool)",
+      "rxcui": "82819"
     },
     {
       "genericName": "Nicotina (adesivo/pastilha)",
@@ -5131,7 +5714,8 @@
         "Nicorette",
         "Niquitin"
       ],
-      "category": "Dependência (tabaco)"
+      "category": "Dependência (tabaco)",
+      "rxcui": "7407"
     },
     {
       "genericName": "Propofol",
@@ -5139,7 +5723,8 @@
         "Diprivan",
         "Propofol EMS"
       ],
-      "category": "Anestésico"
+      "category": "Anestésico",
+      "rxcui": "8782"
     },
     {
       "genericName": "Cetamina",
@@ -5147,7 +5732,8 @@
         "Ketalar",
         "Ketamin"
       ],
-      "category": "Anestésico"
+      "category": "Anestésico",
+      "rxcui": "6130"
     },
     {
       "genericName": "Dexmedetomidina",
@@ -5155,55 +5741,64 @@
         "Precedex",
         "Dexdor"
       ],
-      "category": "Sedativo"
+      "category": "Sedativo",
+      "rxcui": "48937"
     },
     {
       "genericName": "Hypericum perforatum (Erva de São João)",
       "brands": [
         "St. John's Wort"
       ],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "258326"
     },
     {
       "genericName": "Passiflora incarnata (Maracujá)",
       "brands": [],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "1309979"
     },
     {
       "genericName": "Camellia sinensis (Chá verde)",
       "brands": [
         "Green Tea"
       ],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "1356680"
     },
     {
       "genericName": "Echinacea purpurea (Equinácea)",
       "brands": [],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "260025"
     },
     {
       "genericName": "Glycyrrhiza glabra (Alcaçuz)",
       "brands": [],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "1370435"
     },
     {
       "genericName": "Curcuma longa (Cúrcuma)",
       "brands": [],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "1114883"
     },
     {
       "genericName": "Ginkgo biloba",
       "brands": [
         "Tebonin"
       ],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "236809"
     },
     {
       "genericName": "Panax ginseng (Ginseng)",
       "brands": [
         "Ginseng americano"
       ],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "259470"
     },
     {
       "genericName": "Valeriana officinalis (Valeriana)",
@@ -5212,12 +5807,14 @@
         "Valeriol",
         "Valerien"
       ],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "1537753"
     },
     {
       "genericName": "Allium sativum (Alho medicinal)",
       "brands": [],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "1441536"
     },
     {
       "genericName": "Piper methysticum (Kava Kava)",
@@ -5226,50 +5823,58 @@
         "Kavatrol",
         "Laitan"
       ],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "285228"
     },
     {
       "genericName": "Silybum marianum (Silimarina)",
       "brands": [
         "Legalon"
       ],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "283579"
     },
     {
       "genericName": "Uncaria tomentosa (Unha de Gato)",
       "brands": [],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "285223"
     },
     {
       "genericName": "Serenoa repens (Saw Palmetto)",
       "brands": [
         "Permixon"
       ],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "236344"
     },
     {
       "genericName": "Melissa officinalis (Erva Cidreira)",
       "brands": [
         "Lemon Balm"
       ],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "1311497"
     },
     {
       "genericName": "Arnica montana",
       "brands": [
         "Arnica montana"
       ],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "285208"
     },
     {
       "genericName": "Peumus boldus (Boldo)",
       "brands": [],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "1310049"
     },
     {
       "genericName": "Maytenus ilicifolia (Espinheira Santa)",
       "brands": [],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "2123365"
     },
     {
       "genericName": "Mikania glomerata (Guaco)",
@@ -5277,31 +5882,36 @@
         "Guaco",
         "Xarope de Guaco"
       ],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "1719250"
     },
     {
       "genericName": "Zingiber officinale (Gengibre)",
       "brands": [
         "Ginger"
       ],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "1372563"
     },
     {
       "genericName": "Cynara scolymus (Alcachofra)",
       "brands": [],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "1809830"
     },
     {
       "genericName": "Matricaria recutita (Camomila)",
       "brands": [
         "Camomila Sachê"
       ],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "285157"
     },
     {
       "genericName": "Rhamnus purshiana (Cáscara Sagrada)",
       "brands": [],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "1350209"
     },
     {
       "genericName": "Aesculus hippocastanum (Castanha da Índia)",
@@ -5313,34 +5923,40 @@
     {
       "genericName": "Centella asiatica (Centella Asiática)",
       "brands": [],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "1310164"
     },
     {
       "genericName": "Cimicifuga racemosa (Cimicífuga)",
       "brands": [
         "Black Cohosh"
       ],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "236665"
     },
     {
       "genericName": "Pimpinella anisum (Erva-doce)",
       "brands": [],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "1426421"
     },
     {
       "genericName": "Eucalyptus globulus (Eucalipto)",
       "brands": [],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "1305545"
     },
     {
       "genericName": "Paullinia cupana (Guaraná)",
       "brands": [],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "1311509"
     },
     {
       "genericName": "Mentha piperita (Hortelã-pimenta)",
       "brands": [],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "33094"
     },
     {
       "genericName": "Salix alba (Salgueiro)",
@@ -5350,12 +5966,14 @@
     {
       "genericName": "Senna alexandrina (Sene)",
       "brands": [],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "1310029"
     },
     {
       "genericName": "Tanacetum parthenium (Tanaceto)",
       "brands": [],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "114203"
     },
     {
       "genericName": "Arctostaphylos uva-ursi (Uva-ursi)",
@@ -5371,7 +5989,8 @@
         "Soja",
         "Isoflavona de Soja"
       ],
-      "category": "Fitoterápico"
+      "category": "Fitoterápico",
+      "rxcui": "9949"
     },
     {
       "genericName": "Salvia miltiorrhiza (Danshen)",
@@ -5380,15 +5999,8 @@
         "Dan Shen",
         "Red Sage"
       ],
-      "category": "Fitoterápico"
-    },
-    {
-      "genericName": "Ácido acetilsalicílico",
-      "brands": [
-        "AAS",
-        "Aspirina"
-      ],
-      "category": "Outros"
+      "category": "Fitoterápico",
+      "rxcui": "1307580"
     },
     {
       "genericName": "Clotrimazol",
@@ -5403,20 +6015,8 @@
         "Dermotrizol",
         "Neo Clotrimazyl"
       ],
-      "category": "Outros"
-    },
-    {
-      "genericName": "Anlodipino",
-      "brands": [
-        "Anlo",
-        "Besilapin",
-        "Norvasc",
-        "Pressat",
-        "Tenlopin",
-        "Cordarex",
-        "Nemodine"
-      ],
-      "category": "Outros"
+      "category": "Outros",
+      "rxcui": "2623"
     },
     {
       "genericName": "Sulfametoxazol-trimetoprima",
@@ -5430,45 +6030,38 @@
       "brands": [
         "Benzetacil"
       ],
-      "category": "Outros"
+      "category": "Outros",
+      "rxcui": "7980"
     },
     {
       "genericName": "Toxina botulínica",
       "brands": [
         "Botox"
       ],
-      "category": "Outros"
-    },
-    {
-      "genericName": "Bupropriona",
-      "brands": [
-        "Bup"
-      ],
-      "category": "Outros"
+      "category": "Outros",
+      "rxcui": "1712"
     },
     {
       "genericName": "Invokana",
       "brands": [
         "Canagliflozina"
       ],
-      "category": "Outros"
+      "category": "Outros",
+      "rxcui": "1373464"
     },
     {
       "genericName": "Clomifeno",
       "brands": [],
-      "category": "Outros"
-    },
-    {
-      "genericName": "Daplagliflozina",
-      "brands": [],
-      "category": "Outros"
+      "category": "Outros",
+      "rxcui": "2596"
     },
     {
       "genericName": "Tirzepatida",
       "brands": [
         "Mounjaro"
       ],
-      "category": "Outros"
+      "category": "Outros",
+      "rxcui": "2601723"
     },
     {
       "genericName": "Sandoz",
@@ -5483,44 +6076,34 @@
         "Pontin",
         "Pontrex"
       ],
-      "category": "Outros"
-    },
-    {
-      "genericName": "Amlodipina",
-      "brands": [],
-      "category": "Outros"
-    },
-    {
-      "genericName": "Metamizol",
-      "brands": [],
-      "category": "Outros"
+      "category": "Outros",
+      "rxcui": "6693"
     },
     {
       "genericName": "Orlistat",
       "brands": [],
-      "category": "Outros"
-    },
-    {
-      "genericName": "Saw Palmetto",
-      "brands": [],
-      "category": "Outros"
+      "category": "Outros",
+      "rxcui": "37925"
     },
     {
       "genericName": "Serenoa rapens",
       "brands": [],
-      "category": "Outros"
+      "category": "Outros",
+      "rxcui": "350488"
     },
     {
       "genericName": "Sibutramina",
       "brands": [],
-      "category": "Outros"
+      "category": "Outros",
+      "rxcui": "36514"
     },
     {
       "genericName": "Alprostadil",
       "brands": [
         "MUSE"
       ],
-      "category": "Urológico"
+      "category": "Urológico",
+      "rxcui": "598"
     },
     {
       "genericName": "Carisoprodol + Diclofenaco + Cafeína + Paracetamol",
@@ -5534,52 +6117,24 @@
       "brands": [
         "Cloridrato de Doxiciclina"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "3640"
     },
     {
       "genericName": "Ivermectina",
       "brands": [
         "Uciose"
       ],
-      "category": "Antiparasitário"
+      "category": "Antiparasitário",
+      "rxcui": "6069"
     },
     {
       "genericName": "Valsartana + Anlodipino + Hidroclorotiazida",
       "brands": [
         "Triplixam"
       ],
-      "category": "Anti-hipertensivo"
-    },
-    {
-      "genericName": "Busque por",
-      "brands": [],
-      "category": ""
-    },
-    {
-      "genericName": "Novidades no BulasMed",
-      "brands": [],
-      "category": ""
-    },
-    {
-      "genericName": "Bulas mais buscadas",
-      "brands": [],
-      "category": ""
-    },
-    {
-      "genericName": "BulasMed App",
-      "brands": [],
-      "category": ""
-    },
-    {
-      "genericName": "Cadastre-se",
-      "brands": [],
-      "category": ""
-    },
-    {
-      "genericName": "BULASMED NAS REDES SOCIAIS",
-      "brands": [],
-      "category": ""
+      "category": "Anti-hipertensivo",
+      "rxcui": "5487"
     }
-  ],
-  "updatedAt": "2026-06-29"
+  ]
 }

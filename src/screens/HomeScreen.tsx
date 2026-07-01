@@ -1,6 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useMemo, useRef, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Switch, Linking, Dimensions,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Switch, Linking, Dimensions, Alert, TextInput, AppState,
 } from 'react-native';
 
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -10,18 +10,19 @@ import {
   getProfile, getMedications, getKV, setKV, getContacts,
   getRemindersForMedication, updateAllRemindersSound,
   getActivities, getRemindersForActivity, updateAllActivityRemindersSound,
-  getAppointments,
+  getAppointments, addMedicationLog, markMedicationLogTaken, updateMedicationStock, getMedicationLog,
 } from '../database/db';
 
 type RootTabs = {
   Home: undefined; Profile: undefined; Medications: undefined;
-  Contacts: undefined; Agenda: undefined; Interactions: undefined;
+  Contacts: undefined; Agenda: undefined; Interactions: undefined; History: undefined;
 };
 
 import {
   updateEmergencyNotification, cancelEmergencyNotification, nextReminderInfo,
   cancelAllRemindersForMedication, cancelAllRemindersForActivity, cancelRepeatAlarm,
-  rescheduleRemindersForMedication, rescheduleRemindersForActivity,
+  rescheduleRemindersForMedication, rescheduleRemindersForActivity, notifyLowStock,
+  dismissPresentedForMedication,
 } from '../services/notifications';
 import { Profile, Medication, MedicationReminder, DrugInteraction, ActivityReminder, Appointment, ACTIVITY_PRESETS } from '../types';
 import { checkInteractions, isPhytotherapic } from '../utils/drugSearch';
@@ -34,8 +35,14 @@ type UnifiedItem = {
   icon: string;
   name: string;
   label: string;
+  time: string;
+  dayDiff: number;
   sortMs: number;
   isMuted: boolean;
+  dose?: string;
+  stockQty?: number | null;
+  dailyDoses?: number;
+  medObj?: Medication;
 };
 
 function appointmentInfo(appt: Appointment): { label: string; sortMs: number } | null {
@@ -52,6 +59,29 @@ function appointmentInfo(appt: Appointment): { label: string; sortMs: number } |
   const dayLabel = diffDays === 0 ? 'hoje' : diffDays === 1 ? 'amanhã'
     : `${String(d).padStart(2, '0')}/${String(mo).padStart(2, '0')}`;
   return { label: `${dayLabel} às ${hh}:${mm}`, sortMs: apptMs };
+}
+
+function extractTimeDayDiff(sortMs: number): { time: string; dayDiff: number } {
+  const d = new Date(sortMs);
+  const now = new Date();
+  const today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const itemDay = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  return {
+    time: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+    dayDiff: Math.round((itemDay - today0) / 86400000),
+  };
+}
+
+function dayLabelForDiff(dayDiff: number, sortMs: number): string {
+  if (dayDiff === 0) return 'hoje';
+  if (dayDiff === 1) return 'amanhã';
+  const d = new Date(sortMs);
+  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function todayDateStr(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 function nextDailyInfo(reminders: ActivityReminder[]): { label: string; sortMs: number } | null {
@@ -86,6 +116,10 @@ export default function HomeScreen() {
   const [showInteractionsModal, setShowInteractionsModal] = useState(false);
   const [unifiedItems, setUnifiedItems] = useState<UnifiedItem[]>([]);
   const [onboardingStep, setOnboardingStep] = useState<'welcome' | 1 | 2 | 3 | 4 | null>(null);
+  const [foregroundAlerts, setForegroundAlerts] = useState<UnifiedItem[]>([]);
+  const [fgHModalItem, setFgHModalItem] = useState<UnifiedItem | null>(null);
+  const [fgHModalTimeText, setFgHModalTimeText] = useState('');
+  const dismissedAlertsRef = useRef<Set<string>>(new Set());
 
   const load = useCallback(async () => {
     const [p, m, alertActive, acts, appts, contacts, welcomeSeen, onboardingDone, skipMeds] = await Promise.all([
@@ -126,12 +160,20 @@ export default function HomeScreen() {
       const isMuted = activeReminders.length > 0 && activeReminders.every(r => !r.with_sound);
       const info = nextReminderInfo(reminders);
       if (!info) return;
+      const { time: medTime, dayDiff: medDayDiff } = extractTimeDayDiff(info.sortMs);
+      const dailyDoses = activeReminders.length || 1;
       items.push({
         id: med.id, type: 'med', icon: med.is_critical ? '⚠️' : isPhytotherapic(med.generic_name) ? '🌿' : '💊',
-        name: med.generic_name,
+        name: med.commercial_name?.trim() || med.generic_name,
         label: info.label,
+        time: medTime,
+        dayDiff: medDayDiff,
         sortMs: info.sortMs,
         isMuted,
+        dose: med.dose || undefined,
+        stockQty: med.stock_quantity,
+        dailyDoses,
+        medObj: med,
       });
     });
 
@@ -143,10 +185,13 @@ export default function HomeScreen() {
       const isMuted = activeReminders.length > 0 && activeReminders.every(r => !r.with_sound);
       const info = nextDailyInfo(reminders);
       if (!info) return;
+      const { time: actTime, dayDiff: actDayDiff } = extractTimeDayDiff(info.sortMs);
       items.push({
         id: act.id, type: 'activity', icon: ACTIVITY_PRESETS[act.type]?.icon ?? '📌',
         name: act.name,
         label: info.label,
+        time: actTime,
+        dayDiff: actDayDiff,
         sortMs: info.sortMs,
         isMuted,
       });
@@ -156,10 +201,13 @@ export default function HomeScreen() {
       const info = appointmentInfo(appt);
       if (!info) return;
       const docLabel = appt.specialty ? `${appt.doctor_name} · ${appt.specialty}` : appt.doctor_name;
+      const { time: apptTime, dayDiff: apptDayDiff } = extractTimeDayDiff(info.sortMs);
       items.push({
         id: appt.id, type: 'appointment', icon: '🩺',
         name: docLabel,
         label: info.label,
+        time: apptTime,
+        dayDiff: apptDayDiff,
         sortMs: info.sortMs,
         isMuted: false,
       });
@@ -167,6 +215,57 @@ export default function HomeScreen() {
 
     items.sort((a, b) => a.sortMs - b.sortMs);
     setUnifiedItems(items);
+
+    // Single source of truth: query all taken logs (1 year) for cross-location dedup
+    const nowD = new Date();
+    const nowMins = nowD.getHours() * 60 + nowD.getMinutes();
+    const todayWd = nowD.getDay() + 1;
+    const todayDate = nowD.getDate();
+    const since1y = new Date(nowD); since1y.setFullYear(since1y.getFullYear() - 1); since1y.setHours(0, 0, 0, 0);
+    const allLogs = await getMedicationLog({ since_iso: since1y.toISOString() });
+
+    const isSlotTaken = (medId: number, dateStr: string, timeStr: string) => {
+      const slotMs = new Date(`${dateStr}T${timeStr}:00`).getTime();
+      return allLogs.some(l =>
+        l.medication_id === medId && l.taken === 1 &&
+        Math.abs(new Date(l.scheduled_at).getTime() - slotMs) < 4 * 60 * 60 * 1000
+      );
+    };
+
+    const todayStr = `${nowD.getFullYear()}-${String(nowD.getMonth()+1).padStart(2,'0')}-${String(nowD.getDate()).padStart(2,'0')}`;
+
+    // Foreground alerts (today only, past times, not taken, not session-dismissed)
+    const overdue: UnifiedItem[] = [];
+    m.forEach((med, idx) => {
+      if (med.home_reminder === 0) return;
+      const reminders = medReminders[idx] ?? [];
+      const active = reminders.filter(r => r.is_active);
+      const overdueTime = active
+        .filter(r => {
+          const [h, rm] = r.time.split(':').map(Number);
+          if (isNaN(h)) return false;
+          const rMins = h * 60 + rm;
+          if (!r.period || r.period === 'day') return rMins <= nowMins;
+          if (r.period.startsWith('week:')) return r.period.split(':')[1].split(',').map(Number).includes(todayWd) && rMins <= nowMins;
+          if (r.period.startsWith('month:')) return r.period.split(':')[1].split(',').map(Number).includes(todayDate) && rMins <= nowMins;
+          return false;
+        })
+        .filter(r => !isSlotTaken(med.id, todayStr, r.time))
+        .map(r => r.time).sort()[0];
+      if (!overdueTime) return;
+      if (dismissedAlertsRef.current.has(`${med.id}_${todayStr}_${overdueTime}`)) return;
+      const isMuted = active.length > 0 && active.every(r => !r.with_sound);
+      overdue.push({
+        id: med.id, type: 'med',
+        icon: med.is_critical ? '⚠️' : isPhytotherapic(med.generic_name) ? '🌿' : '💊',
+        name: med.commercial_name?.trim() || med.generic_name,
+        label: `hoje às ${overdueTime}`,
+        time: overdueTime, dayDiff: 0, sortMs: 0, isMuted,
+        dose: med.dose || undefined, stockQty: med.stock_quantity,
+        dailyDoses: active.length || 1, medObj: med,
+      });
+    });
+    setForegroundAlerts(overdue);
 
     // Onboarding step logic
     if (!p?.name) {
@@ -188,6 +287,20 @@ export default function HomeScreen() {
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  // Re-check when app returns from background (useFocusEffect doesn't fire in this case)
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', state => {
+      if (state === 'active') load();
+    });
+    return () => sub.remove();
+  }, [load]);
+
+  // Re-check overdue alerts every 60 s while screen is mounted
+  useEffect(() => {
+    const timer = setInterval(() => { load(); }, 60_000);
+    return () => clearInterval(timer);
+  }, [load]);
 
   async function handleAlertToggle() {
     if (!profile?.name) {
@@ -224,6 +337,40 @@ export default function HomeScreen() {
       const reminders = await getRemindersForActivity(item.id);
       await rescheduleRemindersForActivity(item.id, item.name, reminders.map(r => ({ ...r, with_sound: newWithSound })));
     }
+    load();
+  }
+
+  async function handleTomeiHome(item: UnifiedItem, takenAt?: Date) {
+    if (!item.medObj) return;
+    const med = item.medObj;
+    const medDisplayName = med.commercial_name?.trim() || med.generic_name;
+    const nowD = new Date();
+    const todayStr = `${nowD.getFullYear()}-${String(nowD.getMonth()+1).padStart(2,'0')}-${String(nowD.getDate()).padStart(2,'0')}`;
+    const scheduledAt = new Date(`${todayStr}T${item.time}:00`).toISOString();
+    const takenAtIso = takenAt ? takenAt.toISOString() : scheduledAt;
+    const notifId = `fg_${med.id}_${todayStr}_${item.time.replace(':', '')}`;
+    await addMedicationLog({
+      medication_id: med.id,
+      medication_name: medDisplayName,
+      dose: med.dose ?? '',
+      notification_id: notifId,
+      scheduled_at: scheduledAt,
+      taken_at: takenAtIso,
+    }).then(() => markMedicationLogTaken(notifId, true)).catch(() => {});
+    if (med.stock_quantity != null) {
+      const next = Math.max(0, med.stock_quantity - 1);
+      await updateMedicationStock(med.id, next);
+      const dailyDoses = item.dailyDoses || 1;
+      const daysLeft = Math.floor(next / dailyDoses);
+      if (daysLeft <= 3) {
+        const daysUntilEnd = med.end_date
+          ? Math.ceil((new Date(med.end_date + 'T23:59:59').getTime() - Date.now()) / 86400000)
+          : Infinity;
+        if (daysLeft < daysUntilEnd) notifyLowStock(med.id, medDisplayName, daysLeft).catch(() => {});
+      }
+      if (next === 0) Alert.alert('Estoque zerado', `O estoque de ${medDisplayName} acabou. Providencie a reposição e ajuste em Medicamentos > Editar card > Controle de Estoque.`);
+    }
+    dismissPresentedForMedication(med.id).catch(() => {});
     load();
   }
 
@@ -265,23 +412,88 @@ export default function HomeScreen() {
 
   const criticalMeds = medications.filter(m => m.is_critical);
 
+  const dayGroups = useMemo(() => {
+    const groups = new Map<number, UnifiedItem[]>();
+    for (const item of unifiedItems) {
+      const list = groups.get(item.dayDiff) ?? [];
+      list.push(item);
+      groups.set(item.dayDiff, list);
+    }
+    return Array.from(groups.entries()).sort(([a], [b]) => a - b);
+  }, [unifiedItems]);
+
   return (
     <>
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
-      {/* Alert status chip */}
-      <TouchableOpacity style={styles.alertChip} activeOpacity={0.7} onPress={() => setShowAlertModal(true)}>
-        <View style={[styles.statusDot, notifActive ? styles.dotActive : styles.dotInactive]} />
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.alertChipText, { color: notifActive ? '#1a6b3a' : '#C0392B' }]}>
-            {notifActive ? 'Alerta ativado' : 'Alerta desativado'}
-          </Text>
-          {!notifActive && (
-            <Text style={styles.alertChipHint}>Toque para ativar a tela de bloqueio</Text>
-          )}
+      {/* Foreground overdue alerts */}
+      {foregroundAlerts.map(alert => (
+        <View key={alert.id} style={styles.fgAlertCard}>
+          {/* Info row: icon + name + time badge */}
+          <View style={styles.fgAlertInfo}>
+            <Text style={styles.fgAlertIcon}>{alert.icon}</Text>
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Text style={styles.fgAlertName} numberOfLines={1}>{alert.name}</Text>
+                <View style={styles.fgAlertTimeBadge}>
+                  <Text style={styles.fgAlertTimeBadgeText}>{alert.time}</Text>
+                </View>
+              </View>
+              {alert.dose ? <Text style={styles.fgAlertDose}>{alert.dose}</Text> : null}
+            </View>
+          </View>
+          {/* Buttons row */}
+          <View style={styles.fgAlertBtns}>
+            <TouchableOpacity
+              style={styles.fgAlertTomei}
+              onPress={async () => {
+                await handleTomeiHome(alert);
+                dismissedAlertsRef.current.add(`${alert.id}_${todayDateStr()}_${alert.time}`);
+                setForegroundAlerts(prev => prev.filter(a => a.id !== alert.id));
+              }}
+            >
+              <Text style={styles.fgAlertTomeiText}>✓ No horário</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.fgAlertOutro}
+              onPress={() => { setFgHModalTimeText(''); setFgHModalItem(alert); }}
+            >
+              <Text style={styles.fgAlertOutroText}>⏰ Outro</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.fgAlertPular}
+              onPress={() => {
+                dismissedAlertsRef.current.add(`${alert.id}_${todayDateStr()}_${alert.time}`);
+                setForegroundAlerts(prev => prev.filter(a => a.id !== alert.id));
+              }}
+            >
+              <Text style={styles.fgAlertPularText}>Dispensar</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <Text style={styles.cardChevron}>›</Text>
-      </TouchableOpacity>
+      ))}
+
+      {/* Alert status chip + Hist button */}
+      <View style={styles.alertRow}>
+        <TouchableOpacity style={[styles.alertChip, { flex: 1 }]} activeOpacity={0.7} onPress={() => setShowAlertModal(true)}>
+          <View style={[styles.statusDot, notifActive ? styles.dotActive : styles.dotInactive]} />
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.alertChipText, { color: notifActive ? '#1a6b3a' : '#C0392B' }]}>
+              {notifActive ? 'Alerta ativado' : 'Alerta desativado'}
+            </Text>
+            {!notifActive && (
+              <Text style={styles.alertChipHint}>Toque para ativar a tela de bloqueio</Text>
+            )}
+          </View>
+          <Text style={styles.cardChevron}>›</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.histBtn}
+          onPress={() => (navigation as any).navigate('History')}
+        >
+          <Text style={styles.histBtnText}>📋 Hist</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Alert modal */}
       <Modal visible={showAlertModal} animationType="slide" transparent onRequestClose={() => setShowAlertModal(false)}>
@@ -330,36 +542,80 @@ export default function HomeScreen() {
         </View>
       </Modal>
 
-      {/* Unified reminders list */}
-      {unifiedItems.length > 0 && (
+      {/* Unified reminders list — grouped by day */}
+      {dayGroups.length > 0 && (
         <View style={styles.remindersCard}>
-          <Text style={styles.remindersTitle}>PRÓXIMOS LEMBRETES</Text>
-          {unifiedItems.map((item, idx) => (
-            <TouchableOpacity
-              key={`${item.type}-${item.id}`}
-              style={[styles.reminderRow, idx === 0 && styles.reminderRowFirst]}
-              activeOpacity={0.6}
-              onPress={() => {
-                if (item.type === 'med') (navigation as any).navigate('Medications');
-                else if (item.type === 'appointment') (navigation as any).navigate('Agenda', { tab: 'appointments', openAppointmentId: item.id });
-                else (navigation as any).navigate('Agenda', { tab: 'activities', openActivityId: item.id });
-              }}
-            >
-              <Text style={styles.reminderIcon}>{item.icon}</Text>
-              <Text style={styles.reminderName} numberOfLines={1}>{item.name}</Text>
-              <Text style={styles.reminderLabel}>{item.label}</Text>
-              {item.type !== 'appointment' ? (
-                <TouchableOpacity
-                  style={styles.reminderBellBtn}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  onPress={() => handleToggleMute(item)}
-                >
-                  <Text style={styles.reminderBell}>{item.isMuted ? '🔕' : '🔔'}</Text>
-                </TouchableOpacity>
-              ) : (
-                <Text style={styles.reminderBell}>📅</Text>
-              )}
-            </TouchableOpacity>
+          {dayGroups.map(([diff, items], groupIdx) => (
+            <View key={diff}>
+              <View style={[styles.dayGroupHeader, groupIdx > 0 && styles.dayGroupDivider]}>
+                <Text style={styles.dayLabel}>{dayLabelForDiff(diff, items[0].sortMs)}</Text>
+                {groupIdx === 0 && <Text style={styles.remindersTitle}>PRÓXIMOS LEMBRETES</Text>}
+              </View>
+              {items.map((item) => {
+                const daysLeft = item.type === 'med' && item.stockQty != null
+                  ? Math.floor(item.stockQty / (item.dailyDoses || 1))
+                  : null;
+                const daysUntilEnd = item.medObj?.end_date
+                  ? Math.ceil((new Date(item.medObj.end_date + 'T23:59:59').getTime() - Date.now()) / 86400000)
+                  : null;
+                const stockWillRunOutBeforeEnd = daysLeft != null && daysLeft <= 3
+                  && daysUntilEnd != null && daysLeft < daysUntilEnd;
+                const stockLow = daysLeft != null && daysLeft <= 3;
+                const stockAlert = stockWillRunOutBeforeEnd
+                  ? '⚠ acaba antes do prazo'
+                  : stockLow ? '⚠ baixo' : null;
+                const stockInfo = item.type === 'med' && item.stockQty != null && daysLeft != null
+                  ? `${item.stockQty} restante${item.stockQty !== 1 ? 's' : ''} · ~${daysLeft} dia${daysLeft !== 1 ? 's' : ''}${stockAlert ? `  ${stockAlert}` : ''}`
+                  : null;
+                return (
+                  <TouchableOpacity
+                    key={`${item.type}-${item.id}`}
+                    style={styles.reminderRow}
+                    activeOpacity={0.6}
+                    onPress={() => {
+                      if (item.type === 'med') (navigation as any).navigate('Medications');
+                      else if (item.type === 'appointment') (navigation as any).navigate('Agenda', { tab: 'appointments', openAppointmentId: item.id });
+                      else (navigation as any).navigate('Agenda', { tab: 'activities', openActivityId: item.id });
+                    }}
+                  >
+                    <Text style={styles.reminderTimeLeft}>{item.time}</Text>
+                    <Text style={styles.reminderIcon}>{item.icon}</Text>
+                    <View style={styles.reminderContent}>
+                      <View style={styles.reminderTopRow}>
+                        <Text style={styles.reminderName} numberOfLines={1}>{item.name}</Text>
+                        {item.type !== 'appointment' ? (
+                          <TouchableOpacity
+                            style={styles.reminderBellBtn}
+                            hitSlop={{ top: 10, bottom: 10, left: 6, right: 6 }}
+                            onPress={() => handleToggleMute(item)}
+                          >
+                            <Text style={styles.reminderBell}>{item.isMuted ? '🔕' : '🔔'}</Text>
+                          </TouchableOpacity>
+                        ) : (
+                          <Text style={styles.reminderBell}>📅</Text>
+                        )}
+                      </View>
+                      {(item.dose || stockInfo) && (
+                        <Text style={styles.reminderSubLine}>
+                          {item.dose ? item.dose : null}
+                          {item.dose && item.stockQty != null && daysLeft != null ? '  ·  ' : null}
+                          {item.stockQty != null && daysLeft != null ? (
+                            <>
+                              {`${item.stockQty} restante${item.stockQty !== 1 ? 's' : ''} · ~${daysLeft} dia${daysLeft !== 1 ? 's' : ''}`}
+                              {stockAlert ? (
+                                <Text style={{ color: stockWillRunOutBeforeEnd ? '#CC0000' : '#E07B4F', fontWeight: '600' }}>
+                                  {`  ${stockAlert}`}
+                                </Text>
+                              ) : null}
+                            </>
+                          ) : null}
+                        </Text>
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           ))}
         </View>
       )}
@@ -386,6 +642,51 @@ export default function HomeScreen() {
           </Text>
           <Text style={styles.cardChevron}>›</Text>
         </TouchableOpacity>
+      )}
+
+      {fgHModalItem && (
+        <Modal visible transparent animationType="fade" onRequestClose={() => setFgHModalItem(null)}>
+          <View style={styles.overdueOverlay}>
+            <View style={styles.overdueBox}>
+              <Text style={[styles.overdueName, { fontSize: 16, marginBottom: 4 }]}>Informe o horário em que tomou o medicamento</Text>
+              <Text style={styles.overdueTime}>{fgHModalItem.name}</Text>
+              <TextInput
+                style={styles.hTimeInput}
+                value={fgHModalTimeText}
+                onChangeText={t => {
+                  const digits = t.replace(/\D/g, '').slice(0, 4);
+                  setFgHModalTimeText(digits.length > 2 ? `${digits.slice(0,2)}:${digits.slice(2)}` : digits);
+                }}
+                placeholder="HH:MM"
+                keyboardType="numeric"
+                maxLength={5}
+                autoFocus
+                textAlign="center"
+              />
+              <TouchableOpacity
+                style={styles.overdueTomei}
+                onPress={async () => {
+                  const [h, mn] = fgHModalTimeText.split(':').map(Number);
+                  if (isNaN(h) || isNaN(mn) || h > 23 || mn > 59) {
+                    Alert.alert('Horário inválido', 'Informe no formato HH:MM (ex: 14:30)');
+                    return;
+                  }
+                  const item = fgHModalItem;
+                  const customTime = new Date(); customTime.setHours(h, mn, 0, 0);
+                  setFgHModalItem(null); setFgHModalTimeText('');
+                  await handleTomeiHome(item, customTime);
+                  dismissedAlertsRef.current.add(`${item.id}_${todayDateStr()}_${item.time}`);
+                  setForegroundAlerts(prev => prev.filter(a => a.id !== item.id));
+                }}
+              >
+                <Text style={styles.overdueTomeiText}>Confirmar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.overdueDispensar} onPress={() => { setFgHModalItem(null); setFgHModalTimeText(''); }}>
+                <Text style={styles.overdueDispensarText}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       )}
 
       <Modal visible={showInteractionsModal} animationType="slide" transparent onRequestClose={() => setShowInteractionsModal(false)}>
@@ -655,11 +956,50 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F2F4F8' },
   content: { padding: 14, paddingBottom: 32 },
 
+  fgAlertCard: {
+    backgroundColor: '#1C3F7A', borderRadius: 14, padding: 14, marginBottom: 10,
+  },
+  fgAlertInfo: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
+  fgAlertIcon: { fontSize: 30 },
+  fgAlertName: { fontSize: 16, fontWeight: '700', color: '#fff', flex: 1 },
+  fgAlertTimeBadge: {
+    backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: 6,
+    paddingHorizontal: 8, paddingVertical: 3,
+  },
+  fgAlertTimeBadgeText: { fontSize: 13, fontWeight: '700', color: '#fff' },
+  fgAlertDose: { fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2 },
+  fgAlertBtns: { flexDirection: 'row', gap: 6 },
+  fgAlertTomei: {
+    flex: 1, backgroundColor: '#fff', borderRadius: 8,
+    paddingVertical: 9, alignItems: 'center',
+  },
+  fgAlertTomeiText: { fontSize: 12, fontWeight: '700', color: '#1C3F7A' },
+  fgAlertOutro: {
+    flex: 1, backgroundColor: '#E07B4F', borderRadius: 8,
+    paddingVertical: 9, alignItems: 'center',
+  },
+  fgAlertOutroText: { fontSize: 12, fontWeight: '700', color: '#fff' },
+  fgAlertPular: {
+    flex: 1, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 8,
+    paddingVertical: 9, alignItems: 'center',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)',
+  },
+  fgAlertPularText: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.8)' },
+
+  alertRow: {
+    flexDirection: 'row', alignItems: 'stretch', gap: 8, marginBottom: 10,
+  },
   alertChip: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
     backgroundColor: '#fff', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 14,
-    marginBottom: 10, borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
   },
+  histBtn: {
+    backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14,
+    justifyContent: 'center', alignItems: 'center',
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
+  },
+  histBtnText: { fontSize: 13, color: '#1C3F7A', fontWeight: '600' },
   statusDot: { width: 8, height: 8, borderRadius: 4 },
   dotActive: { backgroundColor: '#5DC994' },
   dotInactive: { backgroundColor: '#E07B4F' },
@@ -695,21 +1035,39 @@ const styles = StyleSheet.create({
     borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
     overflow: 'hidden',
   },
+  dayGroupHeader: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 14, paddingTop: 10, paddingBottom: 4,
+  },
+  dayGroupDivider: {
+    borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.06)', paddingTop: 10, marginTop: 4,
+  },
   remindersTitle: {
-    fontSize: 10, color: '#8A8F9D', fontWeight: '700', letterSpacing: 0.8,
-    paddingHorizontal: 14, paddingTop: 12, paddingBottom: 8,
+    fontSize: 10, color: '#8A8F9D', fontWeight: '700', letterSpacing: 0.8, flex: 1, textAlign: 'right',
+  },
+  dayLabel: {
+    fontSize: 13, color: '#1C3F7A', fontWeight: '700', flexShrink: 0, marginRight: 6,
   },
   reminderRow: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingVertical: 11, paddingHorizontal: 14,
+    flexDirection: 'row', alignItems: 'flex-start',
+    paddingVertical: 9, paddingHorizontal: 14,
     borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.05)',
   },
-  reminderRowFirst: { borderTopWidth: 0 },
-  reminderIcon: { fontSize: 17, marginRight: 10, width: 22, textAlign: 'center' },
-  reminderName: { fontSize: 13, color: '#1A1F2E', fontWeight: '500', flex: 1, marginRight: 8 },
-  reminderLabel: { fontSize: 12, color: '#1C3F7A', fontWeight: '600', marginRight: 8 },
+  reminderTimeLeft: { fontSize: 14, color: '#1C3F7A', fontWeight: '800', width: 56, paddingTop: 1, marginRight: 6 },
+  reminderIcon: { fontSize: 17, marginRight: 8, width: 22, textAlign: 'center', paddingTop: 1 },
+  reminderContent: { flex: 1 },
+  reminderTopRow: { flexDirection: 'row', alignItems: 'center' },
+  reminderName: { fontSize: 13, color: '#1A1F2E', fontWeight: '500', flex: 1, marginRight: 4 },
+  reminderTime: { fontSize: 13, color: '#1C3F7A', fontWeight: '700', marginRight: 6 },
+  reminderSubLine: { fontSize: 11, color: '#8A8F9D', marginTop: 3 },
   reminderBellBtn: { padding: 2 },
   reminderBell: { fontSize: 15 },
+  hTimeInput: {
+    borderWidth: 1.5, borderColor: '#1C3F7A', borderRadius: 10,
+    fontSize: 28, fontWeight: '700', color: '#1C3F7A',
+    paddingVertical: 12, paddingHorizontal: 20,
+    marginVertical: 16, width: 140, textAlign: 'center',
+  },
 
   cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   cardChevron: { fontSize: 22, color: '#C0C5D0', lineHeight: 24 },
@@ -863,4 +1221,27 @@ const styles = StyleSheet.create({
     borderLeftColor: 'transparent', borderRightColor: 'transparent',
     borderBottomColor: '#fff',
   },
+  overdueOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.55)',
+    justifyContent: 'center', alignItems: 'center', padding: 32,
+  },
+  overdueBox: {
+    backgroundColor: '#fff', borderRadius: 20, padding: 28,
+    alignItems: 'center', width: '100%',
+    shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 16, elevation: 12,
+  },
+  overdueIcon: { fontSize: 48, marginBottom: 10 },
+  overdueName: { fontSize: 20, fontWeight: '800', color: '#1C3F7A', textAlign: 'center', marginBottom: 6 },
+  overdueTime: { fontSize: 14, color: '#666', marginBottom: 4 },
+  overdueSubtitle: { fontSize: 15, color: '#444', marginTop: 10, marginBottom: 20, textAlign: 'center' },
+  overdueTomei: {
+    backgroundColor: '#1C3F7A', borderRadius: 12, paddingVertical: 14,
+    paddingHorizontal: 40, marginBottom: 10, width: '100%', alignItems: 'center',
+  },
+  overdueTomeiText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  overdueDispensar: {
+    borderWidth: 1.5, borderColor: '#C8CDD8', borderRadius: 12,
+    paddingVertical: 12, paddingHorizontal: 40, width: '100%', alignItems: 'center',
+  },
+  overdueDispensarText: { color: '#666', fontSize: 15, fontWeight: '600' },
 });
