@@ -30,7 +30,13 @@
     "drug2": "Simpaticomiméticos (Efedrina, Pseudoefedrina)",
     "risk_level": "critical",
     "risk_description": "Risco de crise hipertensiva com risco de vida",
-    "mechanism": "IMAOs impedem a degradação de catecolaminas; simpaticomiméticos amplificam a liberação de noradrenalina, podendo causar PA >220/130 mmHg, AVC hemorrágico e morte."
+    "mechanism": "IMAOs impedem a degradação de catecolaminas; simpaticomiméticos amplificam a liberação de noradrenalina, podendo causar PA >220/130 mmHg, AVC hemorrágico e morte.",
+    "drug1_rxcuis": [
+      "10734"
+    ],
+    "drug2_rxcuis": [
+      "8896"
+    ]
   },
   {
     "id": "int_004",
@@ -107,6 +113,10 @@
     "mechanism": "IBPs inibem o CYP2C19, enzima que ativa o clopidogrel. Pantoprazol é o IBP com menor interação; deve ser preferido em pacientes com stents coronarianos.",
     "drug1_rxcuis": [
       "32968"
+    ],
+    "drug2_rxcuis": [
+      "7646",
+      "283742"
     ]
   },
   {
@@ -2295,20 +2305,6 @@
     ]
   },
   {
-    "id": "int_201",
-    "drug1": "Ácido acetilsalicílico",
-    "drug2": "Varfarina",
-    "risk_level": "high",
-    "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Monitorar INR.",
-    "drug1_rxcuis": [
-      "1191"
-    ],
-    "drug2_rxcuis": [
-      "11289"
-    ]
-  },
-  {
     "id": "int_202",
     "drug1": "Ácido acetilsalicílico",
     "drug2": "Ibuprofeno",
@@ -3160,20 +3156,6 @@
     ]
   },
   {
-    "id": "int_263",
-    "drug1": "Bevacizumabe",
-    "drug2": "Sunitinibe",
-    "risk_level": "high",
-    "risk_description": "Risco de perfuração gastrointestinal",
-    "mechanism": "Risco de perfuração gastrointestinal. Conduta: Evitar combinação.",
-    "drug1_rxcuis": [
-      "253337"
-    ],
-    "drug2_rxcuis": [
-      "357977"
-    ]
-  },
-  {
     "id": "int_264",
     "drug1": "Bevacizumabe (oncológico)",
     "drug2": "Sunitinibe",
@@ -3182,6 +3164,9 @@
     "mechanism": "Risco aumentado de perfuração gastrointestinal. Conduta: Evitar combinação.",
     "drug2_rxcuis": [
       "357977"
+    ],
+    "drug1_rxcuis": [
+      "253337"
     ]
   },
   {
@@ -3941,34 +3926,6 @@
     ]
   },
   {
-    "id": "int_319",
-    "drug1": "Clopidogrel",
-    "drug2": "Omeprazol",
-    "risk_level": "high",
-    "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Evitar.",
-    "drug1_rxcuis": [
-      "32968"
-    ],
-    "drug2_rxcuis": [
-      "7646"
-    ]
-  },
-  {
-    "id": "int_320",
-    "drug1": "Clopidogrel",
-    "drug2": "Esomeprazol",
-    "risk_level": "high",
-    "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Evitar.",
-    "drug1_rxcuis": [
-      "32968"
-    ],
-    "drug2_rxcuis": [
-      "283742"
-    ]
-  },
-  {
     "id": "int_321",
     "drug1": "Clopidogrel",
     "drug2": "Dabigatrana",
@@ -4235,48 +4192,6 @@
     ]
   },
   {
-    "id": "int_340",
-    "drug1": "Colchicina",
-    "drug2": "Ciclosporina",
-    "risk_level": "high",
-    "risk_description": "nefrotoxicidade grave",
-    "mechanism": "nefrotoxicidade grave. Conduta: Evitar combinação.",
-    "drug1_rxcuis": [
-      "2683"
-    ],
-    "drug2_rxcuis": [
-      "3008"
-    ]
-  },
-  {
-    "id": "int_341",
-    "drug1": "Colchicina",
-    "drug2": "Eritromicina",
-    "risk_level": "high",
-    "risk_description": "nefrotoxicidade grave",
-    "mechanism": "nefrotoxicidade grave. Conduta: Evitar combinação.",
-    "drug1_rxcuis": [
-      "2683"
-    ],
-    "drug2_rxcuis": [
-      "4053"
-    ]
-  },
-  {
-    "id": "int_342",
-    "drug1": "Colchicina",
-    "drug2": "Claritromicina",
-    "risk_level": "critical",
-    "risk_description": "nefrotoxicidade grave",
-    "mechanism": "nefrotoxicidade grave. Conduta: Evitar combinação.",
-    "drug1_rxcuis": [
-      "2683"
-    ],
-    "drug2_rxcuis": [
-      "21212"
-    ]
-  },
-  {
     "id": "int_343",
     "drug1": "Colchicina (gota)",
     "drug2": "Ciclosporina",
@@ -4285,6 +4200,9 @@
     "mechanism": "neuropatia grave. Conduta: Evitar.",
     "drug2_rxcuis": [
       "3008"
+    ],
+    "drug1_rxcuis": [
+      "2683"
     ]
   },
   {
@@ -4296,6 +4214,9 @@
     "mechanism": "neuropatia grave. Conduta: Evitar.",
     "drug2_rxcuis": [
       "4053"
+    ],
+    "drug1_rxcuis": [
+      "2683"
     ]
   },
   {
@@ -4307,6 +4228,9 @@
     "mechanism": "neuropatia grave. Conduta: Evitar.",
     "drug2_rxcuis": [
       "21212"
+    ],
+    "drug1_rxcuis": [
+      "2683"
     ]
   },
   {
@@ -7219,18 +7143,6 @@
     ]
   },
   {
-    "id": "int_555",
-    "drug1": "Metotrexato (oncológico)",
-    "drug2": "Trimetoprima/Sulfametoxazol",
-    "risk_level": "critical",
-    "risk_description": "Toxicidade por metotrexato",
-    "mechanism": "Toxicidade por metotrexato. Conduta: Evitar combinação.",
-    "drug2_rxcuis": [
-      "10829",
-      "10180"
-    ]
-  },
-  {
     "id": "int_556",
     "drug1": "Metronidazol (antiparasitário)",
     "drug2": "Lítio",
@@ -7314,34 +7226,6 @@
   {
     "id": "int_562",
     "drug1": "Mononitrato de Isossorbida",
-    "drug2": "Vardenafila",
-    "risk_level": "critical",
-    "risk_description": "Hipotensão grave",
-    "mechanism": "Hipotensão grave. Conduta: Contraindicado.",
-    "drug1_rxcuis": [
-      "28004"
-    ],
-    "drug2_rxcuis": [
-      "306674"
-    ]
-  },
-  {
-    "id": "int_563",
-    "drug1": "Mononitrato de Isossorbida 60mg",
-    "drug2": "Tadalafila",
-    "risk_level": "critical",
-    "risk_description": "Hipotensão grave",
-    "mechanism": "Hipotensão grave. Conduta: Contraindicado.",
-    "drug1_rxcuis": [
-      "28004"
-    ],
-    "drug2_rxcuis": [
-      "358263"
-    ]
-  },
-  {
-    "id": "int_564",
-    "drug1": "Mononitrato de Isossorbida 60mg",
     "drug2": "Vardenafila",
     "risk_level": "critical",
     "risk_description": "Hipotensão grave",
@@ -9943,20 +9827,6 @@
     ]
   },
   {
-    "id": "int_751",
-    "drug1": "Tranilcipromina",
-    "drug2": "Pseudoefedrina",
-    "risk_level": "critical",
-    "risk_description": "Crise hipertensiva",
-    "mechanism": "Crise hipertensiva. Conduta: Contraindicado.",
-    "drug1_rxcuis": [
-      "10734"
-    ],
-    "drug2_rxcuis": [
-      "8896"
-    ]
-  },
-  {
     "id": "int_752",
     "drug1": "Tranilcipromina",
     "drug2": "Selegilina",
@@ -10723,17 +10593,6 @@
     "mechanism": "supressão imunológica grave. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "614391"
-    ]
-  },
-  {
-    "id": "int_808",
-    "drug1": "Ácido acetilsalicílico",
-    "drug2": "Álcool/etanol",
-    "risk_level": "moderate",
-    "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Evitar.",
-    "drug1_rxcuis": [
-      "1191"
     ]
   },
   {
@@ -11926,14 +11785,6 @@
     ]
   },
   {
-    "id": "int_910",
-    "drug1": "Metotrexato (oncológico)",
-    "drug2": "Álcool/etanol",
-    "risk_level": "high",
-    "risk_description": "Toxicidade por metotrexato",
-    "mechanism": "Toxicidade por metotrexato. Conduta: Evitar consumo."
-  },
-  {
     "id": "int_911",
     "drug1": "Metronidazol",
     "drug2": "Álcool/etanol",
@@ -11943,14 +11794,6 @@
     "drug1_rxcuis": [
       "6922"
     ]
-  },
-  {
-    "id": "int_912",
-    "drug1": "Metronidazol (antiparasitário)",
-    "drug2": "Álcool/etanol",
-    "risk_level": "high",
-    "risk_description": "Síndrome disulfiram",
-    "mechanism": "Síndrome disulfiram. Conduta: Evitar uso concomitante."
   },
   {
     "id": "int_913",
