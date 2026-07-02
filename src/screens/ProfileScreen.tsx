@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, TextInput, StyleSheet, ScrollView,
   TouchableOpacity, Alert, ActivityIndicator,
@@ -7,11 +7,13 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { File, Paths } from 'expo-file-system';
+import { StorageAccessFramework, writeAsStringAsync } from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
-import { getProfile, saveProfile, exportBackup, importBackup } from '../database/db';
+import { getProfile, saveProfile, exportBackup, importBackup, getAppointments } from '../database/db';
 import { getMedications } from '../database/db';
-import { updateEmergencyNotification } from '../services/notifications';
+import { updateEmergencyNotification, calculateAge, rescheduleAllActiveNotifications, scheduleAppointmentReminders } from '../services/notifications';
+import * as Notifications from 'expo-notifications';
 import { Profile, BLOOD_TYPES } from '../types';
 
 export default function ProfileScreen() {
@@ -21,9 +23,13 @@ export default function ProfileScreen() {
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState('');
   const [bloodType, setBloodType] = useState('Desconhecido');
-  const [birthDate, setBirthDate] = useState('');
+  const [bdDay, setBdDay] = useState('');
+  const [bdMonth, setBdMonth] = useState('');
+  const [bdYear, setBdYear] = useState('');
   const [allergies, setAllergies] = useState('');
   const [notes, setNotes] = useState('');
+  const bdMonthRef = useRef<TextInput>(null);
+  const bdYearRef = useRef<TextInput>(null);
 
   useEffect(() => {
     loadProfile();
@@ -34,7 +40,8 @@ export default function ProfileScreen() {
     if (profile) {
       setName(profile.name);
       setBloodType(profile.blood_type);
-      setBirthDate(profile.birth_date);
+      const match = profile.birth_date?.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      if (match) { setBdDay(match[1]); setBdMonth(match[2]); setBdYear(match[3]); }
       setAllergies(profile.allergies);
       setNotes(profile.notes);
     }
@@ -42,6 +49,33 @@ export default function ProfileScreen() {
   }
 
   async function handleExport() {
+    Alert.alert('Exportar backup', 'Onde deseja guardar o arquivo?', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Compartilhar', onPress: exportViaShare },
+      { text: 'Salvar no celular', onPress: exportToFolder },
+    ]);
+  }
+
+  // Salva numa pasta escolhida pelo usuário (ex.: Downloads) — o arquivo fica
+  // visível no gerenciador de arquivos do próprio celular.
+  async function exportToFolder() {
+    try {
+      const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
+      if (!permissions.granted) return;
+      const json = await exportBackup();
+      const date = new Date().toISOString().slice(0, 10);
+      // Sem extensão no nome: o Android acrescenta .json a partir do MIME
+      const uri = await StorageAccessFramework.createFileAsync(
+        permissions.directoryUri, `medalert_backup_${date}`, 'application/json'
+      );
+      await writeAsStringAsync(uri, json);
+      Alert.alert('Backup salvo', 'Arquivo salvo na pasta escolhida. Para restaurar em outro celular, copie o arquivo e use "Restaurar backup".');
+    } catch {
+      Alert.alert('Erro', 'Não foi possível salvar o backup.');
+    }
+  }
+
+  async function exportViaShare() {
     try {
       const json = await exportBackup();
       const date = new Date().toISOString().slice(0, 10);
@@ -63,11 +97,22 @@ export default function ProfileScreen() {
           text: 'Escolher arquivo',
           onPress: async () => {
             try {
-              const result = await DocumentPicker.getDocumentAsync({ type: 'application/json', copyToCacheDirectory: true });
+              // type '*/*': arquivos .json copiados do PC via USB muitas vezes não têm
+              // MIME application/json e ficariam invisíveis/bloqueados no seletor
+              const result = await DocumentPicker.getDocumentAsync({ type: '*/*', copyToCacheDirectory: true });
               if (result.canceled || !result.assets?.length) return;
               const json = await new File(result.assets[0].uri).text();
               await importBackup(json);
-              Alert.alert('Backup restaurado', 'Dados restaurados com sucesso. Reinicie o app para atualizar os lembretes.');
+              // Reagenda tudo na hora — sem exigir reinício do app.
+              // Cancela agendamentos dos dados antigos (substituídos pelo import) e recria dos novos.
+              await Notifications.cancelAllScheduledNotificationsAsync().catch(() => {});
+              await rescheduleAllActiveNotifications().catch(() => {});
+              const appts = await getAppointments().catch(() => []);
+              for (const a of appts) {
+                await scheduleAppointmentReminders(a.id, a.doctor_name, a.date, a.time).catch(() => {});
+              }
+              await loadProfile();
+              Alert.alert('Backup restaurado', 'Dados e lembretes restaurados com sucesso.');
             } catch (e: any) {
               Alert.alert('Erro ao restaurar', e?.message ?? 'Arquivo inválido ou corrompido.');
             }
@@ -76,6 +121,8 @@ export default function ProfileScreen() {
       ]
     );
   }
+
+  const birthDate = (bdDay.length === 2 && bdMonth.length === 2 && bdYear.length === 4) ? `${bdDay}/${bdMonth}/${bdYear}` : '';
 
   async function handleSave() {
     if (!name.trim()) {
@@ -89,7 +136,7 @@ export default function ProfileScreen() {
       const profile = await getProfile();
       if (profile) await updateEmergencyNotification(profile, meds).catch(() => {});
       Alert.alert('Salvo!', 'Perfil atualizado.', [
-        { text: 'OK', onPress: () => navigation.navigate('Home' as never) },
+        { text: 'OK', onPress: () => navigation.goBack() },
       ]);
     } catch {
       Alert.alert('Erro', 'Não foi possível salvar o perfil. Tente novamente.');
@@ -101,14 +148,38 @@ export default function ProfileScreen() {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#1a3a6b" />
+        <ActivityIndicator size="large" color="#1C3F7A" />
       </View>
     );
   }
 
+  const previewAge = calculateAge(birthDate);
+  const previewBloodSuffix = (bloodType && bloodType !== 'Desconhecido') ? `  🩸 ${bloodType}` : '';
+  const previewAgeSuffix = previewAge != null ? `  ${previewAge}A` : '';
+  const previewLines = [
+    `👤 ${name.trim() || 'Seu nome'}${previewBloodSuffix}${previewAgeSuffix}`,
+    allergies.trim() ? `Alergia: ${allergies.trim()}` : null,
+    notes.trim() ? `📋 ${notes.trim()}` : null,
+  ].filter(Boolean) as string[];
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView style={styles.container} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]} keyboardShouldPersistTaps="handled">
+        <View style={styles.previewSection}>
+          <Text style={styles.previewLabel}>PRÉ-VISUALIZAÇÃO — TELA DE BLOQUEIO</Text>
+          <View style={styles.previewNotif}>
+            <View style={styles.previewIconBox}>
+              <Text style={styles.previewIconCross}>✚</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.previewTitle} numberOfLines={1}>Informações Médicas</Text>
+              {previewLines.map((line, i) => (
+                <Text key={i} style={styles.previewLine} numberOfLines={1}>{line}</Text>
+              ))}
+            </View>
+          </View>
+        </View>
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Identificação</Text>
 
@@ -122,14 +193,64 @@ export default function ProfileScreen() {
           />
 
           <Text style={styles.label}>Data de nascimento</Text>
-          <TextInput
-            style={styles.input}
-            value={birthDate}
-            onChangeText={setBirthDate}
-            placeholder="DD/MM/AAAA"
-            keyboardType="numeric"
-            maxLength={10}
-          />
+          <View style={styles.dateRow}>
+            <TextInput
+              style={[styles.input, styles.dateInputDay]}
+              value={bdDay}
+              onChangeText={t => {
+                const digits = t.replace(/\D/g, '').slice(0, 2);
+                setBdDay(digits);
+                if (digits.length === 2) bdMonthRef.current?.focus();
+              }}
+              onEndEditing={() => {
+                if (bdDay.length === 0) return;
+                if (bdDay.length === 1) { setBdDay('0' + bdDay); return; }
+                const n = parseInt(bdDay, 10);
+                if (n < 1 || n > 31) setBdDay('00');
+              }}
+              placeholder="DD"
+              keyboardType="numeric"
+              maxLength={2}
+              textAlign="center"
+            />
+            <Text style={styles.dateSeparator}>/</Text>
+            <TextInput
+              ref={bdMonthRef}
+              style={[styles.input, styles.dateInputMonth]}
+              value={bdMonth}
+              onChangeText={t => {
+                const digits = t.replace(/\D/g, '').slice(0, 2);
+                setBdMonth(digits);
+                if (digits.length === 2) bdYearRef.current?.focus();
+              }}
+              onEndEditing={() => {
+                if (bdMonth.length === 0) return;
+                if (bdMonth.length === 1) { setBdMonth('0' + bdMonth); return; }
+                const n = parseInt(bdMonth, 10);
+                if (n < 1 || n > 12) setBdMonth('00');
+              }}
+              placeholder="MM"
+              keyboardType="numeric"
+              maxLength={2}
+              textAlign="center"
+            />
+            <Text style={styles.dateSeparator}>/</Text>
+            <TextInput
+              ref={bdYearRef}
+              style={[styles.input, styles.dateInputYear]}
+              value={bdYear}
+              onChangeText={t => setBdYear(t.replace(/\D/g, '').slice(0, 4))}
+              onEndEditing={() => {
+                if (bdYear.length === 0) return;
+                const n = parseInt(bdYear, 10);
+                if (bdYear.length !== 4 || n < 1890 || n > 2050) setBdYear('0000');
+              }}
+              placeholder="AAAA"
+              keyboardType="numeric"
+              maxLength={4}
+              textAlign="center"
+            />
+          </View>
         </View>
 
         <View style={styles.section}>
@@ -175,7 +296,7 @@ export default function ProfileScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Backup de Dados</Text>
-          <Text style={styles.backupHint}>Exporte seus medicamentos, contatos e atividades para um arquivo JSON. Útil ao trocar de celular.</Text>
+          <Text style={styles.backupHint}>Salve seus medicamentos, contatos e atividades em um arquivo no celular (ex.: pasta Downloads) ou compartilhe para nuvem/WhatsApp. Útil ao trocar de celular.</Text>
           <TouchableOpacity style={styles.backupBtn} onPress={handleExport}>
             <Text style={styles.backupBtnText}>Exportar backup</Text>
           </TouchableOpacity>
@@ -189,9 +310,7 @@ export default function ProfileScreen() {
             ℹ️  Estas informações serão exibidas na tela de bloqueio para socorristas. Salvar atualiza automaticamente o alerta de emergência.
           </Text>
         </View>
-      </ScrollView>
 
-      <View style={[styles.saveBtnContainer, { paddingBottom: insets.bottom + 12 }]}>
         <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={saving}>
           {saving ? (
             <ActivityIndicator color="#fff" />
@@ -199,31 +318,50 @@ export default function ProfileScreen() {
             <Text style={styles.saveBtnText}>Salvar Perfil</Text>
           )}
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: { flex: 1, backgroundColor: '#F2F4F8' },
   content: { padding: 16, paddingBottom: 24 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  previewSection: { marginBottom: 14 },
+  previewLabel: { fontSize: 10, fontWeight: '700', color: '#8A8F9D', letterSpacing: 0.5, marginBottom: 6 },
+  previewNotif: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 10,
+    backgroundColor: '#fff', borderRadius: 12, padding: 12,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.08)',
+  },
+  previewIconBox: {
+    width: 36, height: 36, borderRadius: 8, backgroundColor: '#1C3F7A',
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  previewIconCross: { color: '#E53935', fontSize: 18, fontWeight: '900' },
+  previewTitle: { fontSize: 14, fontWeight: '700', color: '#1A1F2E' },
+  previewLine: { fontSize: 12, color: '#555', marginTop: 2 },
   section: {
     backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 14,
     elevation: 1, shadowColor: '#000', shadowOpacity: 0.07, shadowRadius: 3,
   },
-  sectionTitle: { fontSize: 14, fontWeight: '700', color: '#1a3a6b', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 },
+  sectionTitle: { fontSize: 14, fontWeight: '700', color: '#1C3F7A', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 },
   label: { fontSize: 13, color: '#555', marginBottom: 4, marginTop: 10 },
   input: {
     borderWidth: 1, borderColor: '#ddd', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10,
     fontSize: 15, color: '#222', backgroundColor: '#fafafa',
   },
   inputMultiline: { minHeight: 70, textAlignVertical: 'top' },
+  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  dateInputDay: { width: 56 },
+  dateInputMonth: { width: 56 },
+  dateInputYear: { width: 76 },
+  dateSeparator: { fontSize: 16, color: '#999' },
   bloodTypeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   bloodTypeBtn: {
     borderWidth: 1.5, borderColor: '#ccc', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8, minWidth: 60, alignItems: 'center',
   },
-  bloodTypeBtnSelected: { borderColor: '#1a3a6b', backgroundColor: '#1a3a6b' },
+  bloodTypeBtnSelected: { borderColor: '#1C3F7A', backgroundColor: '#1C3F7A' },
   bloodTypeBtnText: { fontSize: 14, color: '#444', fontWeight: '600' },
   bloodTypeBtnTextSelected: { color: '#fff' },
   backupHint: { fontSize: 13, color: '#666', marginBottom: 12, lineHeight: 18 },
@@ -235,7 +373,6 @@ const styles = StyleSheet.create({
   backupBtnTextImport: { color: '#1C3F7A' },
   infoBox: { backgroundColor: '#e8f4fd', borderRadius: 10, padding: 12, marginBottom: 16 },
   infoText: { fontSize: 13, color: '#0066cc', lineHeight: 18 },
-  saveBtnContainer: { backgroundColor: '#fff', paddingHorizontal: 20, paddingTop: 12, borderTopWidth: 0.5, borderTopColor: '#E0E4EE' },
-  saveBtn: { backgroundColor: '#1a3a6b', borderRadius: 10, padding: 16, alignItems: 'center' },
+  saveBtn: { backgroundColor: '#1C3F7A', borderRadius: 10, padding: 16, alignItems: 'center', marginTop: 4 },
   saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
 });

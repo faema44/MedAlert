@@ -195,7 +195,7 @@ export default function HistoryScreen() {
           {/* Header row */}
           <View style={styles.histHeader}>
             <Text style={styles.histCount}>{filteredMedLogs.length} registro(s)</Text>
-            <TouchableOpacity style={[styles.histIconBtn, { backgroundColor: '#E07B4F' }]} onPress={handleDeleteMedLogs}>
+            <TouchableOpacity style={[styles.histIconBtn, { backgroundColor: '#E07B4F' }]} onPress={handleDeleteMedLogs} accessibilityLabel="Apagar histórico de medicamentos" accessibilityRole="button">
               <Text style={styles.histIconBtnText}>🗑️</Text>
             </TouchableOpacity>
           </View>

@@ -259,10 +259,11 @@ export default function HomeScreen() {
     const since1y = new Date(nowD); since1y.setFullYear(since1y.getFullYear() - 1); since1y.setHours(0, 0, 0, 0);
     const allLogs = await getMedicationLog({ since_iso: since1y.toISOString() });
 
+    // Slot "respondido" = Tomei OU Não tomei — ambos resolvem a cobrança do dia
     const isSlotTaken = (medId: number, dateStr: string, timeStr: string) => {
       const slotMs = new Date(`${dateStr}T${timeStr}:00`).getTime();
       return allLogs.some(l =>
-        l.medication_id === medId && l.taken === 1 &&
+        l.medication_id === medId && l.taken != null &&
         Math.abs(new Date(l.scheduled_at).getTime() - slotMs) < 4 * 60 * 60 * 1000
       );
     };
@@ -370,6 +371,27 @@ export default function HomeScreen() {
     load();
   }
 
+  // "Não tomei" na Home: grava taken=0 igual ao botão da notificação —
+  // antes o "Dispensar" só escondia o cartão e a dose ficava sem resposta no histórico
+  async function handlePuleiHome(item: UnifiedItem) {
+    if (!item.medObj) return;
+    const med = item.medObj;
+    const medDisplayName = med.commercial_name?.trim() || med.generic_name;
+    const nowD = new Date();
+    const todayStr = `${nowD.getFullYear()}-${String(nowD.getMonth()+1).padStart(2,'0')}-${String(nowD.getDate()).padStart(2,'0')}`;
+    const scheduledAt = new Date(`${todayStr}T${item.time}:00`).toISOString();
+    const notifId = `fg_${med.id}_${todayStr}_${item.time.replace(':', '')}`;
+    await addMedicationLog({
+      medication_id: med.id,
+      medication_name: medDisplayName,
+      dose: med.dose ?? '',
+      notification_id: notifId,
+      scheduled_at: scheduledAt,
+    }).then(() => markMedicationLogTaken(notifId, false)).catch(() => {});
+    dismissPresentedForMedication(med.id).catch(() => {});
+    load();
+  }
+
   async function handleTomeiHome(item: UnifiedItem, takenAt?: Date) {
     if (!item.medObj) return;
     const med = item.medObj;
@@ -440,7 +462,7 @@ export default function HomeScreen() {
               <Text style={styles.hintEmergencyIconText}>+</Text>
             </View>
             <Text style={styles.hintExpandedTitle}>Configurar emergência</Text>
-            <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={dismissEmergencyHint}>
+            <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={dismissEmergencyHint} accessibilityLabel="Dispensar aviso de configuração" accessibilityRole="button">
               <Text style={styles.hintClose}>✕</Text>
             </TouchableOpacity>
           </View>
@@ -463,7 +485,7 @@ export default function HomeScreen() {
             <Text style={styles.hintTitle}>Adicionar medicamentos</Text>
             <Text style={styles.hintSub}>Cadastre para receber lembretes de horário</Text>
           </View>
-          <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={dismissMedsHint}>
+          <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={dismissMedsHint} accessibilityLabel="Dispensar aviso de medicamentos" accessibilityRole="button">
             <Text style={styles.hintClose}>✕</Text>
           </TouchableOpacity>
         </TouchableOpacity>
@@ -505,12 +527,13 @@ export default function HomeScreen() {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.fgAlertPular}
-              onPress={() => {
+              onPress={async () => {
+                await handlePuleiHome(alert);
                 dismissedAlertsRef.current.add(`${alert.id}_${todayDateStr()}_${alert.time}`);
                 setForegroundAlerts(prev => prev.filter(a => a.id !== alert.id));
               }}
             >
-              <Text style={styles.fgAlertPularText}>Dispensar</Text>
+              <Text style={styles.fgAlertPularText}>Não tomei</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -592,6 +615,8 @@ export default function HomeScreen() {
                             style={styles.reminderBellBtn}
                             hitSlop={{ top: 10, bottom: 10, left: 6, right: 6 }}
                             onPress={() => handleToggleMute(item)}
+                            accessibilityLabel={item.isMuted ? `Reativar som do lembrete de ${item.name}` : `Silenciar lembrete de ${item.name}`}
+                            accessibilityRole="button"
                           >
                             <Text style={styles.reminderBell}>{item.isMuted ? '🔕' : '🔔'}</Text>
                           </TouchableOpacity>

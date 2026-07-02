@@ -4,7 +4,7 @@ import { Profile, Medication, MedicationReminder, ActivityReminder } from '../ty
 import { postMedNotification, cancelMedNotification } from './medNotification';
 import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity, getContacts, getKV, setKV } from '../database/db';
 
-const CHANNEL_ID = 'medalert_emergency_v4';
+const CHANNEL_ID = 'medalert_emergency_v5';
 const NOTIF_ID = 'emergency';
 const EMERGENCY_SIGNATURE_KV = 'emergency_notif_signature';
 const REMINDER_SOUND_CHANNEL = 'medalert_reminder_sound';
@@ -54,17 +54,20 @@ export async function setupNotificationChannels(): Promise<void> {
 
   // Clean up channels from previous installs (v1 med/activity channels get PUBLIC replacements)
   for (const old of [
-    'medalert_emergency', 'medalert_emergency_v2', 'medalert_emergency_v3', 'medalert_lockscreen', 'medalert_detail',
+    'medalert_emergency', 'medalert_emergency_v2', 'medalert_emergency_v3', 'medalert_emergency_v4', 'medalert_lockscreen', 'medalert_detail',
     'medalert_med_sound_v1', 'medalert_activity_sound_v1',
   ]) {
     await Notifications.deleteNotificationChannelAsync(old).catch(() => {});
   }
 
-  // DEFAULT (não HIGH/MAX): fica na barra e na tela de bloqueio sem aparecer como
-  // banner heads-up toda vez que é reenviada (ver updateEmergencyNotification).
+  // MAX: com DEFAULT (v4) o Samsung rebaixava o card ongoing para a fileira de
+  // ícones da tela de bloqueio quando havia outras notificações. O banner heads-up
+  // repetido é evitado por setOnlyAlertOnce(true) no módulo nativo + atualização
+  // in-place (mesmo NOTIF_ID, sem cancelar antes) — só alerta quando a notificação
+  // não está na tela (primeira ativação, pós-boot).
   await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
     name: 'Alerta de Emergência Médica',
-    importance: Notifications.AndroidImportance.DEFAULT,
+    importance: Notifications.AndroidImportance.MAX,
     lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
     bypassDnd: true,
     sound: null,
@@ -306,14 +309,14 @@ export async function updateEmergencyNotification(
     });
   }
 
-  // Só recria a notificação se o conteúdo realmente mudou — evita cancelar+repostar
-  // (e reacender o banner heads-up) a cada load() da Home sem nada de novo.
+  // Só reenvia se o conteúdo realmente mudou. A atualização é in-place (nm.notify
+  // com o mesmo id substitui) — NÃO cancelar antes: cancelar zera o estado de
+  // "já alertou" e faria o banner heads-up reaparecer a cada repost.
   const bigText = lines.join('\n');
   const signature = `${title}|${contentText}|${bigText}`;
   const lastSignature = await getKV(EMERGENCY_SIGNATURE_KV).catch(() => null);
   if (lastSignature === signature) return;
 
-  await clearEmergency();
   try {
     postMedNotification(title, contentText, bigText, CHANNEL_ID);
   } catch {}
@@ -322,6 +325,15 @@ export async function updateEmergencyNotification(
 
 export async function cancelEmergencyNotification(): Promise<void> {
   await clearEmergency();
+  await setKV(EMERGENCY_SIGNATURE_KV, '').catch(() => {});
+}
+
+// Zera a assinatura no cold start: num aparelho restaurado por backup (Google/manual)
+// o banco chega com a assinatura antiga, mas a notificação não está na tela — sem o
+// reset, updateEmergencyNotification a consideraria "já postada" e nunca reexibiria.
+// Também cobre o Android 14+, onde o usuário pode dispensar notificações ongoing.
+// Custo: um repost silencioso por abertura do app (canal DEFAULT, sem som/heads-up).
+export async function resetEmergencySignature(): Promise<void> {
   await setKV(EMERGENCY_SIGNATURE_KV, '').catch(() => {});
 }
 

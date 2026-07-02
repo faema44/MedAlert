@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
   Modal, TextInput, Switch, Alert, ScrollView,
   KeyboardAvoidingView, Platform, ActivityIndicator, Keyboard,
+  InteractionManager,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -21,7 +22,7 @@ import {
 } from '../services/notifications';
 import { Medication, MedicationReminder, DrugInteraction } from '../types';
 import MedDisclaimer from '../components/MedDisclaimer';
-import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, checkInteractions, isPhytotherapic, getAllMedsList } from '../utils/drugSearch';
+import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, checkInteractions, isPhytotherapic, getAllMedGenericNames } from '../utils/drugSearch';
 import { useBulaViewer } from '../utils/useBulaViewer';
 import { reportMissingDrug } from '../services/reportMissing';
 // ──────────────────────────────────────────────────────────────────────────────
@@ -52,7 +53,7 @@ function addDays(days: number): string {
 const TIMES_PER_DAY_OPTIONS = [1, 2, 3, 4, 6];
 const DOSE_UNITS = ['mg', 'g', 'mcg', 'UI', 'mL', '%', 'cáps'];
 type ReminderPeriod = 'day' | 'week' | 'month' | 'year';
-type WizardStep = 'type' | 'name' | 'dose' | 'period' | 'times_per_day' | 'weekdays' | 'month_days' | 'n_months' | 'time' | 'deadline' | 'sound' | 'repeat' | 'stock';
+type WizardStep = 'type' | 'name' | 'dose' | 'period' | 'times_per_day' | 'weekdays' | 'month_days' | 'n_months' | 'time' | 'deadline' | 'sound' | 'repeat' | 'stock' | 'summary';
 
 const WEEKDAYS = [
   { label: 'Dom', value: 1 }, { label: 'Seg', value: 2 }, { label: 'Ter', value: 3 },
@@ -180,11 +181,43 @@ export default function MedicationsScreen() {
 
   const knownMedsSet = useMemo(() => {
     const s = new Set<string>();
-    for (const e of getAllMedsList()) s.add(e.genericName.toLowerCase());
+    for (const name of getAllMedGenericNames()) s.add(name.toLowerCase());
     return s;
   }, []);
 
   const route = useRoute<RouteProp<{ Medications: { openMedId?: number } }, 'Medications'>>();
+
+  const loadExtras = useCallback((meds: Medication[]) => {
+    InteractionManager.runAfterInteractions(async () => {
+      try {
+        const interactionMap = new Map<number, DrugInteraction[]>();
+        const timesMap = new Map<number, string[]>();
+        const soundMap = new Map<number, boolean>();
+        const metaMap = new Map<number, { repeat: number; periodType: string }>();
+        await Promise.all(meds.map(async (med) => {
+          const others = meds.filter(m => m.id !== med.id).map(m => m.generic_name);
+          const ints = checkInteractions(med.generic_name, others);
+          if (ints.length > 0) interactionMap.set(med.id, ints);
+          const rs = await getRemindersForMedication(med.id);
+          const active = rs.filter(r => r.is_active);
+          timesMap.set(med.id, active.map(r => periodLabel(r.period, r.time)));
+          soundMap.set(med.id, active.some(r => r.with_sound));
+          const first = active[0];
+          const pt = !first ? 'day'
+            : first.period === 'day' ? 'day'
+            : first.period.startsWith('week:') ? 'week'
+            : first.period.startsWith('month:') ? 'month'
+            : first.period.startsWith('nmonths:') ? 'nmonths'
+            : 'day';
+          metaMap.set(med.id, { repeat: first?.repeat_interval ?? 0, periodType: pt });
+        }));
+        setCardInteractions(interactionMap);
+        setReminderTimes(timesMap);
+        setReminderHasSound(soundMap);
+        setReminderMeta(metaMap);
+      } catch {}
+    });
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -192,35 +225,11 @@ export default function MedicationsScreen() {
     try {
       meds = await getMedications();
       setMedications(meds);
-      const interactionMap = new Map<number, DrugInteraction[]>();
-      const timesMap = new Map<number, string[]>();
-      const soundMap = new Map<number, boolean>();
-      const metaMap = new Map<number, { repeat: number; periodType: string }>();
-      await Promise.all(meds.map(async (med) => {
-        const others = meds.filter(m => m.id !== med.id).map(m => m.generic_name);
-        const ints = checkInteractions(med.generic_name, others);
-        if (ints.length > 0) interactionMap.set(med.id, ints);
-        const rs = await getRemindersForMedication(med.id);
-        const active = rs.filter(r => r.is_active);
-        timesMap.set(med.id, active.map(r => periodLabel(r.period, r.time)));
-        soundMap.set(med.id, active.some(r => r.with_sound));
-        const first = active[0];
-        const pt = !first ? 'day'
-          : first.period === 'day' ? 'day'
-          : first.period.startsWith('week:') ? 'week'
-          : first.period.startsWith('month:') ? 'month'
-          : first.period.startsWith('nmonths:') ? 'nmonths'
-          : 'day';
-        metaMap.set(med.id, { repeat: first?.repeat_interval ?? 0, periodType: pt });
-      }));
-      setCardInteractions(interactionMap);
-      setReminderTimes(timesMap);
-      setReminderHasSound(soundMap);
-      setReminderMeta(metaMap);
     } catch {}
     setLoading(false);
+    loadExtras(meds);
     return meds;
-  }, []);
+  }, [loadExtras]);
 
   useFocusEffect(useCallback(() => {
     const openId = route.params?.openMedId;
@@ -600,7 +609,7 @@ export default function MedicationsScreen() {
     setEntryType(isPhytotherapic(item.generic_name) ? 'fitoterapico' : 'medicamento');
     setInteractions([]);
     resetPickerState(); setReminders([]);
-    setWizardStep('name');
+    setWizardStep('summary');
     setShowModal(true);
     getRemindersForMedication(item.id).then(rs => {
       setReminders(rs);
@@ -613,7 +622,19 @@ export default function MedicationsScreen() {
   }
 
   function stepNeedsNext(): boolean {
-    if (editingId !== null) return true;
+    if (editingId !== null) {
+      // Edição: resumo tem "Salvar"; passos de toque voltam sozinhos ao resumo
+      switch (wizardStep) {
+        case 'period':
+        case 'sound':
+        case 'repeat':
+          return false;
+        case 'deadline':
+          return hasDeadline;
+        default:
+          return true;
+      }
+    }
     switch (wizardStep) {
       case 'type':
       case 'period':
@@ -626,6 +647,23 @@ export default function MedicationsScreen() {
         return hasDeadline;
       default:
         return true;
+    }
+  }
+
+  // Edição via resumo: cada passo confirma e volta ao resumo, exceto o sub-fluxo
+  // de frequência (period → dias/vezes → horário), que precisa encadear.
+  function editNextStep(cur: WizardStep, p: ReminderPeriod): WizardStep {
+    switch (cur) {
+      case 'period':
+        return p === 'day' ? 'times_per_day' : p === 'week' ? 'weekdays' : p === 'month' ? 'month_days' : 'n_months';
+      case 'times_per_day':
+        return mealMode ? 'summary' : 'time';
+      case 'weekdays':
+      case 'month_days':
+      case 'n_months':
+        return 'time';
+      default:
+        return 'summary';
     }
   }
 
@@ -663,8 +701,14 @@ export default function MedicationsScreen() {
       Alert.alert('Selecione', 'Selecione ao menos um dia do mês.');
       return;
     }
-    if (wizardStep === 'time' && pickerH === null) {
+    // Na edição com vários horários/dia o picker pode estar vazio (customTimes cobre)
+    if (wizardStep === 'time' && pickerH === null && !customTimes.trim()) {
       Alert.alert('Obrigatório', 'Defina o horário do primeiro aviso.');
+      return;
+    }
+
+    if (!isNew) {
+      setWizardStep(editNextStep(wizardStep, p));
       return;
     }
 
@@ -676,6 +720,11 @@ export default function MedicationsScreen() {
   }
 
   function wizGoBack() {
+    if (editingId !== null) {
+      if (wizardStep === 'summary') setShowModal(false);
+      else setWizardStep('summary');
+      return;
+    }
     const isNew = editingId === null;
     const seq = getStepSequence(reminderPeriod, isNew, mealMode);
     const idx = seq.indexOf(wizardStep);
@@ -998,6 +1047,11 @@ export default function MedicationsScreen() {
               <Text style={styles.wizTimePickerText}>{pickerDisplay || '——:——'}</Text>
               <Text style={styles.wizTimePickerHint}>{pickerDisplay ? 'Toque para alterar' : 'Toque para definir o horário'}</Text>
             </TouchableOpacity>
+            {customTimes.trim() !== '' && (
+              <Text style={{ marginTop: 12, color: '#555', fontSize: 13, textAlign: 'center' }}>
+                Horários do dia: {customTimes.trim().split(/\s+/).join('  ·  ')}
+              </Text>
+            )}
             {showHorarioPicker && (
               <DateTimePicker
                 value={(() => { const d = new Date(); d.setHours(pickerH ?? 8, pickerM ?? 0, 0, 0); return d; })()}
@@ -1007,6 +1061,22 @@ export default function MedicationsScreen() {
                   setShowHorarioPicker(false);
                   if (e.type === 'set' && d) {
                     setPickerH(d.getHours()); setPickerM(d.getMinutes());
+                    // Edição com vários horários/dia: customTimes guarda os horários antigos
+                    // e vence no doSaveWizard — sem isto, o horário novo era ignorado.
+                    // Desloca todos mantendo os intervalos (08:00/20:00 → 09:00/21:00).
+                    if (customTimes.trim()) {
+                      const times = customTimes.trim().split(/[\s,]+/).filter(t => /^\d{1,2}:\d{2}$/.test(t)).sort();
+                      if (times.length > 0) {
+                        const [oh, om] = times[0].split(':').map(Number);
+                        const delta = (d.getHours() * 60 + d.getMinutes()) - (oh * 60 + om);
+                        const shifted = times.map(t => {
+                          const [h, m] = t.split(':').map(Number);
+                          const total = ((h * 60 + m + delta) % 1440 + 1440) % 1440;
+                          return fmtHM(Math.floor(total / 60), total % 60);
+                        });
+                        setCustomTimes(shifted.join(' '));
+                      }
+                    }
                   }
                 }}
               />
@@ -1155,6 +1225,53 @@ export default function MedicationsScreen() {
         );
       }
 
+      case 'summary': {
+        const schedText = (() => {
+          if (reminderPeriod === 'week' && selectedWeekdays.length > 0) {
+            const days = selectedWeekdays.slice().sort((a, b) => a - b).map(v => WEEKDAYS.find(w => w.value === v)?.label).filter(Boolean).join(', ');
+            return `Semanal · ${days}${pickerDisplay ? ` · ${pickerDisplay}` : ''}`;
+          }
+          if (reminderPeriod === 'month' && selectedMonthDays.length > 0) {
+            return `Mensal · dias ${selectedMonthDays.slice().sort((a, b) => a - b).join(', ')}${pickerDisplay ? ` · ${pickerDisplay}` : ''}`;
+          }
+          if (reminderPeriod === 'year') {
+            return `A cada ${nMonths} ${Number(nMonths) > 1 ? 'meses' : 'mês'} · dia ${monthDay}${pickerDisplay ? ` · ${pickerDisplay}` : ''}`;
+          }
+          const times = customTimes.trim()
+            ? customTimes.trim().split(/\s+/).filter(t => /^\d{1,2}:\d{2}$/.test(t))
+            : (pickerDisplay ? computeTimes(startTime, timesPerDay) : []);
+          return times.length > 0 ? `Diário · ${times.join(' · ')}` : 'Sem lembrete — só tela de bloqueio';
+        })();
+        const deadlineDays = parseInt(durationDays, 10);
+        const rows: { icon: string; label: string; value: string; step: WizardStep }[] = [
+          { icon: '💊', label: 'Nome', value: form.commercial_name.trim() ? `${form.commercial_name.trim()} — ${form.generic_name}` : form.generic_name, step: 'name' },
+          { icon: '⚖️', label: 'Dose e observações', value: [form.dose, form.notes].filter(Boolean).join('  ·  ') || 'Não informada', step: 'dose' },
+          { icon: '🗓', label: 'Frequência e horários', value: schedText, step: 'period' },
+          { icon: '📅', label: 'Prazo do tratamento', value: hasDeadline && !isNaN(deadlineDays) ? `${deadlineDays} dia${deadlineDays !== 1 ? 's' : ''} · termina ${formatEndDate(addDays(deadlineDays))}` : 'Sem prazo', step: 'deadline' },
+          { icon: withSound ? '🔔' : '🔕', label: 'Alarme sonoro', value: withSound ? 'Com som' : 'Sem som', step: 'sound' },
+          { icon: '🔁', label: 'Repetir alarme', value: repeatInterval > 0 ? `A cada ${repeatInterval} min até confirmar` : 'Não repete', step: 'repeat' },
+          { icon: '📦', label: 'Estoque e histórico', value: `${stockInput.trim() ? `Estoque: ${stockInput.trim()} restantes` : 'Sem Controle de Estoque'}\n${(stockInput.trim() || saveHistory) ? 'Salva no Histórico' : 'Não salva no Histórico'}`, step: 'stock' },
+        ];
+        return (
+          <>
+            <Text style={styles.wizLabel}>O que deseja alterar?</Text>
+            <Text style={styles.wizHint}>Toque em um item para editar. Salvar aplica todas as alterações.</Text>
+            <View style={{ marginTop: 14 }}>
+              {rows.map(r => (
+                <TouchableOpacity key={r.label} style={styles.sumRow} activeOpacity={0.7} onPress={() => setWizardStep(r.step)}>
+                  <Text style={styles.sumIcon}>{r.icon}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.sumLabel}>{r.label}</Text>
+                    <Text style={styles.sumValue} numberOfLines={3}>{r.value}</Text>
+                  </View>
+                  <Text style={styles.sumChevron}>›</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        );
+      }
+
       default:
         return null;
     }
@@ -1216,6 +1333,8 @@ export default function MedicationsScreen() {
               {(knownMedsSet.has(item.generic_name.toLowerCase()) || isPhytotherapic(item.generic_name)) && (
                 <TouchableOpacity
                   style={styles.bulaCardBtn}
+                  accessibilityLabel={`Ver bula de ${item.generic_name}`}
+                  accessibilityRole="button"
                   onPress={() => {
                     const url = isPhytotherapic(item.generic_name)
                       ? getPhytoBulaUrl(item.generic_name, item.commercial_name || undefined)
@@ -1226,7 +1345,7 @@ export default function MedicationsScreen() {
                   <Text style={styles.bulaCardBtnText}>📋</Text>
                 </TouchableOpacity>
               )}
-              <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.id, item.generic_name)}>
+              <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.id, item.generic_name)} accessibilityLabel={`Remover ${item.generic_name}`} accessibilityRole="button">
                 <Text style={styles.deleteBtnText}>✕</Text>
               </TouchableOpacity>
             </View>
@@ -1285,7 +1404,7 @@ export default function MedicationsScreen() {
         }}
       />
 
-      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={openWizard}>
+      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={openWizard} accessibilityLabel="Adicionar medicamento" accessibilityRole="button">
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 
@@ -1294,9 +1413,9 @@ export default function MedicationsScreen() {
         <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
           <View style={styles.modalOverlay}>
             <View style={styles.wizModalBox}>
-              {/* Progress bar */}
-              {(() => {
-                const seq = getStepSequence(reminderPeriod, editingId === null, mealMode);
+              {/* Progress bar — só no cadastro novo; a edição navega pelo resumo */}
+              {editingId === null && (() => {
+                const seq = getStepSequence(reminderPeriod, true, mealMode);
                 const idx = Math.max(0, seq.indexOf(wizardStep));
                 const pct = `${Math.round((idx + 1) / seq.length * 100)}%`;
                 return (
@@ -1353,7 +1472,7 @@ export default function MedicationsScreen() {
                           </Text>
                         ) : null}
                       </TouchableOpacity>
-                      <TouchableOpacity style={styles.bulaBtn} onPress={() => openBula(s.bulaUrl)}>
+                      <TouchableOpacity style={styles.bulaBtn} onPress={() => openBula(s.bulaUrl)} accessibilityLabel={`Ver bula de ${s.genericName}`} accessibilityRole="button">
                         <Text style={styles.bulaBtnText}>📋</Text>
                       </TouchableOpacity>
                     </View>
@@ -1367,13 +1486,24 @@ export default function MedicationsScreen() {
                   style={[styles.wizBackBtn, !stepNeedsNext() && { flex: 0, paddingHorizontal: 24, borderColor: '#ddd' }]}
                   onPress={wizGoBack}
                 >
-                  <Text style={styles.wizBackBtnText}>‹ Voltar</Text>
+                  <Text style={styles.wizBackBtnText}>
+                    {editingId !== null
+                      ? (wizardStep === 'summary' ? 'Cancelar' : '‹ Resumo')
+                      : '‹ Voltar'}
+                  </Text>
                 </TouchableOpacity>
                 {stepNeedsNext() && (
-                  <TouchableOpacity style={styles.wizNextBtn} onPress={() => wizGoNext()}>
+                  <TouchableOpacity
+                    style={styles.wizNextBtn}
+                    onPress={() => (wizardStep === 'summary' ? handleSave() : wizGoNext())}
+                  >
                     <Text style={styles.wizNextBtnText}>
                       {(() => {
-                        const seq = getStepSequence(reminderPeriod, editingId === null, mealMode);
+                        if (editingId !== null) {
+                          if (wizardStep === 'summary') return 'Salvar ✓';
+                          return editNextStep(wizardStep, reminderPeriod) === 'summary' ? 'OK ✓' : 'Próximo ›';
+                        }
+                        const seq = getStepSequence(reminderPeriod, true, mealMode);
                         const idx = seq.indexOf(wizardStep);
                         return idx >= seq.length - 1 ? 'Salvar ✓' : 'Próximo ›';
                       })()}
@@ -1535,8 +1665,8 @@ const styles = StyleSheet.create({
   deleteBtnText: { fontSize: 16, color: '#ccc' },
   fab: {
     position: 'absolute', bottom: 80, right: 24, width: 56, height: 56, borderRadius: 28,
-    backgroundColor: '#1a3a6b', justifyContent: 'center', alignItems: 'center',
-    elevation: 4, shadowColor: '#1a3a6b', shadowOpacity: 0.4, shadowRadius: 6,
+    backgroundColor: '#1C3F7A', justifyContent: 'center', alignItems: 'center',
+    elevation: 4, shadowColor: '#1C3F7A', shadowOpacity: 0.4, shadowRadius: 6,
   },
   fabText: { fontSize: 28, color: '#fff', lineHeight: 30 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
@@ -1566,7 +1696,7 @@ const styles = StyleSheet.create({
   },
   wizBackBtn: { flex: 1, borderWidth: 1.5, borderColor: '#ccc', borderRadius: 10, padding: 14, alignItems: 'center' },
   wizBackBtnText: { fontSize: 15, color: '#666', fontWeight: '600' },
-  wizNextBtn: { flex: 2, backgroundColor: '#1a3a6b', borderRadius: 10, padding: 14, alignItems: 'center' },
+  wizNextBtn: { flex: 2, backgroundColor: '#1C3F7A', borderRadius: 10, padding: 14, alignItems: 'center' },
   wizNextBtnText: { fontSize: 15, color: '#fff', fontWeight: '700' },
   // Type selection cards
   typeCardBtn: {
@@ -1579,7 +1709,7 @@ const styles = StyleSheet.create({
   // Yes/No
   yesNoRow: { flexDirection: 'row', gap: 12 },
   yesNoBtn: { flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 12, paddingVertical: 22, alignItems: 'center' },
-  yesNoBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
+  yesNoBtnActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
   yesNoBtnText: { fontSize: 16, color: '#555', fontWeight: '700' },
   yesNoBtnTextActive: { color: '#fff' },
   // Period cards
@@ -1588,7 +1718,7 @@ const styles = StyleSheet.create({
     width: '47%', borderWidth: 1.5, borderColor: '#ddd', borderRadius: 12,
     paddingVertical: 16, paddingHorizontal: 8, alignItems: 'center',
   },
-  periodCardBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
+  periodCardBtnActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
   periodCardIcon: { fontSize: 28, marginBottom: 6 },
   periodCardText: { fontSize: 14, color: '#333', fontWeight: '700' },
   periodCardTextActive: { color: '#fff' },
@@ -1597,7 +1727,7 @@ const styles = StyleSheet.create({
     marginTop: 12, borderWidth: 1.5, borderColor: '#C8CDD8', borderRadius: 10,
     paddingVertical: 12, paddingHorizontal: 16, alignItems: 'center',
   },
-  lockOnlyBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
+  lockOnlyBtnActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
   lockOnlyBtnText: { fontSize: 13, color: '#555', fontWeight: '600' },
   lockOnlyBtnTextActive: { color: '#fff' },
   // Autocomplete
@@ -1615,7 +1745,7 @@ const styles = StyleSheet.create({
   suggestionRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   suggestionChip: { flex: 1, backgroundColor: '#e8edf7', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#c0ccdf' },
   suggestionChipBrand: { backgroundColor: '#f0e8f7', borderColor: '#c8b0dd' },
-  suggestionChipText: { fontSize: 14, color: '#1a3a6b', fontWeight: '600' },
+  suggestionChipText: { fontSize: 14, color: '#1C3F7A', fontWeight: '600' },
   suggestionChipTextBrand: { color: '#6b1a8a' },
   suggestionCategory: { fontSize: 11, color: '#7a92b8', marginTop: 1 },
   suggestionCategoryBrand: { color: '#9a72b8' },
@@ -1642,11 +1772,11 @@ const styles = StyleSheet.create({
   doseValueInput: { fontSize: 22, fontWeight: '700', textAlign: 'center' },
   doseUnitRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 },
   doseUnitBtn: { borderWidth: 1.5, borderColor: '#ddd', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 14, alignItems: 'center' },
-  doseUnitBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
+  doseUnitBtnActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
   doseUnitText: { fontSize: 14, color: '#555', fontWeight: '600' },
   doseUnitTextActive: { color: '#fff' },
   timesBtn: { flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 8, paddingVertical: 10, alignItems: 'center' },
-  timesBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
+  timesBtnActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
   timesBtnText: { fontSize: 14, color: '#555', fontWeight: '600' },
   timesBtnTextActive: { color: '#fff' },
   timesBtnSub: { fontSize: 10, color: '#888', marginTop: 3, textAlign: 'center' },
@@ -1664,17 +1794,17 @@ const styles = StyleSheet.create({
   timesPreviewLabel: { fontSize: 12, color: '#888', marginBottom: 4 },
   weekdayRow: { flexDirection: 'row', gap: 4, marginTop: 4, flexWrap: 'wrap' },
   weekdayBtn: { borderWidth: 1.5, borderColor: '#ddd', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 10, alignItems: 'center', minWidth: 44 },
-  weekdayBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
+  weekdayBtnActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
   weekdayBtnText: { fontSize: 12, color: '#555', fontWeight: '600' },
   weekdayBtnTextActive: { color: '#fff' },
   monthGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 4 },
   monthDayBtn: { width: 40, height: 36, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
-  monthDayBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
+  monthDayBtnActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
   monthDayBtnText: { fontSize: 13, color: '#555', fontWeight: '600' },
   monthDayBtnTextActive: { color: '#fff' },
   typeRow: { flexDirection: 'row', gap: 8, marginTop: 4, marginBottom: 4 },
   typeBtn: { flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 10, paddingVertical: 10, alignItems: 'center' },
-  typeBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
+  typeBtnActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
   typeBtnActiveGreen: { backgroundColor: '#1a6b3a', borderColor: '#1a6b3a' },
   typeBtnText: { fontSize: 13, color: '#555', fontWeight: '600' },
   typeBtnTextActive: { color: '#fff' },
@@ -1694,4 +1824,14 @@ const styles = StyleSheet.create({
   stockActionInfo: { backgroundColor: '#FFF8E7', borderRadius: 8, padding: 12, marginBottom: 14, borderLeftWidth: 3, borderLeftColor: '#E07B4F' },
   stockActionInfoText: { fontSize: 12, color: '#7a5200', lineHeight: 18 },
   stockHelpBtn: { width: 18, height: 18, borderRadius: 9, borderWidth: 1.5, borderColor: '#1C3F7A', textAlign: 'center', lineHeight: 16, fontSize: 11, fontWeight: '700', color: '#1C3F7A' },
+  // Resumo de edição
+  sumRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: '#F2F4F8', borderRadius: 12, padding: 14, marginBottom: 8,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
+  },
+  sumIcon: { fontSize: 20, width: 26, textAlign: 'center' },
+  sumLabel: { fontSize: 11, color: '#8A8F9D', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.4 },
+  sumValue: { fontSize: 14, color: '#1A1F2E', fontWeight: '600', marginTop: 2 },
+  sumChevron: { fontSize: 22, color: '#C0C5D0' },
 });

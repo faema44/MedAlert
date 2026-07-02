@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
-  Modal, TextInput, Alert, ScrollView, KeyboardAvoidingView, Share, Platform,
+  Modal, TextInput, Alert, ScrollView, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { TimePicker } from '../components/TimePicker';
@@ -11,8 +11,7 @@ import {
   getActivities, addActivity, updateActivity, deleteActivity,
   getRemindersForActivity, addActivityReminder, deleteAllRemindersForActivity,
   getAppointments, addAppointment, updateAppointment, deleteAppointment,
-  getActivityLogs, deleteActivityLog, deleteActivityLogsBefore, clearAllActivityLogs, ActivityLog,
-  addActivityLog, getActivityLogsForActivity,
+  addActivityLog,
   getKV, setKV,
 } from '../database/db';
 import {
@@ -151,25 +150,6 @@ const legendStyles = StyleSheet.create({
   label: { fontSize: 11, color: '#555' },
 });
 
-function parseLoggedAt(s: string): Date {
-  // SQLite CURRENT_TIMESTAMP stores UTC without 'Z'; ISO strings already have 'Z' or offset
-  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(s)) return new Date(s.replace(' ', 'T') + 'Z');
-  return new Date(s);
-}
-
-function fmtLogDate(logged_at: string): string {
-  const d = parseLoggedAt(logged_at);
-  const today = new Date();
-  const isToday = d.toDateString() === today.toDateString();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-  const isYesterday = d.toDateString() === yesterday.toDateString();
-  const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  if (isToday) return `hoje ${time}`;
-  if (isYesterday) return `ontem ${time}`;
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + time;
-}
-
 // ─── EMPTY FORMS ──────────────────────────────────────────────────────────────
 
 const EMPTY_ACTIVITY = { type: 'water' as ActivityType, name: 'Tomar água', notes: '', times: ['08:00'] };
@@ -194,25 +174,10 @@ function generateRepeatTimes(fromH: number, fromM: number, toH: number, toM: num
 
 // ─── MAIN SCREEN ──────────────────────────────────────────────────────────────
 
-const HIST_PERIODS: { key: 'month' | 'year' | 'all'; label: string }[] = [
-  { key: 'month', label: 'Último mês' },
-  { key: 'year',  label: 'Último ano' },
-  { key: 'all',   label: 'Todo o período' },
-];
-
-const LOG_ICONS: Record<string, string> = {
-  water: '💧', walk: '🚶', physio: '🏋️', bp: '❤️', glucose: '🩸', weight: '⚖️', custom: '📌',
-};
-
 export default function AgendaScreen() {
   const insets = useSafeAreaInsets();
   const route = useRoute<RouteProp<{ Agenda: { tab?: 'activities' | 'appointments'; openActivityId?: number; openAppointmentId?: number } }, 'Agenda'>>();
-  const [tab, setTab] = useState<'activities' | 'appointments' | 'history'>(route.params?.tab ?? 'activities');
-  const [logs, setLogs] = useState<ActivityLog[]>([]);
-  const [histPeriod, setHistPeriod] = useState<'month' | 'year' | 'all'>('all');
-  const [histActivityFilter, setHistActivityFilter] = useState<number | null>(null);
-  const [showHistFilter, setShowHistFilter] = useState(false);
-  const [showClearModal, setShowClearModal] = useState(false);
+  const [tab, setTab] = useState<'activities' | 'appointments'>(route.params?.tab ?? 'activities');
 
   useFocusEffect(useCallback(() => {
     if (route.params?.tab) setTab(route.params.tab);
@@ -221,7 +186,6 @@ export default function AgendaScreen() {
   // Activities state
   const [activities, setActivities] = useState<Activity[]>([]);
   const [remindersMap, setRemindersMap] = useState<Record<number, ActivityReminder[]>>({});
-  const [logsMap, setLogsMap] = useState<Record<number, ActivityLog[]>>({});
   const [showActivityModal, setShowActivityModal] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [actForm, setActForm] = useState(EMPTY_ACTIVITY);
@@ -264,13 +228,10 @@ export default function AgendaScreen() {
     const list = await getActivities();
     setActivities(list);
     const map: Record<number, ActivityReminder[]> = {};
-    const lmap: Record<number, ActivityLog[]> = {};
     await Promise.all(list.map(async a => {
       map[a.id] = await getRemindersForActivity(a.id);
-      lmap[a.id] = await getActivityLogsForActivity(a.id, 5);
     }));
     setRemindersMap(map);
-    setLogsMap(lmap);
     return { list, map };
   }, []);
 
@@ -279,48 +240,6 @@ export default function AgendaScreen() {
     setAppointments(list);
     return list;
   }, []);
-
-  const loadLogs = useCallback(async () => {
-    setLogs(await getActivityLogs());
-  }, []);
-
-  const logActivities = useMemo(() => {
-    const seen = new Map<number, string>();
-    for (const l of logs) {
-      if (l.activity_id !== null && !seen.has(l.activity_id)) {
-        seen.set(l.activity_id, l.activity_name);
-      }
-    }
-    return Array.from(seen.entries()).map(([id, name]) => ({ id, name }));
-  }, [logs]);
-
-  const filteredLogs = useMemo(() => {
-    const now = Date.now();
-    const cutoff = histPeriod === 'month'
-      ? new Date(now - 30 * 24 * 60 * 60 * 1000)
-      : histPeriod === 'year'
-      ? new Date(now - 365 * 24 * 60 * 60 * 1000)
-      : null;
-    return logs.filter(l => {
-      if (cutoff && parseLoggedAt(l.logged_at) < cutoff) return false;
-      if (histActivityFilter !== null && l.activity_id !== histActivityFilter) return false;
-      return true;
-    });
-  }, [logs, histPeriod, histActivityFilter]);
-
-  async function handleShareReport() {
-    if (filteredLogs.length === 0) { Alert.alert('Histórico vazio', 'Nenhuma atividade no período selecionado.'); return; }
-    const lines = filteredLogs.map(l => {
-      const date = parseLoggedAt(l.logged_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-      const val = l.value ? ` — ${l.value}` : '';
-      return `${l.realized ? '✓' : '✗'} ${date}  ${l.activity_name}${val}`;
-    }).join('\n');
-    await Share.share({ message: `📋 Relatório de Atividades\n\n${lines}` });
-  }
-
-  function handleClearLogs() {
-    setShowClearModal(true);
-  }
 
   useFocusEffect(useCallback(() => {
     const openActId = route.params?.openActivityId;
@@ -340,9 +259,7 @@ export default function AgendaScreen() {
         if (appt) openEditAppt(appt);
       }
     });
-
-    loadLogs();
-  }, [loadActivities, loadAppointments, loadLogs, route.params?.tab, route.params?.openActivityId, route.params?.openAppointmentId]));
+  }, [loadActivities, loadAppointments, route.params?.tab, route.params?.openActivityId, route.params?.openAppointmentId]));
 
   // ─── ACTIVITY HANDLERS ──────────────────────────────────────────────────────
 
@@ -509,9 +426,6 @@ export default function AgendaScreen() {
       value,
     });
 
-    const newLogs = await getActivityLogsForActivity(measureActivity.id, 5);
-    setLogsMap(prev => ({ ...prev, [measureActivity.id]: newLogs }));
-    setLogs(await getActivityLogs());
     setShowMeasureModal(false);
   }
 
@@ -612,15 +526,7 @@ export default function AgendaScreen() {
           onPress={() => setTab('appointments')}
         >
           <Text style={[styles.toggleBtnText, tab === 'appointments' && styles.toggleBtnTextActive]}>
-            Consultas
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.toggleBtn, tab === 'history' && styles.toggleBtnActive]}
-          onPress={() => { setTab('history'); loadLogs(); setShowHistFilter(true); }}
-        >
-          <Text style={[styles.toggleBtnText, tab === 'history' && styles.toggleBtnTextActive]}>
-            Histórico
+            Consultas Médicas
           </Text>
         </TouchableOpacity>
       </View>
@@ -630,11 +536,6 @@ export default function AgendaScreen() {
           data={activities}
           keyExtractor={item => String(item.id)}
           contentContainerStyle={styles.list}
-          ListHeaderComponent={
-            <TouchableOpacity style={styles.addActivityBtn} onPress={openNewActivity}>
-              <Text style={styles.addActivityBtnText}>+ Nova atividade</Text>
-            </TouchableOpacity>
-          }
           ListEmptyComponent={
             <View style={styles.empty}>
               <Text style={styles.emptyIcon}>🏃</Text>
@@ -644,9 +545,7 @@ export default function AgendaScreen() {
           }
           renderItem={({ item }) => {
             const reminders = remindersMap[item.id] ?? [];
-            const itemLogs = logsMap[item.id] ?? [];
             const { icon } = ACTIVITY_PRESETS[item.type] ?? ACTIVITY_PRESETS.custom;
-            const realizedLogs = itemLogs.filter(log => log.realized);
 
             return (
               <View style={styles.card}>
@@ -666,28 +565,14 @@ export default function AgendaScreen() {
                     })()}
                   </TouchableOpacity>
                   <View style={styles.cardActions}>
-                    <TouchableOpacity style={styles.editBtn} onPress={() => openEditActivity(item)}>
+                    <TouchableOpacity style={styles.editBtn} onPress={() => openEditActivity(item)} accessibilityLabel={`Editar atividade ${item.name}`} accessibilityRole="button">
                       <Text style={styles.editBtnText}>✏️</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDeleteActivity(item)}>
+                    <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDeleteActivity(item)} accessibilityLabel={`Remover atividade ${item.name}`} accessibilityRole="button">
                       <Text style={styles.deleteBtnText}>✕</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
-
-                {/* Last 5 realized measurements */}
-                {realizedLogs.length > 0 && (
-                  <View style={styles.logsSection}>
-                    {realizedLogs.map(log => (
-                      <View key={log.id} style={styles.logRow}>
-                        <Text style={[styles.logRowValue, { color: measureColor(item.type, log.value) }]} numberOfLines={1}>
-                          {log.value || '✓ Realizado'}
-                        </Text>
-                        <Text style={styles.logRowDate}>{fmtLogDate(log.logged_at)}</Text>
-                      </View>
-                    ))}
-                  </View>
-                )}
               </View>
             );
           }}
@@ -721,10 +606,10 @@ export default function AgendaScreen() {
                     </Text>
                   </View>
                   <View style={styles.cardActions}>
-                    <TouchableOpacity style={styles.editBtn} onPress={() => openEditAppt(item)}>
+                    <TouchableOpacity style={styles.editBtn} onPress={() => openEditAppt(item)} accessibilityLabel={`Editar consulta com ${item.doctor_name}`} accessibilityRole="button">
                       <Text style={styles.editBtnText}>✏️</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDeleteAppt(item)}>
+                    <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDeleteAppt(item)} accessibilityLabel={`Remover consulta com ${item.doctor_name}`} accessibilityRole="button">
                       <Text style={styles.deleteBtnText}>✕</Text>
                     </TouchableOpacity>
                   </View>
@@ -735,69 +620,14 @@ export default function AgendaScreen() {
         />
       ) : null}
 
-      {tab === 'history' && (
-        <View style={{ flex: 1 }}>
-          <View style={styles.histHeader}>
-            <Text style={styles.histCount}>{filteredLogs.length} registro(s)</Text>
-            <View style={styles.histHeaderActions}>
-              <TouchableOpacity style={[styles.histIconBtn, { backgroundColor: '#25D366' }]} onPress={handleShareReport}>
-                <Text style={styles.histIconBtnText}>📲</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.histIconBtn, { backgroundColor: '#1C3F7A' }]} onPress={() => setShowHistFilter(true)}>
-                <Text style={styles.histIconBtnText}>⚙️</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.histIconBtn, { backgroundColor: '#E07B4F' }]} onPress={handleClearLogs}>
-                <Text style={styles.histIconBtnText}>🗑️</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <FlatList
-            data={filteredLogs}
-            keyExtractor={item => String(item.id)}
-            contentContainerStyle={styles.list}
-            ListEmptyComponent={
-              <View style={styles.empty}>
-                <Text style={styles.emptyIcon}>📋</Text>
-                <Text style={styles.emptyText}>Nenhum registro no período.</Text>
-                <Text style={styles.emptyHint}>Use Filtrar para ajustar o período ou a atividade.</Text>
-              </View>
-            }
-            renderItem={({ item }) => {
-              const date = parseLoggedAt(item.logged_at);
-              const dateStr = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-              const timeStr = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-              return (
-                <View style={[styles.logCard, !item.realized && styles.logCardMissed]}>
-                  <Text style={styles.logIcon}>{LOG_ICONS[item.activity_type] ?? '📌'}</Text>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.logName}>{item.activity_name}</Text>
-                    {!!item.value && <Text style={styles.logValue}>{item.value}</Text>}
-                    <Text style={styles.logDate}>{dateStr} · 🕐 {timeStr}</Text>
-                  </View>
-                  <View style={[styles.logBadge, item.realized ? styles.logBadgeOk : styles.logBadgeMissed]}>
-                    <Text style={styles.logBadgeText}>{item.realized ? 'Realizado' : 'Não realiz.'}</Text>
-                  </View>
-                  <TouchableOpacity onPress={() => Alert.alert('Remover', 'Remover este registro?', [
-                    { text: 'Cancelar', style: 'cancel' },
-                    { text: 'Remover', style: 'destructive', onPress: async () => { await deleteActivityLog(item.id); loadLogs(); } },
-                  ])} style={{ padding: 8 }}>
-                    <Text style={{ color: '#ccc', fontSize: 14 }}>✕</Text>
-                  </TouchableOpacity>
-                </View>
-              );
-            }}
-          />
-        </View>
-      )}
-
-      {tab === 'appointments' && (
-        <TouchableOpacity
-          style={[styles.fab, { bottom: 24 + insets.bottom }]}
-          onPress={openNewAppt}
-        >
-          <Text style={styles.fabText}>+</Text>
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity
+        style={[styles.fab, { bottom: 24 + insets.bottom }]}
+        onPress={tab === 'activities' ? openNewActivity : openNewAppt}
+        accessibilityLabel={tab === 'activities' ? 'Adicionar atividade' : 'Adicionar consulta'}
+        accessibilityRole="button"
+      >
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
 
       {/* ─── MEASUREMENT MODAL ─── */}
       <Modal visible={showMeasureModal} animationType="slide" transparent>
@@ -1234,104 +1064,6 @@ export default function AgendaScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* ─── CLEAR MODAL ─── */}
-      <Modal visible={showClearModal} animationType="slide" transparent>
-        <TouchableOpacity style={styles.filterOverlay} activeOpacity={1} onPress={() => setShowClearModal(false)}>
-          <TouchableOpacity activeOpacity={1} style={styles.filterSheet}>
-            <View style={styles.filterSheetHandle} />
-            <Text style={styles.filterTitle}>Limpar histórico</Text>
-            <Text style={{ color: '#888', fontSize: 14, marginBottom: 20 }}>O que deseja fazer?</Text>
-
-            <TouchableOpacity style={styles.clearOptionBtn} onPress={async () => {
-              setShowClearModal(false);
-              await deleteActivityLogsBefore(new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString());
-              loadLogs();
-            }}>
-              <Text style={styles.clearOptionText}>Manter último ano</Text>
-              <Text style={styles.clearOptionHint}>Apaga registros com mais de 365 dias</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.clearOptionBtn} onPress={async () => {
-              setShowClearModal(false);
-              await deleteActivityLogsBefore(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
-              loadLogs();
-            }}>
-              <Text style={styles.clearOptionText}>Manter últimos 30 dias</Text>
-              <Text style={styles.clearOptionHint}>Apaga registros com mais de 30 dias</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={[styles.clearOptionBtn, styles.clearOptionDestructive]} onPress={() => {
-              setShowClearModal(false);
-              Alert.alert('Confirmar', 'Apagar todos os registros permanentemente?', [
-                { text: 'Cancelar', style: 'cancel' },
-                { text: 'Apagar tudo', style: 'destructive', onPress: async () => { await clearAllActivityLogs(); loadLogs(); } },
-              ]);
-            }}>
-              <Text style={[styles.clearOptionText, { color: '#DC2626' }]}>Apagar tudo</Text>
-              <Text style={styles.clearOptionHint}>Remove todos os registros permanentemente</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.applyBtn} onPress={() => setShowClearModal(false)}>
-              <Text style={styles.applyBtnText}>Cancelar</Text>
-            </TouchableOpacity>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
-
-      {/* ─── FILTER MODAL ─── */}
-      <Modal visible={showHistFilter} animationType="slide" transparent>
-        <TouchableOpacity style={styles.filterOverlay} activeOpacity={1} onPress={() => setShowHistFilter(false)}>
-          <TouchableOpacity activeOpacity={1} style={styles.filterSheet}>
-            <View style={styles.filterSheetHandle} />
-            <Text style={styles.filterTitle}>Filtros</Text>
-
-            <Text style={styles.filterSectionLabel}>Período</Text>
-            <View style={styles.filterPeriodRow}>
-              {HIST_PERIODS.map(p => (
-                <TouchableOpacity
-                  key={p.key}
-                  style={[styles.filterChip, histPeriod === p.key && styles.filterChipActive]}
-                  onPress={() => setHistPeriod(p.key)}
-                >
-                  <Text style={[styles.filterChipText, histPeriod === p.key && styles.filterChipTextActive]}>
-                    {p.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {logActivities.length > 0 && (
-              <>
-                <Text style={styles.filterSectionLabel}>Atividade</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, paddingBottom: 4 }}>
-                  <TouchableOpacity
-                    style={[styles.filterChip, histActivityFilter === null && styles.filterChipActive]}
-                    onPress={() => setHistActivityFilter(null)}
-                  >
-                    <Text style={[styles.filterChipText, histActivityFilter === null && styles.filterChipTextActive]}>Todas</Text>
-                  </TouchableOpacity>
-                  {logActivities.map(a => (
-                    <TouchableOpacity
-                      key={a.id}
-                      style={[styles.filterChip, histActivityFilter === a.id && styles.filterChipActive]}
-                      onPress={() => setHistActivityFilter(a.id)}
-                    >
-                      <Text style={[styles.filterChipText, histActivityFilter === a.id && styles.filterChipTextActive]}>{a.name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </>
-            )}
-
-            <TouchableOpacity style={styles.applyBtn} onPress={() => setShowHistFilter(false)}>
-              <Text style={styles.applyBtnText}>
-                Ver {filteredLogs.length} registro{filteredLogs.length !== 1 ? 's' : ''}
-              </Text>
-            </TouchableOpacity>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
-
       {showDatePicker && (
         <DateTimePicker
           value={pickerDate}
@@ -1375,78 +1107,10 @@ const styles = StyleSheet.create({
   toggleBtnTextActive: { color: '#1C3F7A', fontWeight: '700' },
 
   list: { padding: 14, paddingTop: 10, paddingBottom: 32 },
-  addActivityBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1.5, borderColor: '#1C3F7A', borderRadius: 10, borderStyle: 'dashed',
-    paddingVertical: 11, marginBottom: 12,
-  },
-  addActivityBtnText: { fontSize: 14, fontWeight: '600', color: '#1C3F7A' },
   empty: { alignItems: 'center', marginTop: 60, paddingHorizontal: 32 },
   emptyIcon: { fontSize: 40, marginBottom: 12 },
   emptyText: { fontSize: 15, color: '#999', marginBottom: 6, fontWeight: '500' },
   emptyHint: { fontSize: 13, color: '#bbb', textAlign: 'center' },
-
-  histHeader: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    marginHorizontal: 14, marginTop: 10, marginBottom: 8,
-  },
-  histCount: { fontSize: 13, color: '#888', fontWeight: '600' },
-  histHeaderActions: { flexDirection: 'row', gap: 8 },
-  histIconBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  histIconBtnText: { fontSize: 18 },
-
-  filterOverlay: {
-    flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end',
-  },
-  filterSheet: {
-    backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20,
-    padding: 20, paddingBottom: 36,
-  },
-  filterSheetHandle: {
-    width: 40, height: 4, borderRadius: 2, backgroundColor: '#D0D5E0',
-    alignSelf: 'center', marginBottom: 16,
-  },
-  filterTitle: { fontSize: 18, fontWeight: '700', color: '#1C3F7A', marginBottom: 16 },
-  filterSectionLabel: { fontSize: 13, fontWeight: '700', color: '#555', marginBottom: 8, marginTop: 12 },
-  filterPeriodRow: { flexDirection: 'row', gap: 8 },
-  filterChip: {
-    paddingVertical: 8, paddingHorizontal: 14, borderRadius: 20,
-    backgroundColor: '#F2F4F8', borderWidth: 1, borderColor: '#D0D5E0',
-  },
-  filterChipActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
-  filterChipText: { fontSize: 13, color: '#555', fontWeight: '600' },
-  filterChipTextActive: { color: '#fff' },
-  applyBtn: {
-    marginTop: 24, backgroundColor: '#1C3F7A', borderRadius: 12,
-    paddingVertical: 14, alignItems: 'center',
-  },
-  applyBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-
-  clearOptionBtn: {
-    paddingVertical: 14, paddingHorizontal: 16, borderRadius: 10,
-    backgroundColor: '#F2F4F8', marginBottom: 8,
-  },
-  clearOptionDestructive: { backgroundColor: '#FEF2F2' },
-  clearOptionText: { fontSize: 15, fontWeight: '700', color: '#1C3F7A', marginBottom: 2 },
-  clearOptionHint: { fontSize: 12, color: '#999' },
-
-  logCard: {
-    backgroundColor: '#fff', borderRadius: 12, padding: 12, marginBottom: 8,
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
-  },
-  logCardMissed: { opacity: 0.6 },
-  logIcon: { fontSize: 22 },
-  logName: { fontSize: 14, fontWeight: '600', color: '#1A1F2E' },
-  logValue: { fontSize: 13, color: '#1C3F7A', fontWeight: '700', marginTop: 1 },
-  logDate: { fontSize: 11, color: '#8A8F9D', marginTop: 2 },
-  logBadge: { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
-  logBadgeOk: { backgroundColor: '#F0FFF4' },
-  logBadgeMissed: { backgroundColor: '#FFF0F0' },
-  logBadgeText: { fontSize: 10, fontWeight: '700', color: '#444' },
 
   card: {
     backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10,
@@ -1472,16 +1136,6 @@ const styles = StyleSheet.create({
   },
   deleteBtnText: { fontSize: 11, color: '#DC2626', fontWeight: '700' },
 
-  // Logs section in card
-  logsSection: {
-    marginTop: 10, borderTopWidth: 1, borderTopColor: '#F0F2F6', paddingTop: 8,
-  },
-  logRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingVertical: 3,
-  },
-  logRowValue: { fontSize: 13, fontWeight: '600', color: '#1C3F7A', flex: 1 },
-  logRowDate: { fontSize: 11, color: '#9CA3AF', marginLeft: 8 },
   addCircleBtn: {
     width: 28, height: 28, borderRadius: 14, backgroundColor: '#EEF2FF',
     alignItems: 'center', justifyContent: 'center',

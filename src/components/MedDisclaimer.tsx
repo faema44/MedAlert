@@ -5,7 +5,7 @@ export default function MedDisclaimer() {
   return (
     <View style={styles.wrap}>
       <Text style={styles.text}>
-        ⚕️ As informações exibidas são apenas orientativas e não substituem avaliação médica ou farmacêutica.
+        ⚕️ Informações geradas por IA são apenas orientativas e podem conter erros. Confirme com a bula e sempre consulte seu médico ou farmacêutico.
       </Text>
     </View>
   );

@@ -75,11 +75,11 @@ export default function HelpScreen() {
 
       {/* Como usar */}
       <Section title="Como usar — passo a passo">
-        <Step number="1" text="Abra a aba Perfil e preencha seu nome, tipo sanguíneo e alergias." />
-        <Step number="2" text="Cadastre todos os medicamentos que você usa regularmente na aba Medicamentos. Marque como 'crítico' os que não podem ser interrompidos." />
-        <Step number="3" text="Adicione ao menos um contato de emergência na aba Contatos (familiar ou médico de referência)." />
-        <Step number="4" text="Use a aba Agenda para registrar atividades físicas e consultas médicas — lembretes serão criados automaticamente." />
-        <Step number="5" text="Na tela Início, toque no chip de status para ativar o alerta de emergência. Sua ficha médica ficará visível na tela de bloqueio imediatamente." />
+        <Step number="1" text="Abra a aba Emergência e complete os 3 passos: Perfil Médico (nome, tipo sanguíneo, alergias), Contato de emergência e Ativar alerta." />
+        <Step number="2" text="Cadastre os medicamentos que você usa na aba Medicamentos, tocando em +. O assistente pergunta nome, dose, horários, prazo e estoque — um passo de cada vez." />
+        <Step number="3" text="Use a aba Atividades para registrar atividades físicas, medições (pressão, glicose, peso) e consultas médicas — lembretes são criados automaticamente." />
+        <Step number="4" text="Acompanhe na aba Histórico as doses que você tomou ou pulou e as atividades realizadas." />
+        <Step number="5" text="Com o alerta ativo, sua ficha médica fica visível na tela de bloqueio imediatamente — sem precisar desbloquear o celular." />
         <Text style={styles.tip}>
           💡 Após configurar lembretes, a tela Início exibe um card "Próximos lembretes" com o horário mais próximo de cada medicamento (ex.: Zyloric hoje às 14:00 · Glifage amanhã às 08:00). Toque no card para ir à lista de medicamentos.
         </Text>
@@ -142,7 +142,7 @@ export default function HelpScreen() {
           </View>
         </View>
         <Text style={styles.tip}>
-          💡 Use a aba Interações para ver o relatório completo com mecanismos e recomendações. As abas Medicamentos e Contatos exibem um número em vermelho quando há itens cadastrados.
+          💡 Toque no ícone 📋 no topo de qualquer tela para abrir as Tabelas — todas as interações da base (mais de 900), com busca e filtros por risco, além das listas completas de medicamentos e fitoterápicos.
         </Text>
       </Section>
 
@@ -161,16 +161,17 @@ export default function HelpScreen() {
       {/* Lembretes */}
       <Section title="🔔 Lembretes de medicamentos">
         <Text style={styles.bodyText}>
-          Na aba Medicamentos, toque no ícone 🔔 de qualquer medicamento para configurar
-          lembretes. Você pode definir:
+          Os lembretes são definidos ao cadastrar o medicamento. Para alterá-los depois,
+          toque no cartão do medicamento na aba Medicamentos. Você pode definir:
         </Text>
-        <Bullet text="Horário(s) diários" />
+        <Bullet text="Horário(s) diários — inclusive pelos horários das suas refeições" />
         <Bullet text="Dias específicos da semana (ex.: seg, qua e sex)" />
         <Bullet text="Dias específicos do mês (ex.: dias 1 e 15)" />
-        <Bullet text="Intervalo periódico (ex.: a cada 2 meses, no dia 10)" />
-        <Bullet text="Repetição do alarme em intervalos de minutos" />
+        <Bullet text="Intervalo livre (ex.: a cada 2 meses, no dia 10)" />
+        <Bullet text="Repetição do alarme a cada 5 min até confirmar Tomei / Não tomei" />
+        <Bullet text="Prazo do tratamento e controle de estoque com aviso de reposição" />
         <Text style={styles.tip}>
-          💡 Lembretes funcionam offline. Nenhuma conexão é necessária para receber as notificações.
+          💡 O ícone 🔔 / 🔕 no cartão do medicamento silencia ou reativa o som do lembrete sem apagá-lo. Lembretes funcionam offline — nenhuma conexão é necessária.
         </Text>
       </Section>
 
@@ -190,14 +191,14 @@ export default function HelpScreen() {
       {/* Agenda */}
       <Section title="📅 Atividades e Consultas">
         <Text style={styles.bodyText}>
-          A aba Agenda permite registrar dois tipos de compromissos de saúde:
+          A aba Atividades permite registrar compromissos de saúde:
         </Text>
         <Bullet text="Atividades de rotina — caminhada, fisioterapia, tomar água e outras com lembretes diários" />
         <Bullet text="Medições de saúde — pressão arterial (❤️), glicose (🩸) e peso/IMC (⚖️) com histórico e faixas de referência coloridas" />
         <Bullet text="Consultas — médico, dentista, exames, com lembretes automáticos 1 dia e 1 hora antes" />
         <Text style={styles.bodyText}>
-          Para registrar uma medição (pressão, glicose ou peso), toque no ícone de lápis ao lado da atividade na lista.
-          O app calcula o IMC automaticamente ao pesar.
+          Para registrar uma medição (pressão, glicose ou peso), toque no cartão da atividade na lista —
+          o ícone de lápis ✏️ serve para editar nome e horários. O app calcula o IMC automaticamente ao pesar.
         </Text>
         <Text style={styles.tip}>
           💡 Consultas passadas não aparecem nos lembretes — apenas futuras são exibidas.
@@ -211,8 +212,8 @@ export default function HelpScreen() {
           buscando na base da ANVISA. Toque em uma sugestão para preencher o nome correto.
         </Text>
         <Text style={styles.bodyText}>
-          Nos cartões de medicamento, toque no ícone 📄 para abrir a bula oficial diretamente
-          pelo Bulário Eletrônico da ANVISA — sem sair do aplicativo.
+          Nos cartões de medicamento, toque no ícone 📋 para abrir a bula oficial
+          — sem sair do aplicativo.
         </Text>
         <Text style={styles.tip}>
           💡 A busca funciona por nome genérico e comercial. Se um medicamento não aparecer,
@@ -236,10 +237,25 @@ export default function HelpScreen() {
         </Text>
       </Section>
 
+      {/* Backup */}
+      <Section title="💾 Backup dos seus dados">
+        <Text style={styles.bodyText}>
+          Seus dados são protegidos de duas formas:
+        </Text>
+        <Bullet text="Automático — com o backup do Android ativo (Configurações → Google → Backup), uma cópia criptografada vai para sua conta Google e é restaurada sozinha ao trocar de celular ou reinstalar o app" />
+        <Bullet text="Manual — em Emergência → Perfil Médico → Backup de Dados, salve um arquivo no celular (ex.: pasta Downloads) ou compartilhe por WhatsApp/e-mail, e restaure quando precisar" />
+        <Text style={styles.tip}>
+          💡 O backup automático depende do backup do Google estar ativado no aparelho. O arquivo manual é uma garantia extra — guarde-o fora do celular.
+        </Text>
+      </Section>
+
       {/* Privacidade */}
       <Section title="🔐 Privacidade e segurança (LGPD)">
         <Text style={styles.bodyText}>
-          Seus dados de saúde (nome, tipo sanguíneo, medicamentos, contatos) ficam armazenados exclusivamente no seu celular. A Lei Geral de Proteção de Dados (Lei 13.709/2018) classifica dados de saúde como dados sensíveis — e o Alerta Médico respeita essa exigência.
+          Seus dados de saúde (nome, tipo sanguíneo, medicamentos, contatos) ficam armazenados no seu celular. A Lei Geral de Proteção de Dados (Lei 13.709/2018) classifica dados de saúde como dados sensíveis — e o Alerta Médico respeita essa exigência.
+        </Text>
+        <Text style={styles.bodyText}>
+          Se o backup do Android estiver ativo na sua conta Google (Configurações → Google → Backup), uma cópia criptografada dos dados do app é guardada no Google Drive e restaurada automaticamente ao reinstalar o app ou trocar de celular com a mesma conta.
         </Text>
         <Text style={styles.bodyText}>
           A única exceção é o recurso opcional "Reportar medicamento em falta": ao usá-lo, o
@@ -287,7 +303,7 @@ export default function HelpScreen() {
       <TouchableOpacity style={styles.privacyBtn} onPress={() => Linking.openURL(PRIVACY_URL)}>
         <View style={{ flex: 1 }}>
           <Text style={styles.privacyBtnText}>🔐 Política de Privacidade</Text>
-          <Text style={styles.privacyBtnSub}>Seus dados ficam apenas no seu celular</Text>
+          <Text style={styles.privacyBtnSub}>Como tratamos seus dados de saúde</Text>
         </View>
         <Text style={styles.privacyArrow}>›</Text>
       </TouchableOpacity>
@@ -311,7 +327,7 @@ const styles = StyleSheet.create({
   content: { padding: 16, paddingBottom: 40 },
 
   hero: {
-    backgroundColor: '#1a3a6b',
+    backgroundColor: '#1C3F7A',
     borderRadius: 14,
     padding: 20,
     marginBottom: 16,
@@ -338,13 +354,13 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#1a3a6b', flex: 1 },
-  sectionArrow: { fontSize: 20, color: '#1a3a6b', fontWeight: '600', paddingLeft: 8, lineHeight: 24 },
+  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#1C3F7A', flex: 1 },
+  sectionArrow: { fontSize: 20, color: '#1C3F7A', fontWeight: '600', paddingLeft: 8, lineHeight: 24 },
   sectionContent: { marginTop: 12 },
 
   stepRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
   stepBadge: {
-    width: 26, height: 26, borderRadius: 13, backgroundColor: '#1a3a6b',
+    width: 26, height: 26, borderRadius: 13, backgroundColor: '#1C3F7A',
     alignItems: 'center', justifyContent: 'center', marginRight: 10, marginTop: 1, flexShrink: 0,
   },
   stepNumber: { color: '#fff', fontWeight: '700', fontSize: 12 },
@@ -377,7 +393,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 3,
   },
-  privacyBtnText: { fontSize: 15, fontWeight: '600', color: '#1a3a6b' },
+  privacyBtnText: { fontSize: 15, fontWeight: '600', color: '#1C3F7A' },
   privacyBtnSub: { fontSize: 12, color: '#888', marginTop: 2 },
   privacyArrow: { fontSize: 22, color: '#bbb', lineHeight: 24 },
 
@@ -401,7 +417,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
   videoPlay: { color: '#fff', fontSize: 18 },
-  videoTitle: { fontSize: 13, fontWeight: '600', color: '#1a3a6b', marginBottom: 4, lineHeight: 18 },
+  videoTitle: { fontSize: 13, fontWeight: '600', color: '#1C3F7A', marginBottom: 4, lineHeight: 18 },
   videoSub: { fontSize: 11, color: '#888' },
 
   settingsBtn: {

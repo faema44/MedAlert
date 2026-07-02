@@ -181,10 +181,6 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
   try {
     await database.execAsync('ALTER TABLE medication_log ADD COLUMN taken_at TEXT');
   } catch {}
-  // Reset home_reminder=1 for all medications (fix accidental lock-only mode)
-  try {
-    await database.execAsync('UPDATE medications SET home_reminder=1 WHERE home_reminder IS NULL OR home_reminder=0');
-  } catch {}
   // created_at nunca existiu nesta tabela — sem ela, reminderExistedBeforeSlot()
   // (HomeScreen) nunca conseguia detectar lembrete recém-criado e cobrava dose
   // retroativa em qualquer instalação nova ou restore de backup
@@ -716,8 +712,8 @@ export async function importBackup(json: string): Promise<void> {
     }
     for (const m of (medications ?? [])) {
       await database.runAsync(
-        'INSERT INTO medications (id, generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, end_date, archived) VALUES (?,?,?,?,?,?,?,?,?,?)',
-        [m.id, m.generic_name ?? '', m.commercial_name ?? '', m.dose ?? '', m.frequency ?? '', m.is_critical ?? 0, m.notes ?? '', m.stock_quantity ?? null, m.end_date ?? null, m.archived ?? 0]
+        'INSERT INTO medications (id, generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, end_date, archived, home_reminder, save_history) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+        [m.id, m.generic_name ?? '', m.commercial_name ?? '', m.dose ?? '', m.frequency ?? '', m.is_critical ?? 0, m.notes ?? '', m.stock_quantity ?? null, m.end_date ?? null, m.archived ?? 0, m.home_reminder ?? 1, m.save_history ?? 1]
       );
     }
     for (const r of (medication_reminders ?? [])) {

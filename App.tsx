@@ -1,5 +1,18 @@
 import React, { useCallback, useEffect, useState, Component } from 'react';
+import * as Sentry from '@sentry/react-native';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
+
+// Crash reporting — preencher com o DSN do projeto em sentry.io (Settings → Client Keys).
+// Vazio = Sentry desativado (nada é enviado).
+const SENTRY_DSN = 'https://4e94ce2e664f6dfe08e0515c54712816@o4511667757776896.ingest.us.sentry.io/4511667763544064';
+if (SENTRY_DSN) {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    // Só crashes e erros — sem tracing/replay para não coletar dados além do necessário
+    tracesSampleRate: 0,
+    sendDefaultPii: false,
+  });
+}
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AppState, Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -36,7 +49,7 @@ import {
   ActivityAlertPayload,
   scheduleRepeatAlarm, cancelRepeatAlarm, rescheduleAllActiveNotifications,
   snoozeActivityReminder, getLastResponse, notifyTreatmentEnded, notifyLowStock, cancelAllRemindersForMedication,
-  dismissStaleNonInteractiveReminders,
+  dismissStaleNonInteractiveReminders, resetEmergencySignature,
 } from './src/services/notifications';
 import { getDb, getMedications, getActivities, getMedicationById, updateMedicationStock, addActivityLog, getKV, setKV, addMedicationLog, upsertMedicationLogTaken, archiveMedication, getExpiredUnarchivedMedications, getRemindersForMedication, getMedicationLog } from './src/database/db';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
@@ -157,6 +170,9 @@ function AppNavigator() {
   useEffect(() => {
     async function init() {
       await getDb();
+      // Antes de dbReady (e do primeiro load() da Home): garante que o alerta de
+      // emergência seja repostado neste boot do app — ver resetEmergencySignature.
+      await resetEmergencySignature();
       setDbReady(true);
 
       // Check for medications with expired treatment date
@@ -335,7 +351,7 @@ function AppNavigator() {
             if (r.period && r.period !== 'day') continue;
             const slotMs = new Date(`${todayStr}T${r.time}:00`).getTime();
             const taken = (allLogs as any[]).some(l =>
-              l.medication_id === med.id && l.taken === 1 &&
+              l.medication_id === med.id && l.taken != null &&
               Math.abs(new Date(l.scheduled_at).getTime() - slotMs) < 4 * 60 * 60 * 1000
             );
             if (!taken) { navRef.navigate('Home'); return; }
@@ -362,12 +378,16 @@ function AppNavigator() {
                 <TouchableOpacity
                   onPress={() => navigation.navigate('Interactions' as never)}
                   style={{ padding: 6 }}
+                  accessibilityLabel="Tabelas de medicamentos e interações"
+                  accessibilityRole="button"
                 >
                   <Text style={{ color: '#fff', fontSize: 19 }}>📋</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => navigation.navigate('Help' as never)}
                   style={{ padding: 4 }}
+                  accessibilityLabel="Ajuda"
+                  accessibilityRole="button"
                 >
                   <View style={{
                     width: 26, height: 26, borderRadius: 13,
@@ -397,7 +417,7 @@ function AppNavigator() {
           <Tab.Screen name="Medications"  component={MedicationsScreen}  options={{ tabBarLabel: 'Medicamentos', tabBarBadge: medCount > 0 ? medCount : undefined, tabBarBadgeStyle: { backgroundColor: '#1C3F7A', minWidth: 17, height: 17, borderRadius: 9 } }} />
           <Tab.Screen name="Agenda"       component={AgendaScreen}       options={{ tabBarLabel: 'Atividades', tabBarBadge: activityCount > 0 ? activityCount : undefined, tabBarBadgeStyle: { backgroundColor: '#1C3F7A', minWidth: 17, height: 17, borderRadius: 9 } }} />
           <Tab.Screen name="Emergency"    component={EmergencyScreen}    options={{ tabBarLabel: 'Emergência' }} />
-          <Tab.Screen name="History"      component={HistoryScreen}      options={{ tabBarLabel: 'Hist', headerTitle: () => <HeaderTitle route={{ name: 'History' }} /> }} />
+          <Tab.Screen name="History"      component={HistoryScreen}      options={{ tabBarLabel: 'Histórico', headerTitle: () => <HeaderTitle route={{ name: 'History' }} /> }} />
           <Tab.Screen name="Profile"      component={ProfileScreen}      options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tab.Screen name="Contacts"     component={ContactsScreen}     options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tab.Screen name="Interactions" component={InteractionsScreen} options={{ tabBarItemStyle: { display: 'none' } }} />
@@ -498,7 +518,7 @@ const ras = StyleSheet.create({
   btnPularText: { color: '#999', fontWeight: '600', fontSize: 14 },
 });
 
-export default function App() {
+function App() {
   return (
     <ErrorBoundary>
       <SafeAreaProvider>
@@ -509,3 +529,5 @@ export default function App() {
     </ErrorBoundary>
   );
 }
+
+export default SENTRY_DSN ? Sentry.wrap(App) : App;

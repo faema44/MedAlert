@@ -72,7 +72,7 @@ export default function ContactsScreen() {
     setContacts(updated);
     setShowModal(false);
     getProfile().then(p => { if (p) getMedications().then(m => updateEmergencyNotification(p, m).catch(() => {})); }).catch(() => {});
-    if (isNew) navigation.navigate('Home' as never);
+    if (isNew) navigation.goBack();
   }
 
   async function handleDelete(id: number, name: string) {
@@ -194,10 +194,10 @@ export default function ContactsScreen() {
                 <Text style={styles.contactPhone}>{item.phone}</Text>
               </View>
               <View style={styles.cardMeta}>
-                <TouchableOpacity style={styles.editBtn} onPress={() => openEdit(item)}>
+                <TouchableOpacity style={styles.editBtn} onPress={() => openEdit(item)} accessibilityLabel={`Editar contato ${item.name}`} accessibilityRole="button">
                   <Text style={styles.editBtnText}>✏️</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.id, item.name)}>
+                <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.id, item.name)} accessibilityLabel={`Remover contato ${item.name}`} accessibilityRole="button">
                   <Text style={styles.deleteBtnText}>✕</Text>
                 </TouchableOpacity>
               </View>
@@ -214,7 +214,7 @@ export default function ContactsScreen() {
         )}
       />
 
-      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={openNew}>
+      <TouchableOpacity style={[styles.fab, { bottom: 24 + insets.bottom }]} onPress={openNew} accessibilityLabel="Adicionar contato de emergência" accessibilityRole="button">
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 

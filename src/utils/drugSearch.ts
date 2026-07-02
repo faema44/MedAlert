@@ -10,6 +10,7 @@ interface MedEntry {
 let DB: MedEntry[] = [];
 // Cache brand→generic resolutions so we don't scan DB on every checkInteractions call
 const resolveCache = new Map<string, string>();
+const normalizeCache = new Map<string, string>();
 // Pre-normalized drug1/drug2 tokens for each interaction — rebuilt when interactions load
 let INTERACTION_TOKENS: Array<{ tokens1: string[]; tokens2: string[] }> = [];
 // normalized genericName -> rxcui — rebuilt whenever DB changes
@@ -89,13 +90,17 @@ export interface DrugSuggestion {
 // ─── Normalisation ────────────────────────────────────────────────────────────
 
 function normalize(s: string): string {
-  return s
+  const cached = normalizeCache.get(s);
+  if (cached !== undefined) return cached;
+  const result = s
     .toLowerCase()
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
     .replace(/[()\/+]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+  normalizeCache.set(s, result);
+  return result;
 }
 
 // ─── Bula URL (ANVISA Bulário Eletrônico — fonte oficial brasileira) ───────────
@@ -217,6 +222,11 @@ export interface DbEntry { genericName: string; brands: string[]; category: stri
 export function getAllMedsList(): DbEntry[] {
   return DB.filter(e => e.category !== 'Fitoterápico')
     .sort((a, b) => a.genericName.localeCompare(b.genericName, 'pt-BR'));
+}
+
+// Unsorted — for membership checks where order doesn't matter, avoids the locale-aware sort cost
+export function getAllMedGenericNames(): string[] {
+  return DB.filter(e => e.category !== 'Fitoterápico').map(e => e.genericName);
 }
 
 export function getAllPhytoList(): DbEntry[] {
