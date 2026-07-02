@@ -185,6 +185,15 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
   try {
     await database.execAsync('UPDATE medications SET home_reminder=1 WHERE home_reminder IS NULL OR home_reminder=0');
   } catch {}
+  // created_at nunca existiu nesta tabela — sem ela, reminderExistedBeforeSlot()
+  // (HomeScreen) nunca conseguia detectar lembrete recém-criado e cobrava dose
+  // retroativa em qualquer instalação nova ou restore de backup
+  try {
+    await database.execAsync('ALTER TABLE medication_reminders ADD COLUMN created_at TEXT');
+  } catch {}
+  try {
+    await database.execAsync('ALTER TABLE medications ADD COLUMN save_history INTEGER DEFAULT 1');
+  } catch {}
 }
 
 // Profile
@@ -221,14 +230,15 @@ export async function getMedications(): Promise<Medication[]> {
     stock_quantity: r.stock_quantity ?? null,
     end_date: r.end_date ?? null,
     home_reminder: r.home_reminder ?? 1,
+    save_history: r.save_history ?? 1,
   }));
 }
 
 export async function addMedication(med: Omit<Medication, 'id'>): Promise<number> {
   const database = await getDb();
   const result = await database.runAsync(
-    `INSERT INTO medications (generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, end_date, home_reminder) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [med.generic_name ?? '', med.commercial_name ?? '', med.dose ?? '', med.frequency ?? '', med.is_critical ? 1 : 0, med.notes ?? '', med.stock_quantity ?? null, med.end_date ?? null, med.home_reminder ?? 1]
+    `INSERT INTO medications (generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, end_date, home_reminder, save_history) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [med.generic_name ?? '', med.commercial_name ?? '', med.dose ?? '', med.frequency ?? '', med.is_critical ? 1 : 0, med.notes ?? '', med.stock_quantity ?? null, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1]
   );
   return result.lastInsertRowId;
 }
@@ -236,8 +246,8 @@ export async function addMedication(med: Omit<Medication, 'id'>): Promise<number
 export async function updateMedication(med: Medication): Promise<void> {
   const database = await getDb();
   await database.runAsync(
-    `UPDATE medications SET generic_name=?, commercial_name=?, dose=?, frequency=?, is_critical=?, notes=?, stock_quantity=?, end_date=?, home_reminder=? WHERE id=?`,
-    [med.generic_name, med.commercial_name, med.dose, med.frequency, med.is_critical ? 1 : 0, med.notes, med.stock_quantity ?? null, med.end_date ?? null, med.home_reminder ?? 1, med.id]
+    `UPDATE medications SET generic_name=?, commercial_name=?, dose=?, frequency=?, is_critical=?, notes=?, stock_quantity=?, end_date=?, home_reminder=?, save_history=? WHERE id=?`,
+    [med.generic_name, med.commercial_name, med.dose, med.frequency, med.is_critical ? 1 : 0, med.notes, med.stock_quantity ?? null, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1, med.id]
   );
 }
 
@@ -250,7 +260,7 @@ export async function getMedicationById(id: number): Promise<Medication | null> 
   const database = await getDb();
   const row = await database.getFirstAsync<Medication>('SELECT * FROM medications WHERE id=?', [id]);
   if (!row) return null;
-  return { ...row, is_critical: Boolean(row.is_critical), stock_quantity: row.stock_quantity ?? null, end_date: row.end_date ?? null };
+  return { ...row, is_critical: Boolean(row.is_critical), stock_quantity: row.stock_quantity ?? null, end_date: row.end_date ?? null, save_history: row.save_history ?? 1 };
 }
 
 export async function deleteMedication(id: number): Promise<void> {
@@ -295,7 +305,7 @@ export async function deleteContact(id: number): Promise<void> {
 }
 
 // Medication Reminders
-type ReminderRow = { id: number; medication_id: number; time: string; days: string; with_sound: number; is_active: number; repeat_interval: number };
+type ReminderRow = { id: number; medication_id: number; time: string; days: string; with_sound: number; is_active: number; repeat_interval: number; created_at?: string };
 
 export async function getRemindersForMedication(medicationId: number): Promise<MedicationReminder[]> {
   const database = await getDb();
@@ -315,7 +325,7 @@ export async function getRemindersForMedication(medicationId: number): Promise<M
 export async function addReminder(r: Omit<MedicationReminder, 'id'>): Promise<void> {
   const database = await getDb();
   await database.runAsync(
-    'INSERT INTO medication_reminders (medication_id, time, days, with_sound, is_active, repeat_interval) VALUES (?, ?, ?, ?, 1, ?)',
+    'INSERT INTO medication_reminders (medication_id, time, days, with_sound, is_active, repeat_interval, created_at) VALUES (?, ?, ?, ?, 1, ?, CURRENT_TIMESTAMP)',
     [r.medication_id, r.time, r.period ?? 'day', r.with_sound ? 1 : 0, r.repeat_interval ?? 0]
   );
 }
@@ -425,7 +435,7 @@ export async function deleteActivity(id: number): Promise<void> {
 }
 
 // Activity Reminders
-type ActivityReminderRow = { id: number; activity_id: number; time: string; is_active: number; with_sound: number };
+type ActivityReminderRow = { id: number; activity_id: number; time: string; is_active: number; with_sound: number; period?: string };
 
 export async function getRemindersForActivity(activityId: number): Promise<ActivityReminder[]> {
   const database = await getDb();
@@ -711,8 +721,10 @@ export async function importBackup(json: string): Promise<void> {
       );
     }
     for (const r of (medication_reminders ?? [])) {
+      // created_at = agora (não o do backup): um lembrete restaurado não deve
+      // ser cobrado como dose perdida por horários que já passaram hoje
       await database.runAsync(
-        'INSERT INTO medication_reminders (id, medication_id, time, days, with_sound, is_active, repeat_interval) VALUES (?,?,?,?,?,?,?)',
+        'INSERT INTO medication_reminders (id, medication_id, time, days, with_sound, is_active, repeat_interval, created_at) VALUES (?,?,?,?,?,?,?,CURRENT_TIMESTAMP)',
         [r.id, r.medication_id, r.time, r.days ?? '["seg","ter","qua","qui","sex","sab","dom"]', r.with_sound ?? 1, r.is_active ?? 1, r.repeat_interval ?? 0]
       );
     }

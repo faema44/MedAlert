@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
-  Modal, TextInput, Switch, Alert, ScrollView, Share,
+  Modal, TextInput, Switch, Alert, ScrollView,
   KeyboardAvoidingView, Platform, ActivityIndicator, Keyboard,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -21,24 +21,14 @@ import {
 } from '../services/notifications';
 import { Medication, MedicationReminder, DrugInteraction } from '../types';
 import MedDisclaimer from '../components/MedDisclaimer';
-import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, checkInteractions, checkSubstanceInteractions, isPhytotherapic, getAllMedsList } from '../utils/drugSearch';
+import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, checkInteractions, isPhytotherapic, getAllMedsList } from '../utils/drugSearch';
 import { useBulaViewer } from '../utils/useBulaViewer';
 import { reportMissingDrug } from '../services/reportMissing';
 // ──────────────────────────────────────────────────────────────────────────────
 
-function buildDoctorMessage(drugName: string, interactions: DrugInteraction[]): string {
-  const pairs = interactions
-    .map(i => `• ${i.drug1} + ${i.drug2}: ${i.risk_description}`)
-    .join('\n');
-  return (
-    `Olá, estou iniciando o uso de ${drugName} e identifiquei interações medicamentosas com outros remédios que já tomo:\n\n${pairs}\n\n` +
-    `Poderia avaliar se há riscos para o meu tratamento e orientar sobre o uso concomitante?`
-  );
-}
-
 const EMPTY_MED: Omit<Medication, 'id'> = {
   generic_name: '', commercial_name: '', dose: '', frequency: '', is_critical: false, notes: '',
-  stock_quantity: null, end_date: null, home_reminder: 1,
+  stock_quantity: null, end_date: null, home_reminder: 1, save_history: 1,
 };
 
 function formatEndDate(iso: string): string {
@@ -128,8 +118,6 @@ export default function MedicationsScreen() {
   const [knownDrug, setKnownDrug] = useState<boolean>(false);
   const [commercialSuggestions, setCommercialSuggestions] = useState<DrugSuggestion[]>([]);
   const [interactions, setInteractions] = useState<DrugInteraction[]>([]);
-  const [substanceInteractions, setSubstanceInteractions] = useState<DrugInteraction[]>([]);
-  const [postSaveInteractions, setPostSaveInteractions] = useState<DrugInteraction[]>([]);
   const [entryType, setEntryType] = useState<'medicamento' | 'fitoterapico'>('medicamento');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [cardInteractions, setCardInteractions] = useState<Map<number, DrugInteraction[]>>(new Map());
@@ -138,7 +126,8 @@ export default function MedicationsScreen() {
   const [durationDays, setDurationDays] = useState('');
   const [hasDeadline, setHasDeadline] = useState(false);
   const [showStockHelp, setShowStockHelp] = useState(false);
-  const [showInteractionWarning, setShowInteractionWarning] = useState(false);
+  const [showSaveHistoryHelp, setShowSaveHistoryHelp] = useState(false);
+  const [saveHistory, setSaveHistory] = useState(true);
   const [homeReminderEnabled, setHomeReminderEnabled] = useState(true);
   const homeReminderRef = useRef(true);
   const lockOnlyRef = useRef(false);
@@ -268,10 +257,7 @@ export default function MedicationsScreen() {
       setSuggestions(getSuggestions(v, 7, entryType === 'fitoterapico' ? 'Fitoterápico' : undefined));
       setCommercialSuggestions([]);
       const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
-      const drugInts = checkInteractions(v, others);
-      const seenIds = new Set(drugInts.map(i => i.id));
-      setInteractions(drugInts);
-      setSubstanceInteractions(checkSubstanceInteractions(v, others).filter(i => !seenIds.has(i.id)));
+      setInteractions(checkInteractions(v, others));
     }, 300);
   }
 
@@ -286,14 +272,10 @@ export default function MedicationsScreen() {
     setCommercialSuggestions([]);
     setKnownDrug(true);
     setInteractions([]);
-    setSubstanceInteractions([]);
     // Delay interaction check so keyboard dismiss + UI render settle first
     setTimeout(() => {
       const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
-      const drugInts = checkInteractions(s.genericName, others);
-      const seenIds = new Set(drugInts.map(i => i.id));
-      setInteractions(drugInts);
-      setSubstanceInteractions(checkSubstanceInteractions(s.genericName, others).filter(i => !seenIds.has(i.id)));
+      setInteractions(checkInteractions(s.genericName, others));
     }, 250);
   }
 
@@ -500,6 +482,8 @@ export default function MedicationsScreen() {
       const isCritical = interactions.some(i => i.risk_level === 'critical' || i.risk_level === 'high');
       const stockQty = stockInput.trim() ? parseInt(stockInput.trim(), 10) : null;
       const endDate = hasDeadline && durationDays.trim() ? addDays(parseInt(durationDays.trim(), 10)) : null;
+      // Controle de estoque exige a confirmação de "Tomei" pra descontar — força Sim
+      const effectiveSaveHistory = stockQty != null ? true : saveHistory;
       const data = {
         ...form,
         generic_name: form.generic_name.trim(),
@@ -508,6 +492,7 @@ export default function MedicationsScreen() {
         stock_quantity: stockQty,
         end_date: endDate,
         home_reminder: homeReminderRef.current ? 1 : 0,
+        save_history: effectiveSaveHistory ? 1 : 0,
       };
 
       let savedMedId: number;
@@ -527,12 +512,12 @@ export default function MedicationsScreen() {
         const ri = e.repeat_interval ?? 0;
         try {
           const notifName = data.commercial_name.trim() || data.generic_name;
-          if (p === 'day') await scheduleReminder(savedMedId, notifName, data.dose, h, m, e.with_sound, ri);
-          else if (p.startsWith('week:')) await scheduleReminderWeekly(savedMedId, notifName, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri);
-          else if (p.startsWith('month:')) await scheduleReminderMonthly(savedMedId, notifName, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri);
+          if (p === 'day') await scheduleReminder(savedMedId, notifName, data.dose, h, m, e.with_sound, ri, undefined, undefined, effectiveSaveHistory);
+          else if (p.startsWith('week:')) await scheduleReminderWeekly(savedMedId, notifName, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri, undefined, undefined, effectiveSaveHistory);
+          else if (p.startsWith('month:')) await scheduleReminderMonthly(savedMedId, notifName, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri, undefined, undefined, effectiveSaveHistory);
           else if (p.startsWith('nmonths:')) {
             const [, nStr, dStr] = p.split(':');
-            await scheduleReminderEveryNMonths(savedMedId, notifName, data.dose, Number(nStr), Number(dStr), h, m, e.with_sound, ri);
+            await scheduleReminderEveryNMonths(savedMedId, notifName, data.dose, Number(nStr), Number(dStr), h, m, e.with_sound, ri, undefined, undefined, effectiveSaveHistory);
           }
         } catch {}
         await addReminder({ medication_id: savedMedId, time: e.time, period: e.period, with_sound: e.with_sound, is_active: true, repeat_interval: ri }).catch(() => {});
@@ -543,19 +528,15 @@ export default function MedicationsScreen() {
       setMedications(updated);
       setShowModal(false);
 
-      const savedInts = [...interactions];
-      setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setSubstanceInteractions([]);
+      setSuggestions([]); setCommercialSuggestions([]); setInteractions([]);
       setEditingId(null); setKnownDrug(false);
       setStockInput(''); setDurationDays(''); setHasDeadline(false);
       setReminders([]); resetPickerState(); setWizardStep('name'); lockOnlyRef.current = false;
       await syncNotification(updated);
       await refreshReminderTimes(savedMedId).catch(() => {});
 
-      if (isNew && savedInts.length === 0) {
+      if (isNew) {
         navigation.navigate('Medications' as never);
-      } else if (savedInts.length > 0) {
-        setPostSaveInteractions(savedInts);
-        setShowInteractionWarning(true);
       }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -584,10 +565,11 @@ export default function MedicationsScreen() {
     setForm(EMPTY_MED);
     setDoseValue(''); setDoseUnit('mg'); setDoseUnitTouched(false);
     setEditingId(null);
-    setSuggestions([]); setCommercialSuggestions([]); setInteractions([]); setSubstanceInteractions([]);
+    setSuggestions([]); setCommercialSuggestions([]); setInteractions([]);
     setEntryType('medicamento'); setKnownDrug(false);
     setReminders([]); setStockInput(''); setDurationDays(''); setHasDeadline(false);
     homeReminderRef.current = true; setHomeReminderEnabled(true);
+    setSaveHistory(true);
     lockOnlyRef.current = false;
     resetPickerState();
     setWizardStep('type');
@@ -611,11 +593,12 @@ export default function MedicationsScreen() {
     setDurationDays(item.end_date ? String(Math.max(0, daysRemaining(item.end_date))) : '');
     setHasDeadline(!!item.end_date);
     homeReminderRef.current = item.home_reminder !== 0; setHomeReminderEnabled(item.home_reminder !== 0);
+    setSaveHistory(item.save_history !== 0);
     lockOnlyRef.current = false;
     setEditingId(item.id);
     setSuggestions([]); setCommercialSuggestions([]); setKnownDrug(true);
     setEntryType(isPhytotherapic(item.generic_name) ? 'fitoterapico' : 'medicamento');
-    setInteractions([]); setSubstanceInteractions([]);
+    setInteractions([]);
     resetPickerState(); setReminders([]);
     setWizardStep('name');
     setShowModal(true);
@@ -625,10 +608,7 @@ export default function MedicationsScreen() {
     }).catch(() => {});
     setTimeout(() => {
       const others = medications.filter(m => m.id !== item.id).map(m => m.generic_name);
-      const drugInts = checkInteractions(item.generic_name, others);
-      const seenIds = new Set(drugInts.map(i => i.id));
-      setInteractions(drugInts);
-      setSubstanceInteractions(checkSubstanceInteractions(item.generic_name, others).filter(i => !seenIds.has(i.id)));
+      setInteractions(checkInteractions(item.generic_name, others));
     }, 0);
   }
 
@@ -765,44 +745,6 @@ export default function MedicationsScreen() {
                     </TouchableOpacity>
                   );
                 })}
-              </View>
-            )}
-
-
-
-            {(interactions.length > 0 || substanceInteractions.length > 0) && (
-              <Text style={styles.interactionDisclaimer}>
-                ⚠️ Possíveis interações detectadas. Será exibido aviso após salvar.
-              </Text>
-            )}
-            {interactions.map(i => {
-              const isC = i.risk_level === 'critical';
-              const isH = i.risk_level === 'high';
-              const color = isC ? '#CC0000' : isH ? '#e65c00' : '#b58900';
-              const bg = isC ? '#fff0f0' : isH ? '#fff5f0' : '#fffaf0';
-              const label = isC ? 'CRÍTICO' : isH ? 'ALTO' : 'MODERADO';
-              return (
-                <View key={i.id} style={[styles.interactionCard, { borderLeftColor: color, backgroundColor: bg }]}>
-                  <Text style={[styles.interactionBadge, { color }]}>⚡ {label}</Text>
-                  <Text style={styles.interactionDrugs}>{i.drug1}  +  {i.drug2}</Text>
-                  <Text style={styles.interactionDesc}>{i.risk_description}</Text>
-                </View>
-              );
-            })}
-            {interactions.some(i => i.risk_level === 'critical' || i.risk_level === 'high') && (
-              <View style={styles.doctorAdviceBox}>
-                <Text style={styles.doctorAdviceTitle}>Avise seu médico</Text>
-                <Text style={styles.doctorAdviceText}>
-                  Você já usa medicamentos com interação com{' '}
-                  <Text style={{ fontWeight: '700' }}>{form.generic_name || 'este medicamento'}</Text>.
-                  Informe seu médico antes de iniciar.
-                </Text>
-                <TouchableOpacity
-                  style={styles.doctorShareBtn}
-                  onPress={() => Share.share({ message: buildDoctorMessage(form.generic_name, interactions) })}
-                >
-                  <Text style={styles.doctorShareBtnText}>Compartilhar aviso com médico</Text>
-                </TouchableOpacity>
               </View>
             )}
           </>
@@ -948,15 +890,22 @@ export default function MedicationsScreen() {
               );
             })()}
             <View style={[styles.timesRow, { marginTop: 20 }]}>
-              {TIMES_PER_DAY_OPTIONS.map(n => (
-                <TouchableOpacity
-                  key={n}
-                  style={[styles.timesBtn, timesPerDayTouched && timesPerDay === n && styles.timesBtnActive]}
-                  onPress={() => { setTimesPerDay(n); setTimesPerDayTouched(true); setCustomTimes(''); setSpecificModeActive(false); wizGoNext(); }}
-                >
-                  <Text style={[styles.timesBtnText, timesPerDayTouched && timesPerDay === n && styles.timesBtnTextActive]}>{n}x</Text>
-                </TouchableOpacity>
-              ))}
+              {TIMES_PER_DAY_OPTIONS.map(n => {
+                const interval = 24 / n;
+                const active = timesPerDayTouched && timesPerDay === n;
+                return (
+                  <TouchableOpacity
+                    key={n}
+                    style={[styles.timesBtn, active && styles.timesBtnActive]}
+                    onPress={() => { setTimesPerDay(n); setTimesPerDayTouched(true); setCustomTimes(''); setSpecificModeActive(false); wizGoNext(); }}
+                  >
+                    <Text style={[styles.timesBtnText, active && styles.timesBtnTextActive]}>{n}x</Text>
+                    {n > 1 && (
+                      <Text style={[styles.timesBtnSub, active && styles.timesBtnSubActive]}>de {interval} em {interval}h</Text>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
             </View>
             <TouchableOpacity
               style={[styles.yesNoBtn, { marginTop: 20, borderColor: '#E07B4F', width: '100%' }]}
@@ -1156,33 +1105,55 @@ export default function MedicationsScreen() {
           </>
         );
 
-      case 'stock':
+      case 'stock': {
+        const stockControlOn = stockInput.trim().length > 0;
+        const saveHistoryActive = stockControlOn || saveHistory;
         return (
           <>
-            <Text style={styles.wizLabel}>Controle de estoque</Text>
-            <Text style={styles.wizHint}>Quantos comprimidos/doses você tem em casa?</Text>
-            <Text style={[styles.wizHint, { marginTop: 6, color: '#999', fontSize: 12 }]}>
-              Com o controle ativo, o aviso fica na tela até você tocar em <Text style={{ fontWeight: '700' }}>Tomei</Text> ou <Text style={{ fontWeight: '700' }}>Não Tomei</Text>. Se repetir alarme estiver ativado, o alarme toca a cada 5 min. A cada <Text style={{ fontWeight: '700' }}>Tomei</Text> o estoque diminui 1. Quando faltar doses para 3 dias, você será avisado.
-            </Text>
+            <View style={[styles.fieldLabelRow, { marginTop: 0 }]}>
+              <Text style={styles.wizLabel}>Controle de estoque</Text>
+              <TouchableOpacity onPress={() => setShowStockHelp(true)} style={{ marginLeft: 8 }}>
+                <Text style={styles.stockHelpBtn}>?</Text>
+              </TouchableOpacity>
+            </View>
             <TextInput
               style={[styles.fieldInput, styles.wizBigInput, { marginTop: 16 }]}
               value={stockInput}
               onChangeText={setStockInput}
               keyboardType="number-pad"
-              placeholder="Ex: 30"
+              placeholder="Ex: 30    (Opcional)"
               placeholderTextColor="#bbb"
             />
             <Text style={{ fontSize: 12, color: '#999', marginTop: 6, marginLeft: 2 }}>
               Deixe em branco para não controlar o estoque
             </Text>
-            <TouchableOpacity
-              style={[styles.stockHelpBtn2, { marginTop: 10 }]}
-              onPress={() => setShowStockHelp(true)}
+
+            <View style={[styles.fieldLabelRow, { marginTop: 22 }]}>
+              <Text style={styles.wizLabel}>Salva no Histórico?</Text>
+              <TouchableOpacity onPress={() => setShowSaveHistoryHelp(true)} style={{ marginLeft: 8 }}>
+                <Text style={styles.stockHelpBtn}>?</Text>
+              </TouchableOpacity>
+            </View>
+            <View
+              style={[styles.yesNoRow, { marginTop: 6, opacity: stockControlOn ? 0.4 : 1 }]}
+              pointerEvents={stockControlOn ? 'none' : 'auto'}
             >
-              <Text style={styles.stockHelpBtn2Text}>Como funciona o controle de estoque?</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.yesNoBtn, saveHistoryActive && styles.yesNoBtnActive]}
+                onPress={() => setSaveHistory(true)}
+              >
+                <Text style={[styles.yesNoBtnText, saveHistoryActive && styles.yesNoBtnTextActive]}>Sim</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.yesNoBtn, !stockControlOn && !saveHistory && styles.yesNoBtnActive]}
+                onPress={() => setSaveHistory(false)}
+              >
+                <Text style={[styles.yesNoBtnText, !stockControlOn && !saveHistory && styles.yesNoBtnTextActive]}>Não</Text>
+              </TouchableOpacity>
+            </View>
           </>
         );
+      }
 
       default:
         return null;
@@ -1284,7 +1255,13 @@ export default function MedicationsScreen() {
                   {item.is_critical ? '  ·  ⚠️ Crítico' : ''}
                 </Text>
               )}
+              {item.save_history === 0 && item.stock_quantity == null && (
+                <Text style={styles.medNoReminderHint}>⏱ Só aviso</Text>
+              )}
               {item.notes ? <Text style={styles.medNotes}>📝 {item.notes}</Text> : null}
+              {times.length === 0 && hasAnyInfo && (
+                <Text style={styles.medNoReminderHint}>🔒 Sem lembrete — aparece só na tela de bloqueio</Text>
+              )}
               {!hasAnyInfo && <Text style={styles.medEditHint}>Toque para configurar →</Text>}
             </View>
             {itemInteractions.length > 0 && (
@@ -1409,37 +1386,6 @@ export default function MedicationsScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* Post-save interaction warning */}
-      <Modal visible={showInteractionWarning} animationType="slide" transparent onRequestClose={() => { setShowInteractionWarning(false); setPostSaveInteractions([]); }}>
-        <View style={styles.intModalOverlay}>
-          <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
-            <Text style={styles.intModalTitle}>⚠️ Interação detectada</Text>
-            <Text style={[styles.iwAdviceText, { marginTop: 0, marginBottom: 8 }]}>
-              Medicamento salvo. Informe seu médico sobre estas interações.
-            </Text>
-            <MedDisclaimer />
-            <ScrollView style={{ maxHeight: 260 }} showsVerticalScrollIndicator={false}>
-              {postSaveInteractions.map(i => {
-                const c = i.risk_level === 'critical' ? '#CC0000' : i.risk_level === 'high' ? '#e65c00' : '#b58900';
-                const lbl = i.risk_level === 'critical' ? 'Crítico' : i.risk_level === 'high' ? 'Alto' : 'Moderado';
-                return (
-                  <View key={i.id} style={[styles.iwItem, { borderLeftColor: c }]}>
-                    <View style={[styles.intModalBadge, { borderColor: c, marginBottom: 4 }]}>
-                      <Text style={[styles.intModalBadgeText, { color: c }]}>{lbl}</Text>
-                    </View>
-                    <Text style={styles.intModalDrugs}>{i.drug1} + {i.drug2}</Text>
-                    <Text style={styles.intModalDesc}>{i.risk_description}</Text>
-                  </View>
-                );
-              })}
-            </ScrollView>
-            <TouchableOpacity style={styles.intModalClose} onPress={() => { setShowInteractionWarning(false); setPostSaveInteractions([]); }}>
-              <Text style={styles.intModalCloseText}>Entendi</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
       {bulaModal}
 
       {/* Interaction detail modal (from card tap) */}
@@ -1447,6 +1393,7 @@ export default function MedicationsScreen() {
         <View style={styles.intModalOverlay}>
           <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
             <Text style={styles.intModalTitle}>Interações detectadas</Text>
+            <MedDisclaimer />
             <ScrollView>
               {(interactionModal ?? []).map(i => {
                 const color = i.risk_level === 'critical' ? '#CC0000' : i.risk_level === 'high' ? '#e65c00' : '#b58900';
@@ -1458,6 +1405,12 @@ export default function MedicationsScreen() {
                     </View>
                     <Text style={styles.intModalDrugs}>{i.drug1} + {i.drug2}</Text>
                     <Text style={styles.intModalDesc}>{i.risk_description}</Text>
+                    {!!i.mechanism && (
+                      <View style={styles.intModalMechanismBox}>
+                        <Text style={styles.intModalMechanismTitle}>Como ocorre:</Text>
+                        <Text style={styles.intModalMechanismText}>{i.mechanism}</Text>
+                      </View>
+                    )}
                   </View>
                 );
               })}
@@ -1496,6 +1449,25 @@ export default function MedicationsScreen() {
           </View>
         </View>
       </Modal>
+
+      <Modal visible={showSaveHistoryHelp} animationType="slide" transparent onRequestClose={() => setShowSaveHistoryHelp(false)}>
+        <View style={styles.intModalOverlay}>
+          <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
+            <Text style={styles.intModalTitle}>Salva no Histórico</Text>
+            <ScrollView>
+              <Text style={styles.stockHelpText}>
+                Deseja salvar no histórico cada lembrete?{'\n\n'}
+                <Text style={{ fontWeight: '700' }}>Sim</Text> — o horário fica registrado no Histórico, e o aviso pergunta <Text style={{ fontWeight: '700' }}>Tomei</Text> ou <Text style={{ fontWeight: '700' }}>Não Tomei</Text>.{'\n\n'}
+                <Text style={{ fontWeight: '700' }}>Não</Text> — o aviso só fica na tela por 15 minutos e some sozinho, sem perguntar nada e sem virar linha no Histórico.{'\n\n'}
+                Obrigatório manter em Sim se o medicamento tiver controle de estoque ativo, pois é a confirmação de Tomei que desconta o estoque.
+              </Text>
+            </ScrollView>
+            <TouchableOpacity style={styles.intModalClose} onPress={() => setShowSaveHistoryHelp(false)}>
+              <Text style={styles.intModalCloseText}>Entendi</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -1520,6 +1492,7 @@ const styles = StyleSheet.create({
   medDetail: { fontSize: 13, color: '#555', marginTop: 2 },
   medNotes: { fontSize: 12, color: '#888', marginTop: 4, fontStyle: 'italic' },
   medEditHint: { fontSize: 12, color: '#1C3F7A', marginTop: 4, fontStyle: 'italic' },
+  medNoReminderHint: { fontSize: 12, color: '#8A8F9D', marginTop: 4, fontStyle: 'italic' },
   medActionsRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   // Stock
   stockSection: { marginTop: 16, borderTopWidth: 1, borderTopColor: '#f0f0f0', paddingTop: 14 },
@@ -1549,6 +1522,9 @@ const styles = StyleSheet.create({
   intModalBadgeText: { fontSize: 10, fontWeight: '600' },
   intModalDrugs: { fontSize: 13, fontWeight: '700', color: '#222', marginBottom: 2 },
   intModalDesc: { fontSize: 12, color: '#555', fontStyle: 'italic' },
+  intModalMechanismBox: { borderRadius: 8, padding: 10, marginTop: 8, backgroundColor: '#F2F4F8' },
+  intModalMechanismTitle: { fontSize: 11, fontWeight: '700', color: '#444', marginBottom: 4 },
+  intModalMechanismText: { fontSize: 12, color: '#333', lineHeight: 18 },
   intModalClose: { marginTop: 12, backgroundColor: '#1C3F7A', borderRadius: 10, padding: 14, alignItems: 'center' },
   intModalCloseText: { fontSize: 15, color: '#fff', fontWeight: '700' },
   bellBtn: { padding: 8, marginLeft: 4, borderRadius: 8 },
@@ -1656,17 +1632,6 @@ const styles = StyleSheet.create({
   reportCancelText: { fontSize: 13, color: '#888' },
   reportSendBtn: { paddingVertical: 6, paddingHorizontal: 14, backgroundColor: '#4a6fa5', borderRadius: 6 },
   reportSendText: { fontSize: 13, color: '#fff', fontWeight: '600' },
-  // Interaction inline
-  interactionCard: { borderLeftWidth: 3, borderRadius: 8, padding: 10, marginTop: 8 },
-  interactionDisclaimer: { fontSize: 12, color: '#888', fontStyle: 'italic', marginTop: 12, marginBottom: 4, lineHeight: 16 },
-  interactionBadge: { fontSize: 11, fontWeight: '700', marginBottom: 3, letterSpacing: 0.5 },
-  interactionDrugs: { fontSize: 13, fontWeight: '700', color: '#222', marginBottom: 2 },
-  interactionDesc: { fontSize: 12, color: '#555', fontStyle: 'italic' },
-  doctorAdviceBox: { backgroundColor: '#f0f4ff', borderRadius: 10, padding: 12, marginTop: 10, borderWidth: 1, borderColor: '#c0ccdf' },
-  doctorAdviceTitle: { fontSize: 13, fontWeight: '700', color: '#1a3a6b', marginBottom: 4 },
-  doctorAdviceText: { fontSize: 12, color: '#444', lineHeight: 17, marginBottom: 10 },
-  doctorShareBtn: { backgroundColor: '#1a3a6b', borderRadius: 8, paddingVertical: 9, paddingHorizontal: 14, alignSelf: 'flex-start' },
-  doctorShareBtnText: { fontSize: 13, color: '#fff', fontWeight: '700' },
   // Reminder day config
   horarioInlineRow: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 4, gap: 12 },
   horarioLabel: { fontSize: 15, fontWeight: '700', color: '#1C3F7A' },
@@ -1684,6 +1649,8 @@ const styles = StyleSheet.create({
   timesBtnActive: { backgroundColor: '#1a3a6b', borderColor: '#1a3a6b' },
   timesBtnText: { fontSize: 14, color: '#555', fontWeight: '600' },
   timesBtnTextActive: { color: '#fff' },
+  timesBtnSub: { fontSize: 10, color: '#888', marginTop: 3, textAlign: 'center' },
+  timesBtnSubActive: { color: 'rgba(255,255,255,0.8)' },
   specificTimesRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', marginTop: 12, marginBottom: 4 },
   specificTimesLabel: { fontSize: 13, color: '#555', fontWeight: '600' },
   specificTimesInput: { fontSize: 16, fontWeight: '700', color: '#1C3F7A', textAlign: 'center', minWidth: 56, paddingVertical: 1 },
@@ -1715,8 +1682,6 @@ const styles = StyleSheet.create({
   phytoCard: { width: '47%', backgroundColor: '#f0f7f0', borderRadius: 10, borderWidth: 1, borderColor: '#a8d5a8', padding: 10 },
   phytoCardName: { fontSize: 13, fontWeight: '700', color: '#1a6b3a', marginBottom: 2 },
   phytoCardScientific: { fontSize: 10, color: '#5a9a6a', fontStyle: 'italic' },
-  iwItem: { borderLeftWidth: 3, borderRadius: 8, padding: 10, marginBottom: 8, backgroundColor: '#fafafa' },
-  iwAdviceText: { fontSize: 14, color: '#555', marginTop: 12, marginBottom: 4 },
   stockActionBtn: { backgroundColor: '#1C3F7A', borderRadius: 10, padding: 16, marginBottom: 12 },
   stockActionBtnText: { fontSize: 15, color: '#fff', fontWeight: '700' },
   stockActionBtnHint: { fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 3 },
@@ -1729,6 +1694,4 @@ const styles = StyleSheet.create({
   stockActionInfo: { backgroundColor: '#FFF8E7', borderRadius: 8, padding: 12, marginBottom: 14, borderLeftWidth: 3, borderLeftColor: '#E07B4F' },
   stockActionInfoText: { fontSize: 12, color: '#7a5200', lineHeight: 18 },
   stockHelpBtn: { width: 18, height: 18, borderRadius: 9, borderWidth: 1.5, borderColor: '#1C3F7A', textAlign: 'center', lineHeight: 16, fontSize: 11, fontWeight: '700', color: '#1C3F7A' },
-  stockHelpBtn2: { alignSelf: 'flex-start' },
-  stockHelpBtn2Text: { fontSize: 13, color: '#1C3F7A', textDecorationLine: 'underline' },
 });

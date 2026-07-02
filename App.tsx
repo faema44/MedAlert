@@ -29,14 +29,16 @@ import InteractionsScreen from './src/screens/InteractionsScreen';
 import AgendaScreen from './src/screens/AgendaScreen';
 import HelpScreen from './src/screens/HelpScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
+import EmergencyScreen from './src/screens/EmergencyScreen';
 import {
   setupNotificationChannels, requestPermissions, setupReminderCategory,
   initReminderListeners, initActivityListeners, initResponseListeners, dismissNotification,
   ActivityAlertPayload,
   scheduleRepeatAlarm, cancelRepeatAlarm, rescheduleAllActiveNotifications,
   snoozeActivityReminder, getLastResponse, notifyTreatmentEnded, notifyLowStock, cancelAllRemindersForMedication,
+  dismissStaleNonInteractiveReminders,
 } from './src/services/notifications';
-import { getDb, getMedications, getContacts, getActivities, getMedicationById, updateMedicationStock, addActivityLog, getKV, setKV, addMedicationLog, upsertMedicationLogTaken, archiveMedication, getExpiredUnarchivedMedications, getRemindersForMedication, getMedicationLog } from './src/database/db';
+import { getDb, getMedications, getActivities, getMedicationById, updateMedicationStock, addActivityLog, getKV, setKV, addMedicationLog, upsertMedicationLogTaken, archiveMedication, getExpiredUnarchivedMedications, getRemindersForMedication, getMedicationLog } from './src/database/db';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
 
 const Tab = createBottomTabNavigator();
@@ -46,10 +48,11 @@ const TITLES: Record<string, string> = {
   Profile: 'Perfil Médico',
   Medications: 'Medicamentos',
   Contacts: 'Contatos',
-  Agenda: 'Agenda',
+  Agenda: 'Atividades',
   Interactions: 'Tabelas',
   Help: 'Ajuda',
   History: 'Histórico',
+  Emergency: 'Emergência',
 };
 
 const TAB_ICONS: Record<string, { icon: string; activeIcon: string }> = {
@@ -82,7 +85,27 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
     Contacts:     '📞',
     Agenda:       '📅',
     Interactions: '📋',
+    History:      '📋',
   };
+  if (name === 'Emergency') {
+    return (
+      <View style={{ alignItems: 'center' }}>
+        <View style={{
+          width: 22, height: 22, borderRadius: 11,
+          backgroundColor: '#CC0000', alignItems: 'center', justifyContent: 'center',
+          opacity: focused ? 1 : 0.75,
+        }}>
+          <Text style={{ color: '#fff', fontSize: 13, fontWeight: '800', lineHeight: 15 }}>+</Text>
+        </View>
+        {focused && (
+          <View style={{
+            width: 4, height: 4, borderRadius: 2,
+            backgroundColor: '#1C3F7A', marginTop: 2,
+          }} />
+        )}
+      </View>
+    );
+  }
   return (
     <View style={{ alignItems: 'center' }}>
       <Text style={{ fontSize: focused ? 22 : 20, opacity: focused ? 1 : 0.55 }}>
@@ -122,14 +145,12 @@ function AppNavigator() {
   const insets = useSafeAreaInsets();
   const [dbReady, setDbReady] = useState(false);
   const [medCount, setMedCount] = useState(0);
-  const [contactCount, setContactCount] = useState(0);
   const [activityCount, setActivityCount] = useState(0);
   const [activityAlert, setActivityAlert] = useState<ActivityAlertPayload | null>(null);
 
   const loadCounts = useCallback(async () => {
-    const [meds, contacts, activities] = await Promise.all([getMedications(), getContacts(), getActivities()]);
+    const [meds, activities] = await Promise.all([getMedications(), getActivities()]);
     setMedCount(meds.length);
-    setContactCount(contacts.length);
     setActivityCount(activities.length);
   }, []);
 
@@ -147,6 +168,10 @@ function AppNavigator() {
           await notifyTreatmentEnded(med.id, displayName).catch(() => {});
         }
       } catch {}
+
+      // Rede de segurança: se o app foi morto entre um lembrete "não interativo" disparar
+      // e o timer de dispensa (15 min) rodar, limpa qualquer alerta esquecido na tela.
+      dismissStaleNonInteractiveReminders().catch(() => {});
 
       // Process any "Tomei"/"Pular" tapped on the lock screen while the app was killed.
       // addNotificationResponseReceivedListener doesn't fire in that scenario (opensAppToForeground: false),
@@ -209,6 +234,9 @@ function AppNavigator() {
           return;
         }
       }
+      // "Salvar no Histórico = Não": não pergunta Tomei/Não tomei nem grava no histórico.
+      // O alerta some sozinho quando o app é reaberto (ver dismissStaleNonInteractiveReminders).
+      if (!data.interactive) return;
       addMedicationLog({
         medication_id: data.medicationId,
         medication_name: data.name,
@@ -289,6 +317,7 @@ function AppNavigator() {
   useEffect(() => {
     const sub = AppState.addEventListener('change', async (state) => {
       if (state !== 'active') return;
+      dismissStaleNonInteractiveReminders().catch(() => {});
       if (!navRef.isReady()) return;
       if (navRef.getCurrentRoute()?.name === 'Home') return;
       try {
@@ -365,13 +394,14 @@ function AppNavigator() {
           })}
         >
           <Tab.Screen name="Home"         component={HomeScreen}         options={{ tabBarLabel: 'Início' }} />
-          <Tab.Screen name="Profile"      component={ProfileScreen}      options={{ tabBarLabel: 'Perfil' }} />
           <Tab.Screen name="Medications"  component={MedicationsScreen}  options={{ tabBarLabel: 'Medicamentos', tabBarBadge: medCount > 0 ? medCount : undefined, tabBarBadgeStyle: { backgroundColor: '#1C3F7A', minWidth: 17, height: 17, borderRadius: 9 } }} />
-          <Tab.Screen name="Contacts"     component={ContactsScreen}     options={{ tabBarLabel: 'Contatos', tabBarBadge: contactCount > 0 ? contactCount : undefined, tabBarBadgeStyle: { backgroundColor: '#1C3F7A', minWidth: 17, height: 17, borderRadius: 9 } }} />
           <Tab.Screen name="Agenda"       component={AgendaScreen}       options={{ tabBarLabel: 'Atividades', tabBarBadge: activityCount > 0 ? activityCount : undefined, tabBarBadgeStyle: { backgroundColor: '#1C3F7A', minWidth: 17, height: 17, borderRadius: 9 } }} />
+          <Tab.Screen name="Emergency"    component={EmergencyScreen}    options={{ tabBarLabel: 'Emergência' }} />
+          <Tab.Screen name="History"      component={HistoryScreen}      options={{ tabBarLabel: 'Hist', headerTitle: () => <HeaderTitle route={{ name: 'History' }} /> }} />
+          <Tab.Screen name="Profile"      component={ProfileScreen}      options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tab.Screen name="Contacts"     component={ContactsScreen}     options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tab.Screen name="Interactions" component={InteractionsScreen} options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tab.Screen name="Help"         component={HelpScreen}         options={{ tabBarItemStyle: { display: 'none' } }} />
-          <Tab.Screen name="History"      component={HistoryScreen}      options={{ tabBarItemStyle: { display: 'none' }, headerTitle: () => <HeaderTitle route={{ name: 'History' }} /> }} />
         </Tab.Navigator>
       </NavigationContainer>
 

@@ -1,9 +1,7 @@
 import React, { useCallback, useState, useMemo, useRef, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Switch, Linking, Dimensions, Alert, TextInput, AppState,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, Alert, TextInput, AppState,
 } from 'react-native';
-
-const { width: SCREEN_W } = Dimensions.get('window');
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation, NavigationProp } from '@react-navigation/native';
 import {
@@ -12,19 +10,22 @@ import {
   getActivities, getRemindersForActivity, updateAllActivityRemindersSound,
   getAppointments, addMedicationLog, markMedicationLogTaken, updateMedicationStock, getMedicationLog,
 } from '../database/db';
+import MedDisclaimer from '../components/MedDisclaimer';
+import EmergencyChecklist from '../components/EmergencyChecklist';
 
 type RootTabs = {
   Home: undefined; Profile: undefined; Medications: undefined;
   Contacts: undefined; Agenda: undefined; Interactions: undefined; History: undefined;
+  Emergency: undefined;
 };
 
 import {
-  updateEmergencyNotification, cancelEmergencyNotification, nextReminderInfo,
+  updateEmergencyNotification, nextReminderInfo,
   cancelAllRemindersForMedication, cancelAllRemindersForActivity, cancelRepeatAlarm,
   rescheduleRemindersForMedication, rescheduleRemindersForActivity, notifyLowStock,
   dismissPresentedForMedication,
 } from '../services/notifications';
-import { Profile, Medication, MedicationReminder, DrugInteraction, ActivityReminder, Appointment, ACTIVITY_PRESETS } from '../types';
+import { Profile, Medication, MedicationReminder, DrugInteraction, ActivityReminder, Appointment, ACTIVITY_PRESETS, EmergencyContact } from '../types';
 import { checkInteractions, isPhytotherapic } from '../utils/drugSearch';
 
 const KV_ALERT_ACTIVE = 'alert_active';
@@ -122,31 +123,52 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [medications, setMedications] = useState<Medication[]>([]);
+  const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([]);
   const [notifActive, setNotifActive] = useState(false);
-  const [showAlertModal, setShowAlertModal] = useState(false);
   const [showPhoneConfigModal, setShowPhoneConfigModal] = useState(false);
   const [allInteractions, setAllInteractions] = useState<DrugInteraction[]>([]);
   const [showInteractionsModal, setShowInteractionsModal] = useState(false);
   const [unifiedItems, setUnifiedItems] = useState<UnifiedItem[]>([]);
-  const [onboardingStep, setOnboardingStep] = useState<'welcome' | 1 | 2 | 3 | 4 | null>(null);
+  const [emergencyReady, setEmergencyReady] = useState(false);
+  const [medsHintDismissedAt, setMedsHintDismissedAt] = useState<string | null>(null);
+  const [emergencyHintDismissedAt, setEmergencyHintDismissedAt] = useState<string | null>(null);
   const [foregroundAlerts, setForegroundAlerts] = useState<UnifiedItem[]>([]);
+  const [plainAlerts, setPlainAlerts] = useState<UnifiedItem[]>([]);
   const [fgHModalItem, setFgHModalItem] = useState<UnifiedItem | null>(null);
   const [fgHModalTimeText, setFgHModalTimeText] = useState('');
   const dismissedAlertsRef = useRef<Set<string>>(new Set());
 
   const load = useCallback(async () => {
-    const [p, m, alertActive, acts, appts, contacts, welcomeSeen, onboardingDone, skipMeds] = await Promise.all([
+    const [p, m, alertActive, acts, appts, contacts, medsHintAt, emergencyHintAt] = await Promise.all([
       getProfile(), getMedications(), getKV(KV_ALERT_ACTIVE), getActivities(), getAppointments(),
-      getContacts(), getKV('onboarding_welcome_seen'), getKV('onboarding_done'), getKV('onboarding_skip_meds'),
+      getContacts(), getKV('home_hint_meds_dismissed_at'), getKV('home_hint_emergency_dismissed_at'),
     ]);
     setProfile(p);
     setMedications(m);
+    setEmergencyContacts(contacts);
+    setNotifActive(alertActive === '1' && !!p?.name);
+
+    const ready = !!p?.name && contacts.length > 0 && alertActive === '1';
+    setEmergencyReady(ready);
+    // Uma vez que o usuário complete os 3 itens (ou adicione um medicamento), o
+    // lembrete correspondente é dispensado para sempre — não volta a incomodar
+    // mesmo se o usuário desfizer a configuração depois.
+    let emergencyDismissedAt = emergencyHintAt;
+    if (ready && !emergencyDismissedAt) {
+      emergencyDismissedAt = new Date().toISOString();
+      await setKV('home_hint_emergency_dismissed_at', emergencyDismissedAt);
+    }
+    setEmergencyHintDismissedAt(emergencyDismissedAt);
+
+    let medsDismissedAt = medsHintAt;
+    if (m.length > 0 && !medsDismissedAt) {
+      medsDismissedAt = new Date().toISOString();
+      await setKV('home_hint_meds_dismissed_at', medsDismissedAt);
+    }
+    setMedsHintDismissedAt(medsDismissedAt);
 
     if (alertActive === '1' && p?.name) {
       await updateEmergencyNotification(p, m).catch(() => {});
-      setNotifActive(true);
-    } else {
-      setNotifActive(false);
     }
 
     // Drug interactions
@@ -249,22 +271,48 @@ export default function HomeScreen() {
 
     // Foreground alerts (today only, past times, not taken, not session-dismissed)
     const overdue: UnifiedItem[] = [];
+    const plain: UnifiedItem[] = [];
     m.forEach((med, idx) => {
       if (med.home_reminder === 0) return;
       const reminders = medReminders[idx] ?? [];
       const active = reminders.filter(r => r.is_active);
-      const overdueTime = active
-        .filter(r => {
-          const [h, rm] = r.time.split(':').map(Number);
-          if (isNaN(h)) return false;
-          const rMins = h * 60 + rm;
-          let dueToday: boolean;
-          if (!r.period || r.period === 'day') dueToday = rMins <= nowMins;
-          else if (r.period.startsWith('week:')) dueToday = r.period.split(':')[1].split(',').map(Number).includes(todayWd) && rMins <= nowMins;
-          else if (r.period.startsWith('month:')) dueToday = r.period.split(':')[1].split(',').map(Number).includes(todayDate) && rMins <= nowMins;
-          else dueToday = false;
-          return dueToday && reminderExistedBeforeSlot(r, rMins, nowD);
-        })
+      const dueTodayTimes = active.filter(r => {
+        const [h, rm] = r.time.split(':').map(Number);
+        if (isNaN(h)) return false;
+        const rMins = h * 60 + rm;
+        let dueToday: boolean;
+        if (!r.period || r.period === 'day') dueToday = rMins <= nowMins;
+        else if (r.period.startsWith('week:')) dueToday = r.period.split(':')[1].split(',').map(Number).includes(todayWd) && rMins <= nowMins;
+        else if (r.period.startsWith('month:')) dueToday = r.period.split(':')[1].split(',').map(Number).includes(todayDate) && rMins <= nowMins;
+        else dueToday = false;
+        return dueToday && reminderExistedBeforeSlot(r, rMins, nowD);
+      });
+
+      // "Salvar no Histórico = Não" (sem controle de estoque): nunca gera linha em
+      // medication_log, então nunca "seria considerado tomado" — em vez do cartão com
+      // Tomei/Descartar, mostra um aviso simples que some sozinho depois de 15 min.
+      const interactive = med.save_history !== 0 || med.stock_quantity != null;
+      if (!interactive) {
+        const overdueTime = dueTodayTimes
+          .filter(r => {
+            const [h, rm] = r.time.split(':').map(Number);
+            return nowMins - (h * 60 + rm) <= 15;
+          })
+          .map(r => r.time).sort()[0];
+        if (!overdueTime) return;
+        if (dismissedAlertsRef.current.has(`${med.id}_${todayStr}_${overdueTime}`)) return;
+        plain.push({
+          id: med.id, type: 'med',
+          icon: med.is_critical ? '⚠️' : isPhytotherapic(med.generic_name) ? '🌿' : '💊',
+          name: med.commercial_name?.trim() || med.generic_name,
+          label: `hoje às ${overdueTime}`,
+          time: overdueTime, dayDiff: 0, sortMs: 0, isMuted: false,
+          dose: med.dose || undefined,
+        });
+        return;
+      }
+
+      const overdueTime = dueTodayTimes
         .filter(r => !isSlotTaken(med.id, todayStr, r.time))
         .map(r => r.time).sort()[0];
       if (!overdueTime) return;
@@ -281,24 +329,7 @@ export default function HomeScreen() {
       });
     });
     setForegroundAlerts(overdue);
-
-    // Onboarding step logic
-    if (!p?.name) {
-      setOnboardingStep(welcomeSeen === '1' ? 1 : 'welcome');
-    } else if (onboardingDone !== '1') {
-      if (contacts.length === 0) {
-        setOnboardingStep(2);
-      } else if (m.length === 0 && skipMeds !== '1') {
-        setOnboardingStep(3);
-      } else if (alertActive !== '1') {
-        setOnboardingStep(4);
-      } else {
-        await setKV('onboarding_done', '1');
-        setOnboardingStep(null);
-      }
-    } else {
-      setOnboardingStep(null);
-    }
+    setPlainAlerts(plain);
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
@@ -316,22 +347,6 @@ export default function HomeScreen() {
     const timer = setInterval(() => { load(); }, 60_000);
     return () => clearInterval(timer);
   }, [load]);
-
-  async function handleAlertToggle() {
-    if (!profile?.name) {
-      return;
-    }
-    if (notifActive) {
-      await cancelEmergencyNotification();
-      await setKV(KV_ALERT_ACTIVE, '0');
-      setNotifActive(false);
-    } else {
-      if (!profile) return;
-      await updateEmergencyNotification(profile, medications);
-      await setKV(KV_ALERT_ACTIVE, '1');
-      setNotifActive(true);
-    }
-  }
 
   async function handleToggleMute(item: UnifiedItem) {
     // Toggle with_sound: muted → reativa com som; ativo → silencia (sem som)
@@ -389,43 +404,20 @@ export default function HomeScreen() {
     load();
   }
 
-  async function handleWelcomeStart() {
-    await setKV('onboarding_welcome_seen', '1');
-    setOnboardingStep(1);
+  async function dismissMedsHint() {
+    const now = new Date().toISOString();
+    await setKV('home_hint_meds_dismissed_at', now);
+    setMedsHintDismissedAt(now);
   }
 
-  async function handleSkipMeds() {
-    await setKV('onboarding_skip_meds', '1');
-    setOnboardingStep(4);
+  async function dismissEmergencyHint() {
+    const now = new Date().toISOString();
+    await setKV('home_hint_emergency_dismissed_at', now);
+    setEmergencyHintDismissedAt(now);
   }
 
-  async function handleOnboardingActivateAlert() {
-    if (!profile) return;
-    await updateEmergencyNotification(profile, medications);
-    await setKV(KV_ALERT_ACTIVE, '1');
-    setNotifActive(true);
-    await setKV('onboarding_done', '1');
-    setOnboardingStep(null);
-  }
-
-  async function handleSkipAlert() {
-    await setKV('onboarding_done', '1');
-    setOnboardingStep(null);
-  }
-
-  function getArrowLeft(step: 1 | 2 | 3): number {
-    // Tab centers for 5 visible tabs (Home=0, Profile=1, Medications=2, Contacts=3, Agenda=4)
-    const centers: Record<number, number> = {
-      1: SCREEN_W * 0.3,  // Profile
-      2: SCREEN_W * 0.7,  // Contacts
-      3: SCREEN_W * 0.5,  // Medications
-    };
-    const balloonMargin = 16;
-    const arrowHalf = 7;
-    return Math.max(10, Math.min(centers[step] - balloonMargin - arrowHalf, SCREEN_W - 32 - 24));
-  }
-
-  const criticalMeds = medications.filter(m => m.is_critical);
+  const showMedsHint = medications.length === 0 && !medsHintDismissedAt;
+  const showEmergencyHint = !emergencyReady && !emergencyHintDismissedAt;
 
   const dayGroups = useMemo(() => {
     const groups = new Map<number, UnifiedItem[]>();
@@ -438,8 +430,44 @@ export default function HomeScreen() {
   }, [unifiedItems]);
 
   return (
-    <>
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+
+      {/* Dismissable setup hints — no forced onboarding */}
+      {showEmergencyHint && (
+        <View style={styles.hintExpandedCard}>
+          <View style={styles.hintExpandedHeader}>
+            <View style={styles.hintEmergencyIconBox}>
+              <Text style={styles.hintEmergencyIconText}>+</Text>
+            </View>
+            <Text style={styles.hintExpandedTitle}>Configurar emergência</Text>
+            <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={dismissEmergencyHint}>
+              <Text style={styles.hintClose}>✕</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.hintExpandedList}>
+            <EmergencyChecklist
+              profile={profile}
+              contacts={emergencyContacts}
+              notifActive={notifActive}
+              onPressProfile={() => navigation.navigate('Profile')}
+              onPressContacts={() => navigation.navigate('Contacts')}
+              onPressAlert={() => navigation.navigate('Emergency')}
+            />
+          </View>
+        </View>
+      )}
+      {showMedsHint && (
+        <TouchableOpacity style={styles.hintCard} activeOpacity={0.8} onPress={() => navigation.navigate('Medications')}>
+          <Text style={styles.hintIcon}>💊</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.hintTitle}>Adicionar medicamentos</Text>
+            <Text style={styles.hintSub}>Cadastre para receber lembretes de horário</Text>
+          </View>
+          <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={dismissMedsHint}>
+            <Text style={styles.hintClose}>✕</Text>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      )}
 
       {/* Foreground overdue alerts */}
       {foregroundAlerts.map(alert => (
@@ -488,74 +516,35 @@ export default function HomeScreen() {
         </View>
       ))}
 
-      {/* Alert status chip + Hist button */}
-      <View style={styles.alertRow}>
-        <TouchableOpacity style={[styles.alertChip, { flex: 1 }]} activeOpacity={0.7} onPress={() => setShowAlertModal(true)}>
-          <View style={[styles.statusDot, notifActive ? styles.dotActive : styles.dotInactive]} />
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.alertChipText, { color: notifActive ? '#1a6b3a' : '#C0392B' }]}>
-              {notifActive ? 'Alerta ativado' : 'Alerta desativado'}
-            </Text>
-            {!notifActive && (
-              <Text style={styles.alertChipHint}>Toque para ativar a tela de bloqueio</Text>
-            )}
+      {/* Alertas sem histórico — não pedem confirmação, somem sozinhos após 15 min */}
+      {plainAlerts.map(alert => (
+        <View key={`plain_${alert.id}`} style={styles.fgAlertCard}>
+          <View style={styles.fgAlertInfo}>
+            <Text style={styles.fgAlertIcon}>{alert.icon}</Text>
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Text style={styles.fgAlertName} numberOfLines={1}>{alert.name}</Text>
+                <View style={styles.fgAlertTimeBadge}>
+                  <Text style={styles.fgAlertTimeBadgeText}>{alert.time}</Text>
+                </View>
+              </View>
+              {alert.dose ? <Text style={styles.fgAlertDose}>{alert.dose}</Text> : null}
+            </View>
           </View>
-          <Text style={styles.cardChevron}>›</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.histBtn}
-          onPress={() => (navigation as any).navigate('History')}
-        >
-          <Text style={styles.histBtnText}>📋 Hist</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Alert modal */}
-      <Modal visible={showAlertModal} animationType="slide" transparent onRequestClose={() => setShowAlertModal(false)}>
-        <View style={styles.intModalOverlay}>
-          <ScrollView style={styles.alertModalBox} contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}>
-            <Text style={styles.alertModalTitle}>Alerta de Emergência</Text>
-            <View style={styles.alertToggleRow}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.alertToggleLabel}>{notifActive ? 'Ativado' : 'Desativado'}</Text>
-                <Text style={styles.alertToggleHint}>
-                  {notifActive ? 'Visível na tela de bloqueio' : 'Toque para ativar'}
-                </Text>
-              </View>
-              <Switch
-                value={notifActive}
-                onValueChange={handleAlertToggle}
-                trackColor={{ true: '#1C3F7A', false: '#ccc' }}
-                thumbColor="#fff"
-              />
-            </View>
-            <Text style={styles.alertModalSection}>Para que serve</Text>
-            <Text style={styles.alertModalBody}>
-              Exibe suas informações médicas — medicamentos, doses e contatos de emergência — na tela de bloqueio do celular, sem precisar desbloquear.
-            </Text>
-            <Text style={styles.alertModalSection}>Como configurar o celular</Text>
-            {[
-              'Abra as Configurações do celular',
-              'Vá em Notificações → Alerta Médico',
-              'Em Tela de Bloqueio, selecione "Mostrar todo o conteúdo"',
-              'Certifique-se de que as notificações estão ativadas',
-            ].map((step, i) => (
-              <View key={i} style={styles.stepRow}>
-                <View style={styles.stepNum}><Text style={styles.stepNumText}>{i + 1}</Text></View>
-                <Text style={styles.stepText}>{step}</Text>
-              </View>
-            ))}
-            <View style={styles.tipBox}>
-              <Text style={styles.tipText}>
-                💡 O caminho exato varia por fabricante. Geralmente em Configurações → Notificações → Tela de Bloqueio.
-              </Text>
-            </View>
-            <TouchableOpacity style={styles.intModalClose} onPress={() => setShowAlertModal(false)}>
-              <Text style={styles.intModalCloseText}>Fechar</Text>
+          <Text style={styles.plainAlertHint}>Não é registrado no histórico</Text>
+          <View style={styles.fgAlertBtns}>
+            <TouchableOpacity
+              style={[styles.fgAlertPular, { flex: 1 }]}
+              onPress={() => {
+                dismissedAlertsRef.current.add(`${alert.id}_${todayDateStr()}_${alert.time}`);
+                setPlainAlerts(prev => prev.filter(a => a.id !== alert.id));
+              }}
+            >
+              <Text style={styles.fgAlertPularText}>Dispensar</Text>
             </TouchableOpacity>
-          </ScrollView>
+          </View>
         </View>
-      </Modal>
+      ))}
 
       {/* Unified reminders list — grouped by day */}
       {dayGroups.length > 0 && (
@@ -635,20 +624,6 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {criticalMeds.length > 0 && (
-        <TouchableOpacity style={styles.criticalCard} activeOpacity={0.8} onPress={() => navigation.navigate('Medications')}>
-          <View style={styles.cardRow}>
-            <Text style={styles.criticalCardTag}>MEDICAMENTOS CRÍTICOS</Text>
-            <Text style={styles.cardChevron}>›</Text>
-          </View>
-          {criticalMeds.map(med => (
-            <Text key={med.id} style={styles.criticalMed}>
-              • {med.generic_name}{med.commercial_name ? ` (${med.commercial_name})` : ''}{med.dose ? ` — ${med.dose}` : ''}
-            </Text>
-          ))}
-        </TouchableOpacity>
-      )}
-
       {allInteractions.length > 0 && (
         <TouchableOpacity style={styles.interactionChip} activeOpacity={0.7} onPress={() => setShowInteractionsModal(true)}>
           <Text style={styles.interactionChipIcon}>⚠</Text>
@@ -708,6 +683,7 @@ export default function HomeScreen() {
         <View style={styles.intModalOverlay}>
           <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
             <Text style={styles.intModalTitle}>Interações detectadas</Text>
+            <MedDisclaimer />
             <ScrollView>
               {allInteractions.map(i => {
                 const color = i.risk_level === 'critical' ? '#CC0000' : i.risk_level === 'high' ? '#e65c00' : '#b58900';
@@ -844,126 +820,6 @@ export default function HomeScreen() {
       </Modal>
 
     </ScrollView>
-
-      {/* Welcome modal — first launch */}
-      <Modal visible={onboardingStep === 'welcome'} transparent animationType="fade">
-        <View style={styles.welcomeOverlay}>
-          <View style={styles.welcomeCard}>
-            <Text style={styles.welcomeTitle}>Bem-vindo ao{'\n'}Alerta Médico</Text>
-            <Text style={styles.welcomeSub}>
-              Para funcionar, o app precisa de três informações:
-            </Text>
-            <View style={styles.welcomeItem}>
-              <Text style={styles.welcomeItemIcon}>👤</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.welcomeItemTitle}>Perfil Médico</Text>
-                <Text style={styles.welcomeItemSub}>Seu nome, tipo sanguíneo e alergias</Text>
-              </View>
-            </View>
-            <View style={styles.welcomeItem}>
-              <Text style={styles.welcomeItemIcon}>📞</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.welcomeItemTitle}>Contato de Emergência</Text>
-                <Text style={styles.welcomeItemSub}>Quem ligar em caso de emergência</Text>
-              </View>
-            </View>
-            <View style={styles.welcomeItem}>
-              <Text style={styles.welcomeItemIcon}>💊</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.welcomeItemTitle}>Medicamentos</Text>
-                <Text style={styles.welcomeItemSub}>O que você usa no dia a dia</Text>
-              </View>
-            </View>
-            <Text style={styles.welcomeNote}>
-              Vou guiar você pelo preenchimento. Tudo pode ser alterado facilmente depois.
-            </Text>
-            <TouchableOpacity style={styles.welcomeBtn} onPress={handleWelcomeStart}>
-              <Text style={styles.welcomeBtnText}>Vamos começar →</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Guide balloon overlay — steps 1, 2, 3 (bottom) */}
-      {(onboardingStep === 1 || onboardingStep === 2 || onboardingStep === 3) && (
-        <Modal visible transparent animationType="fade">
-          <View style={styles.guideOverlay}>
-            <View style={[styles.guideBalloon, { bottom: 64 + insets.bottom + 14 }]}>
-              {onboardingStep === 1 && (
-                <>
-                  <Text style={styles.guideTitle}>👤  Perfil Médico</Text>
-                  <Text style={styles.guideBody}>
-                    Informe seu nome, tipo sanguíneo e alergias.{'\n'}
-                    Pode alterar facilmente depois!
-                  </Text>
-                  <TouchableOpacity
-                    style={styles.guideBtn}
-                    onPress={() => { setOnboardingStep(null); navigation.navigate('Profile'); }}
-                  >
-                    <Text style={styles.guideBtnText}>Ir para o Perfil →</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-              {onboardingStep === 2 && (
-                <>
-                  <Text style={styles.guideTitle}>📞  Contato de Emergência</Text>
-                  <Text style={styles.guideBody}>
-                    Adicione quem deve ser contatado em uma emergência.{'\n'}
-                    Pode alterar facilmente depois!
-                  </Text>
-                  <TouchableOpacity
-                    style={styles.guideBtn}
-                    onPress={() => { setOnboardingStep(null); navigation.navigate('Contacts'); }}
-                  >
-                    <Text style={styles.guideBtnText}>Ir para Contatos →</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-              {onboardingStep === 3 && (
-                <>
-                  <Text style={styles.guideTitle}>💊  Medicamentos</Text>
-                  <Text style={styles.guideBody}>
-                    Cadastre os medicamentos que você usa.{'\n'}
-                    Pode alterar facilmente depois!
-                  </Text>
-                  <TouchableOpacity
-                    style={styles.guideBtn}
-                    onPress={() => { setOnboardingStep(null); navigation.navigate('Medications'); }}
-                  >
-                    <Text style={styles.guideBtnText}>Ir para Medicamentos →</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.guideSkipBtn} onPress={handleSkipMeds}>
-                    <Text style={styles.guideSkipText}>Pular por agora</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-              <View style={[styles.guideArrow, { left: getArrowLeft(onboardingStep as 1 | 2 | 3) }]} />
-            </View>
-          </View>
-        </Modal>
-      )}
-
-      {/* Guide balloon — step 4: alert chip (top of screen, arrow points up) */}
-      {onboardingStep === 4 && (
-        <Modal visible transparent animationType="fade">
-          <View style={styles.guideOverlay}>
-            <View style={[styles.guideBalloon, { top: insets.top + 56 + 14 + 50 + 8 }]}>
-              <View style={styles.guideArrowUp} />
-              <Text style={styles.guideTitle}>🔔  Ativar o Alerta</Text>
-              <Text style={styles.guideBody}>
-                Ative o alerta acima para exibir seus dados médicos na tela de bloqueio — sem precisar desbloquear o celular.
-              </Text>
-              <TouchableOpacity style={styles.guideBtn} onPress={handleOnboardingActivateAlert}>
-                <Text style={styles.guideBtnText}>Ativar o Alerta →</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.guideSkipBtn} onPress={handleSkipAlert}>
-                <Text style={styles.guideSkipText}>Pular por agora</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-      )}
-    </>
   );
 }
 
@@ -983,6 +839,7 @@ const styles = StyleSheet.create({
   },
   fgAlertTimeBadgeText: { fontSize: 13, fontWeight: '700', color: '#fff' },
   fgAlertDose: { fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2 },
+  plainAlertHint: { fontSize: 11, color: 'rgba(255,255,255,0.55)', fontStyle: 'italic', marginTop: 8, marginBottom: 6 },
   fgAlertBtns: { flexDirection: 'row', gap: 6 },
   fgAlertTomei: {
     flex: 1, backgroundColor: '#fff', borderRadius: 8,
@@ -1001,50 +858,6 @@ const styles = StyleSheet.create({
   },
   fgAlertPularText: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.8)' },
 
-  alertRow: {
-    flexDirection: 'row', alignItems: 'stretch', gap: 8, marginBottom: 10,
-  },
-  alertChip: {
-    flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: '#fff', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 14,
-    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
-  },
-  histBtn: {
-    backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14,
-    justifyContent: 'center', alignItems: 'center',
-    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
-  },
-  histBtnText: { fontSize: 13, color: '#1C3F7A', fontWeight: '600' },
-  statusDot: { width: 8, height: 8, borderRadius: 4 },
-  dotActive: { backgroundColor: '#5DC994' },
-  dotInactive: { backgroundColor: '#E07B4F' },
-  alertChipText: { fontSize: 13, fontWeight: '600' },
-  alertChipHint: { fontSize: 11, color: '#E07B4F', marginTop: 1 },
-
-  alertModalBox: {
-    backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20,
-    padding: 20, maxHeight: '85%',
-  },
-  alertModalTitle: { fontSize: 17, fontWeight: '700', color: '#1C3F7A', marginBottom: 16 },
-  alertToggleRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#F2F4F8', borderRadius: 12, padding: 14, marginBottom: 20,
-  },
-  alertToggleLabel: { fontSize: 15, fontWeight: '700', color: '#1A1F2E' },
-  alertToggleHint: { fontSize: 12, color: '#888', marginTop: 2 },
-  alertModalSection: { fontSize: 11, fontWeight: '700', color: '#8A8F9D', letterSpacing: 0.5, marginBottom: 8, marginTop: 4 },
-  alertModalBody: { fontSize: 13, color: '#444', lineHeight: 20, marginBottom: 16 },
-
-  stepRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },
-  stepNum: {
-    width: 22, height: 22, borderRadius: 6, backgroundColor: '#1C3F7A',
-    alignItems: 'center', justifyContent: 'center', marginRight: 10, marginTop: 1, flexShrink: 0,
-  },
-  stepNumText: { color: '#fff', fontSize: 11, fontWeight: '700' },
-  stepText: { fontSize: 13, color: '#333', lineHeight: 20, flex: 1 },
-  tipBox: { backgroundColor: '#f0faf4', borderRadius: 8, padding: 10, marginTop: 4, marginBottom: 14 },
-  tipText: { fontSize: 12, color: '#1a6b3a', lineHeight: 18 },
-
   remindersCard: {
     backgroundColor: '#fff', borderRadius: 12, marginBottom: 10,
     borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
@@ -1055,13 +868,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14, paddingTop: 10, paddingBottom: 4,
   },
   dayGroupDivider: {
-    borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.06)', paddingTop: 10, marginTop: 4,
+    borderTopWidth: 2, borderTopColor: 'rgba(224,123,79,0.4)', paddingTop: 10, marginTop: 4,
   },
   remindersTitle: {
     fontSize: 10, color: '#8A8F9D', fontWeight: '700', letterSpacing: 0.8, flex: 1, textAlign: 'right',
   },
   dayLabel: {
-    fontSize: 13, color: '#1C3F7A', fontWeight: '700', flexShrink: 0, marginRight: 6,
+    fontSize: 13, color: '#E07B4F', fontWeight: '700', flexShrink: 0, marginRight: 6,
   },
   reminderRow: {
     flexDirection: 'row', alignItems: 'flex-start',
@@ -1084,15 +897,7 @@ const styles = StyleSheet.create({
     marginVertical: 16, width: 140, textAlign: 'center',
   },
 
-  cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   cardChevron: { fontSize: 22, color: '#C0C5D0', lineHeight: 24 },
-
-  criticalCard: {
-    backgroundColor: '#fff8f8', borderRadius: 12, padding: 14, marginBottom: 10,
-    borderWidth: 0.5, borderColor: 'rgba(204,0,0,0.12)', borderLeftWidth: 3, borderLeftColor: '#CC0000',
-  },
-  criticalCardTag: { fontSize: 10, color: '#CC0000', fontWeight: '600', letterSpacing: 0.5 },
-  criticalMed: { fontSize: 13, color: '#444', marginTop: 4 },
 
   interactionChip: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
@@ -1101,6 +906,32 @@ const styles = StyleSheet.create({
   },
   interactionChipIcon: { fontSize: 13, color: '#e65c00' },
   interactionChipText: { fontSize: 13, color: '#555', flex: 1 },
+
+  hintCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: '#fff', borderRadius: 12, padding: 12,
+    marginBottom: 10, borderWidth: 1.5, borderColor: '#4A6FA5',
+  },
+  hintIcon: { fontSize: 22 },
+  hintTitle: { fontSize: 14, fontWeight: '700', color: '#1A1F2E' },
+  hintSub: { fontSize: 12, color: '#8A8F9D', marginTop: 1 },
+  hintClose: { fontSize: 15, color: '#C0C5D0', padding: 4 },
+
+  hintExpandedCard: {
+    backgroundColor: '#F2F4F8', borderRadius: 14, padding: 10, marginBottom: 10,
+    borderWidth: 1.5, borderColor: '#4A6FA5',
+  },
+  hintExpandedHeader: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    paddingHorizontal: 4, paddingBottom: 8,
+  },
+  hintEmergencyIconBox: {
+    width: 26, height: 26, borderRadius: 13, backgroundColor: '#CC0000',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  hintEmergencyIconText: { color: '#fff', fontSize: 15, fontWeight: '800', lineHeight: 17 },
+  hintExpandedTitle: { fontSize: 15, fontWeight: '700', color: '#1A1F2E', flex: 1 },
+  hintExpandedList: { gap: 8 },
 
   intModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   intModalBox: {
@@ -1171,71 +1002,6 @@ const styles = StyleSheet.create({
   },
   phoneSettingsBtnText: { color: '#fff', fontWeight: '600', fontSize: 13 },
 
-  // Onboarding — welcome modal
-  welcomeOverlay: {
-    flex: 1, backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'center', alignItems: 'center', padding: 24,
-  },
-  welcomeCard: {
-    backgroundColor: '#fff', borderRadius: 20, padding: 24, width: '100%',
-  },
-  welcomeTitle: {
-    fontSize: 22, fontWeight: '800', color: '#1C3F7A',
-    textAlign: 'center', marginBottom: 16, lineHeight: 30,
-  },
-  welcomeSub: {
-    fontSize: 13, color: '#666', textAlign: 'center', marginBottom: 20, lineHeight: 19,
-  },
-  welcomeItem: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: '#F2F4F8', borderRadius: 12, padding: 12, marginBottom: 10,
-  },
-  welcomeItemIcon: { fontSize: 22 },
-  welcomeItemTitle: { fontSize: 14, fontWeight: '700', color: '#1A1F2E' },
-  welcomeItemSub: { fontSize: 12, color: '#777', marginTop: 1 },
-  welcomeNote: {
-    fontSize: 12, color: '#888', textAlign: 'center',
-    marginTop: 16, marginBottom: 20, lineHeight: 18,
-  },
-  welcomeBtn: {
-    backgroundColor: '#1C3F7A', borderRadius: 12,
-    paddingVertical: 14, alignItems: 'center',
-  },
-  welcomeBtnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
-
-  // Onboarding — guide balloon
-  guideOverlay: {
-    flex: 1, backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  guideBalloon: {
-    position: 'absolute', left: 16, right: 16,
-    backgroundColor: '#fff', borderRadius: 16, padding: 18,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18, shadowRadius: 12, elevation: 8,
-  },
-  guideTitle: { fontSize: 16, fontWeight: '700', color: '#1C3F7A', marginBottom: 8 },
-  guideBody: { fontSize: 13, color: '#444', lineHeight: 20, marginBottom: 14 },
-  guideBtn: {
-    backgroundColor: '#1C3F7A', borderRadius: 10,
-    paddingVertical: 12, alignItems: 'center',
-  },
-  guideBtnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
-  guideSkipBtn: { marginTop: 10, alignItems: 'center', paddingVertical: 6 },
-  guideSkipText: { fontSize: 13, color: '#999' },
-  guideArrow: {
-    position: 'absolute', bottom: -10,
-    width: 0, height: 0,
-    borderLeftWidth: 10, borderRightWidth: 10, borderTopWidth: 10,
-    borderLeftColor: 'transparent', borderRightColor: 'transparent',
-    borderTopColor: '#fff',
-  },
-  guideArrowUp: {
-    position: 'absolute', top: -10, left: 20,
-    width: 0, height: 0,
-    borderLeftWidth: 10, borderRightWidth: 10, borderBottomWidth: 10,
-    borderLeftColor: 'transparent', borderRightColor: 'transparent',
-    borderBottomColor: '#fff',
-  },
   overdueOverlay: {
     flex: 1, backgroundColor: 'rgba(0,0,0,0.55)',
     justifyContent: 'center', alignItems: 'center', padding: 32,

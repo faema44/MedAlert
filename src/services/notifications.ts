@@ -123,6 +123,7 @@ export async function setupNotificationChannels(): Promise<void> {
     sound: null,
     vibrationPattern: [0, 250, 150, 250],
   });
+
 }
 
 export async function requestPermissions(): Promise<boolean> {
@@ -217,6 +218,20 @@ async function clearEmergency(): Promise<void> {
   }
 }
 
+export function calculateAge(birthDate: string): number | null {
+  const match = birthDate?.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return null;
+  const [, d, mo, y] = match;
+  const birth = new Date(Number(y), Number(mo) - 1, Number(d));
+  if (isNaN(birth.getTime())) return null;
+  const now = new Date();
+  let age = now.getFullYear() - birth.getFullYear();
+  const hadBirthdayThisYear = now.getMonth() > birth.getMonth()
+    || (now.getMonth() === birth.getMonth() && now.getDate() >= birth.getDate());
+  if (!hadBirthdayThisYear) age--;
+  return age >= 0 ? age : null;
+}
+
 export async function updateEmergencyNotification(
   profile: Profile | null,
   medications: Medication[]
@@ -241,44 +256,55 @@ export async function updateEmergencyNotification(
     ? await Promise.all(meds8.map(m => getRemindersForMedication(m.id).catch(() => [] as MedicationReminder[])))
     : [];
 
-  // Título: nome + tipo sanguíneo (libera linhas no bigText)
-  const bloodSuffix = (profile.blood_type && profile.blood_type !== 'Desconhecido') ? `  🩸 ${profile.blood_type}` : '';
-  const title = `👤 ${profile.name}${bloodSuffix}`;
+  // Título fixo — não expõe nome/tipo sanguíneo/idade na notificação recolhida.
+  // Esses dados só aparecem quando o usuário expande manualmente (privacidade).
+  const title = 'Informações Médicas';
 
-  // bigText: ficha expandida — contatos primeiro para não serem truncados
+  // Próximo lembrete do dia — única linha visível no modo colapsado, e
+  // destacada no topo do conteúdo expandido.
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999);
+  const upcoming: { sortMs: number; name: string; label: string; critical: boolean }[] = [];
+  meds8.forEach((m, idx) => {
+    const info = nextReminderInfo(medReminders[idx] ?? []);
+    if (info && info.sortMs <= todayEnd.getTime()) {
+      upcoming.push({ name: m.commercial_name?.trim() || m.generic_name, label: info.label, sortMs: info.sortMs, critical: m.is_critical });
+    }
+  });
+  upcoming.sort((a, b) => a.sortMs - b.sortMs);
+  const nextMed = upcoming[0] ?? null;
+  const contentText = nextMed ? `${nextMed.name} · ${nextMed.label}` : '';
+
+  // bigText: ficha expandida, em grupos — informações médicas (identificação,
+  // alergias, observações), medicamentos (próximo em destaque + lista completa)
+  // e dados de emergência (contatos) — nessa ordem, sem misturar os grupos.
   const lines: string[] = [];
 
-  const lockContacts = (await getContacts().catch(() => [])).filter(c => c.show_on_lock);
-  lockContacts.forEach(c => {
-    const firstName = c.name.split(' ')[0];
-    lines.push(`📞 ${firstName}: ${c.phone}`);
-  });
+  const bloodSuffix = (profile.blood_type && profile.blood_type !== 'Desconhecido') ? `  🩸 ${profile.blood_type}` : '';
+  const age = calculateAge(profile.birth_date);
+  const ageSuffix = age != null ? `  ${age}A` : '';
+  lines.push(`👤 ${profile.name}${bloodSuffix}${ageSuffix}`);
+  if (profile.allergies) lines.push(`Alergia: ${profile.allergies}`);
+  if (profile.notes)     lines.push(`📋 ${profile.notes}`);
 
-  if (meds8.length) {
-    if (lines.length > 0) lines.push('');
+  if (nextMed || meds8.length) {
+    lines.push('');
+    if (nextMed) lines.push(`${nextMed.critical ? '⚠️' : '💊'} ${nextMed.name} · ${nextMed.label}`);
     meds8.forEach(m => {
       const name = m.commercial_name ? m.commercial_name : m.generic_name;
       lines.push(`${m.is_critical ? '⚠️' : '💊'} ${name}${m.dose ? '  ' + m.dose : ''}`);
     });
     if (medications.length > 8) lines.push(`+${medications.length - 8} medicamentos no app`);
   }
-  if (profile.allergies) { lines.push(''); lines.push(`🚫 ${profile.allergies}`); }
-  if (profile.notes)     { lines.push(''); lines.push(`📋 ${profile.notes}`); }
 
-  // contentText: próximo lembrete do dia (visível no modo colapsado)
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
-  const upcoming: { sortMs: number; name: string; label: string }[] = [];
-  meds8.forEach((m, idx) => {
-    const info = nextReminderInfo(medReminders[idx] ?? []);
-    if (info && info.sortMs <= todayEnd.getTime()) {
-      upcoming.push({ name: m.commercial_name?.trim() || m.generic_name, label: info.label, sortMs: info.sortMs });
-    }
-  });
-  upcoming.sort((a, b) => a.sortMs - b.sortMs);
-  const contentText = upcoming.length > 0
-    ? `${upcoming[0].name} · ${upcoming[0].label}`
-    : '';
+  const lockContacts = (await getContacts().catch(() => [])).filter(c => c.show_on_lock);
+  if (lockContacts.length) {
+    lines.push('');
+    lockContacts.forEach(c => {
+      const firstName = c.name.split(' ')[0];
+      lines.push(`📞 ${firstName}: ${c.phone}`);
+    });
+  }
 
   // Só recria a notificação se o conteúdo realmente mudou — evita cancelar+repostar
   // (e reacender o banner heads-up) a cada load() da Home sem nada de novo.
@@ -309,6 +335,7 @@ export interface ReminderAlertPayload {
   name: string;
   dose: string;
   repeatInterval: number;
+  interactive: boolean;
 }
 
 export function initReminderListeners(
@@ -323,21 +350,45 @@ export function initReminderListeners(
       name: (data.name as string) || (notification.request.content.title ?? ''),
       dose: (data.dose as string) || '',
       repeatInterval: (data.repeatInterval as number) || 0,
+      interactive: (data.interactive as boolean) ?? true,
     };
     onReceived(payload);
   });
   return () => sub.remove();
 }
 
-function reminderContent(medicationName: string, dose: string, medicationId: number, repeatInterval = 0, stockWarning?: string) {
+// Lembrete "não interativo" (Salvar no Histórico = Não): em vez de depender de um timer
+// em segundo plano (o app pode ser suspenso pelo Android antes de rodar), a limpeza
+// acontece quando o usuário abre/volta pro app — ver initReminderListeners em App.tsx,
+// chamado no cold start e sempre que o app volta a ficar ativo.
+export async function dismissStaleNonInteractiveReminders(maxAgeMinutes = 15): Promise<void> {
+  const presented = await Notifications.getPresentedNotificationsAsync().catch(() => []);
+  const cutoff = Date.now() - maxAgeMinutes * 60 * 1000;
+  for (const n of presented) {
+    const data = n.request.content.data;
+    if (data?.type !== 'reminder' || data?.interactive !== false) continue;
+    if (n.date > cutoff) continue;
+    await dismissNotification(n.request.identifier);
+  }
+}
+
+function reminderContent(medicationName: string, dose: string, medicationId: number, repeatInterval = 0, stockWarning?: string, interactive = true) {
   const bodyBase = dose || 'Hora de tomar o medicamento';
-  return {
+  const content: {
+    title: string; body: string; data: Record<string, unknown>;
+    sticky?: boolean; categoryIdentifier?: string;
+  } = {
     title: medicationName,
     body: stockWarning ? `${bodyBase} · ${stockWarning}` : bodyBase,
-    data: { type: 'reminder', medicationId, name: medicationName, dose, repeatInterval },
-    sticky: true,
-    categoryIdentifier: MED_ACTION_CATEGORY,
+    data: { type: 'reminder', medicationId, name: medicationName, dose, repeatInterval, interactive },
   };
+  // "Salvar no Histórico = Não": sem botões Tomei/Não tomei e sem persistência —
+  // vira um alerta comum que o próprio timer de dispensa remove em 15 min.
+  if (interactive) {
+    content.sticky = true;
+    content.categoryIdentifier = MED_ACTION_CATEGORY;
+  }
+  return content;
 }
 
 function timePart(hour: number, minute: number) {
@@ -359,11 +410,12 @@ export async function scheduleReminder(
   repeatInterval = 0,
   stockWarning?: string,
   homeReminder = false,
+  interactive = true,
 ): Promise<void> {
   const id = `reminder_${medicationId}_${timePart(hour, minute)}`;
   await Notifications.scheduleNotificationAsync({
     identifier: id,
-    content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning),
+    content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning, interactive),
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
       hour,
@@ -384,11 +436,12 @@ export async function scheduleReminderWeekly(
   repeatInterval = 0,
   stockWarning?: string,
   homeReminder = false,
+  interactive = true,
 ): Promise<void> {
   for (const wd of weekdays) {
     await Notifications.scheduleNotificationAsync({
       identifier: `reminder_${medicationId}_w${wd}_${timePart(hour, minute)}`,
-      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning),
+      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning, interactive),
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
         weekday: wd,
@@ -411,11 +464,12 @@ export async function scheduleReminderMonthly(
   repeatInterval = 0,
   stockWarning?: string,
   homeReminder = false,
+  interactive = true,
 ): Promise<void> {
   for (const day of days) {
     await Notifications.scheduleNotificationAsync({
       identifier: `reminder_${medicationId}_m${day}_${timePart(hour, minute)}`,
-      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning),
+      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning, interactive),
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
         repeats: true,
@@ -440,6 +494,7 @@ export async function scheduleReminderEveryNMonths(
   repeatInterval = 0,
   stockWarning?: string,
   homeReminder = false,
+  interactive = true,
 ): Promise<void> {
   const tp = timePart(hour, minute);
   const now = new Date();
@@ -449,7 +504,7 @@ export async function scheduleReminderEveryNMonths(
     const dateStr = `${next.getFullYear()}${String(next.getMonth() + 1).padStart(2, '0')}${String(next.getDate()).padStart(2, '0')}`;
     await Notifications.scheduleNotificationAsync({
       identifier: `reminder_${medicationId}_nm_${dateStr}_${tp}`,
-      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning),
+      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning, interactive),
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
         repeats: false,
@@ -709,21 +764,22 @@ export async function rescheduleRemindersForMedication(
 ): Promise<void> {
   const notifName = med.commercial_name?.trim() || med.generic_name;
   const homeReminder = med.home_reminder !== 0;
+  const interactive = med.save_history !== 0 || med.stock_quantity != null;
   for (const r of reminders) {
     if (!r.is_active) continue;
     const [h, m] = r.time.split(':').map(Number);
     if (isNaN(h)) continue;
     if (!r.period || r.period === 'day') {
-      await scheduleReminder(med.id, notifName, med.dose, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder).catch(() => {});
+      await scheduleReminder(med.id, notifName, med.dose, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, interactive).catch(() => {});
     } else if (r.period.startsWith('week:')) {
       const wds = r.period.split(':')[1].split(',').map(Number);
-      await scheduleReminderWeekly(med.id, notifName, med.dose, wds, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder).catch(() => {});
+      await scheduleReminderWeekly(med.id, notifName, med.dose, wds, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, interactive).catch(() => {});
     } else if (r.period.startsWith('month:')) {
       const days = r.period.split(':')[1].split(',').map(Number);
-      await scheduleReminderMonthly(med.id, notifName, med.dose, days, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder).catch(() => {});
+      await scheduleReminderMonthly(med.id, notifName, med.dose, days, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, interactive).catch(() => {});
     } else if (r.period.startsWith('nmonths:')) {
       const [, nStr, dStr] = r.period.split(':');
-      await scheduleReminderEveryNMonths(med.id, notifName, med.dose, parseInt(nStr), parseInt(dStr), h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder).catch(() => {});
+      await scheduleReminderEveryNMonths(med.id, notifName, med.dose, parseInt(nStr), parseInt(dStr), h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, interactive).catch(() => {});
     }
   }
 }
@@ -800,6 +856,7 @@ export function initResponseListeners(handlers: NotificationResponseHandlers): (
           name: data.name || notification.request.content.title || '',
           dose: data.dose || '',
           repeatInterval: data.repeatInterval || 0,
+          interactive: data.interactive ?? true,
         });
       }
     }
@@ -861,7 +918,7 @@ export async function notifyLowStock(medicationId: number, medicationName: strin
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
       seconds: 1,
-      channelId: REMINDER_CHANNEL,
+      channelId: REMINDER_SOUND_CHANNEL,
     } as any,
   });
 }
