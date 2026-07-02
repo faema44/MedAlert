@@ -275,20 +275,12 @@ export async function updateEmergencyNotification(
   const nextMed = upcoming[0] ?? null;
   const contentText = nextMed ? `${nextMed.name} · ${nextMed.label}` : '';
 
-  // bigText: ficha expandida, em grupos — informações médicas (identificação,
-  // alergias, observações), medicamentos (próximo em destaque + lista completa)
-  // e dados de emergência (contatos) — nessa ordem, sem misturar os grupos.
+  // bigText: ficha expandida, em grupos — medicamentos (próximo em destaque + lista
+  // completa), informações médicas (identificação, alergias, observações) e dados de
+  // emergência (contatos) — nessa ordem, sem misturar os grupos.
   const lines: string[] = [];
 
-  const bloodSuffix = (profile.blood_type && profile.blood_type !== 'Desconhecido') ? `  🩸 ${profile.blood_type}` : '';
-  const age = calculateAge(profile.birth_date);
-  const ageSuffix = age != null ? `  ${age}A` : '';
-  lines.push(`👤 ${profile.name}${bloodSuffix}${ageSuffix}`);
-  if (profile.allergies) lines.push(`Alergia: ${profile.allergies}`);
-  if (profile.notes)     lines.push(`📋 ${profile.notes}`);
-
   if (nextMed || meds8.length) {
-    lines.push('');
     if (nextMed) lines.push(`${nextMed.critical ? '⚠️' : '💊'} ${nextMed.name} · ${nextMed.label}`);
     meds8.forEach(m => {
       const name = m.commercial_name ? m.commercial_name : m.generic_name;
@@ -296,6 +288,14 @@ export async function updateEmergencyNotification(
     });
     if (medications.length > 8) lines.push(`+${medications.length - 8} medicamentos no app`);
   }
+
+  if (lines.length) lines.push('');
+  const bloodSuffix = (profile.blood_type && profile.blood_type !== 'Desconhecido') ? `  🩸 ${profile.blood_type}` : '';
+  const age = calculateAge(profile.birth_date);
+  const ageSuffix = age != null ? `  ${age}A` : '';
+  lines.push(`👤 ${profile.name}${bloodSuffix}${ageSuffix}`);
+  if (profile.allergies) lines.push(`Alergia: ${profile.allergies}`);
+  if (profile.notes)     lines.push(`📋 ${profile.notes}`);
 
   const lockContacts = (await getContacts().catch(() => [])).filter(c => c.show_on_lock);
   if (lockContacts.length) {
