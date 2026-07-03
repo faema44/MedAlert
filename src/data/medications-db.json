@@ -63,7 +63,20 @@
         "Glicamida",
         "Reduxgen",
         "Aglucil",
-        "Furp - Glibenclamida"
+        "Furp - Glibenclamida",
+        "Glibenclamida",
+        "Glimil",
+        "Glucosil",
+        "Ltf - Glibenclamida",
+        "Diamida",
+        "Glibion",
+        "Lqfex-Glibenclamida",
+        "Lafepe -glibenclamida",
+        "Lifesa Glibenclamida",
+        "Far-Manguinhos Glibenclamida",
+        "Univali Lapam Glibenclameda",
+        "Vit Glibenclamida",
+        "Funed-Glibenclamida"
       ],
       "category": "Antidiabético",
       "rxcui": "4815"
@@ -81,7 +94,11 @@
         "Dicazid mr",
         "Dagli",
         "Clazi xr",
-        "Beteglid"
+        "Beteglid",
+        "Gliclazida",
+        "Diatarcom Mr",
+        "Cimadilic",
+        "Azukon"
       ],
       "category": "Antidiabético",
       "rxcui": "4816"
@@ -102,7 +119,10 @@
         "Glimeran",
         "Azulix",
         "Glimepibal",
-        "Amaglyn"
+        "Amaglyn",
+        "Glimepirida",
+        "Glymryl",
+        "Glipryd"
       ],
       "category": "Antidiabético",
       "rxcui": "25789"
@@ -110,7 +130,9 @@
     {
       "genericName": "Acarbose",
       "brands": [
-        "Glucobay"
+        "Glucobay",
+        "Stabilic",
+        "Aglucose"
       ],
       "category": "Antidiabético",
       "rxcui": "16681"
@@ -137,7 +159,15 @@
       "brands": [
         "Galvus",
         "Jalra",
-        "Jalra Met"
+        "Jalra Met",
+        "Diavitality",
+        "Vildagliptina",
+        "Vilgli",
+        "Glytco",
+        "Luniera",
+        "Mahan",
+        "Digluss",
+        "Gavidi"
       ],
       "category": "Antidiabético",
       "rxcui": "596554"
@@ -154,7 +184,14 @@
     {
       "genericName": "Empagliflozina",
       "brands": [
-        "Jardiance"
+        "Jardiance",
+        "Empagliflozina",
+        "Epag",
+        "Gluzera",
+        "Empaflo",
+        "Glempa",
+        "Emprelia",
+        "Emp"
       ],
       "category": "Antidiabético",
       "rxcui": "1545653"
@@ -170,7 +207,15 @@
     {
       "genericName": "Dapagliflozina",
       "brands": [
-        "Forxiga"
+        "Forxiga",
+        "Dapagliflozina",
+        "Dapliza",
+        "Dapana",
+        "Vidap",
+        "Glif",
+        "Daplys",
+        "Dapflow",
+        "Dapazorg"
       ],
       "category": "Antidiabético",
       "rxcui": "1488564"
@@ -203,7 +248,12 @@
       "genericName": "Linagliptina",
       "brands": [
         "Trajenta",
-        "Glinape"
+        "Glinape",
+        "Glunac",
+        "Linadib",
+        "Linagliptina",
+        "Trayenta",
+        "Glink"
       ],
       "category": "Antidiabético",
       "rxcui": "1100699"
@@ -227,7 +277,11 @@
     {
       "genericName": "Liraglutida",
       "brands": [
-        "Victoza"
+        "Victoza",
+        "Lirux",
+        "Olire",
+        "Saxenda",
+        "Liraclick"
       ],
       "category": "Antidiabético",
       "rxcui": "475968"
@@ -237,7 +291,10 @@
       "brands": [
         "Ozempic",
         "Rybelsus",
-        "Wegovy"
+        "Wegovy",
+        "Ozivy",
+        "Extensior",
+        "Poviztra"
       ],
       "category": "Antidiabético",
       "rxcui": "1991302"
@@ -254,7 +311,10 @@
       "genericName": "Insulina NPH",
       "brands": [
         "Humulin N",
-        "Insulatard"
+        "Insulatard",
+        "Neosulin N",
+        "Iolin N",
+        "Funed - Insulina Mista Nph"
       ],
       "category": "Antidiabético",
       "rxcui": "1605101"
@@ -272,7 +332,12 @@
       "genericName": "Insulina Glargina",
       "brands": [
         "Lantus",
-        "Toujeo"
+        "Toujeo",
+        "Veluxus",
+        "Semglee",
+        "Glatus",
+        "Basaglar",
+        "Glargilin"
       ],
       "category": "Antidiabético",
       "rxcui": "274783"
@@ -290,7 +355,9 @@
       "genericName": "Insulina Lispro",
       "brands": [
         "Humalog",
-        "Admelog"
+        "Admelog",
+        "Lyumjev",
+        "Humalog Mix"
       ],
       "category": "Antidiabético",
       "rxcui": "86009"
@@ -354,7 +421,17 @@
         "Aval",
         "Valtana",
         "Cosartan Hct",
-        "Arterox"
+        "Arterox",
+        "Valsartana",
+        "Diobrate",
+        "Teuvart",
+        "Vivapress",
+        "Velitron",
+        "Aracor",
+        "Valnor",
+        "Valsartana + Besilato De Anlodipino",
+        "Presconeo",
+        "Valsavan"
       ],
       "category": "Anti-hipertensivo",
       "rxcui": "69749"
@@ -438,7 +515,11 @@
         "Avapro",
         "Lestric",
         "Irbe h",
-        "Irbe"
+        "Irbe",
+        "Bart",
+        "Irtana",
+        "Irbeless",
+        "Sartir"
       ],
       "category": "Anti-hipertensivo",
       "rxcui": "83818"
@@ -496,7 +577,8 @@
         "Lapritec",
         "Flossotec",
         "Genalapril",
-        "Sanvapress"
+        "Sanvapress",
+        "Enacor"
       ],
       "category": "Anti-hipertensivo",
       "rxcui": "3827"
@@ -571,7 +653,26 @@
         "Lafesc - Captopril",
         "Farmanguinhos Captopril",
         "Aortt",
-        "Teusil"
+        "Teusil",
+        "Captopril",
+        "Univali  - Lapam Captopril",
+        "Iquego-Captopril",
+        "Cardprex",
+        "Compress",
+        "Minupress",
+        "Lafesc-Captopril",
+        "Lafepe-Captopril",
+        "Carditril",
+        "Lqfex - Captopril",
+        "Prilaten",
+        "Ivb-Captopril",
+        "Lisoven",
+        "Corapril",
+        "Zorten",
+        "Far-Manguinhos Captopril",
+        "Masterpril",
+        "Lepemc Captopril 25 Mg",
+        "Capto-Bras"
       ],
       "category": "Anti-hipertensivo",
       "rxcui": "1998"
@@ -585,7 +686,9 @@
         "Naprix",
         "Pressnor",
         "Atensec",
-        "Ecator"
+        "Ecator",
+        "Ramipril",
+        "Triatec"
       ],
       "category": "Anti-hipertensivo",
       "rxcui": "35296"
@@ -611,7 +714,14 @@
         "Lisinovil",
         "Vasojet",
         "Lonipril",
-        "Listril"
+        "Listril",
+        "Lisinopril",
+        "Tonotensin",
+        "Lisopress",
+        "Prilisin",
+        "Lisinobal",
+        "Lisinopril-Doxapril",
+        "Lisitom"
       ],
       "category": "Anti-hipertensivo",
       "rxcui": "29046"
@@ -692,7 +802,20 @@
         "Nifehexal",
         "Prodopina",
         "Cardalin Retard",
-        "Normopres"
+        "Normopres",
+        "Nifedipina",
+        "Cardiopina",
+        "Nifemax",
+        "Adacor",
+        "Laqfa- Nifedipina",
+        "Adipina",
+        "Nifedipan",
+        "Ancord",
+        "Nifeclim",
+        "Vasicor",
+        "Etiovita",
+        "Calcigard Retard",
+        "Lafepe-Nifedipina"
       ],
       "category": "Anti-hipertensivo",
       "rxcui": "7417"
@@ -734,7 +857,11 @@
         "Vasoton",
         "Cronovera",
         "Vascord",
-        "Verapress"
+        "Verapress",
+        "Norvil",
+        "Neopamil",
+        "Neoverpamil",
+        "Verapamil"
       ],
       "category": "Cardiovascular",
       "rxcui": "11170"
@@ -790,7 +917,16 @@
         "Atenorm",
         "Genopress",
         "Telol c",
-        "Ateplus"
+        "Ateplus",
+        "Atenolol",
+        "Betalol",
+        "Ditenol",
+        "Atenozem",
+        "Betacard",
+        "Atecor",
+        "Areblaz",
+        "Himaagin",
+        "Ateno-Bras"
       ],
       "category": "Anti-hipertensivo",
       "rxcui": "1202"
@@ -834,7 +970,10 @@
         "Furp - Propranolol",
         "Farmanguinhos - Propranolol",
         "Propratec",
-        "Lafesc - Propranolol"
+        "Lafesc - Propranolol",
+        "Lafepe Propranolol",
+        "Lifesa-Propranolol",
+        "Lafergs - Propranolol"
       ],
       "category": "Anti-hipertensivo",
       "rxcui": "8787"
@@ -853,7 +992,12 @@
         "Cardilol Long",
         "Corediol",
         "Carvegran",
-        "Cardbet"
+        "Cardbet",
+        "Carvedilol",
+        "Nienza",
+        "Carvecor",
+        "Balancore",
+        "Carteson"
       ],
       "category": "Cardiovascular",
       "rxcui": "20352"
@@ -908,7 +1052,10 @@
         "Torvilip",
         "Torvaris",
         "At-lor",
-        "Lumirarte"
+        "Lumirarte",
+        "Atorvan",
+        "Atorvast",
+        "Atrovast"
       ],
       "category": "Hipolipemiante",
       "rxcui": "83367"
@@ -946,7 +1093,13 @@
         "Sinvasmax",
         "Genocardil",
         "Sinstiphar",
-        "Unak"
+        "Unak",
+        "Sinvastatina",
+        "Ana- Lip",
+        "Simlip",
+        "Sinvastamil",
+        "Zocor",
+        "Sinvast"
       ],
       "category": "Hipolipemiante",
       "rxcui": "36567"
@@ -978,7 +1131,9 @@
       "genericName": "Pravastatina",
       "brands": [
         "Mevalotin",
-        "Lenitral"
+        "Lenitral",
+        "Pravastan",
+        "Pravastil"
       ],
       "category": "Hipolipemiante",
       "rxcui": "42463"
@@ -995,7 +1150,9 @@
         "Lovaton",
         "Minor",
         "Lovax",
-        "Reducol"
+        "Reducol",
+        "Lovastatina",
+        "Lovaste"
       ],
       "category": "Hipolipemiante",
       "rxcui": "6472"
@@ -1018,7 +1175,14 @@
         "Ezetgen",
         "Zimiex",
         "Posicor",
-        "Zeterina"
+        "Zeterina",
+        "Emibazet",
+        "Ezetimiba",
+        "Teumib",
+        "Ezet",
+        "Coratez",
+        "Dezemim",
+        "Coledue"
       ],
       "category": "Hipolipemiante",
       "rxcui": "341248"
@@ -1067,7 +1231,11 @@
         "Lipidil",
         "Lipobrato",
         "Hipofithy",
-        "Lanpexio"
+        "Lanpexio",
+        "Riduzi",
+        "Fenofibrato",
+        "Fenofibrato Micronizado",
+        "Solomia"
       ],
       "category": "Hipolipemiante",
       "rxcui": "8703"
@@ -1076,7 +1244,9 @@
       "genericName": "Genfibrozila",
       "brands": [
         "Lopid",
-        "Lozil"
+        "Lozil",
+        "Genfibrozila",
+        "Gempid"
       ],
       "category": "Hipolipemiante",
       "rxcui": "4719"
@@ -1117,7 +1287,29 @@
         "Hidrazin 50mg",
         "Hidroclorotiazin",
         "Lafesc - Hidroclorotiazida",
-        "Farmanguinhos - Hidroclorotiazida"
+        "Farmanguinhos - Hidroclorotiazida",
+        "Hidroclorotiazida",
+        "Cloriazida",
+        "Pressovita",
+        "Ivb-Hidroclorotiazida",
+        "Funed Hidroclortiazida",
+        "Efotiazida",
+        "Lqfe Hidroclorotiazida",
+        "Lifalhidroclorotiazida",
+        "Diuretom",
+        "Lifesa-Hidroclorotiazida",
+        "Hidrazida",
+        "Mictrin",
+        "Antipertin",
+        "Hidrazim",
+        "Lafepe - Hidroclorotiazida",
+        "Hidrotiazin",
+        "Iquego-  Hidroclorotiazida",
+        "Lafesc-Hidroclorotiazida",
+        "Cloragio",
+        "Di-Hidroclorotiazida",
+        "Univali-Lapam Hidroclorotiazida",
+        "Fluxopress"
       ],
       "category": "Diurético",
       "rxcui": "5487"
@@ -1137,7 +1329,13 @@
         "Higromil 50 mg",
         "Higromil 25mg",
         "Clotadona",
-        "Higromil"
+        "Higromil",
+        "Clortana",
+        "Clortalidona",
+        "Clortaliton",
+        "Clorotalidona",
+        "Higroton",
+        "Higrotalin"
       ],
       "category": "Diurético",
       "rxcui": "2409"
@@ -1181,7 +1379,25 @@
         "Furomix",
         "Furp- Furosemida",
         "Lfm -furosemida",
-        "Diflumid"
+        "Diflumid",
+        "Furosemida",
+        "Ivb - Furosemida",
+        "Lafepe - Furosemida",
+        "Secusemida",
+        "Diurisa",
+        "Furoxal",
+        "Unifurix",
+        "Diuret",
+        "Frusix",
+        "Diurexil",
+        "Lafergs - Furosemida",
+        "Funed - Furosemida",
+        "Hysemida",
+        "Furosemida Injetável Abbott",
+        "Fursemida",
+        "Diuremil",
+        "Urasix",
+        "Furecin"
       ],
       "category": "Diurético",
       "rxcui": "4603"
@@ -1196,7 +1412,10 @@
         "Aldosterin",
         "Espirolona",
         "Spiroctan",
-        "Aldneo"
+        "Aldneo",
+        "Espironolactona",
+        "Espirobal",
+        "Aldaril"
       ],
       "category": "Diurético",
       "rxcui": "9997"
@@ -1276,7 +1495,24 @@
         "Gastrosec",
         "Gastrozol",
         "Pepsicaps",
-        "Genoprazol"
+        "Genoprazol",
+        "Omeprazol",
+        "Omezol",
+        "Lozaprol",
+        "Omec",
+        "Gastroprazol",
+        "Prazotom",
+        "Megazol",
+        "Ivb-Omeprazol",
+        "Iqueco- Omeprazol",
+        "Ulcezol",
+        "Enopproz",
+        "Ulciden",
+        "Meprasec",
+        "Gastrib",
+        "Peptrat",
+        "Gasec Gastrocaps",
+        "Mepraz"
       ],
       "category": "Gastroprotetor",
       "rxcui": "7646"
@@ -1292,7 +1528,14 @@
         "Adipept",
         "Combulcer",
         "Gastropan",
-        "Protton"
+        "Protton",
+        "Pantoprazol",
+        "Estozol",
+        "Pantoprazol Sódico Sesqui-Hidratado",
+        "Pantoneo",
+        "Zurcal",
+        "Tolza",
+        "Pyloprazol"
       ],
       "category": "Gastroprotetor",
       "rxcui": "40790"
@@ -1312,7 +1555,8 @@
         "Ésio",
         "Esmog",
         "Gaeso",
-        "Sompraz Iv"
+        "Sompraz Iv",
+        "Esomeprazol Sódico"
       ],
       "category": "Gastroprotetor",
       "rxcui": "283742"
@@ -1338,7 +1582,16 @@
         "Alkazol",
         "Lamprox",
         "Lansohexal",
-        "Laflugi"
+        "Laflugi",
+        "Lampraz",
+        "Lansoprazol",
+        "Lansopril",
+        "Diprox",
+        "Perprazol",
+        "Lansomax",
+        "Lasol",
+        "Ogastro",
+        "Lansonol"
       ],
       "category": "Gastroprotetor",
       "rxcui": "17128"
@@ -1412,7 +1665,19 @@
         "Pharmox",
         "Farmoxil",
         "Amplal",
-        "Sigma Clav bd"
+        "Sigma Clav bd",
+        "Amoxicilina",
+        "Infamox",
+        "Lqfex - Amoxicilina",
+        "Amoxiflex",
+        "Amoxicom",
+        "Hincomox",
+        "Lifamox",
+        "Clacilin",
+        "Amiclavin",
+        "Amoxitrin",
+        "Clavulanax",
+        "Apluc"
       ],
       "category": "Antibiótico",
       "rxcui": "723"
@@ -1474,7 +1739,19 @@
         "Ambezetal",
         "Bipencil",
         "Sifcilina",
-        "Ampixin"
+        "Ampixin",
+        "Ampicilina",
+        "Santicilina",
+        "Ampi",
+        "Broncoclin",
+        "Ampicris",
+        "Farmanguinhos - Ampicilina",
+        "Lifal Ampicilina",
+        "Lifacilina",
+        "Lqfex - Ampicilna",
+        "Lafepe-Ampicilina",
+        "Ampilozim",
+        "Ampicilina Fontoura"
       ],
       "category": "Antibiótico",
       "rxcui": "733"
@@ -1537,7 +1814,15 @@
         "Azicin",
         "Astro Iv",
         "Azi Iv",
-        "Tevazi"
+        "Tevazi",
+        "Azitromicina",
+        "Azitrom",
+        "Zanubis",
+        "Azitromicina Monoidratada",
+        "Sidamicin",
+        "Lfm-Azitromicina",
+        "Azitromicina Di-Hidratada",
+        "Elim"
       ],
       "category": "Antibiótico",
       "rxcui": "18631"
@@ -1559,7 +1844,18 @@
         "Klaroxil",
         "Helicocid",
         "Clatorin",
-        "Bulansi"
+        "Bulansi",
+        "Claritromicina",
+        "Clabat",
+        "Septmyc",
+        "Maclicin",
+        "Clatem",
+        "Clorifen",
+        "Claritromax",
+        "Claritromicin",
+        "Clinbacter",
+        "Claritab",
+        "Klarin"
       ],
       "category": "Antibiótico",
       "rxcui": "21212"
@@ -1575,7 +1871,14 @@
         "Eripan",
         "Eritax",
         "Erycnen",
-        "Neo Eritromicin"
+        "Neo Eritromicin",
+        "Eritrofar Pediatrico",
+        "Eritromicina",
+        "Eryacnen",
+        "Erimicina",
+        "Eritrocim",
+        "Rubromicin",
+        "Estearato De Eritromicina"
       ],
       "category": "Antibiótico",
       "rxcui": "4053"
@@ -1635,7 +1938,14 @@
         "Ciflocina",
         "Cifloxan",
         "Cinogen",
-        "Teuciprox"
+        "Teuciprox",
+        "Spectroflex",
+        "Ciprofloxacino",
+        "Ciproglen",
+        "Cifloxina",
+        "Ciprocina",
+        "Kinof",
+        "Floxan"
       ],
       "category": "Antibiótico",
       "rxcui": "2551"
@@ -1652,7 +1962,8 @@
         "Tamiram",
         "Tavagran",
         "Levaquin",
-        "Livepax"
+        "Livepax",
+        "Levofloxacino"
       ],
       "category": "Antibiótico",
       "rxcui": "82122"
@@ -1690,7 +2001,17 @@
         "Genosept",
         "Norfloxasan",
         "Floxamox",
-        "Norfloxinox"
+        "Norfloxinox",
+        "Norfloxacino",
+        "Norfloxacina",
+        "Uroxazol-N",
+        "Surfest",
+        "Miuron",
+        "Respexil",
+        "Norfloxin",
+        "Norfloxazan",
+        "Norflox",
+        "Floxacin"
       ],
       "category": "Antibiótico",
       "rxcui": "7517"
@@ -1746,7 +2067,14 @@
         "Lfm-cefalexina",
         "Kefalexin",
         "Cefexina",
-        "Lqfex Cefalexina"
+        "Lqfex Cefalexina",
+        "Cefalexina",
+        "Natuscilin",
+        "Celinax",
+        "Lafepe Cefalexina",
+        "Celaflex",
+        "Cefalexina Monoidratada",
+        "Lifalexin"
       ],
       "category": "Antibiótico",
       "rxcui": "2231"
@@ -1763,7 +2091,10 @@
         "Amplospec",
         "Neoceftriona",
         "Keftron",
-        "Rofoxin"
+        "Rofoxin",
+        "Ceftriaxona",
+        "Triaxton",
+        "Prodoxin"
       ],
       "category": "Antibiótico",
       "rxcui": "2193"
@@ -1777,7 +2108,8 @@
         "Medcef",
         "Monocef",
         "Keroxime",
-        "Cefuran"
+        "Cefuran",
+        "Cefunorth"
       ],
       "category": "Antibiótico",
       "rxcui": "2194"
@@ -1794,7 +2126,8 @@
         "Cefazolina Sódica",
         "Biovital",
         "Cefazolina-kefalin",
-        "Zolidina"
+        "Zolidina",
+        "Cefazolina"
       ],
       "category": "Antibiótico",
       "rxcui": "2180"
@@ -1847,7 +2180,21 @@
         "Colplen",
         "Neometrodazol",
         "Metrobacter",
-        "Meflagin"
+        "Meflagin",
+        "Metronidazol",
+        "Lifesa-Metronidazol",
+        "Divagil",
+        "Trigian",
+        "Lfm - Metronidazol",
+        "Vagi Biotic M",
+        "Flamezol",
+        "Flagyl Geléia",
+        "Farmanguinhos - Metronidazol",
+        "Metronide",
+        "Secutronida",
+        "Astergyl",
+        "Fresenizol",
+        "Glicolabor-Metronidazol"
       ],
       "category": "Antibiótico",
       "rxcui": "6922"
@@ -1860,7 +2207,10 @@
         "Pletil",
         "Amplium",
         "Tinoral",
-        "Ginosutin"
+        "Ginosutin",
+        "Tricogiam",
+        "Tinidazol",
+        "Fasygyn"
       ],
       "category": "Antibiótico",
       "rxcui": "10612"
@@ -1893,7 +2243,18 @@
         "Tobracular",
         "Tobranom",
         "Toflamixina",
-        "Tobrazol"
+        "Tobrazol",
+        "Toria",
+        "Tobramicina",
+        "Antibrex",
+        "Tromin",
+        "Zoteon Pó",
+        "Tobra-M",
+        "Tobralírio",
+        "Tobi",
+        "Bramitob",
+        "Zobilar",
+        "Tobragan"
       ],
       "category": "Antibiótico",
       "rxcui": "10627"
@@ -1914,7 +2275,8 @@
         "Aminocina",
         "Amikin",
         "Amicacina - Novamicacin",
-        "Hicacina"
+        "Hicacina",
+        "Novamicacim"
       ],
       "category": "Antibiótico",
       "rxcui": "641"
@@ -1964,7 +2326,17 @@
         "Celozol",
         "Exomax",
         "Fungiciden",
-        "Flurgyn"
+        "Flurgyn",
+        "Fluconazol",
+        "Flucolup",
+        "Flucomex",
+        "Hypoflunazol",
+        "Flucotil",
+        "Fueblo",
+        "Zoltec",
+        "Farmanguinhos - Fluconazol",
+        "Flucionazol",
+        "Carefluzol"
       ],
       "category": "Antifúngico",
       "rxcui": "4450"
@@ -1993,7 +2365,16 @@
         "Fungonax",
         "Traconal",
         "cp - Eutramix",
-        "Itrazol"
+        "Itrazol",
+        "Funok",
+        "Monitrax",
+        "Ditranal",
+        "Itraconazol",
+        "Volfax",
+        "Iconazol",
+        "Itracon",
+        "Eutramix",
+        "Sporanox"
       ],
       "category": "Antifúngico",
       "rxcui": "28031"
@@ -2005,7 +2386,11 @@
         "Velenaxol",
         "Veac",
         "Vori Inj",
-        "Micend"
+        "Micend",
+        "Voriconazol",
+        "Vfend",
+        "Hyvora",
+        "Vzom"
       ],
       "category": "Antifúngico",
       "rxcui": "121243"
@@ -2110,7 +2495,10 @@
         "Placitam",
         "Procimax",
         "Maxapran",
-        "Alcytam"
+        "Alcytam",
+        "Citalopram",
+        "Bromidrato De Citalopram",
+        "Citalopram (port. 344/98, L-C1)"
       ],
       "category": "Antidepressivo",
       "rxcui": "2556"
@@ -2128,7 +2516,8 @@
         "Alenthus xr",
         "Venlift Od",
         "Vensate lp",
-        "Adapta"
+        "Adapta",
+        "Venlafax"
       ],
       "category": "Antidepressivo",
       "rxcui": "39786"
@@ -2180,7 +2569,8 @@
         "Funed-amitriptilina",
         "Lfm-amitriptilina",
         "Trisomatol",
-        "Protanol"
+        "Protanol",
+        "Amitriptilina"
       ],
       "category": "Antidepressivo Tricíclico",
       "rxcui": "704"
@@ -2243,7 +2633,20 @@
         "Dienzepax",
         "Calmociteno",
         "Lfm-diazepam",
-        "Iquego - Diazepam"
+        "Iquego - Diazepam",
+        "Diazepam",
+        "Diazepam (port. 344/98 Lista B 1)",
+        "Lafergs - Diazepam",
+        "Far-Manguinhos - Diazepam",
+        "Uni-Diazepax",
+        "Diazepam (port. 344 - Lista B1)",
+        "Diazepam (port. 344/98 - Lista B1)",
+        "Distonil Gi",
+        "Far Manguinhos-Diazepam",
+        "Funed Diazepam",
+        "Diazepam (port 344/98 Lt B1)",
+        "Compaz Retard",
+        "Lqfe - Diazepam"
       ],
       "category": "Benzodiazepínico",
       "rxcui": "3322"
@@ -2259,7 +2662,18 @@
         "Navotrax",
         "Epileptil",
         "Zilepam",
-        "Clonasun"
+        "Clonasun",
+        "Clonazepam",
+        "Uni-Clonazepax",
+        "Clonetril",
+        "Clonazepam (port. 344/98  Lista B1)",
+        "Cloragio",
+        "Sedaclon",
+        "Clonazepam (port. 344/98 - Lista B1)",
+        "Zaplam",
+        "Azenpi",
+        "Usempax",
+        "Zuclon"
       ],
       "category": "Benzodiazepínico",
       "rxcui": "2598"
@@ -2277,7 +2691,10 @@
         "Altrox",
         "Teufron",
         "Apraz",
-        "Arroplam"
+        "Arroplam",
+        "Alprazolam",
+        "Frontinox",
+        "Tranquinal Slg"
       ],
       "category": "Benzodiazepínico",
       "rxcui": "596"
@@ -2291,7 +2708,13 @@
         "Mesmerin",
         "Max Pax",
         "Lorapan",
-        "Ansirax"
+        "Ansirax",
+        "Lorazepam",
+        "Lorazepam (port.344/98, Lista B1)",
+        "Razelim",
+        "Lorazefast",
+        "Lorium (port 28/86)",
+        "Lorazepam (portaria 344/98 Lista B1)"
       ],
       "category": "Benzodiazepínico",
       "rxcui": "6470"
@@ -2307,7 +2730,12 @@
         "Hipnazolam (b1)",
         "Dormant",
         "Fenelom",
-        "Induson"
+        "Induson",
+        "Prontomid",
+        "Tractera",
+        "Midazolam",
+        "Hypozam",
+        "Telozam"
       ],
       "category": "Benzodiazepínico",
       "rxcui": "6960"
@@ -2354,7 +2782,49 @@
         "Ibuliv",
         "Ibupromed",
         "Atrofem",
-        "Donosor"
+        "Donosor",
+        "Ibuprofeno",
+        "Algy-Flanderil Caps",
+        "Medmulher",
+        "Ibruve",
+        "Pralívio Mulher",
+        "Focus",
+        "Capsfen",
+        "Otiun",
+        "Buscofem Girls",
+        "Ibuprofeno 200 Mg Comprimido Revestido",
+        "Adfen",
+        "Termomed Ibup",
+        "Ibux",
+        "Ibupril Caps",
+        "Fenotil",
+        "Advil Kids",
+        "Doraliv Gel Oral",
+        "Buprolivium",
+        "Nalfan",
+        "Atiovil",
+        "Aludor",
+        "Advil 12h",
+        "Zediv",
+        "Somalfen",
+        "Ibumedfem",
+        "Algy Gotas",
+        "Ibrupofeno",
+        "Pralívio",
+        "Proinflac",
+        "Adlyv",
+        "Ibucaps",
+        "Alyviazes",
+        "Far Maguinhos Ibuprofeno",
+        "Danliv",
+        "Probatol",
+        "Ibuprotrat Cm",
+        "Fenotom",
+        "Babypiril",
+        "Algyseda",
+        "Ibuglobo",
+        "Ibufenox",
+        "Analiv"
       ],
       "category": "Anti-inflamatório (AINE)",
       "rxcui": "5640"
@@ -2369,7 +2839,8 @@
         "Naproflen",
         "Naxotec",
         "Flamaprox",
-        "Napronax"
+        "Napronax",
+        "Naproxeno"
       ],
       "category": "Anti-inflamatório (AINE)",
       "rxcui": "7258"
@@ -2497,7 +2968,8 @@
         "Nevralren",
         "Algiren",
         "Voltasil",
-        "Somaflex Ap"
+        "Somaflex Ap",
+        "Bexai"
       ],
       "category": "Anti-inflamatório (AINE)",
       "rxcui": "3355"
@@ -2524,7 +2996,21 @@
         "Fenbip",
         "Ceftfenpro lp",
         "Algie",
-        "Rhalunid"
+        "Rhalunid",
+        "Cetoprofeno",
+        "Algiflanil",
+        "Artrinid Iv",
+        "Bicerto Iv",
+        "Algoyect",
+        "Axiflennid",
+        "Prodygo",
+        "Cetoprofeno Im",
+        "Cetoprofeno 150 Mg",
+        "Cetoprofeno 100 Mg Comprimido Revestido",
+        "Ketop",
+        "Triploa",
+        "Cepronid",
+        "Teuto-Cetoprofeno"
       ],
       "category": "Anti-inflamatório (AINE)",
       "rxcui": "6142"
@@ -2558,7 +3044,14 @@
         "Lonaflam",
         "Meloflan",
         "Beflox",
-        "Melovac"
+        "Melovac",
+        "Hilam",
+        "Meloxicam",
+        "Flexican",
+        "Meloxican",
+        "Oxitec",
+        "Melocox Odt",
+        "Inicox Dp"
       ],
       "category": "Anti-inflamatório (AINE)",
       "rxcui": "41493"
@@ -2572,7 +3065,16 @@
         "Cebracox",
         "Foxis",
         "Zendiax",
-        "Coques"
+        "Coques",
+        "Ducox",
+        "Celecoxibe",
+        "Celecoxib",
+        "Celebra",
+        "Celartrit",
+        "Cibex",
+        "Movydia",
+        "Coxizy",
+        "Parzo"
       ],
       "category": "Anti-inflamatório (AINE)",
       "rxcui": "140587"
@@ -2580,7 +3082,21 @@
     {
       "genericName": "Etoricoxibe",
       "brands": [
-        "Hetori"
+        "Hetori",
+        "Alivetore",
+        "Etoricoxibe",
+        "Torxis",
+        "Etorben",
+        "Ecibe",
+        "Lordozy",
+        "Xumer",
+        "Leraw",
+        "Sotto",
+        "Ecoxe",
+        "Coxeto",
+        "Arcoxia",
+        "Etcob",
+        "Terocoxi"
       ],
       "category": "Anti-inflamatório (AINE)",
       "rxcui": "307296"
@@ -2667,7 +3183,62 @@
         "Tyflen Bebê",
         "Tyflen Criança",
         "Tilenati",
-        "Multigrip Dor E Febre"
+        "Multigrip Dor E Febre",
+        "Paracetamol",
+        "Doramol",
+        "Dolemil Ap",
+        "Ameniflac",
+        "Acetylen",
+        "Tandrex-A",
+        "Coristina Termus",
+        "Termo-Ped",
+        "Alivium",
+        "Ntf Paracetamol",
+        "Tirador",
+        "Furp - Paracetamol",
+        "Produto Teste 21.08",
+        "Lqfex -  Paracetamol",
+        "Cimegripe Dor E Febre",
+        "Resfec",
+        "Tyleflan",
+        "Paralgesic",
+        "Anapirin",
+        "Dotynol Ap",
+        "Far-Maguinhos Paracetamol",
+        "Ditylen",
+        "Pulmol",
+        "Stilgrip Chá",
+        "Cyfenol Baby",
+        "Univali-Lapam Paracetamol",
+        "Ltf -  Paracetamol",
+        "Acetan",
+        "Funds Paracetamol",
+        "Calpol",
+        "Dorilax Df",
+        "Acetamol",
+        "Lafepe - Paracetamol",
+        "Parafen",
+        "Cimegripe 77c",
+        "Naldecon Dor",
+        "Benegrip Multi Febre E Dor",
+        "Gripotermon",
+        "Vick Pyrena",
+        "Halexminophen",
+        "Tybunol",
+        "Doralfen",
+        "Cefalium One",
+        "Aminofen",
+        "Tabcin Hot Drink",
+        "Daumol",
+        "Kabipamol",
+        "Farmanguinhos - Paracetamol",
+        "Nalgesin",
+        "Bromil Gripe",
+        "Gripalcê Uno",
+        "Doralfebre",
+        "Tabcin",
+        "Trimedal",
+        "Valoron"
       ],
       "category": "Analgésico/Antipirético",
       "rxcui": "161"
@@ -2753,7 +3324,54 @@
         "Hioariston",
         "Lisador Dip",
         "Dorflex Uno",
-        "Dipironati"
+        "Dipironati",
+        "Daudip",
+        "Diarona",
+        "Dipirona Monoidratada",
+        "Dipbe",
+        "Doralstop",
+        "Erd",
+        "Nevralgina",
+        "Dipirona",
+        "Baralgin M",
+        "Nopirodil",
+        "Contrador",
+        "Novapirona",
+        "Lqfex - Dipirona",
+        "Dipirona Sódica Solução Oral",
+        "Multiralgim",
+        "Dipiral",
+        "Dipfar",
+        "Dipirosil",
+        "Calm. Dor",
+        "Doraliv",
+        "Termosil",
+        "Piridor",
+        "Diplapon",
+        "Ermogina",
+        "Lafergs Dipirona Sodica",
+        "Dinador",
+        "Tropirin",
+        "Dipirona Sódica Solução Injetável",
+        "Dorpidina",
+        "Metagesic",
+        "Medalgésico",
+        "Dipgrip",
+        "Ntf Dipirona",
+        "Usmedina",
+        "Lafepe-Dipirona Sodica",
+        "Dipirona Funed",
+        "Dipiroplex",
+        "Belspan Dip",
+        "Dipirac",
+        "Sedalive",
+        "Solução De Dipirona Barros",
+        "Secudip",
+        "Cedil",
+        "Qbl Dipirona",
+        "Novistar",
+        "Dypyrol",
+        "Duzor"
       ],
       "category": "Analgésico/Antipirético",
       "rxcui": "3523"
@@ -2884,7 +3502,15 @@
         "Progresse",
         "Gabaneurin",
         "Gabatin",
-        "Neurocontrol"
+        "Neurocontrol",
+        "Gabapentina",
+        "Progaba",
+        "Neurizen",
+        "Zigaba",
+        "Gabarontin",
+        "Empak",
+        "Gabapentina (port. 344/ 98 - Lista C1)",
+        "Gapem"
       ],
       "category": "Anticonvulsivante/Neuropático",
       "rxcui": "25480"
@@ -2901,7 +3527,32 @@
         "Neugaba",
         "Insit",
         "Alond",
-        "Egis"
+        "Egis",
+        "Infoc",
+        "Jolik",
+        "Pregabalina",
+        "Ápice",
+        "Lysugi",
+        "Tagdor",
+        "Limiar",
+        "Gabalgin",
+        "Konduz",
+        "Lycerah",
+        "Dorene Tabs",
+        "Volver",
+        "Lyrabax",
+        "Insit®",
+        "Zeropin",
+        "Pregalpha",
+        "Prelavid",
+        "Lyripati",
+        "Gabasolva",
+        "Dolador",
+        "Mobale",
+        "Dorene Líquido",
+        "Lyridor",
+        "Comov",
+        "Glya"
       ],
       "category": "Anticonvulsivante/Neuropático",
       "rxcui": "187832"
@@ -2914,7 +3565,8 @@
         "Varfarina Sódica",
         "Warfarin",
         "Marfarim",
-        "Marfarin"
+        "Marfarin",
+        "Varfan"
       ],
       "category": "Anticoagulante",
       "rxcui": "11289"
@@ -2932,7 +3584,11 @@
       "genericName": "Ticagrelor",
       "brands": [
         "Brilinta",
-        "Coaly"
+        "Coaly",
+        "Artag",
+        "Ticagrelor",
+        "Tiag",
+        "Alminda"
       ],
       "category": "Antiagregante Plaquetário",
       "rxcui": "1116632"
@@ -2950,7 +3606,34 @@
       "brands": [
         "Xarelto",
         "Rixantil",
-        "Vynaxa"
+        "Vynaxa",
+        "Dacxi",
+        "Rivneo",
+        "Klev",
+        "Rivaroxabana",
+        "Rivacrist",
+        "Rivar",
+        "Nublaxon",
+        "Ryvyry",
+        "Vazuli",
+        "Xanev",
+        "Vabam",
+        "Nixe",
+        "Lixxafor",
+        "Varoxred",
+        "Ryri",
+        "Xafac",
+        "Xareboosi",
+        "Xab",
+        "Itextar",
+        "Rivaxa",
+        "Lurope",
+        "Rivoxx",
+        "Rivadixa",
+        "Dartrial",
+        "Faxxa",
+        "Acog",
+        "Globoxarel"
       ],
       "category": "Anticoagulante",
       "rxcui": "1114195"
@@ -2958,7 +3641,23 @@
     {
       "genericName": "Apixabana",
       "brands": [
-        "Eliquis"
+        "Eliquis",
+        "Apixabana",
+        "Pixten",
+        "Ixabi",
+        "Embo",
+        "Apixord",
+        "Banxa",
+        "Eknus",
+        "Apics",
+        "Harterya",
+        "Picbam",
+        "Ixobam",
+        "Pixar",
+        "Hallis",
+        "Ativor",
+        "Apixneo",
+        "Xakilis"
       ],
       "category": "Anticoagulante",
       "rxcui": "1364430"
@@ -3016,7 +3715,30 @@
         "Digixina (digoxina)",
         "Valoxin",
         "Beldigox",
-        "Neodigoxin"
+        "Neodigoxin",
+        "Digoxina",
+        "Goxin",
+        "Laqfa - Digoxina",
+        "Digocard",
+        "Darrowcor",
+        "Digiphar",
+        "Neo Digoxin",
+        "Trenden",
+        "Digopress",
+        "Lfm - Digoxina",
+        "Carodesin",
+        "Nadroxen",
+        "Cardioxina",
+        "Uni - Digoxin",
+        "Cardgox",
+        "Niilis",
+        "Digoxilab",
+        "Funed Digoxina",
+        "Farmanguinhos Digoxina",
+        "Rioxina",
+        "Digixina",
+        "Cardixin",
+        "Digocris"
       ],
       "category": "Cardiovascular",
       "rxcui": "3407"
@@ -3084,7 +3806,18 @@
         "Dalí",
         "Cianeo",
         "H-for",
-        "Hislafi"
+        "Hislafi",
+        "Bontalis",
+        "Tadalafila",
+        "Asap",
+        "Td Fila",
+        "Vorallis",
+        "Adcirca",
+        "Tadifil",
+        "Tonifila",
+        "Lync",
+        "Invert",
+        "Nesta"
       ],
       "category": "Urológico",
       "rxcui": "358263"
@@ -3121,7 +3854,8 @@
         "Coronar",
         "Revange",
         "Revange sr",
-        "Lfm - Mononitrato de Isossorbida"
+        "Lfm - Mononitrato de Isossorbida",
+        "Mononitrato De Isossorbida"
       ],
       "category": "Cardiovascular",
       "rxcui": "28004"
@@ -3131,7 +3865,10 @@
       "brands": [
         "Nitronal",
         "Nitroderm",
-        "Tridil"
+        "Tridil",
+        "Nitradisc",
+        "Nitroderm Tts",
+        "Nitrolong"
       ],
       "category": "Cardiovascular",
       "rxcui": "4917"
@@ -3195,7 +3932,16 @@
         "Laqfa- Prednisona",
         "Becortem",
         "Lfm-prednisona",
-        "Ciclorten"
+        "Ciclorten",
+        "Prednisona",
+        "Farmanguinhos - Prednisona",
+        "Prodinix",
+        "Nisocort",
+        "Flamape",
+        "Metilen",
+        "Ermosolona",
+        "Nisbal",
+        "Funed Prednisona"
       ],
       "category": "Corticosteroide",
       "rxcui": "8640"
@@ -3211,7 +3957,11 @@
         "Ster",
         "Predoptic",
         "Pred-gran",
-        "Predsigma"
+        "Predsigma",
+        "Prednisolona",
+        "Elpre",
+        "Percoide",
+        "Preni"
       ],
       "category": "Corticosteroide",
       "rxcui": "8638"
@@ -3262,7 +4012,16 @@
         "Dexa-complex",
         "Acetazona",
         "Maxiview",
-        "Dexaden"
+        "Dexaden",
+        "Dexametasona",
+        "Ozurdex",
+        "Maxidex",
+        "Dexam",
+        "Dexameral",
+        "Neodronex",
+        "Dexameton",
+        "Lasa - Dexametasona",
+        "Secusona"
       ],
       "category": "Corticosteroide",
       "rxcui": "3264"
@@ -3279,7 +4038,8 @@
         "Betnelan",
         "Dexmine",
         "Dextamine",
-        "Lergidrin"
+        "Lergidrin",
+        "Betametasona"
       ],
       "category": "Corticosteroide",
       "rxcui": "1514"
@@ -3297,7 +4057,9 @@
         "Hidrocortizona",
         "Ariscorten",
         "Gliocort",
-        "Nutracort"
+        "Nutracort",
+        "Hidrocortisona",
+        "Lactisone"
       ],
       "category": "Corticosteroide",
       "rxcui": "5492"
@@ -3309,7 +4071,8 @@
         "Solu-Medrol",
         "Predi-medrol",
         "Unimedrol",
-        "Alergolon"
+        "Alergolon",
+        "Solu-Pred"
       ],
       "category": "Corticosteroide",
       "rxcui": "6902"
@@ -3331,7 +4094,21 @@
         "Karbac",
         "Carbazol",
         "Furp -carbamazepina",
-        "Uni-carbamaz"
+        "Uni-carbamaz",
+        "Temazepina",
+        "Carbamazepina",
+        "Carbamazepina (port 344/98 Lista C1)",
+        "Funed - Carbamazepina",
+        "Carbamazepina (port 344/98 - Lista C1)",
+        "Lfm - Carbamazepina",
+        "Farmanguinhos - Carbamazepina",
+        "Proleptol",
+        "Lafepe - Carbamazepina",
+        "Carbax",
+        "Epizetol",
+        "Anoril",
+        "Lafergs - Carbamazepina",
+        "Teucarba"
       ],
       "category": "Anticonvulsivante",
       "rxcui": "2002"
@@ -3348,7 +4125,15 @@
         "Funed-fenitoína",
         "Taludon",
         "Fenital Oral",
-        "Fenital"
+        "Fenital",
+        "Fenitoína",
+        "Anteptil",
+        "Funed - Fenitoína",
+        "Secufen",
+        "Corintol",
+        "Furp - Fenitoina",
+        "Fenitoína (port. 344/98 - L. C1)",
+        "Convultin"
       ],
       "category": "Anticonvulsivante",
       "rxcui": "8183"
@@ -3366,7 +4151,16 @@
         "Unifenobarb",
         "Funed-fenobarbital",
         "Lfm-fenobarbital",
-        "Edhanol"
+        "Edhanol",
+        "Fenobarbital",
+        "Fenobarbital (port.344/98 Lista - B1)",
+        "Gross",
+        "Funed - Fenobarbital",
+        "Farmanguinhos - Fenobarbital",
+        "Fenobarbitol",
+        "Fenobarbital (port. 344/98 - Lista B1)",
+        "Lafergs - Fenobarbital",
+        "Secufenotal"
       ],
       "category": "Anticonvulsivante",
       "rxcui": "8134"
@@ -3376,7 +4170,8 @@
       "brands": [
         "Depakene",
         "Valpakine",
-        "Vodsso"
+        "Vodsso",
+        "Ácido Valpróico (port. 344/98, L - C1)"
       ],
       "category": "Anticonvulsivante",
       "rxcui": "11118"
@@ -3386,7 +4181,13 @@
       "brands": [
         "Depakote",
         "Epilenil",
-        "Valprene"
+        "Valprene",
+        "Valproato De Sódio",
+        "Valpakine",
+        "Lavie",
+        "Valproato De Sodio (port. 344/98 Lista C 1)",
+        "Valproato De Sódio (port 344/98 - Lista C1)",
+        "Depacon (port 344/98 Lista C-1)"
       ],
       "category": "Anticonvulsivante"
     },
@@ -3409,7 +4210,14 @@
         "Lamosyn cd",
         "Lamitor cd",
         "Lamosyn",
-        "Forlut"
+        "Forlut",
+        "Lamotrigina",
+        "Lamozer",
+        "Epyl",
+        "Convultrat",
+        "Lifal-Lamotrigina",
+        "Nepil",
+        "Nocon"
       ],
       "category": "Anticonvulsivante",
       "rxcui": "28439"
@@ -3419,7 +4227,24 @@
       "brands": [
         "Keppra",
         "Levipil",
-        "Etira"
+        "Etira",
+        "Levetiracetam",
+        "Etira Injetável",
+        "Iludral",
+        "Frontlev",
+        "Keppra Xr",
+        "Antara Xr",
+        "Etira Xr",
+        "Spark Xr",
+        "Veepi",
+        "Vetypa",
+        "Lecza Xr",
+        "Tam Xr",
+        "Spark",
+        "Tam",
+        "Antara Iv",
+        "Elizip",
+        "Antara"
       ],
       "category": "Anticonvulsivante",
       "rxcui": "114477"
@@ -3438,7 +4263,12 @@
         "Topit",
         "Vidmax",
         "Têmpora",
-        "Ópera"
+        "Ópera",
+        "Topiramato (port 344/98 Lista C1)",
+        "Topiramato",
+        "Ritop",
+        "Toduze",
+        "Topiramato (port.344/98 - Lista C1)"
       ],
       "category": "Anticonvulsivante",
       "rxcui": "38404"
@@ -3500,7 +4330,14 @@
         "Respidon",
         "Risperix",
         "Rispalum",
-        "Risperac"
+        "Risperac",
+        "Risperidona",
+        "Risperidona (port 344/98 - Lista C1)",
+        "Zydifren",
+        "Rispxan",
+        "Ecsofren",
+        "Exrisp",
+        "Perlid"
       ],
       "category": "Antipsicótico",
       "rxcui": "35636"
@@ -3527,7 +4364,13 @@
         "Olancare",
         "Zesten",
         "Olanzys",
-        "Vitara"
+        "Vitara",
+        "Onaz",
+        "Olanzapina",
+        "Zypilanz",
+        "Lifal-Olanzapina",
+        "Zyolan",
+        "Oleskiz"
       ],
       "category": "Antipsicótico",
       "rxcui": "61381"
@@ -3545,7 +4388,14 @@
         "Uni Haloper",
         "Furp-haloperidol",
         "Loperidol",
-        "Halopsitol"
+        "Halopsitol",
+        "Farmanguinhos - Haloperidol",
+        "Haloperidol",
+        "Funed Haloperidol",
+        "Perladol",
+        "Laqfa-Haloperidol",
+        "Hyporidrol",
+        "Neo Halop"
       ],
       "category": "Antipsicótico",
       "rxcui": "5093"
@@ -3559,7 +4409,19 @@
         "Kavium",
         "Sensaz",
         "Toarip",
-        "Aipri"
+        "Aipri",
+        "Aquarela",
+        "Aripiprazol",
+        "Arpio",
+        "Hedd",
+        "Aristab Odt",
+        "Kavium Odt",
+        "Arpejo",
+        "Harip Odt",
+        "Optary",
+        "Aquarela Odt",
+        "Harip",
+        "Biquiz"
       ],
       "category": "Antipsicótico",
       "rxcui": "89013"
@@ -3572,7 +4434,12 @@
         "Zolapin",
         "Pinazan",
         "Lifalclozapina",
-        "Okótico"
+        "Okótico",
+        "Uniclozapin",
+        "Clozapina",
+        "Clopar",
+        "Xynaz",
+        "Vidmax"
       ],
       "category": "Antipsicótico",
       "rxcui": "2626"
@@ -3594,7 +4461,15 @@
         "Metrexato",
         "Biometrox",
         "Miantrex",
-        "Mtx"
+        "Mtx",
+        "Metotrexato",
+        "Trixilem",
+        "Iquego-Metotrexato",
+        "Uni-Trexato",
+        "Mtx-Big",
+        "Mexy",
+        "Emthexate",
+        "Trexat"
       ],
       "category": "Imunossupressor",
       "rxcui": "6851"
@@ -3606,7 +4481,15 @@
         "Neoral",
         "Gengraf",
         "Sigmasporin",
-        "Zinograf me"
+        "Zinograf me",
+        "Ciclosporina",
+        "Tramunin",
+        "Cyclosporin",
+        "Bioimun",
+        "Restasis",
+        "Pharmosporin",
+        "Sisporin",
+        "Sigmasporin Microral"
       ],
       "category": "Imunossupressor",
       "rxcui": "3008"
@@ -3621,7 +4504,10 @@
         "Tarfic",
         "Tacroz",
         "Atobach",
-        "Cropoc"
+        "Cropoc",
+        "Protopic",
+        "Tacrolimo",
+        "Prograf"
       ],
       "category": "Imunossupressor",
       "rxcui": "42316"
@@ -3637,7 +4523,13 @@
         "Alopurimilium",
         "Labopurinol",
         "Zilopur",
-        "Xantur"
+        "Xantur",
+        "Alopurinol",
+        "Uric",
+        "Zoprinol",
+        "Purinol",
+        "Far- Maguinhos -alopurinol",
+        "Alozic"
       ],
       "category": "Antigotoso",
       "rxcui": "519"
@@ -3662,7 +4554,13 @@
         "Colzuric",
         "Colcichimil",
         "Colchis",
-        "Cocichimil"
+        "Cocichimil",
+        "Goltrite",
+        "Regout",
+        "Colchicina",
+        "Cocinax",
+        "Ivb - Colchicina",
+        "Coxym"
       ],
       "category": "Antigotoso",
       "rxcui": "2683"
@@ -3742,7 +4640,12 @@
         "Aerolex",
         "Sarolin",
         "Acobelin",
-        "Aero-ifal"
+        "Aero-ifal",
+        "Sulfato De Salbutamol",
+        "Ltf- Salbutamol",
+        "Bronquitamol",
+        "Salbutib",
+        "Butovent Pulvinal"
       ],
       "category": "Broncodilatador",
       "rxcui": "435"
@@ -3757,7 +4660,8 @@
         "Fenozan",
         "Brofentec",
         "Fenatec",
-        "Bromotec"
+        "Bromotec",
+        "Suprafen"
       ],
       "category": "Broncodilatador",
       "rxcui": "4333"
@@ -3770,7 +4674,9 @@
         "Fumarato de Formoterol",
         "Formare",
         "Formocaps",
-        "Fluir"
+        "Fluir",
+        "Forterol",
+        "Formotec"
       ],
       "category": "Broncodilatador",
       "rxcui": "25255"
@@ -3791,7 +4697,17 @@
         "Noex",
         "Novopulmon",
         "Inalajet",
-        "Inalide"
+        "Inalide",
+        "Nason",
+        "Budesonida",
+        "Busonid",
+        "Cortivet",
+        "Desonid",
+        "Budiair",
+        "Armax",
+        "Corament",
+        "Miflonide",
+        "Miflonide Brizz"
       ],
       "category": "Corticosteroide Inalatório",
       "rxcui": "19831"
@@ -3841,7 +4757,11 @@
         "Ipraflux",
         "Iprabon",
         "Ipravent",
-        "Aerodivent"
+        "Aerodivent",
+        "Brometo De Ipratrópio",
+        "Atrovent",
+        "Iprat",
+        "Brometo De Ipratróprio"
       ],
       "category": "Broncodilatador",
       "rxcui": "7213"
@@ -3880,7 +4800,18 @@
         "Femara",
         "Letrozol Accord",
         "Soletre",
-        "Lefémi"
+        "Lefémi",
+        "Letrozol",
+        "Lemol",
+        "Mahila",
+        "Ivevi",
+        "Sabine",
+        "Lezieu",
+        "Letnyza",
+        "Noazy",
+        "Breelet",
+        "Lethozy",
+        "Liliya"
       ],
       "category": "Oncológico",
       "rxcui": "72965"
@@ -3894,7 +4825,11 @@
         "Anastrol",
         "Trozolet",
         "Arazabi",
-        "Anya"
+        "Anya",
+        "Anastrozol",
+        "Arothazy",
+        "Hanaz",
+        "Cermaz"
       ],
       "category": "Oncológico",
       "rxcui": "84857"
@@ -3921,7 +4856,11 @@
         "Calvin",
         "Reduscar",
         "Alfasin",
-        "Excalv"
+        "Excalv",
+        "Finasterida",
+        "Prostex",
+        "Prosteride",
+        "Revert"
       ],
       "category": "Urológico",
       "rxcui": "25025"
@@ -3930,7 +4869,10 @@
       "genericName": "Dutasterida",
       "brands": [
         "Avodart",
-        "Dastene"
+        "Dastene",
+        "Dutasterida",
+        "Droalfa",
+        "Primesteride"
       ],
       "category": "Urológico",
       "rxcui": "228790"
@@ -3946,7 +4888,8 @@
         "Contiflo Od",
         "Tasulil",
         "Stub",
-        "Usoleg"
+        "Usoleg",
+        "Soprostil"
       ],
       "category": "Urológico",
       "rxcui": "77492"
@@ -3978,7 +4921,10 @@
       "genericName": "Rivastigmina",
       "brands": [
         "Exelon",
-        "Prometax"
+        "Prometax",
+        "Rivazich",
+        "Rivastigmina",
+        "Vivencia Patch"
       ],
       "category": "Antidemência",
       "rxcui": "183379"
@@ -4093,7 +5039,13 @@
         "Lergitec",
         "Histadin",
         "Loradine",
-        "Loremix"
+        "Loremix",
+        "Loratadina",
+        "Frenaler",
+        "Cloratadd Caps",
+        "Reacbe",
+        "Funed Loratadina",
+        "Loratadina 10 Mg"
       ],
       "category": "Anti-histamínico",
       "rxcui": "28889"
@@ -4143,7 +5095,16 @@
       "genericName": "Adalimumabe",
       "brands": [
         "Humira",
-        "Hadlima"
+        "Hadlima",
+        "Instituto Butantan - Adalimumabe",
+        "Amgevita",
+        "Hulio",
+        "Hyrimoz",
+        "Yuflyma",
+        "Xilbrilada",
+        "Idacio",
+        "Bio-Manguinhos Adalimumabe",
+        "Atenfe"
       ],
       "category": "Imunobiológico",
       "rxcui": "327361"
@@ -4152,7 +5113,13 @@
       "genericName": "Etanercepte",
       "brands": [
         "Enbrel",
-        "Benepali"
+        "Benepali",
+        "Nepexto",
+        "Enbrel Pfs",
+        "Neocep (etanercepte)",
+        "Brenzys",
+        "Erelzi",
+        "Bio-Manguinhos Etanercepte"
       ],
       "category": "Imunobiológico",
       "rxcui": "214555"
@@ -4161,7 +5128,13 @@
       "genericName": "Infliximabe",
       "brands": [
         "Remicade",
-        "Inflectra"
+        "Inflectra",
+        "Avsola",
+        "Remsima",
+        "Bio Manguinhos Infliximabe",
+        "Xilfya",
+        "Zetrelsyn",
+        "Renflexis"
       ],
       "category": "Imunobiológico",
       "rxcui": "191831"
@@ -4222,7 +5195,8 @@
         "Veclesa",
         "Diproteron",
         "Lidy",
-        "Lydian"
+        "Lydian",
+        "Tri-Gestinol"
       ],
       "category": "Contraceptivo",
       "rxcui": "4124"
@@ -4251,7 +5225,36 @@
         "Folital",
         "Materfolic",
         "Lqfa-ácido Fólico",
-        "Folantine"
+        "Folantine",
+        "Afolic",
+        "Endofolin",
+        "Far- Manguinhos Acido Folico",
+        "Pratifolin",
+        "Nesh Fólico",
+        "Pré-Folic",
+        "Neo Fólico",
+        "Acfol",
+        "Afopic",
+        "Folonin",
+        "Hipofol",
+        "Cleanfolic",
+        "Femme Folico",
+        "Ácido Fólico",
+        "Befolik",
+        "Folin",
+        "Acido Folico - Eurofarma",
+        "Funed Ácido Fólico",
+        "Somixil",
+        "Lqfe - Ácido Fólico",
+        "Folico 400 Fdc",
+        "Bravitan",
+        "Folacin",
+        "Gestac",
+        "Mater Folic",
+        "Vitafol",
+        "Afolic Infantil",
+        "Folipur",
+        "Vitalfolic"
       ],
       "category": "Vitamina",
       "rxcui": "4511"
@@ -4280,7 +5283,13 @@
         "Mirtaz",
         "Razapina",
         "Menelat",
-        "Razapina Odt"
+        "Razapina Odt",
+        "Mirtazapina",
+        "Zapsy",
+        "Catarse Odt",
+        "Menelat Odt",
+        "Myzapy",
+        "Myrtz Odt"
       ],
       "category": "Antidepressivo",
       "rxcui": "15996"
@@ -4333,7 +5342,11 @@
       "genericName": "Agomelatina",
       "brands": [
         "Valdoxan",
-        "Thymanax"
+        "Thymanax",
+        "Agoxom",
+        "Agomelatina",
+        "Villexom",
+        "Elencos"
       ],
       "category": "Antidepressivo"
     },
@@ -4363,7 +5376,8 @@
     {
       "genericName": "Reboxetina",
       "brands": [
-        "Edronax"
+        "Edronax",
+        "Prolift"
       ],
       "category": "Antidepressivo",
       "rxcui": "60842"
@@ -4436,7 +5450,9 @@
     },
     {
       "genericName": "Brexpiprazol",
-      "brands": [],
+      "brands": [
+        "Rexulti"
+      ],
       "category": "Antipsicótico",
       "rxcui": "1658314"
     },
@@ -4520,7 +5536,8 @@
       "genericName": "Sulpirida",
       "brands": [
         "Equilid",
-        "Dogmatil"
+        "Dogmatil",
+        "Novapirid"
       ],
       "category": "Antipsicótico",
       "rxcui": "10239"
@@ -4534,7 +5551,13 @@
         "Zyoxipina",
         "Alzepinol",
         "Oleptal",
-        "Leptard"
+        "Leptard",
+        "Oxcarbazepina",
+        "Aconvulsin",
+        "Alivix",
+        "Selzic",
+        "Oxcarbazepina (port 344/98 Lista C1)",
+        "Stabness"
       ],
       "category": "Anticonvulsivante",
       "rxcui": "32624"
@@ -4542,7 +5565,17 @@
     {
       "genericName": "Lacosamida",
       "brands": [
-        "Lacotem"
+        "Lacotem",
+        "Lacosamida",
+        "Lacyd",
+        "Lacopar",
+        "Osamy",
+        "Lapsu",
+        "Vimpat",
+        "Lakos",
+        "Koriva",
+        "Hetlaco",
+        "Seizla"
       ],
       "category": "Anticonvulsivante",
       "rxcui": "623400"
@@ -4603,7 +5636,8 @@
       "genericName": "Clobazam",
       "brands": [
         "Frisium",
-        "Urbanyl"
+        "Urbanyl",
+        "Urbanil"
       ],
       "category": "Anticonvulsivante",
       "rxcui": "21241"
@@ -4614,7 +5648,13 @@
         "Mogadon",
         "Nitrazepol",
         "Nitrapan",
-        "Sonebon"
+        "Sonebon",
+        "Nitrazepam (port 344/98 Lista B1)",
+        "Nitrazepam",
+        "Secutrazepan",
+        "Sonotrat",
+        "Laqfa Nitrazepam",
+        "Hipnotic"
       ],
       "category": "Anticonvulsivante",
       "rxcui": "7440"
@@ -4711,7 +5751,8 @@
       "brands": [
         "Lioresal",
         "Baclon",
-        "Baclofen"
+        "Baclofen",
+        "Baclofeno"
       ],
       "category": "Relaxante Muscular",
       "rxcui": "1292"
@@ -4835,7 +5876,11 @@
       "genericName": "Entacapona",
       "brands": [
         "Comtan",
-        "Entarkin"
+        "Entarkin",
+        "Entapark",
+        "Capinson",
+        "Entacapona",
+        "Capona"
       ],
       "category": "Antiparkinsoniano",
       "rxcui": "60307"
@@ -4969,7 +6014,10 @@
     {
       "genericName": "Ciclesonida",
       "brands": [
-        "Alvesco"
+        "Alvesco",
+        "Ciclesonida",
+        "Omnaris",
+        "Ciclene"
       ],
       "category": "Corticosteroide Inalatório",
       "rxcui": "274964"
@@ -5028,7 +6076,19 @@
         "Talofilina",
         "Teoston",
         "Teofilab",
-        "Teo-bras"
+        "Teo-bras",
+        "Drilyna",
+        "Neofilin",
+        "Teolong",
+        "Teofilina",
+        "Teosin",
+        "Bermacia Retard",
+        "Filinasma",
+        "Codrinan",
+        "Bronquiasma",
+        "Teobronc",
+        "Teofilim",
+        "Teo - Bras"
       ],
       "category": "Broncodilatador",
       "rxcui": "10438"
@@ -5036,7 +6096,8 @@
     {
       "genericName": "Omalizumabe",
       "brands": [
-        "Xolair"
+        "Xolair",
+        "Omlyclo"
       ],
       "category": "Imunobiológico",
       "rxcui": "302379"
@@ -5080,7 +6141,26 @@
         "Esalerg",
         "Deslin",
         "Aviant",
-        "Leg"
+        "Leg",
+        "Dizdy",
+        "Desloratadina",
+        "Ikaros",
+        "Respitrat",
+        "Aloff",
+        "Esalerg Gotas",
+        "Superhist",
+        "Deconlerg",
+        "Lur",
+        "Desclari Kids",
+        "Desclari",
+        "Ritty",
+        "Hystalor",
+        "Aloff Xpe",
+        "Lur Gotas",
+        "Lividex",
+        "Dezlorbe",
+        "Superhist Odt",
+        "Desotidex"
       ],
       "category": "Anti-histamínico",
       "rxcui": "275635"
@@ -5098,7 +6178,21 @@
     {
       "genericName": "Bilastina",
       "brands": [
-        "Bilaxten"
+        "Bilaxten",
+        "Alerbi",
+        "Bixlyn 10",
+        "Bilastina",
+        "Alektos",
+        "Allexoduob",
+        "Allep",
+        "Hisbila",
+        "Alektos Ped",
+        "Bixlyn",
+        "Bilargos",
+        "Allep Pediátrico",
+        "Aleryos",
+        "Naire",
+        "Tynna"
       ],
       "category": "Anti-histamínico"
     },
@@ -5113,7 +6207,8 @@
       "genericName": "Ebastina",
       "brands": [
         "Ebastel",
-        "Kestine"
+        "Kestine",
+        "Ebastim"
       ],
       "category": "Anti-histamínico",
       "rxcui": "23796"
@@ -5147,7 +6242,11 @@
         "Profergan",
         "Alergosan",
         "Lisador",
-        "Fenoprom"
+        "Fenoprom",
+        "Prolerg",
+        "Cremefenergan",
+        "Alergiderm",
+        "Prometazina"
       ],
       "category": "Anti-histamínico",
       "rxcui": "8745"
@@ -5221,7 +6320,8 @@
         "Sedavan",
         "Muconat",
         "Ambroxmel",
-        "Rexpecone"
+        "Rexpecone",
+        "Atussir"
       ],
       "category": "Mucolítico",
       "rxcui": "625"
@@ -5289,7 +6389,13 @@
         "Pulmotrat",
         "Broncolitic",
         "Mucobronc",
-        "Carbotrat"
+        "Carbotrat",
+        "Carbocisteína",
+        "Certuss",
+        "Amiorax",
+        "Klarta",
+        "Mucbe",
+        "Mucolitic"
       ],
       "category": "Mucolítico",
       "rxcui": "2023"
@@ -5315,7 +6421,8 @@
         "Antuss",
         "Percof",
         "Zyplo",
-        "Antux"
+        "Antux",
+        "Neo -tussil"
       ],
       "category": "Antitussígeno",
       "rxcui": "52014"
@@ -5348,7 +6455,11 @@
         "Ondantril",
         "Ansentron",
         "Quimiofran",
-        "Ondanles"
+        "Ondanles",
+        "Ondansetrona",
+        "Kemyza",
+        "Ono",
+        "Ondif"
       ],
       "category": "Antiemético",
       "rxcui": "26225"
@@ -5410,7 +6521,11 @@
         "Furp-metoclopramida",
         "Lepemc Metoclop",
         "Metoclosan",
-        "Metoplamin"
+        "Metoplamin",
+        "Clasil",
+        "Lqfe- Metoclopramida",
+        "Metoclopramida",
+        "Ivb Metoclopramida"
       ],
       "category": "Antiemético/Procinético",
       "rxcui": "6915"
@@ -5429,7 +6544,10 @@
         "Domperix",
         "Dompgran",
         "Domperol",
-        "Molidon"
+        "Molidon",
+        "Perigite",
+        "Domperidona",
+        "Domped"
       ],
       "category": "Antiemético/Procinético",
       "rxcui": "3626"
@@ -5456,7 +6574,16 @@
         "Lasamet",
         "Digetic",
         "Bremetix",
-        "Digesigma Gotas"
+        "Digesigma Gotas",
+        "Bromoprida",
+        "Movinau",
+        "Balorti",
+        "Digesan",
+        "Digecap",
+        "Digelive",
+        "Digen",
+        "Bromprida",
+        "Digepride"
       ],
       "category": "Antiemético/Procinético",
       "rxcui": "19768"
@@ -5472,7 +6599,9 @@
         "Neodrin",
         "Nausedrinato",
         "Dramavit",
-        "Hemareg"
+        "Hemareg",
+        "Nausicalm Cápsula Mole",
+        "Dimenidrinato"
       ],
       "category": "Antiemético",
       "rxcui": "3444"
@@ -5577,7 +6706,11 @@
         "Pentasa",
         "Mesacol",
         "Chron-asa 5",
-        "Mesaneo"
+        "Mesaneo",
+        "Mesalazina",
+        "Zydcol Mr",
+        "Zydcol",
+        "Asalit"
       ],
       "category": "Anti-inflamatório Intestinal",
       "rxcui": "52582"
@@ -5638,7 +6771,10 @@
         "Lacnax",
         "Colonac",
         "Pentalac",
-        "Lactulona"
+        "Lactulona",
+        "Laquixan",
+        "Lactosan",
+        "Lactulosum"
       ],
       "category": "Laxativo",
       "rxcui": "6218"
@@ -5664,7 +6800,13 @@
         "Fideine",
         "Humectol d",
         "Humectol",
-        "Lacton"
+        "Lacton",
+        "Laxben",
+        "Dulcolax",
+        "Purgo-Leite",
+        "Prontolax",
+        "Purgo Leite",
+        "Deltalax"
       ],
       "category": "Laxativo",
       "rxcui": "1596"
@@ -5678,13 +6820,16 @@
         "Diltin",
         "Rapilax",
         "Cronoplex",
-        "Picolax"
+        "Picolax",
+        "Vital-Lax"
       ],
       "category": "Laxativo"
     },
     {
       "genericName": "Sene",
-      "brands": [],
+      "brands": [
+        "Fontolax"
+      ],
       "category": "Laxativo",
       "rxcui": "36387"
     },
@@ -5752,7 +6897,8 @@
         "Famoxil",
         "Famotid",
         "Asid",
-        "Famoset"
+        "Famoset",
+        "Famotidina"
       ],
       "category": "Gastroprotetor",
       "rxcui": "4278"
@@ -5790,7 +6936,26 @@
         "Cimetina",
         "Ulcerac",
         "Duomet",
-        "Genodine"
+        "Genodine",
+        "Cimetidina",
+        "Ivb Cimetidina",
+        "Farmanguinhos - Cimetidina",
+        "Cimetidin",
+        "Gastraliv",
+        "Citom",
+        "Tralan",
+        "Laqfa-Cimetidina",
+        "Cimedina",
+        "Equiplex Cimetidina",
+        "Secutidina",
+        "Cimetygreen",
+        "Lfm-Cimetidina",
+        "Funed Cimetidina",
+        "Lasadine",
+        "Ltf-Cimetidina",
+        "Lifesa- Cimetidina",
+        "Lafepe Cimetidina",
+        "Cimetidan"
       ],
       "category": "Gastroprotetor",
       "rxcui": "2541"
@@ -5800,7 +6965,8 @@
       "brands": [
         "Sulcrafato",
         "Carafate",
-        "Sucrafilm"
+        "Sucrafilm",
+        "Sukra"
       ],
       "category": "Gastroprotetor",
       "rxcui": "10156"
@@ -5814,7 +6980,8 @@
     {
       "genericName": "Misoprostol",
       "brands": [
-        "Cytotec"
+        "Cytotec",
+        "Prostokos"
       ],
       "category": "Gastroprotetor",
       "rxcui": "42331"
@@ -5824,7 +6991,12 @@
       "brands": [
         "Ursacol",
         "Urso",
-        "Ursodiol"
+        "Ursodiol",
+        "Ácido Ursodesoxicólico",
+        "Prour",
+        "Gulshen",
+        "Duxio",
+        "Ursix"
       ],
       "category": "Hepatoprotetor",
       "rxcui": "11065"
@@ -5833,7 +7005,8 @@
       "genericName": "Silimarina",
       "brands": [
         "Siliver",
-        "Eleparon"
+        "Eleparon",
+        "Silimaron"
       ],
       "category": "Hepatoprotetor",
       "rxcui": "9794"
@@ -5866,7 +7039,9 @@
         "Macrobid",
         "Hantina",
         "Nitrofen",
-        "Trofurim"
+        "Trofurim",
+        "Urogen",
+        "Nitrofurantoina"
       ],
       "category": "Antibiótico",
       "rxcui": "7454"
@@ -5894,7 +7069,9 @@
         "Libramicina",
         "Hicovan",
         "Vanclomin",
-        "Vancoplus"
+        "Vancoplus",
+        "Vancomicina",
+        "Edicin"
       ],
       "category": "Antibiótico",
       "rxcui": "11124"
@@ -5913,7 +7090,10 @@
         "Senoclin",
         "Hyclin",
         "Clindacne",
-        "Clindam"
+        "Clindam",
+        "Clinagel",
+        "Teclind",
+        "Lqfe - Clindamicina"
       ],
       "category": "Antibiótico",
       "rxcui": "2582"
@@ -5925,7 +7105,13 @@
         "Linezolida EMS",
         "Tevalix",
         "Adiloz",
-        "Lynoz"
+        "Lynoz",
+        "Tymbro",
+        "Linezolida",
+        "Lizbi®",
+        "Lizred",
+        "Lidbact",
+        "Dalizonelid"
       ],
       "category": "Antibiótico",
       "rxcui": "190376"
@@ -5940,7 +7126,8 @@
         "Nepecef",
         "Unifepim",
         "Clocef",
-        "Cemax"
+        "Cemax",
+        "Cefepitax"
       ],
       "category": "Antibiótico",
       "rxcui": "20481"
@@ -5956,7 +7143,9 @@
         "Kefadim",
         "Ceftram",
         "Roycefax",
-        "Ceftafor"
+        "Ceftafor",
+        "Ceftazidima",
+        "Ceftacsin"
       ],
       "category": "Antibiótico",
       "rxcui": "2191"
@@ -5967,7 +7156,10 @@
         "Cefspan",
         "Cefixima",
         "Cefnax",
-        "Plenax"
+        "Plenax",
+        "Cefixin",
+        "Neo Cefix",
+        "Unixime"
       ],
       "category": "Antibiótico",
       "rxcui": "25033"
@@ -5976,7 +7168,12 @@
       "genericName": "Cefadroxil",
       "brands": [
         "Droxil",
-        "Cefadroxil EMS"
+        "Cefadroxil EMS",
+        "Neocefadril",
+        "Adroxil",
+        "Basf Cefadroxil",
+        "Cefadroxil",
+        "Cefadroxil Monoidratado"
       ],
       "category": "Antibiótico",
       "rxcui": "2177"
@@ -5996,7 +7193,8 @@
         "Meropenem EMS",
         "Zylpen",
         "Mepenox",
-        "Moeplamina"
+        "Moeplamina",
+        "Meroxil"
       ],
       "category": "Antibiótico",
       "rxcui": "29561"
@@ -6026,7 +7224,16 @@
         "Rifamax",
         "Rifondil",
         "Monicil",
-        "Rifamp"
+        "Rifamp",
+        "Rifampicina Ivb",
+        "Lafepe - Rifampicina",
+        "Farmanguinhos - Rifampicina",
+        "Lifal Rifampicina",
+        "Rifanptil",
+        "Rifantex",
+        "Rifansil",
+        "Rifaldin",
+        "Rifampicina"
       ],
       "category": "Antibiótico/Antituberculoso",
       "rxcui": "9384"
@@ -6040,7 +7247,15 @@
         "Laqfa-isoniazida",
         "Lfm-isoniazida",
         "Lfm - Isoniazida",
-        "Farmanguinhos - Isoniazida"
+        "Farmanguinhos - Isoniazida",
+        "Isonidax",
+        "Tuberzid",
+        "Isoniazin",
+        "Lqfe Isoniazida",
+        "Isoniazida",
+        "Nuplam - Isoniazida",
+        "Iquego-Isoniazida",
+        "Ison"
       ],
       "category": "Antituberculoso",
       "rxcui": "6038"
@@ -6052,7 +7267,8 @@
         "Etambutol EMS",
         "Furp-etambutol",
         "Furp - Etambutol",
-        "Iquego - Etambutol"
+        "Iquego - Etambutol",
+        "Pulmolex"
       ],
       "category": "Antituberculoso",
       "rxcui": "4110"
@@ -6068,7 +7284,16 @@
         "Lqfex Pirazinamida",
         "Lfm-pirazinamida",
         "Iquego - Pirazinamida",
-        "Lfm - Pirazinamida"
+        "Lfm - Pirazinamida",
+        "Lafep-Pirazinamida",
+        "Nuplam - Pirazinamida",
+        "Pirazinamida",
+        "Furp- Pirazinamida",
+        "Pirazin",
+        "Zinamin",
+        "Prazinam",
+        "Farmanguinhos - Pirazinamida",
+        "Secupirazin"
       ],
       "category": "Antituberculoso",
       "rxcui": "8987"
@@ -6086,7 +7311,14 @@
       "brands": [
         "Dapsona EMS",
         "Furp-dapsona",
-        "Lfm-dapsona"
+        "Lfm-dapsona",
+        "Hanson",
+        "Lqfex Dapsona",
+        "Farmanguinhos - Dapsona",
+        "Mb-Multibacilar",
+        "Daps",
+        "Dapsona",
+        "Dapsyn"
       ],
       "category": "Antibiótico",
       "rxcui": "3108"
@@ -6108,7 +7340,17 @@
         "Clorax",
         "Uni Fenicol",
         "Clorantisa",
-        "Sintomicetina"
+        "Sintomicetina",
+        "Vitapan Cloranfenil",
+        "Profenicol",
+        "Cloranfen",
+        "Cloranset",
+        "Cloranfenicol Palmitato",
+        "Norbinot",
+        "Furp -cloranfenicol",
+        "Securicol",
+        "Genfenicol",
+        "Inaf"
       ],
       "category": "Antibiótico",
       "rxcui": "2348"
@@ -6125,7 +7367,9 @@
         "Tevamicina",
         "Teicoston",
         "Teiconin",
-        "Teicocid"
+        "Teicocid",
+        "Teicoplanina",
+        "Coplaxil"
       ],
       "category": "Antibiótico",
       "rxcui": "57021"
@@ -6134,7 +7378,12 @@
       "genericName": "Daptomicina",
       "brands": [
         "Cubicin",
-        "Exfuno"
+        "Exfuno",
+        "Daptomicina",
+        "Dopcym",
+        "Gapobak",
+        "Trisk",
+        "Reldaptos"
       ],
       "category": "Antibiótico",
       "rxcui": "22299"
@@ -6182,13 +7431,23 @@
         "Ambisome",
         "Unianf",
         "Anfolip b",
-        "Fungi"
+        "Fungi",
+        "Amphocil",
+        "Anfotericina B",
+        "Abelcet",
+        "Fungi B",
+        "Tricanfor",
+        "Fungicina"
       ],
       "category": "Antifúngico"
     },
     {
       "genericName": "Griseofulvina",
-      "brands": [],
+      "brands": [
+        "Sporostatin",
+        "Fulcin",
+        "Fulgreen"
+      ],
       "category": "Antifúngico",
       "rxcui": "5021"
     },
@@ -6246,7 +7505,24 @@
         "Cetonat",
         "Cetop",
         "Meradizol",
-        "Conazol"
+        "Conazol",
+        "Cetoconazol",
+        "Fungilab",
+        "Celozix",
+        "Dermocorte",
+        "Dermizol",
+        "Cetoconal",
+        "Cetonil",
+        "Dernizol",
+        "Tonazox",
+        "Nizoral",
+        "Cetofung",
+        "Funed Cetoconazol",
+        "Dermoseptil",
+        "Cetoconazol-Micronizado",
+        "Far-Manguinhos Cetoconazol",
+        "Kenazol",
+        "Cetonazol"
       ],
       "category": "Antifúngico",
       "rxcui": "6135"
@@ -6270,14 +7546,18 @@
       "brands": [
         "Ecalta",
         "Eraxis",
-        "Morfegix"
+        "Morfegix",
+        "Anidulafungina",
+        "Ecase"
       ],
       "category": "Antifúngico",
       "rxcui": "341018"
     },
     {
       "genericName": "Posaconazol",
-      "brands": [],
+      "brands": [
+        "Noxafil"
+      ],
       "category": "Antifúngico",
       "rxcui": "282446"
     },
@@ -6316,7 +7596,26 @@
         "Miconastin",
         "Neostatin",
         "Tricocet",
-        "Nistacina"
+        "Nistacina",
+        "Nistatina 25.000 Ui/g",
+        "Nistatina",
+        "Nicostan",
+        "Candiflox",
+        "Nistatitan",
+        "Costatin",
+        "Pronistin",
+        "Lafepe -  Nistatina",
+        "Nistatina Prodotti",
+        "Oxido De Zinco + Nistatina",
+        "Furp - Nistatina",
+        "Albistat",
+        "Nistatin",
+        "Micostatin",
+        "Maxtatin",
+        "Nistan",
+        "Passerota",
+        "Nistazine",
+        "Lfm - Nistatina"
       ],
       "category": "Antifúngico",
       "rxcui": "7597"
@@ -6361,7 +7660,22 @@
         "Hpmix",
         "Clovantax",
         "Herzov",
-        "Zynvir"
+        "Zynvir",
+        "Aciclovir",
+        "Megavir",
+        "Zovirax",
+        "Acyclo",
+        "Aciclovan",
+        "Zorvy Creme",
+        "Far-Manguinhos - Aciclovir",
+        "Zorbex",
+        "Fasys",
+        "Clovitom",
+        "Proherp",
+        "Theravir",
+        "Verac",
+        "Hertrax",
+        "Aciclovir 250 Mg"
       ],
       "category": "Antiviral",
       "rxcui": "281"
@@ -6371,7 +7685,8 @@
       "brands": [
         "Valaciclovir EMS",
         "Cloridrato de Valaciclovir",
-        "Herpstal"
+        "Herpstal",
+        "Valac"
       ],
       "category": "Antiviral",
       "rxcui": "73645"
@@ -6381,7 +7696,9 @@
       "brands": [
         "Famvir",
         "Fanclomax",
-        "Penvir"
+        "Penvir",
+        "Fanciclovir",
+        "Fancic"
       ],
       "category": "Antiviral",
       "rxcui": "68099"
@@ -6395,7 +7712,8 @@
         "Ganciclotrat",
         "Ganviren",
         "Cymevir",
-        "Gancivir"
+        "Gancivir",
+        "Ganciclovir"
       ],
       "category": "Antiviral",
       "rxcui": "4678"
@@ -6421,7 +7739,9 @@
       "genericName": "Sofosbuvir",
       "brands": [
         "Sovaldi",
-        "Epclusa"
+        "Epclusa",
+        "Sophir",
+        "Sofosbuvir"
       ],
       "category": "Antiviral (Hepatite C)",
       "rxcui": "1484911"
@@ -6523,7 +7843,8 @@
     {
       "genericName": "Darunavir",
       "brands": [
-        "Prezista"
+        "Prezista",
+        "Darunavir"
       ],
       "category": "Antirretroviral",
       "rxcui": "460132"
@@ -6532,7 +7853,11 @@
       "genericName": "Ritonavir",
       "brands": [
         "Norvir",
-        "Ritovir"
+        "Ritovir",
+        "Ritonavir (port 344/98 Lista C4)",
+        "Ritonavir",
+        "Lafepe-Ritonavir",
+        "Neotonavir"
       ],
       "category": "Antirretroviral",
       "rxcui": "85762"
@@ -6541,7 +7866,8 @@
       "genericName": "Efavirenz",
       "brands": [
         "Sustiva",
-        "Evir"
+        "Evir",
+        "Efavirenz"
       ],
       "category": "Antirretroviral",
       "rxcui": "195085"
@@ -6555,7 +7881,13 @@
         "Nevimune",
         "cp - Imunin",
         "Imunovir",
-        "Farmanguinhos - Nevirapina"
+        "Farmanguinhos - Nevirapina",
+        "Nevirapina (port. 344/98 L- C4)",
+        "Imunin",
+        "Nevirax",
+        "Iquego - Nevirapina",
+        "Nevirapina (port Nº 344/98 - Lista C4)",
+        "Nevirapina"
       ],
       "category": "Antirretroviral",
       "rxcui": "53654"
@@ -6592,7 +7924,20 @@
         "Parasin",
         "Albendoxil",
         "Funed-albendazol",
-        "Beltazin"
+        "Beltazin",
+        "Albendazol",
+        "Elfi",
+        "Vermiperazin",
+        "Albemphil",
+        "Alib",
+        "Piperorgan",
+        "Albendol",
+        "Lqfex - Albendazol",
+        "Helmiless",
+        "Albendan",
+        "Benazol",
+        "Polizol",
+        "Albendazol 40 Mg/ml Suspensão Oral"
       ],
       "category": "Antiparasitário",
       "rxcui": "430"
@@ -6647,7 +7992,35 @@
         "Paraverm",
         "Trotil",
         "Kindelmin",
-        "Medendazol"
+        "Medendazol",
+        "Ibdazol",
+        "Mebendazol",
+        "Mebendathil",
+        "Pluriben",
+        "Vermetrix",
+        "Plurivermil",
+        "Vermipol",
+        "Lqfe - Mebendazol",
+        "Lafepe -mebendazol",
+        "Helmiben Meb",
+        "Lifesa-Mebendazol",
+        "Pravermyl",
+        "Furp -mebendazol",
+        "Ascariobel",
+        "Pantezol",
+        "Funed-Mebendazol",
+        "Mebenprin",
+        "Secudazol",
+        "Vermesan",
+        "Tetrahelmin",
+        "Lifal -  Mebendazol",
+        "Elmitan",
+        "Anetan",
+        "Mebendazotil",
+        "Vermicina",
+        "Loptal",
+        "Iquego-Mebendazol",
+        "Helmin"
       ],
       "category": "Antiparasitário",
       "rxcui": "6672"
@@ -6657,7 +8030,11 @@
       "brands": [
         "Biltricide",
         "Cestox",
-        "Far-manguinhos Praziquantel"
+        "Far-manguinhos Praziquantel",
+        "Cisticid",
+        "Laqfa Praziquantel",
+        "Ziquemax",
+        "Tenium"
       ],
       "category": "Antiparasitário",
       "rxcui": "8628"
@@ -6671,7 +8048,18 @@
         "Zoxany",
         "Tanisea",
         "Irosê",
-        "Pará"
+        "Pará",
+        "Mínti",
+        "Nitazoxanida",
+        "Nydda",
+        "Occide",
+        "Zoxylab",
+        "Marca Comercial",
+        "Rudite",
+        "Epará",
+        "Heliton",
+        "Ntzeta",
+        "Naxxagran"
       ],
       "category": "Antiparasitário",
       "rxcui": "31819"
@@ -6695,7 +8083,10 @@
         "Quinacris",
         "Diclokin",
         "Lqfex Cloroquina",
-        "Farmanguinhos Cloroquina"
+        "Farmanguinhos Cloroquina",
+        "Paludan",
+        "Lafepe-Cloroquina",
+        "Cloroquina"
       ],
       "category": "Antiparasitário/Antimalárico",
       "rxcui": "2393"
@@ -6715,7 +8106,8 @@
       "genericName": "Primaquina",
       "brands": [
         "Primaquina EMS",
-        "Primakinder"
+        "Primakinder",
+        "Primaquina"
       ],
       "category": "Antimalárico",
       "rxcui": "8687"
@@ -6731,7 +8123,9 @@
       "genericName": "Pirimetamina",
       "brands": [
         "Daraprim",
-        "Nicosulfan"
+        "Nicosulfan",
+        "Far- Manguinhos Pirimetamina",
+        "Suladin"
       ],
       "category": "Antiprotozoário",
       "rxcui": "9010"
@@ -6789,7 +8183,8 @@
         "Glaub",
         "Alphabrin p",
         "Alphabrin",
-        "Accera"
+        "Accera",
+        "Bromigan"
       ],
       "category": "Oftalmológico (glaucoma)",
       "rxcui": "134615"
@@ -6844,7 +8239,9 @@
     },
     {
       "genericName": "Nepafenaco",
-      "brands": [],
+      "brands": [
+        "Nevanac"
+      ],
       "category": "Oftalmológico (anti-inflamatório)",
       "rxcui": "298665"
     },
@@ -6905,7 +8302,10 @@
     {
       "genericName": "Ranibizumabe",
       "brands": [
-        "Lucentis"
+        "Lucentis",
+        "Ranivisio",
+        "Amelivu",
+        "Optinóvis"
       ],
       "category": "Oftalmológico (anti-VEGF)",
       "rxcui": "595060"
@@ -6913,7 +8313,16 @@
     {
       "genericName": "Bevacizumabe",
       "brands": [
-        "Avastin"
+        "Avastin",
+        "Mvasi",
+        "Simbeva",
+        "Abevmy",
+        "Onbevzi",
+        "Bevanovis",
+        "Zirabev",
+        "Vegzelma",
+        "Bevyx",
+        "Elovie"
       ],
       "category": "Oftalmológico (anti-VEGF) / Oncológico",
       "rxcui": "253337"
@@ -6972,7 +8381,13 @@
       "genericName": "Mirabegrona",
       "brands": [
         "Betmiga",
-        "Myrbetriq"
+        "Myrbetriq",
+        "Mirabegrona",
+        "Gronrym",
+        "Circuit",
+        "Micpure",
+        "Myrbetric",
+        "Mirab"
       ],
       "category": "Urológico (bexiga hiperativa)",
       "rxcui": "1300786"
@@ -7026,7 +8441,9 @@
     {
       "genericName": "Silodosina",
       "brands": [
-        "Silodosina EMS"
+        "Silodosina EMS",
+        "Rapaflo",
+        "Sil-Hp"
       ],
       "category": "Urológico",
       "rxcui": "720825"
@@ -7072,7 +8489,16 @@
         "Fem 7",
         "Climaderm",
         "Estradelle",
-        "Ginedisc"
+        "Ginedisc",
+        "Climaderm 7 Dias",
+        "Estradiol",
+        "Estramon",
+        "Menostar",
+        "Riselle",
+        "Estring",
+        "Estrofem",
+        "Estraderm Tts",
+        "Sandrena"
       ],
       "category": "Hormônio Feminino",
       "rxcui": "4083"
@@ -7083,7 +8509,12 @@
         "Prometrium",
         "Crinone",
         "Evocanil",
-        "Junno"
+        "Junno",
+        "Progesterona",
+        "Gynpro",
+        "Ágape",
+        "Utrogestan",
+        "Prolutex"
       ],
       "category": "Hormônio Feminino",
       "rxcui": "8727"
@@ -7103,7 +8534,11 @@
         "Clindella",
         "Tilogran",
         "Tiboclin",
-        "Tiloger"
+        "Tiloger",
+        "Meniv",
+        "Tibolona",
+        "Tibomax",
+        "Livah"
       ],
       "category": "Hormônio Feminino",
       "rxcui": "38260"
@@ -7115,7 +8550,9 @@
         "Noregyna",
         "Linatis",
         "Norestin",
-        "Norteron"
+        "Norteron",
+        "Noretisterona",
+        "Micronor"
       ],
       "category": "Contraceptivo/Hormonal",
       "rxcui": "7514"
@@ -7137,7 +8574,19 @@
         "Minipil",
         "Novagest",
         "Pozato",
-        "Pilem"
+        "Pilem",
+        "Levonorgestrel",
+        "Levordiol",
+        "Postinor Uno",
+        "Nortrel",
+        "Kyleena",
+        "Emergest",
+        "Microsteron",
+        "Histenor",
+        "Anulov",
+        "Saya Control",
+        "Jaydess",
+        "Pozato Uni"
       ],
       "category": "Contraceptivo",
       "rxcui": "6373"
@@ -7151,7 +8600,19 @@
         "Juliet",
         "Araceli",
         "Perola",
-        "Ceraprev"
+        "Ceraprev",
+        "Maysa",
+        "Rubia",
+        "Deyse",
+        "Desogestrel",
+        "Melik",
+        "Careli",
+        "Mylla",
+        "Mylus",
+        "Onua",
+        "Miwa",
+        "Laila",
+        "Mamades"
       ],
       "category": "Contraceptivo",
       "rxcui": "22656"
@@ -7206,7 +8667,8 @@
       "genericName": "Etonogestrel",
       "brands": [
         "Implanon",
-        "Nexplanon"
+        "Nexplanon",
+        "Inserzi"
       ],
       "category": "Contraceptivo",
       "rxcui": "14584"
@@ -7225,7 +8687,10 @@
         "Nebido",
         "Durateston",
         "Androgel",
-        "Deposteron"
+        "Deposteron",
+        "Testogel",
+        "Axeron",
+        "Testosterona"
       ],
       "category": "Hormônio Masculino",
       "rxcui": "10379"
@@ -7260,7 +8725,18 @@
       "genericName": "Denosumabe",
       "brands": [
         "Prolia",
-        "Xgeva"
+        "Xgeva",
+        "Xdeno",
+        "Bosaya",
+        "Wyost",
+        "Xbryk",
+        "Denbonli",
+        "Dnoclast",
+        "Kevvy",
+        "Resyniv",
+        "Noclar",
+        "Obodence",
+        "Xgeva (denosumabe)"
       ],
       "category": "Osteoporose/Oncológico",
       "rxcui": "993449"
@@ -7269,7 +8745,9 @@
       "genericName": "Teriparatida",
       "brands": [
         "Forteo",
-        "Terrosa"
+        "Terrosa",
+        "Sondelbay",
+        "Forzy"
       ],
       "category": "Osteoporose",
       "rxcui": "32915"
@@ -7305,7 +8783,19 @@
         "Carbonato de Calcio",
         "Miocalven",
         "Osteocalcic",
-        "Regulador Xavier N°1"
+        "Regulador Xavier N°1",
+        "Calciofar Plus",
+        "Biocal M",
+        "Eno Tabs Frutas Sortidas",
+        "Calciomax",
+        "Calcimin",
+        "Miracal",
+        "Biocal",
+        "Calciolit",
+        "Oscal 500",
+        "Nesh Cálcio",
+        "Gastropagé",
+        "Calsan"
       ],
       "category": "Suplemento",
       "rxcui": "1897"
@@ -7324,7 +8814,15 @@
         "Imunen",
         "Imussuprex",
         "Furp-azatioprina",
-        "Aseroprin"
+        "Aseroprin",
+        "Azatioprina",
+        "Imuran",
+        "Supressan",
+        "Supremune",
+        "Primation",
+        "Azaton",
+        "Prodozati",
+        "Neoplastin"
       ],
       "category": "Imunossupressor",
       "rxcui": "1256"
@@ -7337,7 +8835,11 @@
         "Micoimmun",
         "Refrat",
         "Mofilen",
-        "Mofecell"
+        "Mofecell",
+        "Micofenolato De Mofetila",
+        "Micofenolato Mofetila",
+        "Mmf",
+        "Gnimi"
       ],
       "category": "Imunossupressor",
       "rxcui": "68149"
@@ -7345,13 +8847,20 @@
     {
       "genericName": "Micofenolato de Sódio",
       "brands": [
-        "Myfortic"
+        "Myfortic",
+        "Myyko Lr",
+        "Micofenolato De Sódio",
+        "Fenosuprex",
+        "Mycosodium"
       ],
       "category": "Imunossupressor"
     },
     {
       "genericName": "Sirolimo",
-      "brands": [],
+      "brands": [
+        "Rapamune",
+        "Siromune"
+      ],
       "category": "Imunossupressor",
       "rxcui": "35302"
     },
@@ -7359,7 +8868,13 @@
       "genericName": "Everolimo",
       "brands": [
         "Afinitor",
-        "Osys"
+        "Osys",
+        "Evtor",
+        "Everolimo",
+        "Torhanz",
+        "Exher",
+        "Romufy",
+        "Certican"
       ],
       "category": "Imunossupressor/Oncológico",
       "rxcui": "141704"
@@ -7370,7 +8885,12 @@
         "Arava",
         "Leflunomida EMS",
         "Reumian",
-        "Lfm-leflunomida"
+        "Lfm-leflunomida",
+        "Leflunomida",
+        "Lemida",
+        "Leflun",
+        "Leflutec",
+        "Artgran"
       ],
       "category": "DMARD",
       "rxcui": "27169"
@@ -7378,7 +8898,14 @@
     {
       "genericName": "Rituximabe",
       "brands": [
-        "MabThera"
+        "MabThera",
+        "Truxima",
+        "Riabni",
+        "Vivaxxia",
+        "Tuxyn",
+        "Ruxience",
+        "Riximyo",
+        "Bio-Manguinhos Rituximabe"
       ],
       "category": "Imunobiológico",
       "rxcui": "121191"
@@ -7395,7 +8922,9 @@
       "genericName": "Tocilizumabe",
       "brands": [
         "Actemra",
-        "RoActemra"
+        "RoActemra",
+        "Avtozma",
+        "Tyenne"
       ],
       "category": "Imunobiológico",
       "rxcui": "612865"
@@ -7419,7 +8948,8 @@
     {
       "genericName": "Golimumabe",
       "brands": [
-        "Simponi"
+        "Simponi",
+        "Bio-Manguinhos Golimumabe"
       ],
       "category": "Imunobiológico",
       "rxcui": "819300"
@@ -7485,7 +9015,11 @@
         "Capecare",
         "Corretal",
         "Capeliv",
-        "Coama"
+        "Coama",
+        "Capeduc",
+        "Capecitabina",
+        "Apecibine",
+        "Capzat"
       ],
       "category": "Oncológico",
       "rxcui": "194000"
@@ -7513,7 +9047,13 @@
     {
       "genericName": "Gefitinibe",
       "brands": [
-        "Iressa"
+        "Iressa",
+        "Gefitinibe",
+        "Tykiticip",
+        "Kigefo",
+        "Pulge",
+        "Timb",
+        "Gefib"
       ],
       "category": "Oncológico",
       "rxcui": "328134"
@@ -7545,7 +9085,12 @@
     {
       "genericName": "Lenalidomida",
       "brands": [
-        "Revlimid"
+        "Revlimid",
+        "Lyone",
+        "Lassya",
+        "Lenangio",
+        "Nuvyor",
+        "Lenalidomida"
       ],
       "category": "Oncológico",
       "rxcui": "342369"
@@ -7555,7 +9100,10 @@
       "brands": [
         "Thalidomide",
         "Talidomida Celgene",
-        "Funed - Talidomida"
+        "Funed - Talidomida",
+        "Talidomida ( Port 344/98 Lista C3)",
+        "Furp-Talidomida",
+        "Talidomida"
       ],
       "category": "Oncológico/Imunomodulador",
       "rxcui": "10432"
@@ -7568,7 +9116,19 @@
         "Bortyz",
         "Mielocade",
         "Tovar",
-        "Verazo"
+        "Verazo",
+        "Elome",
+        "Bortezomibe",
+        "Bortecip",
+        "Zomi",
+        "Mibo",
+        "Velzomib",
+        "Bozemyb",
+        "Velzara",
+        "Bormib",
+        "Zomyle",
+        "Bormhy",
+        "Bortyz Rtu"
       ],
       "category": "Oncológico",
       "rxcui": "358258"
@@ -7592,7 +9152,14 @@
         "Kemocarb",
         "Biocarbo",
         "Liplatin",
-        "Carbolibbs"
+        "Carbolibbs",
+        "Karbo",
+        "Displata",
+        "Carboplatina",
+        "B -platin",
+        "Hetrocar",
+        "Oncocarb",
+        "Blastocarb"
       ],
       "category": "Oncológico",
       "rxcui": "40048"
@@ -7613,7 +9180,11 @@
         "Platinil",
         "Cisplatex",
         "Cisplax",
-        "Myllcis"
+        "Myllcis",
+        "Platiran",
+        "Astaplatin",
+        "Cisplatina",
+        "Laxifos"
       ],
       "category": "Oncológico",
       "rxcui": "2555"
@@ -7641,7 +9212,18 @@
         "Biopaxel",
         "Paxel",
         "Taclix",
-        "Myltol"
+        "Myltol",
+        "Glenoxel",
+        "Mitotax",
+        "Paclitaxel",
+        "Paclired",
+        "Abraxane",
+        "Akssus",
+        "Pokli",
+        "Toxxel",
+        "Praxel",
+        "Protaxel",
+        "Itacxel"
       ],
       "category": "Oncológico",
       "rxcui": "56946"
@@ -7656,7 +9238,13 @@
         "Dosataxel",
         "Trixotene",
         "Neotaxel",
-        "Doceglennu"
+        "Doceglennu",
+        "Docetaxel",
+        "Oncodocel",
+        "Taxontas",
+        "Docetaxel Tri-Hidratado",
+        "Tequel",
+        "Tace"
       ],
       "category": "Oncológico",
       "rxcui": "72962"
@@ -7687,7 +9275,9 @@
         "Cycram",
         "Genuxal",
         "Ciclodrax",
-        "Evociclo"
+        "Evociclo",
+        "Ciclosmida",
+        "Fosfaseron"
       ],
       "category": "Oncológico",
       "rxcui": "3002"
@@ -7712,7 +9302,9 @@
     {
       "genericName": "Nivolumabe",
       "brands": [
-        "Opdivo"
+        "Opdivo",
+        "Imrevite",
+        "Nivdirec"
       ],
       "category": "Oncológico (imunoterapia)",
       "rxcui": "1597876"
@@ -7729,7 +9321,15 @@
       "genericName": "Trastuzumabe",
       "brands": [
         "Herceptin",
-        "Kanjinti"
+        "Kanjinti",
+        "Zedora",
+        "Hermab",
+        "Bisintex",
+        "Tecpar Trastuzumabe",
+        "Herzuma",
+        "Trazimera",
+        "Bio-Manguinhos Trastuzumabe",
+        "Ontruzant"
       ],
       "category": "Oncológico",
       "rxcui": "224905"
@@ -7800,7 +9400,28 @@
         "Arflex",
         "Genosulid",
         "Uciton",
-        "Myzildrem"
+        "Myzildrem",
+        "Nimesulida",
+        "Niflag",
+        "Nortlid",
+        "Nisulid Gel",
+        "Nimsy",
+        "Scaflogin Gotas",
+        "Prexulid",
+        "Flamide",
+        "Lidextrin",
+        "Nisvo",
+        "Nisulid Xr",
+        "Nimetec",
+        "Nilive",
+        "Nimensulida",
+        "Zuflam",
+        "Lide",
+        "Dolmera",
+        "Arflex Retard",
+        "Nimesulida Betaciclodextrina",
+        "Prasulid",
+        "Maxsulid 100"
       ],
       "category": "Anti-inflamatório (AINE)",
       "rxcui": "53694"
@@ -7837,7 +9458,16 @@
         "Reumaxican",
         "Pirogreen",
         "Piroxene",
-        "Pirfel"
+        "Pirfel",
+        "Felroxidene",
+        "Piroxicam",
+        "Analgeflan",
+        "Feroxene",
+        "Felpiran",
+        "Piroxiplus",
+        "Piroxan",
+        "Pirofast",
+        "Lisedema"
       ],
       "category": "Anti-inflamatório (AINE)",
       "rxcui": "8356"
@@ -7848,7 +9478,9 @@
         "Indocid",
         "Indometacina EMS",
         "Metacidil",
-        "Agilisin"
+        "Agilisin",
+        "Indometacina",
+        "Iquego - Indometacina"
       ],
       "category": "Anti-inflamatório (AINE)",
       "rxcui": "5781"
@@ -7870,7 +9502,9 @@
         "Tenocam",
         "Inflagel",
         "Noxican (tenoxil)",
-        "Galatil"
+        "Galatil",
+        "Tenoxicam",
+        "Tenovid"
       ],
       "category": "Anti-inflamatório (AINE)",
       "rxcui": "37790"
@@ -7888,7 +9522,8 @@
       "genericName": "Cetorolaco",
       "brands": [
         "Toradol",
-        "Toragesic"
+        "Toragesic",
+        "Cetorolaco De Trometamina"
       ],
       "category": "Anti-inflamatório (AINE)",
       "rxcui": "35827"
@@ -7922,7 +9557,12 @@
         "Temgesic",
         "Buprenex",
         "Cloridrato de Buprenorfina",
-        "Belbuca"
+        "Belbuca",
+        "Restiva",
+        "Transtec",
+        "Lusanda",
+        "Buprenorfina",
+        "Norpatch"
       ],
       "category": "Analgésico Opioide",
       "rxcui": "1819"
@@ -7949,7 +9589,8 @@
     {
       "genericName": "Nalbufina",
       "brands": [
-        "Nubain"
+        "Nubain",
+        "Nalfina"
       ],
       "category": "Analgésico Opioide",
       "rxcui": "7238"
@@ -8069,7 +9710,9 @@
       "genericName": "Bosentana",
       "brands": [
         "Tracleer",
-        "Hagivan"
+        "Hagivan",
+        "Bosentana",
+        "Usenta"
       ],
       "category": "Hipertensão Pulmonar",
       "rxcui": "75207"
@@ -8105,7 +9748,8 @@
     {
       "genericName": "Riociguate",
       "brands": [
-        "Adempas"
+        "Adempas",
+        "Adempas®"
       ],
       "category": "Hipertensão Pulmonar",
       "rxcui": "1439816"
@@ -8159,7 +9803,12 @@
         "Pletal",
         "Vasogard",
         "Vasativ",
-        "Claudic"
+        "Claudic",
+        "Cilostazol",
+        "Dovásc",
+        "Cebralat",
+        "Elmiron",
+        "Cebravasc"
       ],
       "category": "Antiagregante Plaquetário",
       "rxcui": "21107"
@@ -8168,7 +9817,11 @@
       "genericName": "Dipiridamol",
       "brands": [
         "Persantin",
-        "Aggrenox"
+        "Aggrenox",
+        "Ivb - Dipiridamol",
+        "Furp - Dipiridamol",
+        "Farmanguinhos - Dipiridamol",
+        "Damol"
       ],
       "category": "Antiagregante Plaquetário",
       "rxcui": "3521"
@@ -8228,7 +9881,11 @@
         "Angil",
         "Isordil sl",
         "Isogreen",
-        "Isocord"
+        "Isocord",
+        "Dinitrato De Isossorbida",
+        "Isobid",
+        "Dinisorb",
+        "Disotol"
       ],
       "category": "Cardiovascular",
       "rxcui": "6058"
@@ -8273,7 +9930,21 @@
         "Tildomet",
         "Aldotensin",
         "Gendomet",
-        "Lfm Metildopa"
+        "Lfm Metildopa",
+        "Metildopa",
+        "Jarrel-Metildopa",
+        "Hidopat",
+        "Farmanguinhos - Metildopa",
+        "Alphadopa",
+        "Cardiomet",
+        "Furp - Metildopa",
+        "Aldopa",
+        "Lafepe-Metildopa",
+        "Dometil",
+        "Dopamet",
+        "Laqfex Metildopa",
+        "Alfusina",
+        "Metildp"
       ],
       "category": "Anti-hipertensivo",
       "rxcui": "6876"
@@ -8296,7 +9967,22 @@
         "Loniten",
         "Rogaine",
         "Aloxidil",
-        "Pant"
+        "Pant",
+        "Regaine",
+        "Pielus Mx",
+        "Minoxidil",
+        "Dixil",
+        "Actfio",
+        "Eniagor",
+        "Allovita",
+        "Lopexx",
+        "Capitrat Men",
+        "Capy",
+        "Pant Sec",
+        "Kedaxyl",
+        "Pilox",
+        "Meo",
+        "Revipel"
       ],
       "category": "Anti-hipertensivo/Dermatológico",
       "rxcui": "6984"
@@ -8312,7 +9998,14 @@
         "Vasotrilix",
         "Indafix",
         "Dapamix",
-        "Pharmida"
+        "Pharmida",
+        "Indapamida",
+        "Salida",
+        "Flux Sr",
+        "Cirefa",
+        "Pharmida Sr",
+        "Indatrat Sr",
+        "Ainda Sr"
       ],
       "category": "Diurético",
       "rxcui": "5764"
@@ -8435,7 +10128,13 @@
       "genericName": "Sacarato de Hidróxido Férrico",
       "brands": [
         "Noripurum EV",
-        "Suprafen"
+        "Suprafen",
+        "Sadol",
+        "Hemacit",
+        "Sucrofer",
+        "Zelazafer",
+        "Ferropurum",
+        "Sacfer"
       ],
       "category": "Suplemento",
       "rxcui": "6581"
@@ -8468,7 +10167,20 @@
         "Isoface",
         "Cecnoin",
         "Acnil",
-        "Lurantal"
+        "Lurantal",
+        "Rotretin",
+        "Ison",
+        "Isotretinoína",
+        "Sotret",
+        "Treskin",
+        "Dermogran",
+        "Amalfi",
+        "Isocutan",
+        "Isotretinoína (port 344/98 Lista C2)",
+        "Isotrex",
+        "Acnison",
+        "Isoac",
+        "Isotrin"
       ],
       "category": "Dermatológico",
       "rxcui": "6064"
@@ -8476,7 +10188,8 @@
     {
       "genericName": "Acitretina",
       "brands": [
-        "Neotigason"
+        "Neotigason",
+        "Acitretina"
       ],
       "category": "Dermatológico",
       "rxcui": "16818"
@@ -8514,7 +10227,8 @@
       "genericName": "Zolpidem",
       "brands": [
         "Zolpidem EMS",
-        "Ambien"
+        "Ambien",
+        "Stilnox"
       ],
       "category": "Hipnótico",
       "rxcui": "39993"
@@ -8523,14 +10237,27 @@
       "genericName": "Zopiclona",
       "brands": [
         "Imovane",
-        "Zopiclona EMS"
+        "Zopiclona EMS",
+        "Zopiclona (port.344/98 L.b1)",
+        "Zopiclona",
+        "Serenex",
+        "Neurolil"
       ],
       "category": "Hipnótico",
       "rxcui": "40001"
     },
     {
       "genericName": "Eszopiclona",
-      "brands": [],
+      "brands": [
+        "Prysma",
+        "Eszopiclona",
+        "Torrem",
+        "Hezo",
+        "Pyezo",
+        "Soul",
+        "Eczo",
+        "Ezonia"
+      ],
       "category": "Hipnótico",
       "rxcui": "461016"
     },
@@ -8568,7 +10295,19 @@
         "Lucitan",
         "Relaxil",
         "Novazepam",
-        "Lexfast (b1)"
+        "Lexfast (b1)",
+        "Bromazepam",
+        "Deptran",
+        "Lfm-Bromazepam",
+        "Bromazepam (portaria 344/98 - Lista B1)",
+        "Azepam",
+        "Edade",
+        "Neurilan",
+        "Uni-Bromazepax",
+        "Lexma",
+        "Fluxtar",
+        "Ansiolex",
+        "Bromax"
       ],
       "category": "Benzodiazepínico",
       "rxcui": "1749"
@@ -8581,7 +10320,8 @@
         "Elum",
         "Anoxolan",
         "Cloxaz",
-        "Clozal"
+        "Clozal",
+        "Cloxazolam"
       ],
       "category": "Benzodiazepínico",
       "rxcui": "21311"
@@ -8689,7 +10429,8 @@
     {
       "genericName": "Erenumabe",
       "brands": [
-        "Aimovig"
+        "Aimovig",
+        "Pasurta"
       ],
       "category": "Antimigranoso (preventivo)",
       "rxcui": "2045613"
@@ -8704,7 +10445,9 @@
     },
     {
       "genericName": "Galcanezumabe",
-      "brands": [],
+      "brands": [
+        "Emgality"
+      ],
       "category": "Antimigranoso (preventivo)",
       "rxcui": "2058846"
     },
@@ -8757,7 +10500,14 @@
         "Provive",
         "Profolen",
         "Fresofol",
-        "Propotil"
+        "Propotil",
+        "Propofol",
+        "Oponap®",
+        "Hyfol",
+        "Prolof",
+        "Spiva Mct-Lct",
+        "Lipuro",
+        "Propofol (port 344/98 - Lista C1)"
       ],
       "category": "Anestésico",
       "rxcui": "8782"
@@ -8899,7 +10649,8 @@
     {
       "genericName": "Arnica montana",
       "brands": [
-        "Arnica montana"
+        "Arnica montana",
+        "Arnica Prépós"
       ],
       "category": "Fitoterápico",
       "rxcui": "285208"
@@ -9072,7 +10823,21 @@
         "Antimicótico",
         "Micotricin",
         "Clotrimix",
-        "Lomecan"
+        "Lomecan",
+        "Clotrimazol",
+        "Trimagix",
+        "Clotribene",
+        "Antimicotico Martel",
+        "Funed Clotrimazol",
+        "Gino-Trimagix",
+        "Canesten",
+        "Dermo-Trimazen",
+        "Clotrizan",
+        "Atletal",
+        "Fems",
+        "Gino-Canesten",
+        "Ermicotizol",
+        "Clogen"
       ],
       "category": "Outros",
       "rxcui": "2623"
@@ -9120,7 +10885,8 @@
     {
       "genericName": "Tirzepatida",
       "brands": [
-        "Mounjaro"
+        "Mounjaro",
+        "Mounjaro Multidose"
       ],
       "category": "Outros",
       "rxcui": "2601723"
@@ -9138,7 +10904,9 @@
         "Pontin",
         "Pontrex",
         "Standor",
-        "Mefenan"
+        "Mefenan",
+        "Ácido Mefenâmico",
+        "Fen"
       ],
       "category": "Outros",
       "rxcui": "6693"
@@ -9180,7 +10948,12 @@
       "brands": [
         "MUSE",
         "Caverject",
-        "Bedfordalprost"
+        "Bedfordalprost",
+        "Edex",
+        "Alprodil",
+        "Adexil",
+        "Prostin Vr",
+        "Alproxy"
       ],
       "category": "Urológico",
       "rxcui": "598"
@@ -9195,7 +10968,9 @@
     {
       "genericName": "Doxiciclina",
       "brands": [
-        "Cloridrato de Doxiciclina"
+        "Cloridrato de Doxiciclina",
+        "Uni - Doxiciclina",
+        "Doxilegrand"
       ],
       "category": "Antibiótico",
       "rxcui": "3640"
@@ -9208,7 +10983,13 @@
         "Leverctin",
         "Plurimec",
         "Iverneo",
-        "Ivermec"
+        "Ivermec",
+        "Revectina",
+        "Ivermectina",
+        "Soolantra",
+        "Ivecte",
+        "Iverliv",
+        "Iverlat"
       ],
       "category": "Antiparasitário",
       "rxcui": "6069"
@@ -9221,5 +11002,6 @@
       "category": "Anti-hipertensivo",
       "rxcui": "5487"
     }
-  ]
+  ],
+  "updatedAt": "2026-07-03"
 }

@@ -40,7 +40,7 @@ jobs:
             echo "✅ Banco já está atualizado. Nenhuma mudança."
           else
             ADDED=$(git diff --staged --stat | grep -oP '\d+(?= insertion)' || true)
-            COMMIT_MSG=$(printf 'chore(data): atualização automática do banco de medicamentos [skip ci]\n\nMedicamentos adicionados/atualizados: %s linhas\nFonte: ANVISA Dados Abertos + Bulário BVS' "${ADDED:-?}")
+            COMMIT_MSG=$(printf 'chore(data): atualização automática do banco de medicamentos [skip ci]\n\nMedicamentos adicionados/atualizados: %s linhas\nFonte: ANVISA Dados Abertos' "${ADDED:-?}")
             git commit -m "$COMMIT_MSG"
             git push
             echo "✅ Banco atualizado e publicado."

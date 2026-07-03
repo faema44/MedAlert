@@ -2,10 +2,16 @@
 /**
  * Agente de atualização do banco de medicamentos.
  *
- * Fontes tentadas (em ordem):
- *   1. ANVISA Dados Abertos — ZIP com CSV de todos os medicamentos registrados
- *   2. Scraping do Bulário BVS (Biblioteca Virtual em Saúde)
- *   3. Scraping do bulas.med.br
+ * Fonte:
+ *   ANVISA Dados Abertos — CSV com todos os medicamentos registrados no
+ *   Brasil (nome comercial + princípio ativo já vêm juntos, sem necessidade
+ *   de scraping adicional). Bulário BVS e bulas.med.br foram removidos: só
+ *   repetiam remédios já conhecidos ou raspavam lixo de navegação do site.
+ *
+ * Importante: o CSV bruto tem ~29 mil registros técnicos (combinações,
+ * nomes botânicos em latim, etc.) — bem mais granular que os ~690 itens
+ * curados do banco do app. Por isso o agente só ENRIQUECE medicamentos que
+ * já existem no banco (adiciona marca nova), nunca cria item novo sozinho.
  *
  * Uso:
  *   node scripts/update-medications.js
@@ -17,7 +23,6 @@ const https = require('https');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const zlib = require('zlib');
 
 const DB_PATH = path.join(__dirname, '../src/data/medications-db.json');
 const TIMEOUT_MS = 15_000;
@@ -73,7 +78,11 @@ function saveDb(db) {
 }
 
 // Find existing entry or create new one (merge, never duplicate)
-function upsert(db, genericName, brands, category) {
+// allowCreate=false: só enriquece marcas/categoria de itens já existentes no
+// banco curado, nunca cria genericName novo sozinho (evita poluir a lista de
+// autocomplete do app com as ~29 mil combinações técnicas do registro bruto
+// da ANVISA — ver discussão de 2026-07-03).
+function upsert(db, genericName, brands, category, allowCreate = true) {
   const normNew = normalize(genericName);
   const existing = db.medications.find(m => normalize(m.genericName) === normNew);
   if (existing) {
@@ -86,35 +95,30 @@ function upsert(db, genericName, brands, category) {
     }
     if (category && !existing.category) { existing.category = category; changed = true; }
     if (changed) console.log(`  ↺ Atualizado: ${genericName}`);
-  } else {
+  } else if (allowCreate) {
     db.medications.push({ genericName, brands, category: category || '' });
     console.log(`  + Adicionado: ${genericName}`);
   }
 }
 
 // ─── Source 1: ANVISA Dados Abertos ──────────────────────────────────────────
-// CSV público: https://dados.anvisa.gov.br/dados/DADOS_ABERTOS_MEDICAMENTOS.zip
+// CSV público: https://dados.anvisa.gov.br/dados/DADOS_ABERTOS_MEDICAMENTOS.csv
 // Colunas relevantes: NOME_PRODUTO, PRINCIPIO_ATIVO, SITUACAO_REGISTRO
 
 async function fetchAnvisaOpenData(db) {
   console.log('\n[1] Tentando ANVISA Dados Abertos...');
-  const zipUrl = 'https://dados.anvisa.gov.br/dados/DADOS_ABERTOS_MEDICAMENTOS.zip';
+  const csvUrl = 'https://dados.anvisa.gov.br/dados/DADOS_ABERTOS_MEDICAMENTOS.csv';
 
-  let zipBuf;
+  let csvBuf;
   try {
-    zipBuf = await get(zipUrl, { rejectUnauthorized: false });
+    csvBuf = await get(csvUrl, { rejectUnauthorized: false });
   } catch (e) {
     console.log(`    ✗ Falhou: ${e.message}`);
     return false;
   }
 
-  // Decompress ZIP manually (find first file entry)
   try {
-    const entries = parseZip(zipBuf);
-    const csvEntry = entries.find(e => e.name.endsWith('.csv') || e.name.endsWith('.CSV'));
-    if (!csvEntry) throw new Error('CSV não encontrado no ZIP');
-
-    const csvText = csvEntry.data.toString('latin1'); // ANVISA usa ISO-8859-1
+    const csvText = csvBuf.toString('latin1'); // ANVISA usa ISO-8859-1
     const lines = csvText.split('\n');
     const header = lines[0].split(';').map(h => h.trim().replace(/^"|"$/g, ''));
 
@@ -133,7 +137,9 @@ async function fetchAnvisaOpenData(db) {
 
       const brand = toTitleCase(cols[nameIdx]);
       const generic = toTitleCase(cols[substIdx]);
-      upsert(db, generic, [brand], '');
+      // allowCreate=false — só enriquece marcas dos medicamentos que já
+      // estão no banco curado, nunca cria item novo sozinho.
+      upsert(db, generic, [brand], '', false);
       if (++added % 1000 === 0) process.stdout.write(`    ${added} processados...\r`);
     }
     console.log(`\n    ✓ ANVISA: ${added} registros processados`);
@@ -144,92 +150,8 @@ async function fetchAnvisaOpenData(db) {
   }
 }
 
-// Minimal ZIP parser (local file entries only, no data descriptor)
-function parseZip(buf) {
-  const entries = [];
-  let i = 0;
-  while (i < buf.length - 4) {
-    if (buf.readUInt32LE(i) !== 0x04034b50) { i++; continue; }
-    const flags = buf.readUInt16LE(i + 6);
-    const compression = buf.readUInt16LE(i + 8);
-    const compressedSize = buf.readUInt32LE(i + 18);
-    const fileNameLen = buf.readUInt16LE(i + 26);
-    const extraLen = buf.readUInt16LE(i + 28);
-    const name = buf.slice(i + 30, i + 30 + fileNameLen).toString('utf8');
-    const dataStart = i + 30 + fileNameLen + extraLen;
-    const compressedData = buf.slice(dataStart, dataStart + compressedSize);
-    let data;
-    if (compression === 0) {
-      data = compressedData;
-    } else if (compression === 8) {
-      try { data = zlib.inflateRawSync(compressedData); } catch { data = compressedData; }
-    }
-    if (data) entries.push({ name, data });
-    i = dataStart + compressedSize;
-  }
-  return entries;
-}
-
 function toTitleCase(s) {
   return s.toLowerCase().replace(/(?:^|\s|-)\S/g, c => c.toUpperCase()).trim();
-}
-
-// ─── Source 2: Bulário BVS ────────────────────────────────────────────────────
-// https://bulario.bvs.br — possui busca JSON não documentada
-
-async function fetchBvsBulario(db) {
-  console.log('\n[2] Tentando Bulário BVS (BIREME)...');
-  const terms = ['metformina', 'varfarina', 'enalapril', 'omeprazol', 'losartana',
-                 'atorvastatina', 'metoprolol', 'amoxicilina', 'fluoxetina', 'prednisona'];
-  let found = 0;
-
-  for (const term of terms) {
-    try {
-      const url = `http://bulario.bvs.br/index.php?txtName=${encodeURIComponent(term)}&Submit=Buscar`;
-      const html = (await get(url)).toString('utf8');
-      // Extract medication names from search results
-      const matches = [...html.matchAll(/class="result-item[^"]*"[^>]*>[\s\S]*?<a[^>]*>([^<]+)<\/a>/gi)];
-      for (const m of matches) {
-        const name = m[1].trim();
-        if (name.length > 2) { upsert(db, name, [], ''); found++; }
-      }
-    } catch { /* continue */ }
-  }
-
-  if (found > 0) {
-    console.log(`    ✓ BVS: ${found} nomes encontrados`);
-    return true;
-  }
-  console.log('    ✗ BVS: sem resultados');
-  return false;
-}
-
-// ─── Source 3: bulas.med.br ────────────────────────────────────────────────────
-
-async function fetchBulasMedBr(db) {
-  console.log('\n[3] Tentando bulas.med.br...');
-  const searchTerms = ['metformina', 'atenolol', 'amoxicilina', 'ibuprofeno'];
-  let found = 0;
-
-  for (const term of searchTerms) {
-    try {
-      const url = `https://www.bulas.med.br/?busca=${encodeURIComponent(term)}`;
-      const html = (await get(url)).toString('utf8');
-      // Extract <h2> or <h3> medication names from search results
-      const nameMatches = [...html.matchAll(/<(?:h2|h3)[^>]*>([A-ZÀ-Ü][A-Za-zÀ-ÿ\s\-+]+)<\/(?:h2|h3)>/g)];
-      for (const m of nameMatches) {
-        const name = m[1].trim();
-        if (name.length > 3 && name.length < 80) { upsert(db, name, [], ''); found++; }
-      }
-    } catch { /* continue */ }
-  }
-
-  if (found > 0) {
-    console.log(`    ✓ bulas.med.br: ${found} nomes encontrados`);
-    return true;
-  }
-  console.log('    ✗ bulas.med.br: sem resultados');
-  return false;
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
@@ -243,10 +165,7 @@ async function main() {
   const before = db.medications.length;
   console.log(`\nBanco atual: ${before} medicamentos (${db.version})`);
 
-  let anySuccess = false;
-  anySuccess = await fetchAnvisaOpenData(db) || anySuccess;
-  anySuccess = await fetchBvsBulario(db) || anySuccess;
-  anySuccess = await fetchBulasMedBr(db) || anySuccess;
+  const anySuccess = await fetchAnvisaOpenData(db);
 
   const after = db.medications.length;
   console.log(`\n📊 Resultado: ${before} → ${after} medicamentos (+${after - before})`);
