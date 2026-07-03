@@ -132,6 +132,7 @@ export default function MedicationsScreen() {
   const [homeReminderEnabled, setHomeReminderEnabled] = useState(true);
   const homeReminderRef = useRef(true);
   const lockOnlyRef = useRef(false);
+  const wizStepScrollRef = useRef<ScrollView>(null);
 
   // Wizard
   const [wizardStep, setWizardStep] = useState<WizardStep>('name');
@@ -814,6 +815,9 @@ export default function MedicationsScreen() {
                 }}
                 keyboardType="numeric"
                 autoCapitalize="none"
+                onFocus={() => {
+                  setTimeout(() => wizStepScrollRef.current?.scrollToEnd({ animated: true }), 250);
+                }}
               />
               <View style={styles.doseUnitRow}>
                 {DOSE_UNITS.map(u => (
@@ -1443,6 +1447,7 @@ export default function MedicationsScreen() {
 
               {/* Step content */}
               <ScrollView
+                ref={wizStepScrollRef}
                 style={{ flex: 1 }}
                 contentContainerStyle={[styles.wizContent, { paddingBottom: 24 }]}
                 keyboardShouldPersistTaps="handled"

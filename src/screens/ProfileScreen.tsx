@@ -30,6 +30,7 @@ export default function ProfileScreen() {
   const [notes, setNotes] = useState('');
   const bdMonthRef = useRef<TextInput>(null);
   const bdYearRef = useRef<TextInput>(null);
+  const profileScrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     loadProfile();
@@ -164,7 +165,7 @@ export default function ProfileScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <ScrollView style={styles.container} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]} keyboardShouldPersistTaps="handled">
+      <ScrollView ref={profileScrollRef} style={styles.container} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]} keyboardShouldPersistTaps="handled">
         <View style={styles.previewSection}>
           <Text style={styles.previewLabel}>PRÉ-VISUALIZAÇÃO — TELA DE BLOQUEIO</Text>
           <View style={styles.previewNotif}>
@@ -291,6 +292,7 @@ export default function ProfileScreen() {
             placeholder="Ex: Diabético tipo 2, marca-passo, insuficiência renal crônica..."
             multiline
             numberOfLines={4}
+            onFocus={() => setTimeout(() => profileScrollRef.current?.scrollToEnd({ animated: true }), 250)}
           />
         </View>
 

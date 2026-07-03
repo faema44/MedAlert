@@ -1204,7 +1204,8 @@
     {
       "genericName": "Amilorida",
       "brands": [
-        "Midamor"
+        "Midamor",
+        "Cloridrato de Amilorida + Hidroclorotiazida"
       ],
       "category": "Diurético",
       "rxcui": "644"
@@ -1900,6 +1901,7 @@
     {
       "genericName": "Amicacina",
       "brands": [
+        "Sulfato de Amicacina",
         "Novamin",
         "Amicalin",
         "cp - Amicacina",
@@ -3155,7 +3157,8 @@
     {
       "genericName": "Propiltiouracil",
       "brands": [
-        "Propiltiouracil"
+        "Propiltiouracil",
+        "Propiltiouracila"
       ],
       "category": "Antitireoidiano",
       "rxcui": "8794"
@@ -4184,7 +4187,8 @@
     {
       "genericName": "Pseudoefedrina",
       "brands": [
-        "Sudafed"
+        "Sudafed",
+        "Actifedrin"
       ],
       "category": "Descongestionante",
       "rxcui": "8896"

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
   Modal, TextInput, Switch, Alert, Linking, ScrollView,
@@ -32,6 +32,7 @@ export default function ContactsScreen() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(EMPTY);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const contactScrollRef = useRef<ScrollView>(null);
 
   // WhatsApp modal state
   const [waContact, setWaContact] = useState<EmergencyContact | null>(null);
@@ -222,7 +223,7 @@ export default function ContactsScreen() {
       <Modal visible={showModal} animationType="slide" transparent>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <View style={styles.modalOverlay}>
-          <ScrollView style={styles.modalBox} contentContainerStyle={{ paddingBottom: insets.bottom + 32 }} keyboardShouldPersistTaps="handled">
+          <ScrollView ref={contactScrollRef} style={styles.modalBox} contentContainerStyle={{ paddingBottom: insets.bottom + 32 }} keyboardShouldPersistTaps="handled">
             <Text style={styles.modalTitle}>{editingId !== null ? 'Editar Contato' : 'Contato de Emergência'}</Text>
             {editingId === null && (
               <Text style={styles.modalSubtitle}>Aparecerá na tela de bloqueio — acesso sem senha</Text>
@@ -253,6 +254,7 @@ export default function ContactsScreen() {
               onChangeText={v => setForm(f => ({ ...f, relationship: v }))}
               placeholder="Ex: Esposa, Dr. Silva, Filha..."
               autoCapitalize="sentences"
+              onFocus={() => setTimeout(() => contactScrollRef.current?.scrollToEnd({ animated: true }), 250)}
             />
 
             <View style={styles.primaryRow}>

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
   Modal, TextInput, Alert, ScrollView, KeyboardAvoidingView, Platform,
@@ -182,6 +182,13 @@ export default function AgendaScreen() {
   useFocusEffect(useCallback(() => {
     if (route.params?.tab) setTab(route.params.tab);
   }, [route.params?.tab]));
+
+  const measureScrollRef = useRef<ScrollView>(null);
+  const activityScrollRef = useRef<ScrollView>(null);
+  const apptScrollRef = useRef<ScrollView>(null);
+  const scrollToEndSoon = (ref: React.RefObject<ScrollView | null>) => {
+    setTimeout(() => ref.current?.scrollToEnd({ animated: true }), 250);
+  };
 
   // Activities state
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -634,6 +641,7 @@ export default function AgendaScreen() {
         <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
           <View style={styles.modalOverlay}>
             <ScrollView
+              ref={measureScrollRef}
               style={styles.modalBox}
               contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
               keyboardShouldPersistTaps="handled"
@@ -694,6 +702,7 @@ export default function AgendaScreen() {
                       placeholderTextColor="#bbb"
                       maxLength={3}
                       returnKeyType="done"
+                      onFocus={() => scrollToEndSoon(measureScrollRef)}
                     />
                     <Text style={styles.measureUnit}>bpm</Text>
                   </View>
@@ -713,6 +722,7 @@ export default function AgendaScreen() {
                       placeholderTextColor="#bbb"
                       maxLength={5}
                       returnKeyType="done"
+                      onFocus={() => scrollToEndSoon(measureScrollRef)}
                     />
                     <Text style={styles.measureUnit}>mg/dL</Text>
                   </View>
@@ -753,6 +763,7 @@ export default function AgendaScreen() {
                         placeholderTextColor="#bbb"
                         maxLength={3}
                         returnKeyType="done"
+                        onFocus={() => scrollToEndSoon(measureScrollRef)}
                       />
                       <Text style={styles.measureUnit}>cm</Text>
                     </View>
@@ -795,6 +806,7 @@ export default function AgendaScreen() {
                       placeholderTextColor="#bbb"
                       maxLength={6}
                       returnKeyType="done"
+                      onFocus={() => scrollToEndSoon(measureScrollRef)}
                     />
                     <Text style={styles.measureUnit}>km</Text>
                   </View>
@@ -812,6 +824,7 @@ export default function AgendaScreen() {
                     placeholderTextColor="#bbb"
                     autoCapitalize="sentences"
                     returnKeyType="done"
+                    onFocus={() => scrollToEndSoon(measureScrollRef)}
                   />
                 </>
               )}
@@ -837,6 +850,7 @@ export default function AgendaScreen() {
         <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
           <View style={styles.modalOverlay}>
             <ScrollView
+              ref={activityScrollRef}
               style={styles.modalBox}
               contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
               keyboardShouldPersistTaps="handled"
@@ -960,6 +974,7 @@ export default function AgendaScreen() {
                 onChangeText={v => setActForm(f => ({ ...f, notes: v }))}
                 placeholder="Opcional"
                 multiline
+                onFocus={() => scrollToEndSoon(activityScrollRef)}
               />
 
               <View style={styles.modalActions}>
@@ -980,6 +995,7 @@ export default function AgendaScreen() {
         <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
           <View style={styles.modalOverlay}>
             <ScrollView
+              ref={apptScrollRef}
               style={styles.modalBox}
               contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
               keyboardShouldPersistTaps="handled"
@@ -1043,6 +1059,7 @@ export default function AgendaScreen() {
                 onChangeText={v => setApptForm(f => ({ ...f, notes: v }))}
                 placeholder="Exames a trazer, convênio, etc."
                 multiline
+                onFocus={() => scrollToEndSoon(apptScrollRef)}
               />
 
               <View style={styles.reminderInfo}>
