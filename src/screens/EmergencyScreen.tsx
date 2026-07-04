@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Switch } f
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { getProfile, getMedications, getContacts, getKV, setKV } from '../database/db';
-import { updateEmergencyNotification, cancelEmergencyNotification } from '../services/notifications';
+import { updateEmergencyNotification, cancelEmergencyNotification, buildEmergencyCardLines } from '../services/notifications';
 import { Profile, Medication, EmergencyContact } from '../types';
 import EmergencyChecklist from '../components/EmergencyChecklist';
 
@@ -17,6 +17,7 @@ export default function EmergencyScreen() {
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [notifActive, setNotifActive] = useState(false);
   const [showAlertModal, setShowAlertModal] = useState(false);
+  const [cardLines, setCardLines] = useState<string[]>([]);
 
   const load = useCallback(async () => {
     const [p, m, c, alertActive] = await Promise.all([
@@ -26,6 +27,7 @@ export default function EmergencyScreen() {
     setMedications(m);
     setContacts(c);
     setNotifActive(alertActive === '1' && !!p?.name);
+    setCardLines(p?.name ? await buildEmergencyCardLines(p, m) : []);
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
@@ -45,32 +47,8 @@ export default function EmergencyScreen() {
 
   const canActivateAlert = !!profile?.name && contacts.length > 0;
 
-  const profileDone = !!profile?.name;
-  const contactDone = contacts.length > 0;
-  const alertDone = notifActive;
-  const doneCount = [profileDone, contactDone, alertDone].filter(Boolean).length;
-  const allDone = doneCount === 3;
-
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-
-      {/* Progresso da configuração */}
-      {allDone ? (
-        <View style={styles.progressDoneBanner}>
-          <Text style={styles.progressDoneIcon}>✓</Text>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.progressDoneTitle}>Configuração completa</Text>
-            <Text style={styles.progressDoneSub}>Perfil, contato e alerta configurados</Text>
-          </View>
-          <TouchableOpacity style={styles.progressDoneBtn} onPress={() => (navigation as any).navigate('Home')}>
-            <Text style={styles.progressDoneBtnText}>Início →</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View style={styles.progressBar}>
-          <Text style={styles.progressText}>{doneCount} de 3 configurados</Text>
-        </View>
-      )}
 
       <EmergencyChecklist
         profile={profile}
@@ -80,6 +58,18 @@ export default function EmergencyScreen() {
         onPressContacts={() => (navigation as any).navigate('Contacts')}
         onPressAlert={() => canActivateAlert ? setShowAlertModal(true) : (navigation as any).navigate('Profile')}
       />
+
+      {cardLines.length > 0 && (
+        <View style={styles.previewCard}>
+          <Text style={styles.previewHeader}>🔒 Como aparece na tela de bloqueio</Text>
+          <View style={styles.previewNotif}>
+            <Text style={styles.previewNotifTitle}>Informações Médicas</Text>
+            {cardLines.map((line, i) => (
+              <Text key={i} style={styles.previewNotifLine}>{line || ' '}</Text>
+            ))}
+          </View>
+        </View>
+      )}
 
       {/* Alert modal */}
       <Modal visible={showAlertModal} animationType="slide" transparent onRequestClose={() => setShowAlertModal(false)}>
@@ -136,21 +126,17 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F2F4F8' },
   content: { padding: 14, paddingBottom: 32, gap: 10 },
 
-  progressBar: {
-    backgroundColor: '#fff', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 14,
+  previewCard: {
+    backgroundColor: '#fff', borderRadius: 12, padding: 14,
     borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
   },
-  progressText: { fontSize: 12, color: '#8A8F9D', fontWeight: '600' },
-  progressDoneBanner: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: '#f0faf4', borderRadius: 12, padding: 14,
-    borderWidth: 0.5, borderColor: 'rgba(93,201,148,0.3)',
+  previewHeader: { fontSize: 12, fontWeight: '700', color: '#8A8F9D', marginBottom: 10 },
+  previewNotif: {
+    backgroundColor: '#F2F4F8', borderRadius: 10, padding: 12,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.08)',
   },
-  progressDoneIcon: { fontSize: 20, color: '#1a6b3a', fontWeight: '700' },
-  progressDoneTitle: { fontSize: 14, fontWeight: '700', color: '#1a6b3a' },
-  progressDoneSub: { fontSize: 12, color: '#4d8a6a', marginTop: 2 },
-  progressDoneBtn: { backgroundColor: '#1a6b3a', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12 },
-  progressDoneBtnText: { fontSize: 13, fontWeight: '700', color: '#fff' },
+  previewNotifTitle: { fontSize: 14, fontWeight: '700', color: '#1A1F2E', marginBottom: 6 },
+  previewNotifLine: { fontSize: 13, color: '#333', lineHeight: 19 },
 
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   modalBox: {

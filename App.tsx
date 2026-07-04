@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, Component } from 'react';
+import React, { useEffect, useState, Component } from 'react';
 import * as Sentry from '@sentry/react-native';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 
@@ -49,9 +49,9 @@ import {
   ActivityAlertPayload,
   scheduleRepeatAlarm, cancelRepeatAlarm, rescheduleAllActiveNotifications,
   snoozeActivityReminder, getLastResponse, notifyTreatmentEnded, notifyLowStock, cancelAllRemindersForMedication,
-  dismissStaleNonInteractiveReminders, resetEmergencySignature,
+  resetEmergencySignature,
 } from './src/services/notifications';
-import { getDb, getMedications, getActivities, getMedicationById, updateMedicationStock, addActivityLog, getKV, setKV, addMedicationLog, upsertMedicationLogTaken, archiveMedication, getExpiredUnarchivedMedications, getRemindersForMedication, getMedicationLog } from './src/database/db';
+import { getDb, getMedications, getMedicationById, updateMedicationStock, addActivityLog, getKV, setKV, addMedicationLog, addMedicationTreatmentEndedLog, upsertMedicationLogTaken, archiveMedication, getExpiredUnarchivedMedications, getRemindersForMedication, getMedicationLog } from './src/database/db';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
 
 const Tab = createBottomTabNavigator();
@@ -104,7 +104,7 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
     return (
       <View style={{ alignItems: 'center' }}>
         <View style={{
-          width: 22, height: 22, borderRadius: 11,
+          width: 22, height: 22, borderRadius: 5,
           backgroundColor: '#CC0000', alignItems: 'center', justifyContent: 'center',
           opacity: focused ? 1 : 0.75,
         }}>
@@ -142,7 +142,8 @@ async function checkLowStockAndNotify(medicationId: number, medName: string, new
     getMedicationById(medicationId).catch(() => null),
   ]);
   const dailyDoses = (reminders as any[]).filter(r => r.is_active).length || 1;
-  const daysLeft = Math.floor(newStock / dailyDoses);
+  const unitsPerDose = med?.units_per_dose || 1;
+  const daysLeft = Math.floor(newStock / (dailyDoses * unitsPerDose));
 
   if (med?.end_date) {
     const daysUntilEnd = Math.ceil((new Date(med.end_date + 'T23:59:59').getTime() - Date.now()) / 86400000);
@@ -154,18 +155,28 @@ async function checkLowStockAndNotify(medicationId: number, medName: string, new
   }
 }
 
+// Lembretes repetitivos (diário/semanal) usam o MESMO identifier de notificação todos os
+// dias, e medication_log tem índice único por notification_id — sem o sufixo de data,
+// o disparo do dia 2 era ignorado e a resposta sobrescrevia a linha do dia anterior.
+function dailyLogId(notifId: string, d = new Date()): string {
+  return `${notifId}_${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// Usa o horário HHMM embutido no identifier (ex: reminder_123_0800) em vez do
+// momento em que a notificação disparou de fato — o disparo pode atrasar (Doze/
+// otimização de bateria), e usar o horário real fazia resolveMedicationLogSlot
+// (janela de ±4h) casar com a dose errada em medicamentos de dose frequente.
+function scheduledTimeFromNotificationId(notificationId: string): string {
+  const m = notificationId.match(/_(\d{2})(\d{2})$/);
+  if (!m) return new Date().toISOString();
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate(), Number(m[1]), Number(m[2]), 0).toISOString();
+}
+
 function AppNavigator() {
   const insets = useSafeAreaInsets();
   const [dbReady, setDbReady] = useState(false);
-  const [medCount, setMedCount] = useState(0);
-  const [activityCount, setActivityCount] = useState(0);
   const [activityAlert, setActivityAlert] = useState<ActivityAlertPayload | null>(null);
-
-  const loadCounts = useCallback(async () => {
-    const [meds, activities] = await Promise.all([getMedications(), getActivities()]);
-    setMedCount(meds.length);
-    setActivityCount(activities.length);
-  }, []);
 
   useEffect(() => {
     async function init() {
@@ -181,13 +192,10 @@ function AppNavigator() {
         for (const med of expired) {
           await cancelAllRemindersForMedication(med.id).catch(() => {});
           const displayName = med.commercial_name?.trim() || med.generic_name;
+          await addMedicationTreatmentEndedLog(med.id, displayName).catch(() => {});
           await notifyTreatmentEnded(med.id, displayName).catch(() => {});
         }
       } catch {}
-
-      // Rede de segurança: se o app foi morto entre um lembrete "não interativo" disparar
-      // e o timer de dispensa (15 min) rodar, limpa qualquer alerta esquecido na tela.
-      dismissStaleNonInteractiveReminders().catch(() => {});
 
       // Process any "Tomei"/"Pular" tapped on the lock screen while the app was killed.
       // addNotificationResponseReceivedListener doesn't fire in that scenario (opensAppToForeground: false),
@@ -204,12 +212,14 @@ function AppNavigator() {
               const medId = data.medicationId as number;
               const medName = (data.name as string) ?? '';
               const medDose = (data.dose as string) ?? '';
+              const firedAt = new Date(lastResponse.notification.date);
+              const logId = dailyLogId(notifId, firedAt);
               if (actionId === 'TOOK') {
                 cancelRepeatAlarm(medId).catch(() => {});
-                upsertMedicationLogTaken(notifId, medId, medName, medDose, true).catch(() => {});
+                upsertMedicationLogTaken(logId, medId, medName, medDose, true, firedAt.toISOString()).catch(() => {});
                 const med = await getMedicationById(medId).catch(() => null);
                 if (med?.stock_quantity != null && med.stock_quantity > 0) {
-                  const next = med.stock_quantity - 1;
+                  const next = Math.max(0, med.stock_quantity - (med.units_per_dose || 1));
                   await updateMedicationStock(medId, next).catch(() => {});
                   const displayName = med.commercial_name?.trim() || med.generic_name;
                   checkLowStockAndNotify(medId, displayName, next).catch(() => {});
@@ -217,9 +227,14 @@ function AppNavigator() {
                 dismissNotification(notifId).catch(() => {});
               } else if (actionId === 'SKIP') {
                 cancelRepeatAlarm(medId).catch(() => {});
-                upsertMedicationLogTaken(notifId, medId, medName, medDose, false).catch(() => {});
+                upsertMedicationLogTaken(logId, medId, medName, medDose, false, firedAt.toISOString()).catch(() => {});
                 dismissNotification(notifId).catch(() => {});
               }
+              await setKV('last_notif_response_id', notifId).catch(() => {});
+            }
+            // OK no aviso sticky de estoque baixo tocado com o app fechado
+            if (data?.type === 'low_stock') {
+              dismissNotification(notifId).catch(() => {});
               await setKV('last_notif_response_id', notifId).catch(() => {});
             }
           }
@@ -232,7 +247,6 @@ function AppNavigator() {
       syncMedicationsDb().catch(() => {});
       syncInteractionsDb().catch(() => {});
       rescheduleAllActiveNotifications().catch(() => {});
-      loadCounts();
     }
     init();
 
@@ -245,20 +259,18 @@ function AppNavigator() {
           await cancelAllRemindersForMedication(data.medicationId).catch(() => {});
           await archiveMedication(data.medicationId).catch(() => {});
           const displayName = med.commercial_name?.trim() || med.generic_name;
+          await addMedicationTreatmentEndedLog(data.medicationId, displayName).catch(() => {});
           await notifyTreatmentEnded(data.medicationId, displayName).catch(() => {});
           dismissNotification(data.notificationId).catch(() => {});
           return;
         }
       }
-      // "Salvar no Histórico = Não": não pergunta Tomei/Não tomei nem grava no histórico.
-      // O alerta some sozinho quando o app é reaberto (ver dismissStaleNonInteractiveReminders).
-      if (!data.interactive) return;
       addMedicationLog({
         medication_id: data.medicationId,
         medication_name: data.name,
         dose: data.dose,
-        notification_id: data.notificationId,
-        scheduled_at: new Date().toISOString(),
+        notification_id: dailyLogId(data.notificationId),
+        scheduled_at: scheduledTimeFromNotificationId(data.notificationId),
       }).catch(() => {});
       // Se o estoque já está baixo quando o lembrete dispara, notifica junto
       getMedicationById(data.medicationId).then(med => {
@@ -280,21 +292,23 @@ function AppNavigator() {
     });
 
     const cleanupResponse = initResponseListeners({
-      onMedTook: async (medicationId, notifId, name, dose) => {
+      onMedTook: async (medicationId, notifId, name, dose, firedAtMs) => {
         cancelRepeatAlarm(medicationId).catch(() => {});
-        upsertMedicationLogTaken(notifId, medicationId, name, dose, true).catch(() => {});
+        const firedAt = new Date(firedAtMs);
+        upsertMedicationLogTaken(dailyLogId(notifId, firedAt), medicationId, name, dose, true, firedAt.toISOString()).catch(() => {});
         const med = await getMedicationById(medicationId).catch(() => null);
         if (med?.stock_quantity != null && med.stock_quantity > 0) {
-          const next = med.stock_quantity - 1;
+          const next = Math.max(0, med.stock_quantity - (med.units_per_dose || 1));
           await updateMedicationStock(medicationId, next).catch(() => {});
           const displayName = med.commercial_name?.trim() || med.generic_name;
           checkLowStockAndNotify(medicationId, displayName, next).catch(() => {});
         }
         await dismissNotification(notifId);
       },
-      onMedSkip: (medicationId, notifId, name, dose) => {
+      onMedSkip: (medicationId, notifId, name, dose, firedAtMs) => {
         cancelRepeatAlarm(medicationId).catch(() => {});
-        upsertMedicationLogTaken(notifId, medicationId, name, dose, false).catch(() => {});
+        const firedAt = new Date(firedAtMs);
+        upsertMedicationLogTaken(dailyLogId(notifId, firedAt), medicationId, name, dose, false, firedAt.toISOString()).catch(() => {});
         dismissNotification(notifId);
       },
       onMedDefault: () => {},
@@ -321,19 +335,17 @@ function AppNavigator() {
       },
       onTreatmentEndedOk: async (medicationId) => {
         await archiveMedication(medicationId).catch(() => {});
-        loadCounts();
       },
     });
 
     return () => { cleanupMed(); cleanupAct(); cleanupResponse(); };
-  }, [loadCounts]);
+  }, []);
 
   // When app returns from background and user is NOT on HomeScreen,
   // navigate to Home if there are overdue medications so the banner is visible.
   useEffect(() => {
     const sub = AppState.addEventListener('change', async (state) => {
       if (state !== 'active') return;
-      dismissStaleNonInteractiveReminders().catch(() => {});
       if (!navRef.isReady()) return;
       if (navRef.getCurrentRoute()?.name === 'Home') return;
       try {
@@ -366,7 +378,7 @@ function AppNavigator() {
 
   return (
     <>
-      <NavigationContainer ref={navRef} onStateChange={loadCounts}>
+      <NavigationContainer ref={navRef}>
         <StatusBar style="light" />
         <Tab.Navigator
           screenOptions={({ route, navigation }) => ({
@@ -414,8 +426,8 @@ function AppNavigator() {
           })}
         >
           <Tab.Screen name="Home"         component={HomeScreen}         options={{ tabBarLabel: 'Início' }} />
-          <Tab.Screen name="Medications"  component={MedicationsScreen}  options={{ tabBarLabel: 'Medicamentos', tabBarBadge: medCount > 0 ? medCount : undefined, tabBarBadgeStyle: { backgroundColor: '#1C3F7A', minWidth: 17, height: 17, borderRadius: 9 } }} />
-          <Tab.Screen name="Agenda"       component={AgendaScreen}       options={{ tabBarLabel: 'Atividades', tabBarBadge: activityCount > 0 ? activityCount : undefined, tabBarBadgeStyle: { backgroundColor: '#1C3F7A', minWidth: 17, height: 17, borderRadius: 9 } }} />
+          <Tab.Screen name="Medications"  component={MedicationsScreen}  options={{ tabBarLabel: 'Medicamentos' }} />
+          <Tab.Screen name="Agenda"       component={AgendaScreen}       options={{ tabBarLabel: 'Atividades' }} />
           <Tab.Screen name="Emergency"    component={EmergencyScreen}    options={{ tabBarLabel: 'Emergência' }} />
           <Tab.Screen name="History"      component={HistoryScreen}      options={{ tabBarLabel: 'Histórico', headerTitle: () => <HeaderTitle route={{ name: 'History' }} /> }} />
           <Tab.Screen name="Profile"      component={ProfileScreen}      options={{ tabBarItemStyle: { display: 'none' } }} />

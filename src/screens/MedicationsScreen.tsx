@@ -10,7 +10,7 @@ import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navig
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   getMedications, addMedication, updateMedication, archiveMedication,
-  getRemindersForMedication, addReminder, deleteReminder, updateAllRemindersSound, updateMedicationStock, addMedicationLog, markMedicationLogTaken,
+  getRemindersForMedication, addReminder, deleteReminder, updateAllRemindersSound, updateMedicationStock,
 } from '../database/db';
 import {
   scheduleReminderWeekly, scheduleReminderMonthly, scheduleReminderEveryNMonths,
@@ -29,7 +29,7 @@ import { reportMissingDrug } from '../services/reportMissing';
 
 const EMPTY_MED: Omit<Medication, 'id'> = {
   generic_name: '', commercial_name: '', dose: '', frequency: '', is_critical: false, notes: '',
-  stock_quantity: null, end_date: null, home_reminder: 1, save_history: 1,
+  stock_quantity: null, units_per_dose: 1, end_date: null, home_reminder: 1, save_history: 1,
 };
 
 function formatEndDate(iso: string): string {
@@ -53,7 +53,7 @@ function addDays(days: number): string {
 const TIMES_PER_DAY_OPTIONS = [1, 2, 3, 4, 6];
 const DOSE_UNITS = ['mg', 'g', 'mcg', 'UI', 'mL', '%', 'cáps'];
 type ReminderPeriod = 'day' | 'week' | 'month' | 'year';
-type WizardStep = 'type' | 'name' | 'dose' | 'period' | 'times_per_day' | 'weekdays' | 'month_days' | 'n_months' | 'time' | 'deadline' | 'sound' | 'repeat' | 'stock' | 'summary';
+type WizardStep = 'type' | 'name' | 'dose' | 'period' | 'times_per_day' | 'weekdays' | 'month_days' | 'n_months' | 'time' | 'deadline' | 'sound' | 'stock' | 'summary';
 
 const WEEKDAYS = [
   { label: 'Dom', value: 1 }, { label: 'Seg', value: 2 }, { label: 'Ter', value: 3 },
@@ -103,7 +103,7 @@ function getStepSequence(period: ReminderPeriod, isNew: boolean, skipTime = fals
   else if (period === 'month') base.push('month_days');
   else base.push('n_months');
   if (!skipTime) base.push('time');
-  base.push('deadline', 'sound', 'repeat', 'stock');
+  base.push('deadline', 'sound', 'stock');
   return base;
 }
 
@@ -124,11 +124,13 @@ export default function MedicationsScreen() {
   const [cardInteractions, setCardInteractions] = useState<Map<number, DrugInteraction[]>>(new Map());
   const [interactionModal, setInteractionModal] = useState<DrugInteraction[] | null>(null);
   const [stockInput, setStockInput] = useState('');
+  const [unitsPerDoseInput, setUnitsPerDoseInput] = useState('1');
   const [durationDays, setDurationDays] = useState('');
   const [hasDeadline, setHasDeadline] = useState(false);
   const [showStockHelp, setShowStockHelp] = useState(false);
-  const [showSaveHistoryHelp, setShowSaveHistoryHelp] = useState(false);
-  const [saveHistory, setSaveHistory] = useState(true);
+  // Snapshot do resumo tirado quando os lembretes terminam de carregar na edição —
+  // usado só pra marcar visualmente o que mudou e ainda não foi salvo.
+  const [editSnapshot, setEditSnapshot] = useState<Record<string, string> | null>(null);
   const [homeReminderEnabled, setHomeReminderEnabled] = useState(true);
   const homeReminderRef = useRef(true);
   const lockOnlyRef = useRef(false);
@@ -391,37 +393,6 @@ export default function MedicationsScreen() {
     setRepeatInterval(rs[0]?.repeat_interval ?? 0);
   }
 
-  async function handleTomei(item: Medication) {
-    const medDisplayName = item.commercial_name?.trim() || item.generic_name;
-    const notifId = `manual_${item.id}_${Date.now()}`;
-    await addMedicationLog({
-      medication_id: item.id,
-      medication_name: medDisplayName,
-      dose: item.dose ?? '',
-      notification_id: notifId,
-      scheduled_at: new Date().toISOString(),
-    }).then(() => markMedicationLogTaken(notifId, true)).catch(() => {});
-
-    if (item.stock_quantity != null) {
-      const next = Math.max(0, item.stock_quantity - 1);
-      await updateMedicationStock(item.id, next);
-      const reminders = await getRemindersForMedication(item.id).catch(() => []);
-      const dailyDoses = reminders.filter((r: any) => r.is_active).length || 1;
-      const daysLeft = Math.floor(next / dailyDoses);
-      const shouldWarn = (() => {
-        if (daysLeft > 3) return false;
-        if (item.end_date) {
-          const daysUntilEnd = Math.ceil((new Date(item.end_date + 'T23:59:59').getTime() - Date.now()) / 86400000);
-          if (daysLeft >= daysUntilEnd) return false;
-        }
-        return true;
-      })();
-      if (shouldWarn) notifyLowStock(item.id, medDisplayName, daysLeft).catch(() => {});
-      setMedications(meds => meds.map(m => m.id === item.id ? { ...m, stock_quantity: next } : m));
-      if (next === 0) Alert.alert('Estoque zerado', `O estoque de ${medDisplayName} acabou. Providencie a reposição e ajuste em Medicamentos > Editar card > Controle de Estoque.`);
-    }
-  }
-
   async function handleToggleSound(item: Medication) {
     const rs = await getRemindersForMedication(item.id);
     if (rs.length === 0) return;
@@ -491,18 +462,18 @@ export default function MedicationsScreen() {
 
       const isCritical = interactions.some(i => i.risk_level === 'critical' || i.risk_level === 'high');
       const stockQty = stockInput.trim() ? parseInt(stockInput.trim(), 10) : null;
+      const unitsPerDose = unitsPerDoseInput.trim() ? Math.max(1, parseInt(unitsPerDoseInput.trim(), 10)) : 1;
       const endDate = hasDeadline && durationDays.trim() ? addDays(parseInt(durationDays.trim(), 10)) : null;
-      // Controle de estoque exige a confirmação de "Tomei" pra descontar — força Sim
-      const effectiveSaveHistory = stockQty != null ? true : saveHistory;
       const data = {
         ...form,
         generic_name: form.generic_name.trim(),
         commercial_name: form.commercial_name.trim(),
         is_critical: isCritical,
         stock_quantity: stockQty,
+        units_per_dose: unitsPerDose,
         end_date: endDate,
         home_reminder: homeReminderRef.current ? 1 : 0,
-        save_history: effectiveSaveHistory ? 1 : 0,
+        save_history: 1,
       };
 
       let savedMedId: number;
@@ -522,12 +493,12 @@ export default function MedicationsScreen() {
         const ri = e.repeat_interval ?? 0;
         try {
           const notifName = data.commercial_name.trim() || data.generic_name;
-          if (p === 'day') await scheduleReminder(savedMedId, notifName, data.dose, h, m, e.with_sound, ri, undefined, undefined, effectiveSaveHistory);
-          else if (p.startsWith('week:')) await scheduleReminderWeekly(savedMedId, notifName, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri, undefined, undefined, effectiveSaveHistory);
-          else if (p.startsWith('month:')) await scheduleReminderMonthly(savedMedId, notifName, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri, undefined, undefined, effectiveSaveHistory);
+          if (p === 'day') await scheduleReminder(savedMedId, notifName, data.dose, h, m, e.with_sound, ri);
+          else if (p.startsWith('week:')) await scheduleReminderWeekly(savedMedId, notifName, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri);
+          else if (p.startsWith('month:')) await scheduleReminderMonthly(savedMedId, notifName, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri);
           else if (p.startsWith('nmonths:')) {
             const [, nStr, dStr] = p.split(':');
-            await scheduleReminderEveryNMonths(savedMedId, notifName, data.dose, Number(nStr), Number(dStr), h, m, e.with_sound, ri, undefined, undefined, effectiveSaveHistory);
+            await scheduleReminderEveryNMonths(savedMedId, notifName, data.dose, Number(nStr), Number(dStr), h, m, e.with_sound, ri);
           }
         } catch {}
         await addReminder({ medication_id: savedMedId, time: e.time, period: e.period, with_sound: e.with_sound, is_active: true, repeat_interval: ri }).catch(() => {});
@@ -540,7 +511,7 @@ export default function MedicationsScreen() {
 
       setSuggestions([]); setCommercialSuggestions([]); setInteractions([]);
       setEditingId(null); setKnownDrug(false);
-      setStockInput(''); setDurationDays(''); setHasDeadline(false);
+      setStockInput(''); setUnitsPerDoseInput('1'); setDurationDays(''); setHasDeadline(false);
       setReminders([]); resetPickerState(); setWizardStep('name'); lockOnlyRef.current = false;
       await syncNotification(updated);
       await refreshReminderTimes(savedMedId).catch(() => {});
@@ -577,11 +548,11 @@ export default function MedicationsScreen() {
     setEditingId(null);
     setSuggestions([]); setCommercialSuggestions([]); setInteractions([]);
     setEntryType('medicamento'); setKnownDrug(false);
-    setReminders([]); setStockInput(''); setDurationDays(''); setHasDeadline(false);
+    setReminders([]); setStockInput(''); setUnitsPerDoseInput('1'); setDurationDays(''); setHasDeadline(false);
     homeReminderRef.current = true; setHomeReminderEnabled(true);
-    setSaveHistory(true);
     lockOnlyRef.current = false;
     resetPickerState();
+    setEditSnapshot(null);
     setWizardStep('type');
     setShowModal(true);
   }
@@ -595,21 +566,23 @@ export default function MedicationsScreen() {
       is_critical: item.is_critical,
       notes: item.notes,
       stock_quantity: item.stock_quantity,
+      units_per_dose: item.units_per_dose ?? 1,
       end_date: item.end_date,
     });
     const parsed = parseDose(item.dose);
     setDoseValue(parsed.value); setDoseUnit(parsed.unit); setDoseUnitTouched(!!item.dose);
     setStockInput(item.stock_quantity != null ? String(item.stock_quantity) : '');
+    setUnitsPerDoseInput(String(item.units_per_dose ?? 1));
     setDurationDays(item.end_date ? String(Math.max(0, daysRemaining(item.end_date))) : '');
     setHasDeadline(!!item.end_date);
     homeReminderRef.current = item.home_reminder !== 0; setHomeReminderEnabled(item.home_reminder !== 0);
-    setSaveHistory(item.save_history !== 0);
     lockOnlyRef.current = false;
     setEditingId(item.id);
     setSuggestions([]); setCommercialSuggestions([]); setKnownDrug(true);
     setEntryType(isPhytotherapic(item.generic_name) ? 'fitoterapico' : 'medicamento');
     setInteractions([]);
     resetPickerState(); setReminders([]);
+    setEditSnapshot(null);
     setWizardStep('summary');
     setShowModal(true);
     getRemindersForMedication(item.id).then(rs => {
@@ -627,8 +600,6 @@ export default function MedicationsScreen() {
       // Edição: resumo tem "Salvar"; passos de toque voltam sozinhos ao resumo
       switch (wizardStep) {
         case 'period':
-        case 'sound':
-        case 'repeat':
           return false;
         case 'deadline':
           return hasDeadline;
@@ -639,8 +610,6 @@ export default function MedicationsScreen() {
     switch (wizardStep) {
       case 'type':
       case 'period':
-      case 'sound':
-      case 'repeat':
         return false;
       case 'times_per_day':
         return mealMode;
@@ -736,6 +705,44 @@ export default function MedicationsScreen() {
     }
   }
 
+  function computeSummaryRows(): { icon: string; label: string; value: string; step: WizardStep }[] {
+    const schedText = (() => {
+      if (reminderPeriod === 'week' && selectedWeekdays.length > 0) {
+        const days = selectedWeekdays.slice().sort((a, b) => a - b).map(v => WEEKDAYS.find(w => w.value === v)?.label).filter(Boolean).join(', ');
+        return `Semanal · ${days}${pickerDisplay ? ` · ${pickerDisplay}` : ''}`;
+      }
+      if (reminderPeriod === 'month' && selectedMonthDays.length > 0) {
+        return `Mensal · dias ${selectedMonthDays.slice().sort((a, b) => a - b).join(', ')}${pickerDisplay ? ` · ${pickerDisplay}` : ''}`;
+      }
+      if (reminderPeriod === 'year') {
+        return `A cada ${nMonths} ${Number(nMonths) > 1 ? 'meses' : 'mês'} · dia ${monthDay}${pickerDisplay ? ` · ${pickerDisplay}` : ''}`;
+      }
+      const times = customTimes.trim()
+        ? customTimes.trim().split(/\s+/).filter(t => /^\d{1,2}:\d{2}$/.test(t))
+        : (pickerDisplay ? computeTimes(startTime, timesPerDay) : []);
+      return times.length > 0 ? `Diário · ${times.join(' · ')}` : 'Sem lembrete — só tela de bloqueio';
+    })();
+    const deadlineDays = parseInt(durationDays, 10);
+    return [
+      { icon: '💊', label: 'Nome', value: form.commercial_name.trim() ? `${form.commercial_name.trim()} — ${form.generic_name}` : form.generic_name, step: 'name' },
+      { icon: '⚖️', label: 'Dose e observações', value: [form.dose, form.notes].filter(Boolean).join('  ·  ') || 'Não informada', step: 'dose' },
+      { icon: '🗓', label: 'Frequência e horários', value: schedText, step: 'period' },
+      { icon: '📅', label: 'Prazo do tratamento', value: hasDeadline && !isNaN(deadlineDays) ? `${deadlineDays} dia${deadlineDays !== 1 ? 's' : ''} · termina ${formatEndDate(addDays(deadlineDays))}` : 'Sem prazo', step: 'deadline' },
+      { icon: withSound ? '🔔' : '🔕', label: 'Alarme', value: `${withSound ? 'Sim' : 'Não'}  ·  Repete: ${repeatInterval > 0 ? 'Sim' : 'Não'}`, step: 'sound' },
+      { icon: '📦', label: 'Estoque', value: stockInput.trim() ? `${stockInput.trim()} restantes  ·  1 dose = ${unitsPerDoseInput.trim() || '1'}` : 'Sem controle de estoque', step: 'stock' },
+    ];
+  }
+
+  // Tira o snapshot do resumo assim que os lembretes carregam numa edição —
+  // é o que dá pra comparar depois pra marcar o que o usuário alterou e ainda não salvou.
+  useEffect(() => {
+    if (editingId === null || !showModal) return;
+    const snap: Record<string, string> = {};
+    computeSummaryRows().forEach(r => { snap[r.step] = r.value; });
+    setEditSnapshot(snap);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reminders]);
+
   function renderWizardStep() {
     switch (wizardStep) {
       case 'type':
@@ -815,9 +822,6 @@ export default function MedicationsScreen() {
                 }}
                 keyboardType="numeric"
                 autoCapitalize="none"
-                onFocus={() => {
-                  setTimeout(() => wizStepScrollRef.current?.scrollToEnd({ animated: true }), 250);
-                }}
               />
               <View style={styles.doseUnitRow}>
                 {DOSE_UNITS.map(u => (
@@ -861,7 +865,7 @@ export default function MedicationsScreen() {
                   <TouchableOpacity
                     key={p}
                     style={[styles.periodCardBtn, isActive && styles.periodCardBtnActive]}
-                    onPress={() => { setReminderPeriod(p); wizGoNext(p); }}
+                    onPress={() => { lockOnlyRef.current = false; homeReminderRef.current = true; setHomeReminderEnabled(true); setReminderPeriod(p); wizGoNext(p); }}
                   >
                     <Text style={styles.periodCardIcon}>{icon}</Text>
                     <Text style={[styles.periodCardText, isActive && styles.periodCardTextActive]}>{label}</Text>
@@ -875,6 +879,10 @@ export default function MedicationsScreen() {
             >
               <Text style={[styles.lockOnlyBtnText, editingId !== null && !homeReminderEnabled && styles.lockOnlyBtnTextActive]}>🔒 Apenas Tela de Bloqueio</Text>
             </TouchableOpacity>
+            <Text style={styles.lockOnlyHint}>
+              Apenas Tela de Bloqueio: o medicamento só aparece na ficha médica para socorristas —
+              sem alarme e sem registro no Histórico.
+            </Text>
           </>
         );
       }
@@ -1095,16 +1103,16 @@ export default function MedicationsScreen() {
             <Text style={styles.wizHint}>O tratamento tem uma data para terminar?</Text>
             <View style={[styles.yesNoRow, { marginTop: 20 }]}>
               <TouchableOpacity
-                style={[styles.yesNoBtn, editingId !== null && hasDeadline && styles.yesNoBtnActive]}
+                style={[styles.yesNoBtn, hasDeadline && styles.yesNoBtnActive]}
                 onPress={() => setHasDeadline(true)}
               >
-                <Text style={[styles.yesNoBtnText, editingId !== null && hasDeadline && styles.yesNoBtnTextActive]}>Sim</Text>
+                <Text style={[styles.yesNoBtnText, hasDeadline && styles.yesNoBtnTextActive]}>Sim</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.yesNoBtn, editingId !== null && !hasDeadline && styles.yesNoBtnActive]}
+                style={[styles.yesNoBtn, !hasDeadline && styles.yesNoBtnActive]}
                 onPress={() => { setHasDeadline(false); wizGoNext(); }}
               >
-                <Text style={[styles.yesNoBtnText, editingId !== null && !hasDeadline && styles.yesNoBtnTextActive]}>Não</Text>
+                <Text style={[styles.yesNoBtnText, !hasDeadline && styles.yesNoBtnTextActive]}>Não</Text>
               </TouchableOpacity>
             </View>
             {hasDeadline && (
@@ -1132,56 +1140,41 @@ export default function MedicationsScreen() {
         return (
           <>
             <Text style={styles.wizLabel}>Alarme sonoro</Text>
-            <Text style={styles.wizHint}>Deseja que o aviso toque um som?</Text>
-            <View style={[styles.yesNoRow, { marginTop: 20 }]}>
+            <View style={[styles.yesNoRow, { marginTop: 10 }]}>
               <TouchableOpacity
-                style={[styles.yesNoBtn, editingId !== null && withSound && styles.yesNoBtnActive]}
-                onPress={() => { setWithSound(true); wizGoNext(); }}
+                style={[styles.yesNoBtnSm, withSound && styles.yesNoBtnActive]}
+                onPress={() => setWithSound(true)}
               >
-                <Text style={[styles.yesNoBtnText, editingId !== null && withSound && styles.yesNoBtnTextActive]}>🔔 Sim</Text>
+                <Text style={[styles.yesNoBtnText, withSound && styles.yesNoBtnTextActive]}>🔔 Sim</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.yesNoBtn, editingId !== null && !withSound && styles.yesNoBtnActive]}
-                onPress={() => { setWithSound(false); wizGoNext(); }}
+                style={[styles.yesNoBtnSm, !withSound && styles.yesNoBtnActive]}
+                onPress={() => { setWithSound(false); setRepeatInterval(0); }}
               >
-                <Text style={[styles.yesNoBtnText, editingId !== null && !withSound && styles.yesNoBtnTextActive]}>🔕 Não</Text>
+                <Text style={[styles.yesNoBtnText, !withSound && styles.yesNoBtnTextActive]}>🔕 Não</Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={[styles.wizLabel, { marginTop: 22 }]}>Repetir alarme — a cada 5 min.</Text>
+            <View style={[styles.yesNoRow, { marginTop: 10 }]}>
+              <TouchableOpacity
+                style={[styles.yesNoBtnSm, repeatInterval > 0 && styles.yesNoBtnActive, !withSound && styles.yesNoBtnDisabled]}
+                disabled={!withSound}
+                onPress={() => setRepeatInterval(5)}
+              >
+                <Text style={[styles.yesNoBtnText, repeatInterval > 0 && styles.yesNoBtnTextActive]}>🔁 Sim</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.yesNoBtnSm, repeatInterval === 0 && styles.yesNoBtnActive]}
+                onPress={() => setRepeatInterval(0)}
+              >
+                <Text style={[styles.yesNoBtnText, repeatInterval === 0 && styles.yesNoBtnTextActive]}>Não</Text>
               </TouchableOpacity>
             </View>
           </>
         );
 
-      case 'repeat':
-        return (
-          <>
-            <Text style={styles.wizLabel}>Repetir alarme</Text>
-            <Text style={styles.wizHint}>
-              Deseja que o alarme toque a cada 5 minutos até você confirmar em{' '}
-              <Text style={{ fontWeight: '700' }}>Tomei</Text> ou{' '}
-              <Text style={{ fontWeight: '700' }}>Não Tomei</Text>?
-            </Text>
-            <Text style={[styles.wizHint, { marginTop: 6, color: '#999', fontSize: 12 }]}>
-              Necessário caso deseje Controlar o Estoque.
-            </Text>
-            <View style={[styles.yesNoRow, { marginTop: 20 }]}>
-              <TouchableOpacity
-                style={[styles.yesNoBtn, editingId !== null && repeatInterval > 0 && styles.yesNoBtnActive]}
-                onPress={() => { setRepeatInterval(5); wizGoNext(); }}
-              >
-                <Text style={[styles.yesNoBtnText, editingId !== null && repeatInterval > 0 && styles.yesNoBtnTextActive]}>🔁 Sim</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.yesNoBtn, editingId !== null && repeatInterval === 0 && styles.yesNoBtnActive]}
-                onPress={() => { setRepeatInterval(0); wizGoNext(); }}
-              >
-                <Text style={[styles.yesNoBtnText, editingId !== null && repeatInterval === 0 && styles.yesNoBtnTextActive]}>Não</Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        );
-
-      case 'stock': {
-        const stockControlOn = stockInput.trim().length > 0;
-        const saveHistoryActive = stockControlOn || saveHistory;
+      case 'stock':
         return (
           <>
             <View style={[styles.fieldLabelRow, { marginTop: 0 }]}>
@@ -1201,76 +1194,44 @@ export default function MedicationsScreen() {
             <Text style={{ fontSize: 12, color: '#999', marginTop: 6, marginLeft: 2 }}>
               Deixe em branco para não controlar o estoque
             </Text>
-
-            <View style={[styles.fieldLabelRow, { marginTop: 22 }]}>
-              <Text style={styles.wizLabel}>Salva no Histórico?</Text>
-              <TouchableOpacity onPress={() => setShowSaveHistoryHelp(true)} style={{ marginLeft: 8 }}>
-                <Text style={styles.stockHelpBtn}>?</Text>
-              </TouchableOpacity>
-            </View>
-            <View
-              style={[styles.yesNoRow, { marginTop: 6, opacity: stockControlOn ? 0.4 : 1 }]}
-              pointerEvents={stockControlOn ? 'none' : 'auto'}
-            >
-              <TouchableOpacity
-                style={[styles.yesNoBtn, saveHistoryActive && styles.yesNoBtnActive]}
-                onPress={() => setSaveHistory(true)}
-              >
-                <Text style={[styles.yesNoBtnText, saveHistoryActive && styles.yesNoBtnTextActive]}>Sim</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.yesNoBtn, !stockControlOn && !saveHistory && styles.yesNoBtnActive]}
-                onPress={() => setSaveHistory(false)}
-              >
-                <Text style={[styles.yesNoBtnText, !stockControlOn && !saveHistory && styles.yesNoBtnTextActive]}>Não</Text>
-              </TouchableOpacity>
-            </View>
+            {!!stockInput.trim() && (
+              <View style={styles.unitsPerDoseRow}>
+                <Text style={styles.unitsPerDoseText}>1 dose =</Text>
+                <TextInput
+                  style={styles.unitsPerDoseInput}
+                  value={unitsPerDoseInput}
+                  onChangeText={v => setUnitsPerDoseInput(v.replace(/\D/g, ''))}
+                  keyboardType="number-pad"
+                  selectTextOnFocus
+                />
+                <Text style={styles.unitsPerDoseText}>
+                  {(parseInt(unitsPerDoseInput, 10) || 1) === 1 ? 'cápsula/comprimido' : 'cápsulas/comprimidos'}
+                </Text>
+              </View>
+            )}
           </>
         );
-      }
 
       case 'summary': {
-        const schedText = (() => {
-          if (reminderPeriod === 'week' && selectedWeekdays.length > 0) {
-            const days = selectedWeekdays.slice().sort((a, b) => a - b).map(v => WEEKDAYS.find(w => w.value === v)?.label).filter(Boolean).join(', ');
-            return `Semanal · ${days}${pickerDisplay ? ` · ${pickerDisplay}` : ''}`;
-          }
-          if (reminderPeriod === 'month' && selectedMonthDays.length > 0) {
-            return `Mensal · dias ${selectedMonthDays.slice().sort((a, b) => a - b).join(', ')}${pickerDisplay ? ` · ${pickerDisplay}` : ''}`;
-          }
-          if (reminderPeriod === 'year') {
-            return `A cada ${nMonths} ${Number(nMonths) > 1 ? 'meses' : 'mês'} · dia ${monthDay}${pickerDisplay ? ` · ${pickerDisplay}` : ''}`;
-          }
-          const times = customTimes.trim()
-            ? customTimes.trim().split(/\s+/).filter(t => /^\d{1,2}:\d{2}$/.test(t))
-            : (pickerDisplay ? computeTimes(startTime, timesPerDay) : []);
-          return times.length > 0 ? `Diário · ${times.join(' · ')}` : 'Sem lembrete — só tela de bloqueio';
-        })();
-        const deadlineDays = parseInt(durationDays, 10);
-        const rows: { icon: string; label: string; value: string; step: WizardStep }[] = [
-          { icon: '💊', label: 'Nome', value: form.commercial_name.trim() ? `${form.commercial_name.trim()} — ${form.generic_name}` : form.generic_name, step: 'name' },
-          { icon: '⚖️', label: 'Dose e observações', value: [form.dose, form.notes].filter(Boolean).join('  ·  ') || 'Não informada', step: 'dose' },
-          { icon: '🗓', label: 'Frequência e horários', value: schedText, step: 'period' },
-          { icon: '📅', label: 'Prazo do tratamento', value: hasDeadline && !isNaN(deadlineDays) ? `${deadlineDays} dia${deadlineDays !== 1 ? 's' : ''} · termina ${formatEndDate(addDays(deadlineDays))}` : 'Sem prazo', step: 'deadline' },
-          { icon: withSound ? '🔔' : '🔕', label: 'Alarme sonoro', value: withSound ? 'Com som' : 'Sem som', step: 'sound' },
-          { icon: '🔁', label: 'Repetir alarme', value: repeatInterval > 0 ? `A cada ${repeatInterval} min até confirmar` : 'Não repete', step: 'repeat' },
-          { icon: '📦', label: 'Estoque e histórico', value: `${stockInput.trim() ? `Estoque: ${stockInput.trim()} restantes` : 'Sem Controle de Estoque'}\n${(stockInput.trim() || saveHistory) ? 'Salva no Histórico' : 'Não salva no Histórico'}`, step: 'stock' },
-        ];
+        const rows = computeSummaryRows();
         return (
           <>
             <Text style={styles.wizLabel}>O que deseja alterar?</Text>
             <Text style={styles.wizHint}>Toque em um item para editar. Salvar aplica todas as alterações.</Text>
             <View style={{ marginTop: 14 }}>
-              {rows.map(r => (
-                <TouchableOpacity key={r.label} style={styles.sumRow} activeOpacity={0.7} onPress={() => setWizardStep(r.step)}>
-                  <Text style={styles.sumIcon}>{r.icon}</Text>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.sumLabel}>{r.label}</Text>
-                    <Text style={styles.sumValue} numberOfLines={3}>{r.value}</Text>
-                  </View>
-                  <Text style={styles.sumChevron}>›</Text>
-                </TouchableOpacity>
-              ))}
+              {rows.map(r => {
+                const changed = editingId !== null && !!editSnapshot && editSnapshot[r.step] !== r.value;
+                return (
+                  <TouchableOpacity key={r.label} style={[styles.sumRow, changed && styles.sumRowChanged]} activeOpacity={0.7} onPress={() => setWizardStep(r.step)}>
+                    <Text style={styles.sumIcon}>{r.icon}</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.sumLabel}>{r.label}</Text>
+                      <Text style={styles.sumValue} numberOfLines={3}>{r.value}</Text>
+                    </View>
+                    <Text style={styles.sumChevron}>›</Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </>
         );
@@ -1307,7 +1268,8 @@ export default function MedicationsScreen() {
           const periodType = meta?.periodType ?? 'day';
           const repeatInt = meta?.repeat ?? 0;
           const dailyDoses = periodType === 'day' ? (times.length || 1) : 1;
-          const daysLeft = item.stock_quantity != null ? Math.floor(item.stock_quantity / dailyDoses) : null;
+          const unitsPerDose = item.units_per_dose || 1;
+          const daysLeft = item.stock_quantity != null ? Math.floor(item.stock_quantity / (dailyDoses * unitsPerDose)) : null;
           const stockLow = daysLeft != null && daysLeft <= 3;
 
           let scheduleStr = '';
@@ -1360,6 +1322,7 @@ export default function MedicationsScreen() {
               {item.stock_quantity != null && (
                 <Text style={[styles.medDetail, stockLow && styles.stockTextLow]}>
                   {'💊 '}{item.stock_quantity} restante{item.stock_quantity !== 1 ? 's' : ''}
+                  {unitsPerDose > 1 ? ` (1 dose = ${unitsPerDose})` : ''}
                   {daysLeft != null ? ` · ~${daysLeft} dia${daysLeft !== 1 ? 's' : ''}` : ''}
                   {stockLow ? '  ⚠ baixo' : ''}
                 </Text>
@@ -1373,17 +1336,13 @@ export default function MedicationsScreen() {
               )}
               {times.length > 0 && (
                 <Text style={styles.medDetail}>
-                  {hasSound ? '🔔' : '🔕'}{hasSound ? ' Som ativo' : ' Sem som'}
-                  {repeatInt > 0 ? `  ·  🔁 a cada ${repeatInt} min` : ''}
+                  {hasSound ? '🔔' : '🔕'} Alarme: {hasSound ? 'Sim' : 'Não'}  ·  Repete: {repeatInt > 0 ? 'Sim' : 'Não'}
                   {item.is_critical ? '  ·  ⚠️ Crítico' : ''}
                 </Text>
               )}
-              {item.save_history === 0 && item.stock_quantity == null && (
-                <Text style={styles.medNoReminderHint}>⏱ Só aviso</Text>
-              )}
               {item.notes ? <Text style={styles.medNotes}>📝 {item.notes}</Text> : null}
               {times.length === 0 && hasAnyInfo && (
-                <Text style={styles.medNoReminderHint}>🔒 Sem lembrete — aparece só na tela de bloqueio</Text>
+                <Text style={styles.medNoReminderHint}>🔒 Sem lembrete nem histórico — aparece só na ficha da tela de bloqueio</Text>
               )}
               {!hasAnyInfo && <Text style={styles.medEditHint}>Toque para configurar →</Text>}
             </View>
@@ -1449,13 +1408,50 @@ export default function MedicationsScreen() {
               <ScrollView
                 ref={wizStepScrollRef}
                 style={{ flex: 1 }}
-                contentContainerStyle={[styles.wizContent, { paddingBottom: 24 }]}
+                contentContainerStyle={[styles.wizContent, { paddingBottom: insets.bottom + 24 }]}
                 keyboardShouldPersistTaps="handled"
               >
                 {renderWizardStep()}
+
+                {/* Footer — dentro do scroll para não ocupar espaço fixo com o teclado aberto */}
+                <View style={styles.wizFooter}>
+                  <TouchableOpacity
+                    style={[styles.wizBackBtn, !stepNeedsNext() && { flex: 0, paddingHorizontal: 24, borderColor: '#ddd' }]}
+                    onPress={wizGoBack}
+                  >
+                    <Text style={styles.wizBackBtnText}>
+                      {editingId !== null
+                        ? (wizardStep === 'summary' ? 'Cancelar' : '‹ Resumo')
+                        : '‹ Voltar'}
+                    </Text>
+                  </TouchableOpacity>
+                  {stepNeedsNext() && (() => {
+                    // Editando: "OK"/"Próximo" só volta pro resumo, não salva nada ainda —
+                    // fica com a mesma cor neutra do "Resumo" pra não parecer que já confirmou.
+                    const isEditIntermediate = editingId !== null && wizardStep !== 'summary';
+                    return (
+                      <TouchableOpacity
+                        style={[styles.wizNextBtn, isEditIntermediate && styles.wizNextBtnPlain]}
+                        onPress={() => (wizardStep === 'summary' ? handleSave() : wizGoNext())}
+                      >
+                        <Text style={[styles.wizNextBtnText, isEditIntermediate && styles.wizNextBtnTextPlain]}>
+                          {(() => {
+                            if (editingId !== null) {
+                              if (wizardStep === 'summary') return 'Salvar ✓';
+                              return editNextStep(wizardStep, reminderPeriod) === 'summary' ? 'OK ✓' : 'Próximo ›';
+                            }
+                            const seq = getStepSequence(reminderPeriod, true, mealMode);
+                            const idx = seq.indexOf(wizardStep);
+                            return idx >= seq.length - 1 ? 'Salvar ✓' : 'Próximo ›';
+                          })()}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })()}
+                </View>
               </ScrollView>
 
-              {/* Suggestions fixas acima do footer — visíveis mesmo com teclado aberto */}
+              {/* Suggestions fixas acima do teclado — visíveis mesmo com teclado aberto */}
               {wizardStep === 'name' && suggestions.length > 0 && entryType !== 'fitoterapico' && (
                 <ScrollView
                   style={styles.suggestionsFloating}
@@ -1484,38 +1480,6 @@ export default function MedicationsScreen() {
                   ))}
                 </ScrollView>
               )}
-
-              {/* Footer */}
-              <View style={[styles.wizFooter, { paddingBottom: insets.bottom + 12 }]}>
-                <TouchableOpacity
-                  style={[styles.wizBackBtn, !stepNeedsNext() && { flex: 0, paddingHorizontal: 24, borderColor: '#ddd' }]}
-                  onPress={wizGoBack}
-                >
-                  <Text style={styles.wizBackBtnText}>
-                    {editingId !== null
-                      ? (wizardStep === 'summary' ? 'Cancelar' : '‹ Resumo')
-                      : '‹ Voltar'}
-                  </Text>
-                </TouchableOpacity>
-                {stepNeedsNext() && (
-                  <TouchableOpacity
-                    style={styles.wizNextBtn}
-                    onPress={() => (wizardStep === 'summary' ? handleSave() : wizGoNext())}
-                  >
-                    <Text style={styles.wizNextBtnText}>
-                      {(() => {
-                        if (editingId !== null) {
-                          if (wizardStep === 'summary') return 'Salvar ✓';
-                          return editNextStep(wizardStep, reminderPeriod) === 'summary' ? 'OK ✓' : 'Próximo ›';
-                        }
-                        const seq = getStepSequence(reminderPeriod, true, mealMode);
-                        const idx = seq.indexOf(wizardStep);
-                        return idx >= seq.length - 1 ? 'Salvar ✓' : 'Próximo ›';
-                      })()}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              </View>
             </View>
           </View>
         </KeyboardAvoidingView>
@@ -1568,9 +1532,10 @@ export default function MedicationsScreen() {
               </Text>
               <Text style={styles.stockHelpSubtitle}>Como funciona</Text>
               <Text style={styles.stockHelpText}>
-                1. Informe a quantidade atual de comprimidos que você tem em casa.{'\n\n'}
-                2. A cada vez que tomar o medicamento, toque em <Text style={{ fontWeight: '700' }}>Tomei</Text> no aviso de alarme ou em <Text style={{ fontWeight: '700' }}>Tomar</Text> no card. O estoque diminui automaticamente em 1.{'\n\n'}
-                3. Quando o estoque ficar baixo (menos de 3 dias de doses), você verá um aviso.
+                1. Informe a quantidade atual de comprimidos ou cápsulas que você tem em casa.{'\n\n'}
+                2. Se cada dose for mais de 1 cápsula/comprimido, informe quantas em "1 dose = ".{'\n\n'}
+                3. A cada vez que tomar o medicamento, toque em <Text style={{ fontWeight: '700' }}>Tomei</Text> no aviso de alarme ou em <Text style={{ fontWeight: '700' }}>Tomar</Text> no card. O estoque diminui automaticamente de acordo com a dose.{'\n\n'}
+                4. Quando o estoque ficar baixo (menos de 3 dias de doses), você verá um aviso.
               </Text>
               <View style={styles.stockHelpTip}>
                 <Text style={styles.stockHelpTipText}>
@@ -1579,25 +1544,6 @@ export default function MedicationsScreen() {
               </View>
             </ScrollView>
             <TouchableOpacity style={styles.intModalClose} onPress={() => setShowStockHelp(false)}>
-              <Text style={styles.intModalCloseText}>Entendi</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal visible={showSaveHistoryHelp} animationType="slide" transparent onRequestClose={() => setShowSaveHistoryHelp(false)}>
-        <View style={styles.intModalOverlay}>
-          <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
-            <Text style={styles.intModalTitle}>Salva no Histórico</Text>
-            <ScrollView>
-              <Text style={styles.stockHelpText}>
-                Deseja salvar no histórico cada lembrete?{'\n\n'}
-                <Text style={{ fontWeight: '700' }}>Sim</Text> — o horário fica registrado no Histórico, e o aviso pergunta <Text style={{ fontWeight: '700' }}>Tomei</Text> ou <Text style={{ fontWeight: '700' }}>Não Tomei</Text>.{'\n\n'}
-                <Text style={{ fontWeight: '700' }}>Não</Text> — o aviso só fica na tela por 15 minutos e some sozinho, sem perguntar nada e sem virar linha no Histórico.{'\n\n'}
-                Obrigatório manter em Sim se o medicamento tiver controle de estoque ativo, pois é a confirmação de Tomei que desconta o estoque.
-              </Text>
-            </ScrollView>
-            <TouchableOpacity style={styles.intModalClose} onPress={() => setShowSaveHistoryHelp(false)}>
               <Text style={styles.intModalCloseText}>Entendi</Text>
             </TouchableOpacity>
           </View>
@@ -1641,6 +1587,12 @@ const styles = StyleSheet.create({
   stockRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 },
   stockText: { fontSize: 12, color: '#555', flex: 1 },
   stockTextLow: { color: '#E07B4F', fontWeight: '600' },
+  unitsPerDoseRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14 },
+  unitsPerDoseText: { fontSize: 14, color: '#444' },
+  unitsPerDoseInput: {
+    borderWidth: 1, borderColor: '#ddd', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 8,
+    fontSize: 15, fontWeight: '600', color: '#222', backgroundColor: '#fafafa', textAlign: 'center', width: 48,
+  },
   takenBtn: { backgroundColor: '#1C3F7A', borderRadius: 6, paddingHorizontal: 12, paddingVertical: 5 },
   takenBtnText: { fontSize: 12, color: '#fff', fontWeight: '700' },
   endDateText: { fontSize: 12, color: '#888', marginTop: 4 },
@@ -1698,11 +1650,14 @@ const styles = StyleSheet.create({
   wizFooter: {
     flexDirection: 'row', gap: 12, paddingHorizontal: 16, paddingTop: 12,
     borderTopWidth: 1, borderTopColor: '#f0f0f0', backgroundColor: '#fff',
+    marginHorizontal: -20,
   },
   wizBackBtn: { flex: 1, borderWidth: 1.5, borderColor: '#ccc', borderRadius: 10, padding: 14, alignItems: 'center' },
   wizBackBtnText: { fontSize: 15, color: '#666', fontWeight: '600' },
   wizNextBtn: { flex: 2, backgroundColor: '#1C3F7A', borderRadius: 10, padding: 14, alignItems: 'center' },
   wizNextBtnText: { fontSize: 15, color: '#fff', fontWeight: '700' },
+  wizNextBtnPlain: { backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#ccc' },
+  wizNextBtnTextPlain: { color: '#666' },
   // Type selection cards
   typeCardBtn: {
     borderWidth: 1.5, borderColor: '#ddd', borderRadius: 16, padding: 24,
@@ -1714,7 +1669,9 @@ const styles = StyleSheet.create({
   // Yes/No
   yesNoRow: { flexDirection: 'row', gap: 12 },
   yesNoBtn: { flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 12, paddingVertical: 22, alignItems: 'center' },
+  yesNoBtnSm: { flex: 1, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
   yesNoBtnActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
+  yesNoBtnDisabled: { opacity: 0.4 },
   yesNoBtnText: { fontSize: 16, color: '#555', fontWeight: '700' },
   yesNoBtnTextActive: { color: '#fff' },
   // Period cards
@@ -1735,6 +1692,7 @@ const styles = StyleSheet.create({
   lockOnlyBtnActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
   lockOnlyBtnText: { fontSize: 13, color: '#555', fontWeight: '600' },
   lockOnlyBtnTextActive: { color: '#fff' },
+  lockOnlyHint: { fontSize: 12, color: '#8A8F9D', marginTop: 8, lineHeight: 17, paddingHorizontal: 2 },
   // Autocomplete
   fieldLabelRow: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 4 },
   fieldLabel: { fontSize: 13, color: '#555' },
@@ -1835,6 +1793,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F2F4F8', borderRadius: 12, padding: 14, marginBottom: 8,
     borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
   },
+  sumRowChanged: { borderLeftWidth: 3, borderLeftColor: '#1C3F7A' },
   sumIcon: { fontSize: 20, width: 26, textAlign: 'center' },
   sumLabel: { fontSize: 11, color: '#8A8F9D', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.4 },
   sumValue: { fontSize: 14, color: '#1A1F2E', fontWeight: '600', marginTop: 2 },

@@ -1,12 +1,16 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { Profile, Medication, MedicationReminder, ActivityReminder } from '../types';
-import { postMedNotification, cancelMedNotification } from './medNotification';
-import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity, getContacts, getKV, setKV } from '../database/db';
+import { postMedNotification, cancelMedNotification, postSimpleNotification, cancelSimpleNotification } from './medNotification';
+import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity, getContacts, getKV, setKV, addMedicationLowStockLog } from '../database/db';
 
 const CHANNEL_ID = 'medalert_emergency_v5';
 const NOTIF_ID = 'emergency';
 const EMERGENCY_SIGNATURE_KV = 'emergency_notif_signature';
+const NEXT_MED_CHANNEL = 'medalert_next_med_v1';
+// Notificação nativa (NotificationManager.notify), não Expo — precisa de id numérico
+const NEXT_MED_NATIVE_ID = 1002;
+const NEXT_MED_SIGNATURE_KV = 'next_med_notif_signature';
 const REMINDER_SOUND_CHANNEL = 'medalert_reminder_sound';
 const REMINDER_SILENT_CHANNEL = 'medalert_reminder_silent';
 const REMINDER_CATEGORY = 'reminder_action';
@@ -23,6 +27,7 @@ const ACTIVITY_BASIC_CATEGORY = 'activity_basic_action';
 const MEASURE_ACTIVITY_TYPES = ['bp', 'glucose', 'weight'];
 const TREATMENT_ENDED_CHANNEL = 'medalert_treatment_ended_v1';
 const TREATMENT_ENDED_CATEGORY = 'treatment_ended_action';
+const LOW_STOCK_CATEGORY = 'low_stock_action';
 
 export async function setupReminderCategory(): Promise<void> {
   // Categories don't work in Expo Go (SDK 53+); work normally in production APK/AAB.
@@ -43,6 +48,9 @@ export async function setupReminderCategory(): Promise<void> {
     ]);
     await Notifications.setNotificationCategoryAsync(TREATMENT_ENDED_CATEGORY, [
       { identifier: 'END_OK', buttonTitle: 'OK', options: { opensAppToForeground: false } },
+    ]);
+    await Notifications.setNotificationCategoryAsync(LOW_STOCK_CATEGORY, [
+      { identifier: 'STOCK_OK', buttonTitle: 'OK', options: { opensAppToForeground: false } },
     ]);
   } catch {
     // Silently ignore in Expo Go
@@ -117,6 +125,16 @@ export async function setupNotificationChannels(): Promise<void> {
     importance: Notifications.AndroidImportance.HIGH,
     lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
     sound: null,
+  });
+
+  // Banner separado do "próximo medicamento" — DEFAULT (sem heads-up/som),
+  // PUBLIC para aparecer completo na tela de bloqueio.
+  await Notifications.setNotificationChannelAsync(NEXT_MED_CHANNEL, {
+    name: 'Próximo Medicamento',
+    importance: Notifications.AndroidImportance.DEFAULT,
+    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+    sound: null,
+    showBadge: false,
   });
 
   await Notifications.setNotificationChannelAsync(MED_SILENT_HEADSUP_CHANNEL, {
@@ -215,10 +233,36 @@ export function nextReminderInfo(reminders: MedicationReminder[]): ReminderInfo 
 
 async function clearEmergency(): Promise<void> {
   try { cancelMedNotification(); } catch {}
+  try { cancelSimpleNotification(NEXT_MED_NATIVE_ID); } catch {}
   for (const id of [NOTIF_ID, 'emergency_lockscreen', 'emergency_detail', 'emergency_persistent']) {
     try { await Notifications.cancelScheduledNotificationAsync(id); } catch {}
     try { await Notifications.dismissNotificationAsync(id); } catch {}
   }
+}
+
+// Banner separado com o próximo medicamento de hoje. Notificação nativa (não Expo) para
+// poder usar setShowWhen(false) — sem isso o Android sempre mostra o carimbo de quando
+// a notificação foi postada, que confunde com o horário do remédio escrito no corpo.
+// Ongoing (não dá para dispensar por engano); atualizada in-place pelo mesmo id; some
+// quando não há mais dose hoje. Assinatura própria em KV evita repost igual.
+async function updateNextMedNotification(
+  nextMed: { name: string; label: string; critical: boolean } | null
+): Promise<void> {
+  const signature = nextMed ? `${nextMed.name}|${nextMed.label}|${nextMed.critical}` : '';
+  const lastSignature = await getKV(NEXT_MED_SIGNATURE_KV).catch(() => null);
+  if (lastSignature === signature) return;
+
+  if (nextMed) {
+    postSimpleNotification(
+      'Próximo medicamento',
+      `${nextMed.critical ? '⚠️' : '💊'} ${nextMed.name} · ${nextMed.label}`,
+      NEXT_MED_CHANNEL,
+      NEXT_MED_NATIVE_ID,
+    );
+  } else {
+    cancelSimpleNotification(NEXT_MED_NATIVE_ID);
+  }
+  await setKV(NEXT_MED_SIGNATURE_KV, signature).catch(() => {});
 }
 
 export function calculateAge(birthDate: string): number | null {
@@ -235,17 +279,10 @@ export function calculateAge(birthDate: string): number | null {
   return age >= 0 ? age : null;
 }
 
-export async function updateEmergencyNotification(
-  profile: Profile | null,
-  medications: Medication[]
-): Promise<void> {
-  if (!profile?.name) {
-    await clearEmergency();
-    await setKV(EMERGENCY_SIGNATURE_KV, '').catch(() => {});
-    return;
-  }
-
-  // Ordena: críticos primeiro, depois alfabético pelo nome principal
+// Linhas do card de emergência (medicamentos, perfil, contatos) — mesmo conteúdo
+// usado no bigText da notificação da tela de bloqueio, exportado para a Agenda/tela
+// de Emergência conseguir mostrar uma prévia idêntica.
+export async function buildEmergencyCardLines(profile: Profile, medications: Medication[]): Promise<string[]> {
   const sortedMeds = [...medications].sort((a, b) => {
     if (a.is_critical !== b.is_critical) return a.is_critical ? -1 : 1;
     const nameA = a.commercial_name || a.generic_name;
@@ -254,37 +291,8 @@ export async function updateEmergencyNotification(
   });
   const meds8 = sortedMeds.slice(0, 8);
 
-  // Carrega lembretes de cada medicamento para mostrar próximo horário
-  const medReminders = meds8.length
-    ? await Promise.all(meds8.map(m => getRemindersForMedication(m.id).catch(() => [] as MedicationReminder[])))
-    : [];
-
-  // Título fixo — não expõe nome/tipo sanguíneo/idade na notificação recolhida.
-  // Esses dados só aparecem quando o usuário expande manualmente (privacidade).
-  const title = 'Informações Médicas';
-
-  // Próximo lembrete do dia — única linha visível no modo colapsado, e
-  // destacada no topo do conteúdo expandido.
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
-  const upcoming: { sortMs: number; name: string; label: string; critical: boolean }[] = [];
-  meds8.forEach((m, idx) => {
-    const info = nextReminderInfo(medReminders[idx] ?? []);
-    if (info && info.sortMs <= todayEnd.getTime()) {
-      upcoming.push({ name: m.commercial_name?.trim() || m.generic_name, label: info.label, sortMs: info.sortMs, critical: m.is_critical });
-    }
-  });
-  upcoming.sort((a, b) => a.sortMs - b.sortMs);
-  const nextMed = upcoming[0] ?? null;
-  const contentText = nextMed ? `${nextMed.name} · ${nextMed.label}` : '';
-
-  // bigText: ficha expandida, em grupos — medicamentos (próximo em destaque + lista
-  // completa), informações médicas (identificação, alergias, observações) e dados de
-  // emergência (contatos) — nessa ordem, sem misturar os grupos.
   const lines: string[] = [];
-
-  if (nextMed || meds8.length) {
-    if (nextMed) lines.push(`${nextMed.critical ? '⚠️' : '💊'} ${nextMed.name} · ${nextMed.label}`);
+  if (meds8.length) {
     meds8.forEach(m => {
       const name = m.commercial_name ? m.commercial_name : m.generic_name;
       lines.push(`${m.is_critical ? '⚠️' : '💊'} ${name}${m.dose ? '  ' + m.dose : ''}`);
@@ -309,6 +317,61 @@ export async function updateEmergencyNotification(
     });
   }
 
+  return lines;
+}
+
+export async function updateEmergencyNotification(
+  profile: Profile | null,
+  medications: Medication[]
+): Promise<void> {
+  if (!profile?.name) {
+    await clearEmergency();
+    await setKV(EMERGENCY_SIGNATURE_KV, '').catch(() => {});
+    await setKV(NEXT_MED_SIGNATURE_KV, '').catch(() => {});
+    return;
+  }
+
+  // Ordena: críticos primeiro, depois alfabético pelo nome principal
+  const sortedMeds = [...medications].sort((a, b) => {
+    if (a.is_critical !== b.is_critical) return a.is_critical ? -1 : 1;
+    const nameA = a.commercial_name || a.generic_name;
+    const nameB = b.commercial_name || b.generic_name;
+    return nameA.localeCompare(nameB, 'pt');
+  });
+  const meds8 = sortedMeds.slice(0, 8);
+
+  // Carrega lembretes de cada medicamento para mostrar próximo horário
+  const medReminders = meds8.length
+    ? await Promise.all(meds8.map(m => getRemindersForMedication(m.id).catch(() => [] as MedicationReminder[])))
+    : [];
+
+  // Título fixo — não expõe nome/tipo sanguíneo/idade na notificação recolhida.
+  // Esses dados só aparecem quando o usuário expande manualmente (privacidade).
+  const title = 'Informações Médicas';
+
+  // Próximo lembrete do dia — vai para um banner separado (updateNextMedNotification),
+  // fora da ficha fixa de emergência.
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999);
+  const upcoming: { sortMs: number; name: string; label: string; critical: boolean }[] = [];
+  meds8.forEach((m, idx) => {
+    const info = nextReminderInfo(medReminders[idx] ?? []);
+    if (info && info.sortMs <= todayEnd.getTime()) {
+      upcoming.push({ name: m.commercial_name?.trim() || m.generic_name, label: info.label, sortMs: info.sortMs, critical: m.is_critical });
+    }
+  });
+  upcoming.sort((a, b) => a.sortMs - b.sortMs);
+  const nextMed = upcoming[0] ?? null;
+  await updateNextMedNotification(nextMed);
+
+  // Colapsado mostra só o título (privacidade) — dados apenas ao expandir.
+  const contentText = '';
+
+  // bigText: ficha expandida, em grupos — medicamentos (lista completa),
+  // informações médicas (identificação, alergias, observações) e dados de
+  // emergência (contatos) — nessa ordem, sem misturar os grupos.
+  const lines = await buildEmergencyCardLines(profile, medications);
+
   // Só reenvia se o conteúdo realmente mudou. A atualização é in-place (nm.notify
   // com o mesmo id substitui) — NÃO cancelar antes: cancelar zera o estado de
   // "já alertou" e faria o banner heads-up reaparecer a cada repost.
@@ -326,6 +389,7 @@ export async function updateEmergencyNotification(
 export async function cancelEmergencyNotification(): Promise<void> {
   await clearEmergency();
   await setKV(EMERGENCY_SIGNATURE_KV, '').catch(() => {});
+  await setKV(NEXT_MED_SIGNATURE_KV, '').catch(() => {});
 }
 
 // Zera a assinatura no cold start: num aparelho restaurado por backup (Google/manual)
@@ -335,6 +399,7 @@ export async function cancelEmergencyNotification(): Promise<void> {
 // Custo: um repost silencioso por abertura do app (canal DEFAULT, sem som/heads-up).
 export async function resetEmergencySignature(): Promise<void> {
   await setKV(EMERGENCY_SIGNATURE_KV, '').catch(() => {});
+  await setKV(NEXT_MED_SIGNATURE_KV, '').catch(() => {});
 }
 
 export async function dismissNotification(id: string): Promise<void> {
@@ -347,7 +412,6 @@ export interface ReminderAlertPayload {
   name: string;
   dose: string;
   repeatInterval: number;
-  interactive: boolean;
 }
 
 export function initReminderListeners(
@@ -362,45 +426,21 @@ export function initReminderListeners(
       name: (data.name as string) || (notification.request.content.title ?? ''),
       dose: (data.dose as string) || '',
       repeatInterval: (data.repeatInterval as number) || 0,
-      interactive: (data.interactive as boolean) ?? true,
     };
     onReceived(payload);
   });
   return () => sub.remove();
 }
 
-// Lembrete "não interativo" (Salvar no Histórico = Não): em vez de depender de um timer
-// em segundo plano (o app pode ser suspenso pelo Android antes de rodar), a limpeza
-// acontece quando o usuário abre/volta pro app — ver initReminderListeners em App.tsx,
-// chamado no cold start e sempre que o app volta a ficar ativo.
-export async function dismissStaleNonInteractiveReminders(maxAgeMinutes = 15): Promise<void> {
-  const presented = await Notifications.getPresentedNotificationsAsync().catch(() => []);
-  const cutoff = Date.now() - maxAgeMinutes * 60 * 1000;
-  for (const n of presented) {
-    const data = n.request.content.data;
-    if (data?.type !== 'reminder' || data?.interactive !== false) continue;
-    if (n.date > cutoff) continue;
-    await dismissNotification(n.request.identifier);
-  }
-}
-
-function reminderContent(medicationName: string, dose: string, medicationId: number, repeatInterval = 0, stockWarning?: string, interactive = true) {
+function reminderContent(medicationName: string, dose: string, medicationId: number, repeatInterval = 0, stockWarning?: string) {
   const bodyBase = dose || 'Hora de tomar o medicamento';
-  const content: {
-    title: string; body: string; data: Record<string, unknown>;
-    sticky?: boolean; categoryIdentifier?: string;
-  } = {
+  return {
     title: medicationName,
     body: stockWarning ? `${bodyBase} · ${stockWarning}` : bodyBase,
-    data: { type: 'reminder', medicationId, name: medicationName, dose, repeatInterval, interactive },
+    data: { type: 'reminder', medicationId, name: medicationName, dose, repeatInterval },
+    sticky: true,
+    categoryIdentifier: MED_ACTION_CATEGORY,
   };
-  // "Salvar no Histórico = Não": sem botões Tomei/Não tomei e sem persistência —
-  // vira um alerta comum que o próprio timer de dispensa remove em 15 min.
-  if (interactive) {
-    content.sticky = true;
-    content.categoryIdentifier = MED_ACTION_CATEGORY;
-  }
-  return content;
 }
 
 function timePart(hour: number, minute: number) {
@@ -422,12 +462,11 @@ export async function scheduleReminder(
   repeatInterval = 0,
   stockWarning?: string,
   homeReminder = false,
-  interactive = true,
 ): Promise<void> {
   const id = `reminder_${medicationId}_${timePart(hour, minute)}`;
   await Notifications.scheduleNotificationAsync({
     identifier: id,
-    content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning, interactive),
+    content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning),
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
       hour,
@@ -448,12 +487,11 @@ export async function scheduleReminderWeekly(
   repeatInterval = 0,
   stockWarning?: string,
   homeReminder = false,
-  interactive = true,
 ): Promise<void> {
   for (const wd of weekdays) {
     await Notifications.scheduleNotificationAsync({
       identifier: `reminder_${medicationId}_w${wd}_${timePart(hour, minute)}`,
-      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning, interactive),
+      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning),
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
         weekday: wd,
@@ -476,12 +514,11 @@ export async function scheduleReminderMonthly(
   repeatInterval = 0,
   stockWarning?: string,
   homeReminder = false,
-  interactive = true,
 ): Promise<void> {
   for (const day of days) {
     await Notifications.scheduleNotificationAsync({
       identifier: `reminder_${medicationId}_m${day}_${timePart(hour, minute)}`,
-      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning, interactive),
+      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning),
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
         repeats: true,
@@ -506,7 +543,6 @@ export async function scheduleReminderEveryNMonths(
   repeatInterval = 0,
   stockWarning?: string,
   homeReminder = false,
-  interactive = true,
 ): Promise<void> {
   const tp = timePart(hour, minute);
   const now = new Date();
@@ -516,7 +552,7 @@ export async function scheduleReminderEveryNMonths(
     const dateStr = `${next.getFullYear()}${String(next.getMonth() + 1).padStart(2, '0')}${String(next.getDate()).padStart(2, '0')}`;
     await Notifications.scheduleNotificationAsync({
       identifier: `reminder_${medicationId}_nm_${dateStr}_${tp}`,
-      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning, interactive),
+      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning),
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
         repeats: false,
@@ -776,22 +812,21 @@ export async function rescheduleRemindersForMedication(
 ): Promise<void> {
   const notifName = med.commercial_name?.trim() || med.generic_name;
   const homeReminder = med.home_reminder !== 0;
-  const interactive = med.save_history !== 0 || med.stock_quantity != null;
   for (const r of reminders) {
     if (!r.is_active) continue;
     const [h, m] = r.time.split(':').map(Number);
     if (isNaN(h)) continue;
     if (!r.period || r.period === 'day') {
-      await scheduleReminder(med.id, notifName, med.dose, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, interactive).catch(() => {});
+      await scheduleReminder(med.id, notifName, med.dose, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder).catch(() => {});
     } else if (r.period.startsWith('week:')) {
       const wds = r.period.split(':')[1].split(',').map(Number);
-      await scheduleReminderWeekly(med.id, notifName, med.dose, wds, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, interactive).catch(() => {});
+      await scheduleReminderWeekly(med.id, notifName, med.dose, wds, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder).catch(() => {});
     } else if (r.period.startsWith('month:')) {
       const days = r.period.split(':')[1].split(',').map(Number);
-      await scheduleReminderMonthly(med.id, notifName, med.dose, days, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, interactive).catch(() => {});
+      await scheduleReminderMonthly(med.id, notifName, med.dose, days, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder).catch(() => {});
     } else if (r.period.startsWith('nmonths:')) {
       const [, nStr, dStr] = r.period.split(':');
-      await scheduleReminderEveryNMonths(med.id, notifName, med.dose, parseInt(nStr), parseInt(dStr), h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, interactive).catch(() => {});
+      await scheduleReminderEveryNMonths(med.id, notifName, med.dose, parseInt(nStr), parseInt(dStr), h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder).catch(() => {});
     }
   }
 }
@@ -804,7 +839,7 @@ export async function rescheduleAllActiveNotifications(): Promise<void> {
       let stockWarning: string | undefined;
       if (med.stock_quantity != null) {
         const activeDoses = reminders.filter(r => r.is_active).length || 1;
-        const daysLeft = Math.floor(med.stock_quantity / activeDoses);
+        const daysLeft = Math.floor(med.stock_quantity / (activeDoses * (med.units_per_dose || 1)));
         if (daysLeft <= 3) {
           stockWarning = `⚠️ Estoque: ~${daysLeft}d`;
         }
@@ -838,8 +873,8 @@ export async function rescheduleRemindersForActivity(
 }
 
 export interface NotificationResponseHandlers {
-  onMedTook:           (medicationId: number, notifId: string, name: string, dose: string) => void;
-  onMedSkip:           (medicationId: number, notifId: string, name: string, dose: string) => void;
+  onMedTook:           (medicationId: number, notifId: string, name: string, dose: string, firedAtMs: number) => void;
+  onMedSkip:           (medicationId: number, notifId: string, name: string, dose: string, firedAtMs: number) => void;
   onMedDefault:        (payload: ReminderAlertPayload) => void;
   onActivityDone:      (activityId: number, activityName: string, activityType: string, notifId: string) => void;
   onActivitySnooze:    (activityId: number, activityName: string, activityType: string, notifId: string) => void;
@@ -857,9 +892,9 @@ export function initResponseListeners(handlers: NotificationResponseHandlers): (
 
     if (data?.type === 'reminder') {
       if (actionIdentifier === 'TOOK') {
-        handlers.onMedTook(data.medicationId, notifId, data.name ?? '', data.dose ?? '');
+        handlers.onMedTook(data.medicationId, notifId, data.name ?? '', data.dose ?? '', notification.date);
       } else if (actionIdentifier === 'SKIP') {
-        handlers.onMedSkip(data.medicationId, notifId, data.name ?? '', data.dose ?? '');
+        handlers.onMedSkip(data.medicationId, notifId, data.name ?? '', data.dose ?? '', notification.date);
       } else {
         // Default action: user tapped the notification body (app opens)
         handlers.onMedDefault({
@@ -868,7 +903,6 @@ export function initResponseListeners(handlers: NotificationResponseHandlers): (
           name: data.name || notification.request.content.title || '',
           dose: data.dose || '',
           repeatInterval: data.repeatInterval || 0,
-          interactive: data.interactive ?? true,
         });
       }
     }
@@ -898,6 +932,11 @@ export function initResponseListeners(handlers: NotificationResponseHandlers): (
         handlers.onTreatmentEndedOk(data.medicationId as number);
       }
     }
+
+    // Aviso de estoque baixo é sticky — só o OK (ou toque) remove
+    if (data?.type === 'low_stock') {
+      dismissNotification(notifId).catch(() => {});
+    }
   });
   return () => sub.remove();
 }
@@ -920,12 +959,16 @@ export async function notifyTreatmentEnded(medicationId: number, medicationName:
 }
 
 export async function notifyLowStock(medicationId: number, medicationName: string, daysLeft: number): Promise<void> {
+  await addMedicationLowStockLog(medicationId, medicationName, daysLeft).catch(() => {});
   await Notifications.scheduleNotificationAsync({
     identifier: `low_stock_${medicationId}`,
     content: {
       title: '💊 Estoque baixo',
       body: `${medicationName} — restam ~${daysLeft} dia${daysLeft !== 1 ? 's' : ''} de doses. Providencie a reposição.`,
       data: { type: 'low_stock', medicationId },
+      // Só sai da tela quando o usuário der OK (sticky impede descartar por engano)
+      sticky: true,
+      categoryIdentifier: LOW_STOCK_CATEGORY,
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,

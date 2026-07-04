@@ -68,6 +68,41 @@ class MedNotificationModule(private val reactContext: ReactApplicationContext) :
         }
     }
 
+    // Notificação simples (não sobrevive a reboot, sem BigTextStyle) usada pelo banner
+    // "Próximo medicamento" — setShowWhen(false) esconde o carimbo de hora que o Android
+    // mostra por padrão (que reflete quando foi postada, não o horário do remédio).
+    @ReactMethod
+    fun postSimpleNotification(title: String, body: String, channelId: String, notifId: Double, promise: Promise) {
+        try {
+            val nm = reactContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notification = NotificationCompat.Builder(reactContext, channelId)
+                .setSmallIcon(R.drawable.notification_icon)
+                .setContentTitle(title)
+                .setContentText(body)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setShowWhen(false)
+                .build()
+            nm.notify(notifId.toInt(), notification)
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("ERR_NOTIF", e.message)
+        }
+    }
+
+    @ReactMethod
+    fun cancelSimpleNotification(notifId: Double, promise: Promise) {
+        try {
+            val nm = reactContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            nm.cancel(notifId.toInt())
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("ERR_NOTIF", e.message)
+        }
+    }
+
     companion object {
         const val NOTIF_ID = 1001
     }
@@ -262,6 +297,24 @@ function withBootReceiver(config) {
   });
 }
 
+function withCompatResizability(config) {
+  return withAndroidManifest(config, (cfg) => {
+    const manifest = cfg.modResults;
+    const activities = manifest.manifest.application[0].activity || [];
+    const mainActivity = activities.find(a => a.$?.['android:name'] === '.MainActivity');
+    if (!mainActivity) return cfg;
+
+    if (!mainActivity.property) mainActivity.property = [];
+    if (!mainActivity.property.some(p => p.$?.['android:name'] === 'android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY')) {
+      mainActivity.property.push({
+        $: { 'android:name': 'android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY', 'android:value': 'true' },
+      });
+    }
+
+    return cfg;
+  });
+}
+
 function withReleaseSigning(config) {
   return withAppBuildGradle(config, (cfg) => {
     let gradle = cfg.modResults.contents;
@@ -284,6 +337,7 @@ function withReleaseSigning(config) {
 module.exports = function withMedNotification(config) {
   config = withKotlinFiles(config);
   config = withBootReceiver(config);
+  config = withCompatResizability(config);
   config = withReleaseSigning(config);
   return config;
 };

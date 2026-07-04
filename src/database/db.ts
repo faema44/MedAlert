@@ -190,6 +190,28 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
   try {
     await database.execAsync('ALTER TABLE medications ADD COLUMN save_history INTEGER DEFAULT 1');
   } catch {}
+  // Distingue tomei/não tomei/dispensado/tratamento encerrado no histórico
+  // (antes só existia o campo "taken" 1/0/null, que não cobria dispensado nem fim de tratamento)
+  try {
+    await database.execAsync('ALTER TABLE medication_log ADD COLUMN status TEXT');
+  } catch {}
+  // Atividade "Ciclo Menstrual": guarda o 1º dia do ciclo atual e as durações usadas
+  // para calcular a fase do dia (ver getCyclePhase em AgendaScreen.tsx)
+  try {
+    await database.execAsync('ALTER TABLE activities ADD COLUMN cycle_start_date TEXT');
+  } catch {}
+  try {
+    await database.execAsync('ALTER TABLE activities ADD COLUMN cycle_length_days INTEGER DEFAULT 28');
+  } catch {}
+  try {
+    await database.execAsync('ALTER TABLE activities ADD COLUMN period_length_days INTEGER DEFAULT 5');
+  } catch {}
+  // Quantas unidades (cápsulas/comprimidos) equivalem a 1 dose — antes o controle
+  // de estoque sempre assumia 1 dose = 1 unidade, errando a contagem para doses
+  // de mais de 1 cápsula/comprimido
+  try {
+    await database.execAsync('ALTER TABLE medications ADD COLUMN units_per_dose INTEGER DEFAULT 1');
+  } catch {}
 }
 
 // Profile
@@ -224,6 +246,7 @@ export async function getMedications(): Promise<Medication[]> {
     ...r,
     is_critical: Boolean(r.is_critical),
     stock_quantity: r.stock_quantity ?? null,
+    units_per_dose: r.units_per_dose ?? 1,
     end_date: r.end_date ?? null,
     home_reminder: r.home_reminder ?? 1,
     save_history: r.save_history ?? 1,
@@ -233,8 +256,8 @@ export async function getMedications(): Promise<Medication[]> {
 export async function addMedication(med: Omit<Medication, 'id'>): Promise<number> {
   const database = await getDb();
   const result = await database.runAsync(
-    `INSERT INTO medications (generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, end_date, home_reminder, save_history) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [med.generic_name ?? '', med.commercial_name ?? '', med.dose ?? '', med.frequency ?? '', med.is_critical ? 1 : 0, med.notes ?? '', med.stock_quantity ?? null, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1]
+    `INSERT INTO medications (generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, units_per_dose, end_date, home_reminder, save_history) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [med.generic_name ?? '', med.commercial_name ?? '', med.dose ?? '', med.frequency ?? '', med.is_critical ? 1 : 0, med.notes ?? '', med.stock_quantity ?? null, med.units_per_dose ?? 1, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1]
   );
   return result.lastInsertRowId;
 }
@@ -242,8 +265,8 @@ export async function addMedication(med: Omit<Medication, 'id'>): Promise<number
 export async function updateMedication(med: Medication): Promise<void> {
   const database = await getDb();
   await database.runAsync(
-    `UPDATE medications SET generic_name=?, commercial_name=?, dose=?, frequency=?, is_critical=?, notes=?, stock_quantity=?, end_date=?, home_reminder=?, save_history=? WHERE id=?`,
-    [med.generic_name, med.commercial_name, med.dose, med.frequency, med.is_critical ? 1 : 0, med.notes, med.stock_quantity ?? null, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1, med.id]
+    `UPDATE medications SET generic_name=?, commercial_name=?, dose=?, frequency=?, is_critical=?, notes=?, stock_quantity=?, units_per_dose=?, end_date=?, home_reminder=?, save_history=? WHERE id=?`,
+    [med.generic_name, med.commercial_name, med.dose, med.frequency, med.is_critical ? 1 : 0, med.notes, med.stock_quantity ?? null, med.units_per_dose ?? 1, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1, med.id]
   );
 }
 
@@ -256,7 +279,7 @@ export async function getMedicationById(id: number): Promise<Medication | null> 
   const database = await getDb();
   const row = await database.getFirstAsync<Medication>('SELECT * FROM medications WHERE id=?', [id]);
   if (!row) return null;
-  return { ...row, is_critical: Boolean(row.is_critical), stock_quantity: row.stock_quantity ?? null, end_date: row.end_date ?? null, save_history: row.save_history ?? 1 };
+  return { ...row, is_critical: Boolean(row.is_critical), stock_quantity: row.stock_quantity ?? null, units_per_dose: row.units_per_dose ?? 1, end_date: row.end_date ?? null, save_history: row.save_history ?? 1 };
 }
 
 export async function deleteMedication(id: number): Promise<void> {
@@ -405,14 +428,18 @@ export async function getKVAge(key: string): Promise<number> {
 export async function getActivities(): Promise<Activity[]> {
   const database = await getDb();
   const rows = await database.getAllAsync<Activity>('SELECT * FROM activities ORDER BY name ASC');
-  return rows;
+  return rows.map(r => ({
+    ...r,
+    cycle_length_days: r.cycle_length_days ?? 28,
+    period_length_days: r.period_length_days ?? 5,
+  }));
 }
 
 export async function addActivity(a: Omit<Activity, 'id' | 'created_at'>): Promise<number> {
   const database = await getDb();
   const result = await database.runAsync(
-    'INSERT INTO activities (type, name, notes) VALUES (?, ?, ?)',
-    [a.type, a.name, a.notes ?? '']
+    'INSERT INTO activities (type, name, notes, cycle_start_date, cycle_length_days, period_length_days) VALUES (?, ?, ?, ?, ?, ?)',
+    [a.type, a.name, a.notes ?? '', a.cycle_start_date ?? null, a.cycle_length_days ?? 28, a.period_length_days ?? 5]
   );
   return result.lastInsertRowId;
 }
@@ -420,14 +447,20 @@ export async function addActivity(a: Omit<Activity, 'id' | 'created_at'>): Promi
 export async function updateActivity(a: Activity): Promise<void> {
   const database = await getDb();
   await database.runAsync(
-    'UPDATE activities SET type=?, name=?, notes=? WHERE id=?',
-    [a.type, a.name, a.notes ?? '', a.id]
+    'UPDATE activities SET type=?, name=?, notes=?, cycle_start_date=?, cycle_length_days=?, period_length_days=? WHERE id=?',
+    [a.type, a.name, a.notes ?? '', a.cycle_start_date ?? null, a.cycle_length_days ?? 28, a.period_length_days ?? 5, a.id]
   );
 }
 
 export async function deleteActivity(id: number): Promise<void> {
   const database = await getDb();
   await database.runAsync('DELETE FROM activities WHERE id=?', [id]);
+}
+
+// "Hoje começou": reinicia a contagem do ciclo a partir de hoje
+export async function updateCycleStart(activityId: number, isoDate: string): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('UPDATE activities SET cycle_start_date=? WHERE id=?', [isoDate, activityId]);
 }
 
 // Activity Reminders
@@ -558,6 +591,7 @@ export interface MedicationLogEntry {
   scheduled_at: string;
   taken_at: string | null;
   taken: number | null;
+  status: 'taken' | 'skipped' | 'treatment_ended' | 'low_stock' | null;
   created_at: string;
 }
 
@@ -584,24 +618,95 @@ export async function upsertMedicationLogTaken(
   name: string,
   dose: string,
   taken: boolean,
+  scheduledAtIso?: string,
 ): Promise<void> {
   const database = await getDb();
-  const scheduledAt = new Date().toISOString();
+  const scheduledAt = scheduledAtIso ?? new Date().toISOString();
   await database.runAsync(
     `INSERT OR IGNORE INTO medication_log (medication_id, medication_name, dose, notification_id, scheduled_at) VALUES (?, ?, ?, ?, ?)`,
     [medicationId, name, dose, notifId, scheduledAt]
   );
   await database.runAsync(
-    'UPDATE medication_log SET taken=? WHERE notification_id=?',
-    [taken ? 1 : 0, notifId]
+    'UPDATE medication_log SET taken=?, status=? WHERE notification_id=?',
+    [taken ? 1 : 0, taken ? 'taken' : 'skipped', notifId]
   );
 }
 
 export async function markMedicationLogTaken(notification_id: string, taken: boolean): Promise<void> {
   const database = await getDb();
   await database.runAsync(
-    'UPDATE medication_log SET taken=? WHERE notification_id=?',
-    [taken ? 1 : 0, notification_id]
+    'UPDATE medication_log SET taken=?, status=? WHERE notification_id=?',
+    [taken ? 1 : 0, taken ? 'taken' : 'skipped', notification_id]
+  );
+}
+
+// Aviso de estoque baixo: uma linha por medicamento por dia (dedup via notification_id
+// com a data, INSERT OR IGNORE) — o alerta pode disparar várias vezes no mesmo dia.
+export async function addMedicationLowStockLog(medicationId: number, medicationName: string, daysLeft: number): Promise<void> {
+  const database = await getDb();
+  const d = new Date();
+  const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  await database.runAsync(
+    `INSERT OR IGNORE INTO medication_log (medication_id, medication_name, dose, notification_id, scheduled_at, status) VALUES (?, ?, ?, ?, ?, 'low_stock')`,
+    [medicationId, medicationName, `restam ~${daysLeft} dia${daysLeft !== 1 ? 's' : ''} de doses`, `low_stock_${medicationId}_${dateStr}`, d.toISOString()]
+  );
+}
+
+// notification_id fixo (igual ao da notificação de "Tratamento encerrado") para o
+// INSERT OR IGNORE evitar duplicar o registro se o app reiniciar antes do medicamento ser arquivado.
+export async function addMedicationTreatmentEndedLog(medicationId: number, medicationName: string): Promise<void> {
+  const database = await getDb();
+  await database.runAsync(
+    `INSERT OR IGNORE INTO medication_log (medication_id, medication_name, dose, notification_id, scheduled_at, status) VALUES (?, ?, '', ?, ?, 'treatment_ended')`,
+    [medicationId, medicationName, `treatment_ended_${medicationId}`, new Date().toISOString()]
+  );
+}
+
+// Resposta dada pelo card da Home: se o disparo da notificação já criou uma linha "sem
+// resposta" para o mesmo horário (±4h, mesma janela do isSlotTaken da Home), atualiza essa
+// linha em vez de criar uma segunda — evita registro duplicado da mesma dose no histórico.
+export async function resolveMedicationLogSlot(entry: {
+  medication_id: number;
+  medication_name: string;
+  dose: string;
+  notification_id: string;
+  scheduled_at: string;
+  taken: boolean;
+  taken_at?: string;
+}): Promise<void> {
+  const database = await getDb();
+  const slotSecs = Math.floor(new Date(entry.scheduled_at).getTime() / 1000);
+  const existing = await database.getFirstAsync<{ id: number }>(
+    `SELECT id FROM medication_log
+     WHERE medication_id=? AND taken IS NULL AND status IS NULL
+       AND ABS(strftime('%s', scheduled_at) - ?) < 14400
+     ORDER BY ABS(strftime('%s', scheduled_at) - ?) LIMIT 1`,
+    [entry.medication_id, slotSecs, slotSecs]
+  );
+  if (existing) {
+    await database.runAsync(
+      'UPDATE medication_log SET taken=?, status=?, taken_at=? WHERE id=?',
+      [entry.taken ? 1 : 0, entry.taken ? 'taken' : 'skipped', entry.taken_at ?? null, existing.id]
+    );
+    return;
+  }
+  await database.runAsync(
+    `INSERT OR IGNORE INTO medication_log (medication_id, medication_name, dose, notification_id, scheduled_at, taken_at, taken, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [entry.medication_id, entry.medication_name, entry.dose, entry.notification_id, entry.scheduled_at, entry.taken_at ?? null, entry.taken ? 1 : 0, entry.taken ? 'taken' : 'skipped']
+  );
+}
+
+// Edição manual pelo usuário na tela de Histórico: só permite alternar entre tomei/não
+// tomei e ajustar o horário exibido (mantém taken_at limpo para o card continuar com uma linha só).
+export async function updateMedicationLogEntry(
+  id: number,
+  status: 'taken' | 'skipped',
+  scheduledAtIso: string,
+): Promise<void> {
+  const database = await getDb();
+  await database.runAsync(
+    'UPDATE medication_log SET status=?, taken=?, scheduled_at=?, taken_at=NULL WHERE id=?',
+    [status, status === 'taken' ? 1 : 0, scheduledAtIso, id]
   );
 }
 
@@ -712,8 +817,8 @@ export async function importBackup(json: string): Promise<void> {
     }
     for (const m of (medications ?? [])) {
       await database.runAsync(
-        'INSERT INTO medications (id, generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, end_date, archived, home_reminder, save_history) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
-        [m.id, m.generic_name ?? '', m.commercial_name ?? '', m.dose ?? '', m.frequency ?? '', m.is_critical ?? 0, m.notes ?? '', m.stock_quantity ?? null, m.end_date ?? null, m.archived ?? 0, m.home_reminder ?? 1, m.save_history ?? 1]
+        'INSERT INTO medications (id, generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, units_per_dose, end_date, archived, home_reminder, save_history) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        [m.id, m.generic_name ?? '', m.commercial_name ?? '', m.dose ?? '', m.frequency ?? '', m.is_critical ?? 0, m.notes ?? '', m.stock_quantity ?? null, m.units_per_dose ?? 1, m.end_date ?? null, m.archived ?? 0, m.home_reminder ?? 1, m.save_history ?? 1]
       );
     }
     for (const r of (medication_reminders ?? [])) {

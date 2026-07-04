@@ -4,11 +4,10 @@ import {
   Modal, TextInput, Alert, ScrollView, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { TimePicker } from '../components/TimePicker';
-import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  getActivities, addActivity, updateActivity, deleteActivity,
+  getActivities, addActivity, updateActivity, deleteActivity, updateCycleStart,
   getRemindersForActivity, addActivityReminder, deleteAllRemindersForActivity,
   getAppointments, addAppointment, updateAppointment, deleteAppointment,
   addActivityLog,
@@ -19,8 +18,9 @@ import {
   scheduleAppointmentReminders, cancelAppointmentReminders,
 } from '../services/notifications';
 import { Activity, ActivityReminder, ActivityType, ACTIVITY_PRESETS, Appointment } from '../types';
+import { getCyclePhase } from '../utils/cyclePhase';
 
-const ACTIVITY_TYPES: ActivityType[] = ['water', 'walk', 'physio', 'bp', 'glucose', 'weight', 'custom'];
+const ACTIVITY_TYPES: ActivityType[] = ['water', 'walk', 'physio', 'weight', 'bp', 'glucose', 'cycle', 'custom'];
 const WEEKDAYS_ACT = [
   { label: 'Dom', value: 1 }, { label: 'Seg', value: 2 }, { label: 'Ter', value: 3 },
   { label: 'Qua', value: 4 }, { label: 'Qui', value: 5 }, { label: 'Sex', value: 6 },
@@ -176,6 +176,7 @@ function generateRepeatTimes(fromH: number, fromM: number, toH: number, toM: num
 
 export default function AgendaScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const route = useRoute<RouteProp<{ Agenda: { tab?: 'activities' | 'appointments'; openActivityId?: number; openAppointmentId?: number } }, 'Agenda'>>();
   const [tab, setTab] = useState<'activities' | 'appointments'>(route.params?.tab ?? 'activities');
 
@@ -196,6 +197,13 @@ export default function AgendaScreen() {
   const [showActivityModal, setShowActivityModal] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [actForm, setActForm] = useState(EMPTY_ACTIVITY);
+
+  // Cycle (menstrual) activity fields
+  const [cycleStartDateBR, setCycleStartDateBR] = useState('');
+  const [cycleLengthInput, setCycleLengthInput] = useState('28');
+  const [periodLengthInput, setPeriodLengthInput] = useState('5');
+  const [showCycleDatePicker, setShowCycleDatePicker] = useState(false);
+  const [cyclePickerDate, setCyclePickerDate] = useState(new Date());
 
   // Measurement modal state
   const [showMeasureModal, setShowMeasureModal] = useState(false);
@@ -227,9 +235,10 @@ export default function AgendaScreen() {
   const [showActTimePicker, setShowActTimePicker] = useState(false);
   const [showToTimePicker, setShowToTimePicker] = useState(false);
 
-  // Appointment time wheel state
+  // Appointment time
   const [apptH, setApptH] = useState(8);
   const [apptM, setApptM] = useState(0);
+  const [showApptTimePicker, setShowApptTimePicker] = useState(false);
 
   const loadActivities = useCallback(async () => {
     const list = await getActivities();
@@ -253,10 +262,17 @@ export default function AgendaScreen() {
     const openApptId = route.params?.openAppointmentId;
     if (route.params?.tab) setTab(route.params.tab);
 
+    // Consome os parâmetros de deep-link uma única vez — sem isso, o React Navigation
+    // mantém openActivityId/openAppointmentId na rota e reabre o modal a cada foco
+    // na tela (ex: só trocar de aba e voltar), mesmo sem o usuário tocar em nada.
+    if (openActId || openApptId) {
+      (navigation as any).setParams({ openActivityId: undefined, openAppointmentId: undefined });
+    }
+
     loadActivities().then(({ list }) => {
       if (openActId) {
         const act = list.find(a => a.id === openActId);
-        if (act) openMeasureModal(act);
+        if (act) { act.type === 'cycle' ? handleCycleRestart(act) : openMeasureModal(act); }
       }
     });
 
@@ -266,7 +282,7 @@ export default function AgendaScreen() {
         if (appt) openEditAppt(appt);
       }
     });
-  }, [loadActivities, loadAppointments, route.params?.tab, route.params?.openActivityId, route.params?.openAppointmentId]));
+  }, [loadActivities, loadAppointments, navigation, route.params?.tab, route.params?.openActivityId, route.params?.openAppointmentId]));
 
   // ─── ACTIVITY HANDLERS ──────────────────────────────────────────────────────
 
@@ -292,6 +308,10 @@ export default function AgendaScreen() {
     setActRepeat(false); setActTimeStr('08:00');
     setActItvInput('1'); setActToStr('20:00');
     setActWeekdays([]);
+    const now = new Date();
+    setCycleStartDateBR(`${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`);
+    setCycleLengthInput('28');
+    setPeriodLengthInput('5');
     setShowActivityModal(true);
   }
 
@@ -307,6 +327,9 @@ export default function AgendaScreen() {
     } else {
       setActWeekdays([]);
     }
+    setCycleStartDateBR(a.cycle_start_date ? formatDateBR(a.cycle_start_date) : '');
+    setCycleLengthInput(String(a.cycle_length_days ?? 28));
+    setPeriodLengthInput(String(a.period_length_days ?? 5));
     setShowActivityModal(true);
   }
 
@@ -315,6 +338,33 @@ export default function AgendaScreen() {
       Alert.alert('Campo obrigatório', 'Informe o nome da atividade.');
       return;
     }
+
+    if (actForm.type === 'cycle') {
+      const cycleStartIso = parseDateBR(cycleStartDateBR);
+      if (!cycleStartIso) {
+        Alert.alert('Data inválida', 'Informe o 1º dia do ciclo no formato DD/MM/AAAA.');
+        return;
+      }
+      const cycleData = {
+        type: actForm.type,
+        name: actForm.name.trim(),
+        notes: actForm.notes.trim(),
+        cycle_start_date: cycleStartIso,
+        cycle_length_days: Math.max(1, parseInt(cycleLengthInput, 10) || 28),
+        period_length_days: Math.max(1, parseInt(periodLengthInput, 10) || 5),
+      };
+      if (editingActivity) {
+        await updateActivity({ ...editingActivity, ...cycleData });
+        await cancelAllRemindersForActivity(editingActivity.id);
+        await deleteAllRemindersForActivity(editingActivity.id);
+      } else {
+        await addActivity(cycleData);
+      }
+      setShowActivityModal(false);
+      loadActivities();
+      return;
+    }
+
     const itv = { hour: Math.max(1, parseInt(actItvInput) || 1), minute: 0 };
     const from = parseTime(actTimeStr) ?? { hour: 8, minute: 0 };
     const to = parseTime(actToStr) ?? { hour: 20, minute: 0 };
@@ -358,6 +408,21 @@ export default function AgendaScreen() {
         text: 'Remover', style: 'destructive', onPress: async () => {
           await cancelAllRemindersForActivity(a.id);
           await deleteActivity(a.id);
+          loadActivities();
+        },
+      },
+    ]);
+  }
+
+  function handleCycleRestart(a: Activity) {
+    Alert.alert('Novo ciclo', 'Hoje é o 1º dia do novo ciclo?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Confirmar', onPress: async () => {
+          const now = new Date();
+          const iso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+          await updateCycleStart(a.id, iso);
+          await addActivityLog({ activity_id: a.id, activity_name: a.name, activity_type: a.type, realized: true, value: 'Novo ciclo iniciado' });
           loadActivities();
         },
       },
@@ -475,6 +540,10 @@ export default function AgendaScreen() {
       Alert.alert('Data inválida', 'Use o formato DD/MM/AAAA (ex: 25/06/2026)');
       return;
     }
+    if (apptH > 23 || apptM > 59) {
+      Alert.alert('Horário inválido', 'Informe no formato HH:MM (ex: 14:30)');
+      return;
+    }
     const apptTime = fmtHM(apptH, apptM);
 
     const apptData = {
@@ -553,17 +622,33 @@ export default function AgendaScreen() {
           renderItem={({ item }) => {
             const reminders = remindersMap[item.id] ?? [];
             const { icon } = ACTIVITY_PRESETS[item.type] ?? ACTIVITY_PRESETS.custom;
+            const isCycle = item.type === 'cycle';
+            const cyclePhase = isCycle && item.cycle_start_date
+              ? getCyclePhase(item.cycle_start_date, item.cycle_length_days ?? 28, item.period_length_days ?? 5)
+              : null;
 
             return (
               <View style={styles.card}>
                 {/* Top row */}
                 <View style={styles.cardTopRow}>
                   <Text style={styles.actIcon}>{icon}</Text>
-                  <TouchableOpacity style={styles.cardInfo} onPress={() => openMeasureModal(item)} activeOpacity={0.6}>
+                  <TouchableOpacity
+                    style={styles.cardInfo}
+                    onPress={() => isCycle ? handleCycleRestart(item) : openMeasureModal(item)}
+                    activeOpacity={0.6}
+                  >
                     <Text style={styles.cardName}>
                       {item.name}<Text style={styles.cardNamePlus}> +</Text>
                     </Text>
-                    {reminders.length > 0 && (() => {
+                    {isCycle ? (
+                      cyclePhase ? (
+                        <Text style={[styles.cardSub, cyclePhase.isFertile && styles.cardSubFertile]}>
+                          Dia {cyclePhase.dayInCycle} de {item.cycle_length_days ?? 28} · Fase: {cyclePhase.label}
+                        </Text>
+                      ) : (
+                        <Text style={styles.cardSub}>Toque em editar para configurar</Text>
+                      )
+                    ) : reminders.length > 0 && (() => {
                       const firstR = reminders[0];
                       const wdLabel = firstR?.period?.startsWith('week:')
                         ? '  · ' + firstR.period.split(':')[1].split(',').map(v => WEEKDAYS_ACT.find(w => w.value === Number(v))?.label ?? '').join(', ')
@@ -888,84 +973,143 @@ export default function AgendaScreen() {
                 autoCapitalize="sentences"
               />
 
-              <View style={styles.actTimeRow}>
-                <Text style={styles.actTimeLabel}>Horário da Atividade</Text>
-                <TouchableOpacity onPress={() => setShowActTimePicker(true)}>
-                  <Text style={styles.actTimeDisplay}>{actTimeStr || '08:00'}</Text>
-                </TouchableOpacity>
-              </View>
-              {showActTimePicker && (
-                <DateTimePicker
-                  value={(() => { const d = new Date(); const p = parseTime(actTimeStr); d.setHours(p?.hour ?? 8, p?.minute ?? 0, 0, 0); return d; })()}
-                  mode="time"
-                  is24Hour={true}
-                  onChange={(e, d) => {
-                    setShowActTimePicker(false);
-                    if (e.type === 'set' && d) setActTimeStr(fmtHM(d.getHours(), d.getMinutes()));
-                  }}
-                />
-              )}
-
-              {['water', 'bp', 'glucose'].includes(actForm.type) && (
-                <TouchableOpacity
-                  style={[styles.repeatToggleBtn, actRepeat && styles.repeatToggleBtnActive]}
-                  onPress={() => setActRepeat(v => !v)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[styles.repeatToggleBtnText, actRepeat && styles.repeatToggleBtnTextActive]}>
-                    🔁  Repetir lembrete{actRepeat ? ' — Ativado' : ''}
-                  </Text>
-                  <Text style={[styles.repeatToggleBtnHint, actRepeat && { color: 'rgba(255,255,255,0.65)' }]}>
-                    {actRepeat ? 'Toque para desativar' : 'Repete o aviso em intervalos durante o dia'}
-                  </Text>
-                </TouchableOpacity>
-              )}
-
-              {actRepeat && ['water', 'bp', 'glucose'].includes(actForm.type) && (
-                <View style={styles.repeatInlineRow}>
-                  <Text style={styles.repeatInlineText}>Repete a cada </Text>
-                  <TextInput
-                    style={styles.repeatItvInput}
-                    value={actItvInput}
-                    onChangeText={v => setActItvInput(v.replace(/\D/g,''))}
-                    onEndEditing={() => { const n = Math.max(1, parseInt(actItvInput) || 1); setActItvInput(String(n)); }}
-                    keyboardType="numeric"
-                  />
-                  <Text style={styles.repeatInlineText}>h  das {actTimeStr}  às </Text>
-                  <TouchableOpacity onPress={() => setShowToTimePicker(true)}>
-                    <Text style={styles.repeatTimeDisplay}>{actToStr || '20:00'}</Text>
+              {actForm.type === 'cycle' ? (
+                <>
+                  <Text style={styles.fieldLabel}>1º dia do ciclo atual *</Text>
+                  <TouchableOpacity
+                    style={[styles.fieldInput, styles.pickerBtn]}
+                    onPress={() => {
+                      const iso = parseDateBR(cycleStartDateBR);
+                      setCyclePickerDate(iso ? new Date(iso + 'T00:00:00') : new Date());
+                      setShowCycleDatePicker(true);
+                    }}
+                  >
+                    <Text style={cycleStartDateBR ? styles.pickerBtnText : styles.pickerBtnPlaceholder}>
+                      {cycleStartDateBR || 'DD/MM/AAAA'}
+                    </Text>
+                    <Text style={styles.pickerBtnIcon}>📅</Text>
                   </TouchableOpacity>
-                </View>
-              )}
-              {showToTimePicker && (
-                <DateTimePicker
-                  value={(() => { const d = new Date(); const p = parseTime(actToStr); d.setHours(p?.hour ?? 20, p?.minute ?? 0, 0, 0); return d; })()}
-                  mode="time"
-                  is24Hour={true}
-                  onChange={(e, d) => {
-                    setShowToTimePicker(false);
-                    if (e.type === 'set' && d) setActToStr(fmtHM(d.getHours(), d.getMinutes()));
-                  }}
-                />
-              )}
 
-              <Text style={styles.fieldLabel}>
-                Dias da semana <Text style={styles.fieldLabelOpt}>(vazio = todos os dias)</Text>
-              </Text>
-              <View style={styles.actWeekdayRow}>
-                {WEEKDAYS_ACT.map(wd => {
-                  const sel = actWeekdays.includes(wd.value);
-                  return (
-                    <TouchableOpacity
-                      key={wd.value}
-                      style={[styles.actWeekdayBtn, sel && styles.actWeekdayBtnActive]}
-                      onPress={() => setActWeekdays(prev => sel ? prev.filter(v => v !== wd.value) : [...prev, wd.value])}
-                    >
-                      <Text style={[styles.actWeekdayBtnText, sel && styles.actWeekdayBtnTextActive]}>{wd.label}</Text>
+                  <Text style={styles.fieldLabel}>Duração média do ciclo (dias)</Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    value={cycleLengthInput}
+                    onChangeText={v => setCycleLengthInput(v.replace(/\D/g, '').slice(0, 2))}
+                    onEndEditing={() => setCycleLengthInput(String(Math.max(1, parseInt(cycleLengthInput, 10) || 28)))}
+                    keyboardType="number-pad"
+                    placeholder="28"
+                  />
+
+                  <Text style={styles.fieldLabel}>Duração da menstruação (dias)</Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    value={periodLengthInput}
+                    onChangeText={v => setPeriodLengthInput(v.replace(/\D/g, '').slice(0, 2))}
+                    onEndEditing={() => setPeriodLengthInput(String(Math.max(1, parseInt(periodLengthInput, 10) || 5)))}
+                    keyboardType="number-pad"
+                    placeholder="5"
+                  />
+
+                  {showCycleDatePicker && (
+                    <DateTimePicker
+                      value={cyclePickerDate}
+                      mode="date"
+                      display="calendar"
+                      onChange={(e: DateTimePickerEvent, date?: Date) => {
+                        setShowCycleDatePicker(false);
+                        if (e.type === 'set' && date) {
+                          const d = String(date.getDate()).padStart(2, '0');
+                          const mo = String(date.getMonth() + 1).padStart(2, '0');
+                          const y = date.getFullYear();
+                          setCycleStartDateBR(`${d}/${mo}/${y}`);
+                          setCyclePickerDate(date);
+                        }
+                      }}
+                    />
+                  )}
+                </>
+              ) : (
+                <>
+                  <View style={styles.actTimeRow}>
+                    <Text style={styles.actTimeLabel}>Horário da Atividade</Text>
+                    <TouchableOpacity onPress={() => setShowActTimePicker(true)}>
+                      <Text style={styles.actTimeDisplay}>{actTimeStr || '08:00'}</Text>
                     </TouchableOpacity>
-                  );
-                })}
-              </View>
+                  </View>
+                  {showActTimePicker && (
+                    <DateTimePicker
+                      value={(() => { const d = new Date(); const p = parseTime(actTimeStr); d.setHours(p?.hour ?? 8, p?.minute ?? 0, 0, 0); return d; })()}
+                      mode="time"
+                      is24Hour={true}
+                      onChange={(e, d) => {
+                        setShowActTimePicker(false);
+                        if (e.type === 'set' && d) setActTimeStr(fmtHM(d.getHours(), d.getMinutes()));
+                      }}
+                    />
+                  )}
+
+                  {['water', 'bp', 'glucose'].includes(actForm.type) && (
+                    <TouchableOpacity
+                      style={[styles.repeatToggleBtn, actRepeat && styles.repeatToggleBtnActive]}
+                      onPress={() => setActRepeat(v => !v)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={[styles.repeatToggleBtnText, actRepeat && styles.repeatToggleBtnTextActive]}>
+                        🔁  Repetir lembrete{actRepeat ? ' — Ativado' : ''}
+                      </Text>
+                      <Text style={[styles.repeatToggleBtnHint, actRepeat && { color: 'rgba(255,255,255,0.65)' }]}>
+                        {actRepeat ? 'Toque para desativar' : 'Repete o aviso em intervalos durante o dia'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+
+                  {actRepeat && ['water', 'bp', 'glucose'].includes(actForm.type) && (
+                    <View style={styles.repeatInlineRow}>
+                      <Text style={styles.repeatInlineText}>Repete a cada </Text>
+                      <TextInput
+                        style={styles.repeatItvInput}
+                        value={actItvInput}
+                        onChangeText={v => setActItvInput(v.replace(/\D/g,''))}
+                        onEndEditing={() => { const n = Math.max(1, parseInt(actItvInput) || 1); setActItvInput(String(n)); }}
+                        keyboardType="numeric"
+                      />
+                      <Text style={styles.repeatInlineText}>h  das {actTimeStr}  às </Text>
+                      <TouchableOpacity onPress={() => setShowToTimePicker(true)}>
+                        <Text style={styles.repeatTimeDisplay}>{actToStr || '20:00'}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                  {showToTimePicker && (
+                    <DateTimePicker
+                      value={(() => { const d = new Date(); const p = parseTime(actToStr); d.setHours(p?.hour ?? 20, p?.minute ?? 0, 0, 0); return d; })()}
+                      mode="time"
+                      is24Hour={true}
+                      onChange={(e, d) => {
+                        setShowToTimePicker(false);
+                        if (e.type === 'set' && d) setActToStr(fmtHM(d.getHours(), d.getMinutes()));
+                      }}
+                    />
+                  )}
+
+                  <Text style={styles.fieldLabel}>
+                    Dias da semana <Text style={styles.fieldLabelOpt}>(vazio = todos os dias)</Text>
+                  </Text>
+                  <View style={styles.actWeekdayRow}>
+                    {WEEKDAYS_ACT.map(wd => {
+                      const sel = actWeekdays.includes(wd.value);
+                      return (
+                        <TouchableOpacity
+                          key={wd.value}
+                          style={[styles.actWeekdayBtn, sel && styles.actWeekdayBtnActive]}
+                          onPress={() => setActWeekdays(prev => sel ? prev.filter(v => v !== wd.value) : [...prev, wd.value])}
+                        >
+                          <Text style={[styles.actWeekdayBtnText, sel && styles.actWeekdayBtnTextActive]}>{wd.label}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </>
+              )}
 
               <Text style={styles.fieldLabel}>Observações</Text>
               <TextInput
@@ -1037,11 +1181,25 @@ export default function AgendaScreen() {
               </TouchableOpacity>
 
               <Text style={styles.fieldLabel}>Horário *</Text>
-              <TimePicker
-                hour={apptH}
-                minute={apptM}
-                onChange={(h, m) => { setApptH(h); setApptM(m); }}
-              />
+              <TouchableOpacity
+                style={[styles.fieldInput, styles.pickerBtn]}
+                onPress={() => setShowApptTimePicker(true)}
+              >
+                <Text style={styles.pickerBtnText}>{fmtHM(apptH, apptM)}</Text>
+                <Text style={styles.pickerBtnIcon}>🕐</Text>
+              </TouchableOpacity>
+              {showApptTimePicker && (
+                <DateTimePicker
+                  value={(() => { const d = new Date(); d.setHours(apptH, apptM, 0, 0); return d; })()}
+                  mode="time"
+                  is24Hour={true}
+                  display="clock"
+                  onChange={(e: DateTimePickerEvent, date?: Date) => {
+                    setShowApptTimePicker(false);
+                    if (e.type === 'set' && date) { setApptH(date.getHours()); setApptM(date.getMinutes()); }
+                  }}
+                />
+              )}
 
               <Text style={styles.fieldLabel}>Local</Text>
               <TextInput
@@ -1144,6 +1302,7 @@ const styles = StyleSheet.create({
   cardNamePlus: { fontSize: 15, fontWeight: '700', color: '#E07B4F' },
   cardNamePast: { color: '#888' },
   cardSub: { fontSize: 12, color: '#777', marginTop: 2 },
+  cardSubFertile: { color: '#E07B4F', fontWeight: '600' },
   cardActions: { flexDirection: 'row', gap: 8, marginLeft: 8 },
   editBtn: { padding: 6 },
   editBtnText: { fontSize: 16 },
@@ -1206,10 +1365,9 @@ const styles = StyleSheet.create({
 
   typeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 4 },
   typeBtn: {
-    width: '13%', minWidth: 48, paddingVertical: 8, paddingHorizontal: 4,
+    width: '22%', paddingVertical: 8, paddingHorizontal: 4,
     borderRadius: 10, borderWidth: 1.5, borderColor: '#E5E7EB',
     alignItems: 'center', backgroundColor: '#F9FAFB',
-    flexGrow: 1,
   },
   typeBtnActive: { borderColor: '#1C3F7A', backgroundColor: '#EEF2FF' },
   typeIcon: { fontSize: 20, marginBottom: 2 },

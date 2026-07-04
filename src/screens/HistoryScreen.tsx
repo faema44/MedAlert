@@ -1,18 +1,19 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import {
-  View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ScrollView,
+  View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ScrollView, Modal,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  getMedicationLog, deleteMedicationLog, getActivityLogs, MedicationLogEntry,
+  getMedicationLog, deleteMedicationLog, updateMedicationLogEntry, getActivityLogs, MedicationLogEntry,
 } from '../database/db';
 import { ActivityLog } from '../database/db';
 
 type Tab = 'medications' | 'activities';
 
 const LOG_ICONS: Record<string, string> = {
-  water: '💧', walk: '🚶', physio: '🏋️', bp: '❤️', glucose: '🩸', weight: '⚖️', custom: '📌',
+  water: '💧', walk: '🚶', physio: '🏋️', bp: '❤️', glucose: '🩸', weight: '⚖️', cycle: '🌸', custom: '📌',
 };
 
 function parseDate(iso: string): Date {
@@ -33,6 +34,14 @@ function timeStr(d: Date): string {
   return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 }
 
+// Registros antigos não têm "status" (só o campo taken 1/0/null) — deriva a partir dele.
+function logStatus(log: MedicationLogEntry): 'taken' | 'skipped' | 'treatment_ended' | 'low_stock' | 'dismissed' | null {
+  if (log.status) return log.status;
+  if (log.taken === 1) return 'taken';
+  if (log.taken === 0) return 'skipped';
+  return null;
+}
+
 export default function HistoryScreen() {
   const insets = useSafeAreaInsets();
   const [tab, setTab] = useState<Tab>('medications');
@@ -40,6 +49,13 @@ export default function HistoryScreen() {
   // Medication log state
   const [medLogs, setMedLogs] = useState<MedicationLogEntry[]>([]);
   const [medFilter, setMedFilter] = useState<string | null>(null);
+
+  // Edit modal state
+  const [editingLog, setEditingLog] = useState<MedicationLogEntry | null>(null);
+  const [editStatus, setEditStatus] = useState<'taken' | 'skipped'>('taken');
+  const [editHour, setEditHour] = useState(0);
+  const [editMinute, setEditMinute] = useState(0);
+  const [showEditTimePicker, setShowEditTimePicker] = useState(false);
 
   // Activity log state
   const [actLogs, setActLogs] = useState<ActivityLog[]>([]);
@@ -125,6 +141,26 @@ export default function HistoryScreen() {
       return true;
     });
   }, [actLogs, actPeriod, actFilter]);
+
+  function openEditLog(log: MedicationLogEntry) {
+    const status = logStatus(log);
+    // "Sem resposta" (null) também é editável — o usuário informa depois se tomou
+    if (status !== 'taken' && status !== 'skipped' && status !== null) return;
+    const d = parseDate(log.taken_at ?? log.scheduled_at);
+    setEditStatus(status === 'skipped' ? 'skipped' : 'taken');
+    setEditHour(d.getHours());
+    setEditMinute(d.getMinutes());
+    setEditingLog(log);
+  }
+
+  async function saveEditLog() {
+    if (!editingLog) return;
+    const d = parseDate(editingLog.scheduled_at);
+    d.setHours(editHour, editMinute, 0, 0);
+    await updateMedicationLogEntry(editingLog.id, editStatus, d.toISOString());
+    setEditingLog(null);
+    loadMedLogs();
+  }
 
   function handleDeleteMedLogs() {
     Alert.alert('Apagar histórico de medicamentos', 'Escolha o período a apagar:', [
@@ -218,11 +254,12 @@ export default function HistoryScreen() {
               }
               const { item: log } = item;
               const d = parseDate(log.scheduled_at);
-              const taken = log.taken;
-              const takenAtDiffers = log.taken_at && log.taken_at !== log.scheduled_at;
+              const status = logStatus(log);
+              const takenAtDiffers = status === 'taken' && log.taken_at && timeStr(parseDate(log.taken_at)) !== timeStr(d);
+              const editable = status === 'taken' || status === 'skipped' || status === null;
               return (
                 <View style={styles.medLogCard}>
-                  <Text style={styles.medLogIcon}>💊</Text>
+                  <Text style={styles.medLogIcon}>{status === 'treatment_ended' ? '🏁' : status === 'low_stock' ? '📦' : status === 'dismissed' ? '🔕' : '💊'}</Text>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.medLogName} numberOfLines={1}>{log.medication_name}</Text>
                     {!!log.dose && <Text style={styles.medLogDose}>{log.dose}</Text>}
@@ -236,16 +273,32 @@ export default function HistoryScreen() {
                     )}
                   </View>
                   <View style={[styles.takenBadge,
-                    taken === 1 ? styles.takenBadgeYes :
-                    taken === 0 ? styles.takenBadgeNo :
-                    styles.takenBadgeNone]}>
+                    status === 'taken' ? styles.takenBadgeYes :
+                    status === 'low_stock' ? styles.takenBadgeWarn :
+                    styles.takenBadgeNo]}>
                     <Text style={[styles.takenBadgeText,
-                      taken === 1 ? styles.takenBadgeTextYes :
-                      taken === 0 ? styles.takenBadgeTextNo :
-                      styles.takenBadgeTextNone]}>
-                      {taken === 1 ? '✓ Tomei' : taken === 0 ? '✗ Pulei' : '—'}
+                      status === 'taken' ? styles.takenBadgeTextYes :
+                      status === 'low_stock' ? styles.takenBadgeTextWarn :
+                      styles.takenBadgeTextNo]}>
+                      {status === 'taken' ? '✓ Tomei'
+                        : status === 'skipped' ? '✗ Não tomei'
+                        : status === 'treatment_ended' ? 'Encerrado'
+                        : status === 'low_stock' ? 'Estoque baixo'
+                        : status === 'dismissed' ? 'Dispensado'
+                        : 'Sem resposta'}
                     </Text>
                   </View>
+                  {editable && (
+                    <TouchableOpacity
+                      style={styles.medLogEditBtn}
+                      onPress={() => openEditLog(log)}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      accessibilityLabel="Editar registro"
+                      accessibilityRole="button"
+                    >
+                      <Text style={styles.medLogEditBtnText}>✏️</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               );
             }}
@@ -323,6 +376,53 @@ export default function HistoryScreen() {
           />
         </>
       )}
+
+      {editingLog && (
+        <Modal visible transparent animationType="fade" onRequestClose={() => setEditingLog(null)}>
+          <View style={styles.editOverlay}>
+            <View style={styles.editBox}>
+              <Text style={styles.editTitle} numberOfLines={1}>{editingLog.medication_name}</Text>
+              <View style={styles.editStatusRow}>
+                <TouchableOpacity
+                  style={[styles.editStatusBtn, editStatus === 'taken' && styles.editStatusBtnTakenActive]}
+                  onPress={() => setEditStatus('taken')}
+                >
+                  <Text style={[styles.editStatusBtnText, editStatus === 'taken' && styles.editStatusBtnTextActive]}>✓ Tomei</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.editStatusBtn, editStatus === 'skipped' && styles.editStatusBtnSkippedActive]}
+                  onPress={() => setEditStatus('skipped')}
+                >
+                  <Text style={[styles.editStatusBtnText, editStatus === 'skipped' && styles.editStatusBtnTextActive]}>✗ Não tomei</Text>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity style={styles.editTimeInput} onPress={() => setShowEditTimePicker(true)}>
+                <Text style={styles.editTimeInputText}>
+                  {String(editHour).padStart(2, '0')}:{String(editMinute).padStart(2, '0')}
+                </Text>
+              </TouchableOpacity>
+              {showEditTimePicker && (
+                <DateTimePicker
+                  value={(() => { const d = new Date(); d.setHours(editHour, editMinute, 0, 0); return d; })()}
+                  mode="time"
+                  is24Hour={true}
+                  display="clock"
+                  onChange={(e, date) => {
+                    setShowEditTimePicker(false);
+                    if (e.type === 'set' && date) { setEditHour(date.getHours()); setEditMinute(date.getMinutes()); }
+                  }}
+                />
+              )}
+              <TouchableOpacity style={styles.editSaveBtn} onPress={saveEditLog}>
+                <Text style={styles.editSaveBtnText}>Salvar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.editCancelBtn} onPress={() => setEditingLog(null)}>
+                <Text style={styles.editCancelBtnText}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 }
@@ -377,6 +477,8 @@ const styles = StyleSheet.create({
   medLogName: { fontSize: 14, fontWeight: '600', color: '#1A1F2E' },
   medLogDose: { fontSize: 12, color: '#666', marginTop: 1 },
   medLogTime: { fontSize: 11, color: '#999', marginTop: 2 },
+  medLogEditBtn: { padding: 2 },
+  medLogEditBtnText: { fontSize: 14 },
 
   takenBadge: {
     borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4,
@@ -384,11 +486,11 @@ const styles = StyleSheet.create({
   },
   takenBadgeYes: { backgroundColor: '#e8f8ef' },
   takenBadgeNo:  { backgroundColor: '#f5f5f5' },
-  takenBadgeNone: { backgroundColor: '#f5f5f5' },
+  takenBadgeWarn: { backgroundColor: '#fff3ec' },
   takenBadgeText: { fontSize: 11, fontWeight: '700' },
   takenBadgeTextYes: { color: '#1a6b3a' },
   takenBadgeTextNo:  { color: '#999' },
-  takenBadgeTextNone: { color: '#bbb' },
+  takenBadgeTextWarn: { color: '#E07B4F' },
 
   actLogCard: {
     backgroundColor: '#fff', borderRadius: 12, padding: 12, marginBottom: 6,
@@ -405,4 +507,26 @@ const styles = StyleSheet.create({
   emptyIcon: { fontSize: 40, marginBottom: 12 },
   emptyText: { fontSize: 15, fontWeight: '600', color: '#555', marginBottom: 6 },
   emptyHint: { fontSize: 13, color: '#999', textAlign: 'center', lineHeight: 19 },
+
+  editOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 24 },
+  editBox: { backgroundColor: '#fff', borderRadius: 16, padding: 20, width: '100%' },
+  editTitle: { fontSize: 16, fontWeight: '700', color: '#1C3F7A', marginBottom: 14, textAlign: 'center' },
+  editStatusRow: { flexDirection: 'row', gap: 8, marginBottom: 14 },
+  editStatusBtn: {
+    flex: 1, borderRadius: 8, paddingVertical: 10, alignItems: 'center',
+    borderWidth: 1, borderColor: '#C8CDD8',
+  },
+  editStatusBtnTakenActive: { backgroundColor: '#2E9E5B', borderColor: '#2E9E5B' },
+  editStatusBtnSkippedActive: { backgroundColor: '#CC0000', borderColor: '#CC0000' },
+  editStatusBtnText: { fontSize: 13, fontWeight: '700', color: '#666' },
+  editStatusBtnTextActive: { color: '#fff' },
+  editTimeInput: {
+    borderWidth: 1, borderColor: '#C8CDD8', borderRadius: 8,
+    paddingVertical: 10, marginBottom: 14, alignItems: 'center',
+  },
+  editTimeInputText: { fontSize: 20, fontWeight: '700', color: '#1C3F7A' },
+  editSaveBtn: { backgroundColor: '#1C3F7A', borderRadius: 10, paddingVertical: 12, alignItems: 'center' },
+  editSaveBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  editCancelBtn: { paddingVertical: 12, alignItems: 'center' },
+  editCancelBtnText: { color: '#999', fontSize: 14, fontWeight: '600' },
 });

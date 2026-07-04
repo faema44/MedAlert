@@ -17,6 +17,10 @@ function BulaModal({ url, onClose }: { url: string; onClose: () => void }) {
   const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const Pdf = getPdf();
+  // Nome de cache único por abertura: evita duas instâncias (ex: abas
+  // diferentes mantidas montadas em segundo plano) baixarem a mesma bula
+  // para o mesmo arquivo .tmp e colidirem (ENOENT visto no Sentry).
+  const [cacheFileName] = useState(() => `bula_${Date.now()}_${Math.random().toString(36).slice(2)}.pdf`);
 
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
@@ -32,7 +36,7 @@ function BulaModal({ url, onClose }: { url: string; onClose: () => void }) {
         </View>
       )}
       <Pdf
-        source={{ uri: url, cache: true }}
+        source={{ uri: url, cache: true, cacheFileName }}
         style={styles.pdf}
         onLoadComplete={() => setLoading(false)}
         onError={() => {

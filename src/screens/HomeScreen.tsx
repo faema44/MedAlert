@@ -1,17 +1,19 @@
 import React, { useCallback, useState, useMemo, useRef, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, Alert, TextInput, AppState,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, Alert, AppState,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation, NavigationProp } from '@react-navigation/native';
 import {
   getProfile, getMedications, getKV, setKV, getContacts,
   getRemindersForMedication, updateAllRemindersSound,
   getActivities, getRemindersForActivity, updateAllActivityRemindersSound,
-  getAppointments, addMedicationLog, markMedicationLogTaken, updateMedicationStock, getMedicationLog,
+  getAppointments, resolveMedicationLogSlot, updateMedicationStock, getMedicationLog,
 } from '../database/db';
 import MedDisclaimer from '../components/MedDisclaimer';
 import EmergencyChecklist from '../components/EmergencyChecklist';
+import { getCyclePhase, CyclePhaseInfo } from '../utils/cyclePhase';
 
 type RootTabs = {
   Home: undefined; Profile: undefined; Medications: undefined;
@@ -133,9 +135,11 @@ export default function HomeScreen() {
   const [medsHintDismissedAt, setMedsHintDismissedAt] = useState<string | null>(null);
   const [emergencyHintDismissedAt, setEmergencyHintDismissedAt] = useState<string | null>(null);
   const [foregroundAlerts, setForegroundAlerts] = useState<UnifiedItem[]>([]);
-  const [plainAlerts, setPlainAlerts] = useState<UnifiedItem[]>([]);
+  const [cycleStatus, setCycleStatus] = useState<{ activityId: number; name: string; phase: CyclePhaseInfo; cycleLength: number } | null>(null);
   const [fgHModalItem, setFgHModalItem] = useState<UnifiedItem | null>(null);
-  const [fgHModalTimeText, setFgHModalTimeText] = useState('');
+  const [fgHModalHour, setFgHModalHour] = useState(0);
+  const [fgHModalMinute, setFgHModalMinute] = useState(0);
+  const [showFgHTimePicker, setShowFgHTimePicker] = useState(false);
   const dismissedAlertsRef = useRef<Set<string>>(new Set());
 
   const load = useCallback(async () => {
@@ -212,8 +216,19 @@ export default function HomeScreen() {
       });
     });
 
+    // Ciclo menstrual não tem lembrete (não entra na lista de horários) — mostra a
+    // fase de hoje num card próprio, à parte da lista "Próximos lembretes".
+    const cycleAct = acts.find(a => a.type === 'cycle' && a.cycle_start_date);
+    setCycleStatus(cycleAct ? {
+      activityId: cycleAct.id,
+      name: cycleAct.name,
+      phase: getCyclePhase(cycleAct.cycle_start_date!, cycleAct.cycle_length_days ?? 28, cycleAct.period_length_days ?? 5),
+      cycleLength: cycleAct.cycle_length_days ?? 28,
+    } : null);
+
     const actReminders = await Promise.all(acts.map(a => getRemindersForActivity(a.id).catch(() => [] as ActivityReminder[])));
     acts.forEach((act, idx) => {
+      if (act.type === 'cycle') return;
       const reminders = actReminders[idx] ?? [];
       if (reminders.length === 0) return;
       const activeReminders = reminders.filter(r => r.is_active);
@@ -272,7 +287,6 @@ export default function HomeScreen() {
 
     // Foreground alerts (today only, past times, not taken, not session-dismissed)
     const overdue: UnifiedItem[] = [];
-    const plain: UnifiedItem[] = [];
     m.forEach((med, idx) => {
       if (med.home_reminder === 0) return;
       const reminders = medReminders[idx] ?? [];
@@ -288,30 +302,6 @@ export default function HomeScreen() {
         else dueToday = false;
         return dueToday && reminderExistedBeforeSlot(r, rMins, nowD);
       });
-
-      // "Salvar no Histórico = Não" (sem controle de estoque): nunca gera linha em
-      // medication_log, então nunca "seria considerado tomado" — em vez do cartão com
-      // Tomei/Descartar, mostra um aviso simples que some sozinho depois de 15 min.
-      const interactive = med.save_history !== 0 || med.stock_quantity != null;
-      if (!interactive) {
-        const overdueTime = dueTodayTimes
-          .filter(r => {
-            const [h, rm] = r.time.split(':').map(Number);
-            return nowMins - (h * 60 + rm) <= 15;
-          })
-          .map(r => r.time).sort()[0];
-        if (!overdueTime) return;
-        if (dismissedAlertsRef.current.has(`${med.id}_${todayStr}_${overdueTime}`)) return;
-        plain.push({
-          id: med.id, type: 'med',
-          icon: med.is_critical ? '⚠️' : isPhytotherapic(med.generic_name) ? '🌿' : '💊',
-          name: med.commercial_name?.trim() || med.generic_name,
-          label: `hoje às ${overdueTime}`,
-          time: overdueTime, dayDiff: 0, sortMs: 0, isMuted: false,
-          dose: med.dose || undefined,
-        });
-        return;
-      }
 
       const overdueTime = dueTodayTimes
         .filter(r => !isSlotTaken(med.id, todayStr, r.time))
@@ -330,7 +320,6 @@ export default function HomeScreen() {
       });
     });
     setForegroundAlerts(overdue);
-    setPlainAlerts(plain);
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
@@ -381,13 +370,14 @@ export default function HomeScreen() {
     const todayStr = `${nowD.getFullYear()}-${String(nowD.getMonth()+1).padStart(2,'0')}-${String(nowD.getDate()).padStart(2,'0')}`;
     const scheduledAt = new Date(`${todayStr}T${item.time}:00`).toISOString();
     const notifId = `fg_${med.id}_${todayStr}_${item.time.replace(':', '')}`;
-    await addMedicationLog({
+    await resolveMedicationLogSlot({
       medication_id: med.id,
       medication_name: medDisplayName,
       dose: med.dose ?? '',
       notification_id: notifId,
       scheduled_at: scheduledAt,
-    }).then(() => markMedicationLogTaken(notifId, false)).catch(() => {});
+      taken: false,
+    }).catch(() => {});
     dismissPresentedForMedication(med.id).catch(() => {});
     load();
   }
@@ -401,19 +391,21 @@ export default function HomeScreen() {
     const scheduledAt = new Date(`${todayStr}T${item.time}:00`).toISOString();
     const takenAtIso = takenAt ? takenAt.toISOString() : scheduledAt;
     const notifId = `fg_${med.id}_${todayStr}_${item.time.replace(':', '')}`;
-    await addMedicationLog({
+    await resolveMedicationLogSlot({
       medication_id: med.id,
       medication_name: medDisplayName,
       dose: med.dose ?? '',
       notification_id: notifId,
       scheduled_at: scheduledAt,
+      taken: true,
       taken_at: takenAtIso,
-    }).then(() => markMedicationLogTaken(notifId, true)).catch(() => {});
+    }).catch(() => {});
     if (med.stock_quantity != null) {
-      const next = Math.max(0, med.stock_quantity - 1);
+      const unitsPerDose = med.units_per_dose || 1;
+      const next = Math.max(0, med.stock_quantity - unitsPerDose);
       await updateMedicationStock(med.id, next);
       const dailyDoses = item.dailyDoses || 1;
-      const daysLeft = Math.floor(next / dailyDoses);
+      const daysLeft = Math.floor(next / (dailyDoses * unitsPerDose));
       if (daysLeft <= 3) {
         const daysUntilEnd = med.end_date
           ? Math.ceil((new Date(med.end_date + 'T23:59:59').getTime() - Date.now()) / 86400000)
@@ -491,6 +483,23 @@ export default function HomeScreen() {
         </TouchableOpacity>
       )}
 
+      {cycleStatus && (
+        <TouchableOpacity
+          style={styles.cycleCard}
+          activeOpacity={0.8}
+          onPress={() => (navigation as any).navigate('Agenda', { tab: 'activities', openActivityId: cycleStatus.activityId })}
+        >
+          <Text style={styles.hintIcon}>🌸</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.hintTitle}>{cycleStatus.name}</Text>
+            <Text style={styles.hintSub}>
+              Dia {cycleStatus.phase.dayInCycle} de {cycleStatus.cycleLength} · Fase: {cycleStatus.phase.label}
+            </Text>
+          </View>
+          <Text style={styles.cardChevron}>›</Text>
+        </TouchableOpacity>
+      )}
+
       {/* Foreground overdue alerts */}
       {foregroundAlerts.map(alert => (
         <View key={alert.id} style={styles.fgAlertCard}>
@@ -510,6 +519,26 @@ export default function HomeScreen() {
           {/* Buttons row */}
           <View style={styles.fgAlertBtns}>
             <TouchableOpacity
+              style={styles.fgAlertNaoTomei}
+              onPress={async () => {
+                await handlePuleiHome(alert);
+                dismissedAlertsRef.current.add(`${alert.id}_${todayDateStr()}_${alert.time}`);
+                setForegroundAlerts(prev => prev.filter(a => a.id !== alert.id));
+              }}
+            >
+              <Text style={styles.fgAlertNaoTomeiText}>Não tomei</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.fgAlertOutro}
+              onPress={() => {
+                const now = new Date();
+                setFgHModalHour(now.getHours()); setFgHModalMinute(now.getMinutes());
+                setFgHModalItem(alert);
+              }}
+            >
+              <Text style={styles.fgAlertOutroText}>⏰ Outro</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
               style={styles.fgAlertTomei}
               onPress={async () => {
                 await handleTomeiHome(alert);
@@ -518,52 +547,6 @@ export default function HomeScreen() {
               }}
             >
               <Text style={styles.fgAlertTomeiText}>✓ No horário</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.fgAlertOutro}
-              onPress={() => { setFgHModalTimeText(''); setFgHModalItem(alert); }}
-            >
-              <Text style={styles.fgAlertOutroText}>⏰ Outro</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.fgAlertPular}
-              onPress={async () => {
-                await handlePuleiHome(alert);
-                dismissedAlertsRef.current.add(`${alert.id}_${todayDateStr()}_${alert.time}`);
-                setForegroundAlerts(prev => prev.filter(a => a.id !== alert.id));
-              }}
-            >
-              <Text style={styles.fgAlertPularText}>Não tomei</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      ))}
-
-      {/* Alertas sem histórico — não pedem confirmação, somem sozinhos após 15 min */}
-      {plainAlerts.map(alert => (
-        <View key={`plain_${alert.id}`} style={styles.fgAlertCard}>
-          <View style={styles.fgAlertInfo}>
-            <Text style={styles.fgAlertIcon}>{alert.icon}</Text>
-            <View style={{ flex: 1 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Text style={styles.fgAlertName} numberOfLines={1}>{alert.name}</Text>
-                <View style={styles.fgAlertTimeBadge}>
-                  <Text style={styles.fgAlertTimeBadgeText}>{alert.time}</Text>
-                </View>
-              </View>
-              {alert.dose ? <Text style={styles.fgAlertDose}>{alert.dose}</Text> : null}
-            </View>
-          </View>
-          <Text style={styles.plainAlertHint}>Não é registrado no histórico</Text>
-          <View style={styles.fgAlertBtns}>
-            <TouchableOpacity
-              style={[styles.fgAlertPular, { flex: 1 }]}
-              onPress={() => {
-                dismissedAlertsRef.current.add(`${alert.id}_${todayDateStr()}_${alert.time}`);
-                setPlainAlerts(prev => prev.filter(a => a.id !== alert.id));
-              }}
-            >
-              <Text style={styles.fgAlertPularText}>Dispensar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -580,7 +563,7 @@ export default function HomeScreen() {
               </View>
               {items.map((item) => {
                 const daysLeft = item.type === 'med' && item.stockQty != null
-                  ? Math.floor(item.stockQty / (item.dailyDoses || 1))
+                  ? Math.floor(item.stockQty / ((item.dailyDoses || 1) * (item.medObj?.units_per_dose || 1)))
                   : null;
                 const daysUntilEnd = item.medObj?.end_date
                   ? Math.ceil((new Date(item.medObj.end_date + 'T23:59:59').getTime() - Date.now()) / 86400000)
@@ -665,30 +648,29 @@ export default function HomeScreen() {
             <View style={styles.overdueBox}>
               <Text style={[styles.overdueName, { fontSize: 16, marginBottom: 4 }]}>Informe o horário em que tomou o medicamento</Text>
               <Text style={styles.overdueTime}>{fgHModalItem.name}</Text>
-              <TextInput
-                style={styles.hTimeInput}
-                value={fgHModalTimeText}
-                onChangeText={t => {
-                  const digits = t.replace(/\D/g, '').slice(0, 4);
-                  setFgHModalTimeText(digits.length > 2 ? `${digits.slice(0,2)}:${digits.slice(2)}` : digits);
-                }}
-                placeholder="HH:MM"
-                keyboardType="numeric"
-                maxLength={5}
-                autoFocus
-                textAlign="center"
-              />
+              <TouchableOpacity style={styles.hTimeInput} onPress={() => setShowFgHTimePicker(true)}>
+                <Text style={styles.hTimeInputText}>
+                  {String(fgHModalHour).padStart(2, '0')}:{String(fgHModalMinute).padStart(2, '0')}
+                </Text>
+              </TouchableOpacity>
+              {showFgHTimePicker && (
+                <DateTimePicker
+                  value={(() => { const d = new Date(); d.setHours(fgHModalHour, fgHModalMinute, 0, 0); return d; })()}
+                  mode="time"
+                  is24Hour={true}
+                  display="clock"
+                  onChange={(e, date) => {
+                    setShowFgHTimePicker(false);
+                    if (e.type === 'set' && date) { setFgHModalHour(date.getHours()); setFgHModalMinute(date.getMinutes()); }
+                  }}
+                />
+              )}
               <TouchableOpacity
                 style={styles.overdueTomei}
                 onPress={async () => {
-                  const [h, mn] = fgHModalTimeText.split(':').map(Number);
-                  if (isNaN(h) || isNaN(mn) || h > 23 || mn > 59) {
-                    Alert.alert('Horário inválido', 'Informe no formato HH:MM (ex: 14:30)');
-                    return;
-                  }
                   const item = fgHModalItem;
-                  const customTime = new Date(); customTime.setHours(h, mn, 0, 0);
-                  setFgHModalItem(null); setFgHModalTimeText('');
+                  const customTime = new Date(); customTime.setHours(fgHModalHour, fgHModalMinute, 0, 0);
+                  setFgHModalItem(null);
                   await handleTomeiHome(item, customTime);
                   dismissedAlertsRef.current.add(`${item.id}_${todayDateStr()}_${item.time}`);
                   setForegroundAlerts(prev => prev.filter(a => a.id !== item.id));
@@ -696,7 +678,7 @@ export default function HomeScreen() {
               >
                 <Text style={styles.overdueTomeiText}>Confirmar</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.overdueDispensar} onPress={() => { setFgHModalItem(null); setFgHModalTimeText(''); }}>
+              <TouchableOpacity style={styles.overdueDispensar} onPress={() => setFgHModalItem(null)}>
                 <Text style={styles.overdueDispensarText}>Cancelar</Text>
               </TouchableOpacity>
             </View>
@@ -864,24 +846,22 @@ const styles = StyleSheet.create({
   },
   fgAlertTimeBadgeText: { fontSize: 13, fontWeight: '700', color: '#fff' },
   fgAlertDose: { fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2 },
-  plainAlertHint: { fontSize: 11, color: 'rgba(255,255,255,0.55)', fontStyle: 'italic', marginTop: 8, marginBottom: 6 },
   fgAlertBtns: { flexDirection: 'row', gap: 6 },
   fgAlertTomei: {
-    flex: 1, backgroundColor: '#fff', borderRadius: 8,
+    flex: 1, backgroundColor: '#2E9E5B', borderRadius: 8,
     paddingVertical: 9, alignItems: 'center',
   },
-  fgAlertTomeiText: { fontSize: 12, fontWeight: '700', color: '#1C3F7A' },
+  fgAlertTomeiText: { fontSize: 12, fontWeight: '700', color: '#fff' },
   fgAlertOutro: {
     flex: 1, backgroundColor: '#E07B4F', borderRadius: 8,
     paddingVertical: 9, alignItems: 'center',
   },
   fgAlertOutroText: { fontSize: 12, fontWeight: '700', color: '#fff' },
-  fgAlertPular: {
-    flex: 1, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 8,
+  fgAlertNaoTomei: {
+    flex: 1, backgroundColor: '#CC0000', borderRadius: 8,
     paddingVertical: 9, alignItems: 'center',
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)',
   },
-  fgAlertPularText: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.8)' },
+  fgAlertNaoTomeiText: { fontSize: 12, fontWeight: '700', color: '#fff' },
 
   remindersCard: {
     backgroundColor: '#fff', borderRadius: 12, marginBottom: 10,
@@ -917,10 +897,10 @@ const styles = StyleSheet.create({
   reminderBell: { fontSize: 15 },
   hTimeInput: {
     borderWidth: 1.5, borderColor: '#1C3F7A', borderRadius: 10,
-    fontSize: 28, fontWeight: '700', color: '#1C3F7A',
     paddingVertical: 12, paddingHorizontal: 20,
-    marginVertical: 16, width: 140, textAlign: 'center',
+    marginVertical: 16, width: 140, alignItems: 'center',
   },
+  hTimeInputText: { fontSize: 28, fontWeight: '700', color: '#1C3F7A' },
 
   cardChevron: { fontSize: 22, color: '#C0C5D0', lineHeight: 24 },
 
@@ -936,6 +916,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 10,
     backgroundColor: '#fff', borderRadius: 12, padding: 12,
     marginBottom: 10, borderWidth: 1.5, borderColor: '#4A6FA5',
+  },
+  cycleCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: '#fff', borderRadius: 12, padding: 12,
+    marginBottom: 10, borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
   },
   hintIcon: { fontSize: 22 },
   hintTitle: { fontSize: 14, fontWeight: '700', color: '#1A1F2E' },

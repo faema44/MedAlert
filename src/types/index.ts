@@ -17,6 +17,7 @@ export interface Medication {
   is_critical: boolean;
   notes: string;
   stock_quantity: number | null;
+  units_per_dose?: number; // quantas unidades (cápsulas/comprimidos) equivalem a 1 dose (default 1)
   end_date: string | null; // ISO "YYYY-MM-DD"
   home_reminder?: number; // 1 = show overdue banner on HomeScreen (default), 0 = off
   save_history?: number; // 1 = pergunta Tomei/Não tomei e salva no histórico (default), 0 = só alerta 15min
@@ -64,7 +65,7 @@ export interface MedicationReminder {
 
 export const BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Desconhecido'];
 
-export type ActivityType = 'water' | 'walk' | 'physio' | 'bp' | 'glucose' | 'weight' | 'custom';
+export type ActivityType = 'water' | 'walk' | 'physio' | 'bp' | 'glucose' | 'weight' | 'cycle' | 'custom';
 
 export const ACTIVITY_PRESETS: Record<ActivityType, { icon: string; defaultName: string }> = {
   water:   { icon: '💧', defaultName: 'Tomar água' },
@@ -73,6 +74,7 @@ export const ACTIVITY_PRESETS: Record<ActivityType, { icon: string; defaultName:
   bp:      { icon: '❤️', defaultName: 'Medir Pressão' },
   glucose: { icon: '🩸', defaultName: 'Medir Glicose' },
   weight:  { icon: '⚖️', defaultName: 'Pesar-se' },
+  cycle:   { icon: '🌸', defaultName: 'Ciclo Menstrual' },
   custom:  { icon: '📌', defaultName: '' },
 };
 
@@ -82,6 +84,9 @@ export interface Activity {
   name: string;
   notes: string;
   created_at: string;
+  cycle_start_date?: string | null; // ISO date do 1º dia do ciclo atual
+  cycle_length_days?: number | null; // duração média do ciclo (default 28)
+  period_length_days?: number | null; // duração média da menstruação (default 5)
 }
 
 export interface ActivityReminder {
