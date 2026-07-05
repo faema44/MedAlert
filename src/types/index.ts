@@ -21,6 +21,7 @@ export interface Medication {
   end_date: string | null; // ISO "YYYY-MM-DD"
   home_reminder?: number; // 1 = show overdue banner on HomeScreen (default), 0 = off
   save_history?: number; // 1 = pergunta Tomei/Não tomei e salva no histórico (default), 0 = só alerta 15min
+  suspended?: number; // 1 = stand-by: sem alarmes/tela de bloqueio, setup preservado (default 0)
 }
 
 export interface EmergencyContact {

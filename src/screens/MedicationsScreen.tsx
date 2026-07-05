@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   getMedications, addMedication, updateMedication, archiveMedication,
   getRemindersForMedication, addReminder, deleteReminder, updateAllRemindersSound, updateMedicationStock,
+  setMedicationSuspended,
 } from '../database/db';
 import {
   scheduleReminderWeekly, scheduleReminderMonthly, scheduleReminderEveryNMonths,
@@ -19,6 +20,7 @@ import { getProfile } from '../database/db';
 import {
   updateEmergencyNotification,
   scheduleReminder, cancelAllRemindersForMedication, notifyLowStock,
+  rescheduleRemindersForMedication,
 } from '../services/notifications';
 import { Medication, MedicationReminder, DrugInteraction } from '../types';
 import MedDisclaimer from '../components/MedDisclaimer';
@@ -127,6 +129,11 @@ export default function MedicationsScreen() {
   const [unitsPerDoseInput, setUnitsPerDoseInput] = useState('1');
   const [durationDays, setDurationDays] = useState('');
   const [hasDeadline, setHasDeadline] = useState(false);
+  // No cadastro novo os botões Sim/Não só acendem depois que o usuário toca
+  // (na edição vêm acesos refletindo o que está salvo)
+  const [deadlineTouched, setDeadlineTouched] = useState(false);
+  const [soundTouched, setSoundTouched] = useState(false);
+  const [repeatTouched, setRepeatTouched] = useState(false);
   const [showStockHelp, setShowStockHelp] = useState(false);
   // Snapshot do resumo tirado quando os lembretes terminam de carregar na edição —
   // usado só pra marcar visualmente o que mudou e ainda não foi salvo.
@@ -190,9 +197,11 @@ export default function MedicationsScreen() {
 
   const route = useRoute<RouteProp<{ Medications: { openMedId?: number } }, 'Medications'>>();
 
-  const loadExtras = useCallback((meds: Medication[]) => {
+  const loadExtras = useCallback((allMeds: Medication[]) => {
     InteractionManager.runAfterInteractions(async () => {
       try {
+        // Suspensos ficam fora das interações e do card detalhado (card compacto)
+        const meds = allMeds.filter(m => !m.suspended);
         const interactionMap = new Map<number, DrugInteraction[]>();
         const timesMap = new Map<number, string[]>();
         const soundMap = new Map<number, boolean>();
@@ -226,7 +235,7 @@ export default function MedicationsScreen() {
     setLoading(true);
     let meds: Medication[] = [];
     try {
-      meds = await getMedications();
+      meds = await getMedications(true);
       setMedications(meds);
     } catch {}
     setLoading(false);
@@ -244,7 +253,9 @@ export default function MedicationsScreen() {
     });
   }, [load, route.params?.openMedId]));
 
-  async function syncNotification(meds: Medication[]) {
+  async function syncNotification(allMeds: Medication[]) {
+    // Suspensos não entram na ficha de emergência nem nas interações
+    const meds = allMeds.filter(m => !m.suspended);
     try {
       const profile = await getProfile();
       if (profile?.name) await updateEmergencyNotification(profile, meds);
@@ -268,7 +279,7 @@ export default function MedicationsScreen() {
     searchDebounceRef.current = setTimeout(() => {
       setSuggestions(getSuggestions(v, 7, entryType === 'fitoterapico' ? 'Fitoterápico' : undefined));
       setCommercialSuggestions([]);
-      const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
+      const others = medications.filter(m => m.id !== editingId && !m.suspended).map(m => m.generic_name);
       setInteractions(checkInteractions(v, others));
     }, 300);
   }
@@ -286,7 +297,7 @@ export default function MedicationsScreen() {
     setInteractions([]);
     // Delay interaction check so keyboard dismiss + UI render settle first
     setTimeout(() => {
-      const others = medications.filter(m => m.id !== editingId).map(m => m.generic_name);
+      const others = medications.filter(m => m.id !== editingId && !m.suspended).map(m => m.generic_name);
       setInteractions(checkInteractions(s.genericName, others));
     }, 250);
   }
@@ -307,7 +318,7 @@ export default function MedicationsScreen() {
     }));
     setCommercialSuggestions([]);
     if (!form.generic_name.trim()) {
-      setInteractions(checkInteractions(s.genericName, medications.map(m => m.generic_name)));
+      setInteractions(checkInteractions(s.genericName, medications.filter(m => !m.suspended).map(m => m.generic_name)));
     }
   }
 
@@ -318,12 +329,47 @@ export default function MedicationsScreen() {
         text: 'Remover', style: 'destructive', onPress: async () => {
           await cancelAllRemindersForMedication(id).catch(() => {});
           await archiveMedication(id);
-          const updated = await getMedications();
+          const updated = await getMedications(true);
           setMedications(updated);
           await syncNotification(updated);
         },
       },
     ]);
+  }
+
+  async function handleSuspend() {
+    if (editingId === null) return;
+    const name = form.commercial_name.trim() || form.generic_name.trim();
+    Alert.alert(
+      'Colocar em stand-by',
+      `"${name}" ficará pausado: sem alarmes, fora da tela de bloqueio e da ficha de emergência. O setup fica guardado para quando você retomar.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Suspender', onPress: async () => {
+            const id = editingId;
+            await setMedicationSuspended(id, true).catch(() => {});
+            await cancelAllRemindersForMedication(id).catch(() => {});
+            setShowModal(false);
+            setEditingId(null);
+            const updated = await getMedications(true);
+            setMedications(updated);
+            loadExtras(updated);
+            await syncNotification(updated);
+          },
+        },
+      ]
+    );
+  }
+
+  async function handleResume(item: Medication) {
+    await setMedicationSuspended(item.id, false).catch(() => {});
+    const rs = await getRemindersForMedication(item.id).catch(() => [] as MedicationReminder[]);
+    await rescheduleRemindersForMedication({ ...item, suspended: 0 }, rs).catch(() => {});
+    const updated = await getMedications(true);
+    setMedications(updated);
+    loadExtras(updated);
+    await syncNotification(updated);
   }
 
   async function refreshReminderTimes(medId: number) {
@@ -488,11 +534,16 @@ export default function MedicationsScreen() {
         savedMedId = await addMedication(data);
       }
 
+      // Editando um medicamento em stand-by: grava os lembretes no banco mas não
+      // agenda alarmes no sistema — o Retomar reagenda tudo
+      const isSuspendedMed = editingId !== null &&
+        !!medications.find(m => m.id === editingId)?.suspended;
+
       for (const e of newEntries) {
         const [h, m] = e.time.split(':').map(Number);
         const p = e.period ?? 'day';
         const ri = e.repeat_interval ?? 0;
-        try {
+        if (!isSuspendedMed) try {
           const notifName = data.commercial_name.trim() || data.generic_name;
           const isHerbal = isPhytotherapic(data.generic_name);
           if (p === 'day') await scheduleReminder(savedMedId, notifName, data.dose, h, m, e.with_sound, ri, undefined, undefined, isHerbal);
@@ -507,7 +558,7 @@ export default function MedicationsScreen() {
       }
 
       const isNew = editingId === null;
-      const updated = await getMedications();
+      const updated = await getMedications(true);
       setMedications(updated);
       setShowModal(false);
 
@@ -551,6 +602,7 @@ export default function MedicationsScreen() {
     setSuggestions([]); setCommercialSuggestions([]); setInteractions([]);
     setEntryType('medicamento'); setKnownDrug(false);
     setReminders([]); setStockInput(''); setUnitsPerDoseInput('1'); setDurationDays(''); setHasDeadline(false);
+    setDeadlineTouched(false); setSoundTouched(false); setRepeatTouched(false);
     homeReminderRef.current = true; setHomeReminderEnabled(true);
     lockOnlyRef.current = false;
     resetPickerState();
@@ -577,6 +629,8 @@ export default function MedicationsScreen() {
     setUnitsPerDoseInput(String(item.units_per_dose ?? 1));
     setDurationDays(item.end_date ? String(Math.max(0, daysRemaining(item.end_date))) : '');
     setHasDeadline(!!item.end_date);
+    // Edição: botões refletem o que está salvo, então já entram acesos
+    setDeadlineTouched(true); setSoundTouched(true); setRepeatTouched(true);
     homeReminderRef.current = item.home_reminder !== 0; setHomeReminderEnabled(item.home_reminder !== 0);
     lockOnlyRef.current = false;
     setEditingId(item.id);
@@ -592,7 +646,7 @@ export default function MedicationsScreen() {
       if (rs.length > 0) populatePickerFromReminders(rs);
     }).catch(() => {});
     setTimeout(() => {
-      const others = medications.filter(m => m.id !== item.id).map(m => m.generic_name);
+      const others = medications.filter(m => m.id !== item.id && !m.suspended).map(m => m.generic_name);
       setInteractions(checkInteractions(item.generic_name, others));
     }, 0);
   }
@@ -1105,16 +1159,16 @@ export default function MedicationsScreen() {
             <Text style={styles.wizHint}>O tratamento tem uma data para terminar?</Text>
             <View style={[styles.yesNoRow, { marginTop: 20 }]}>
               <TouchableOpacity
-                style={[styles.yesNoBtn, hasDeadline && styles.yesNoBtnActive]}
-                onPress={() => setHasDeadline(true)}
+                style={[styles.yesNoBtn, deadlineTouched && hasDeadline && styles.yesNoBtnActive]}
+                onPress={() => { setHasDeadline(true); setDeadlineTouched(true); }}
               >
-                <Text style={[styles.yesNoBtnText, hasDeadline && styles.yesNoBtnTextActive]}>Sim</Text>
+                <Text style={[styles.yesNoBtnText, deadlineTouched && hasDeadline && styles.yesNoBtnTextActive]}>Sim</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.yesNoBtn, !hasDeadline && styles.yesNoBtnActive]}
-                onPress={() => { setHasDeadline(false); wizGoNext(); }}
+                style={[styles.yesNoBtn, deadlineTouched && !hasDeadline && styles.yesNoBtnActive]}
+                onPress={() => { setHasDeadline(false); setDeadlineTouched(true); wizGoNext(); }}
               >
-                <Text style={[styles.yesNoBtnText, !hasDeadline && styles.yesNoBtnTextActive]}>Não</Text>
+                <Text style={[styles.yesNoBtnText, deadlineTouched && !hasDeadline && styles.yesNoBtnTextActive]}>Não</Text>
               </TouchableOpacity>
             </View>
             {hasDeadline && (
@@ -1144,33 +1198,33 @@ export default function MedicationsScreen() {
             <Text style={styles.wizLabel}>Alarme sonoro</Text>
             <View style={[styles.yesNoRow, { marginTop: 10 }]}>
               <TouchableOpacity
-                style={[styles.yesNoBtnSm, withSound && styles.yesNoBtnActive]}
-                onPress={() => setWithSound(true)}
+                style={[styles.yesNoBtnSm, soundTouched && withSound && styles.yesNoBtnActive]}
+                onPress={() => { setWithSound(true); setSoundTouched(true); }}
               >
-                <Text style={[styles.yesNoBtnText, withSound && styles.yesNoBtnTextActive]}>🔔 Sim</Text>
+                <Text style={[styles.yesNoBtnText, soundTouched && withSound && styles.yesNoBtnTextActive]}>🔔 Sim</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.yesNoBtnSm, !withSound && styles.yesNoBtnActive]}
-                onPress={() => { setWithSound(false); setRepeatInterval(0); }}
+                style={[styles.yesNoBtnSm, soundTouched && !withSound && styles.yesNoBtnActive]}
+                onPress={() => { setWithSound(false); setRepeatInterval(0); setSoundTouched(true); }}
               >
-                <Text style={[styles.yesNoBtnText, !withSound && styles.yesNoBtnTextActive]}>🔕 Não</Text>
+                <Text style={[styles.yesNoBtnText, soundTouched && !withSound && styles.yesNoBtnTextActive]}>🔕 Não</Text>
               </TouchableOpacity>
             </View>
 
             <Text style={[styles.wizLabel, { marginTop: 22 }]}>Repetir alarme — a cada 5 min.</Text>
             <View style={[styles.yesNoRow, { marginTop: 10 }]}>
               <TouchableOpacity
-                style={[styles.yesNoBtnSm, repeatInterval > 0 && styles.yesNoBtnActive, !withSound && styles.yesNoBtnDisabled]}
+                style={[styles.yesNoBtnSm, repeatTouched && repeatInterval > 0 && styles.yesNoBtnActive, !withSound && styles.yesNoBtnDisabled]}
                 disabled={!withSound}
-                onPress={() => setRepeatInterval(5)}
+                onPress={() => { setRepeatInterval(5); setRepeatTouched(true); }}
               >
-                <Text style={[styles.yesNoBtnText, repeatInterval > 0 && styles.yesNoBtnTextActive]}>🔁 Sim</Text>
+                <Text style={[styles.yesNoBtnText, repeatTouched && repeatInterval > 0 && styles.yesNoBtnTextActive]}>🔁 Sim</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.yesNoBtnSm, repeatInterval === 0 && styles.yesNoBtnActive]}
-                onPress={() => setRepeatInterval(0)}
+                style={[styles.yesNoBtnSm, repeatTouched && repeatInterval === 0 && styles.yesNoBtnActive]}
+                onPress={() => { setRepeatInterval(0); setRepeatTouched(true); }}
               >
-                <Text style={[styles.yesNoBtnText, repeatInterval === 0 && styles.yesNoBtnTextActive]}>Não</Text>
+                <Text style={[styles.yesNoBtnText, repeatTouched && repeatInterval === 0 && styles.yesNoBtnTextActive]}>Não</Text>
               </TouchableOpacity>
             </View>
           </>
@@ -1235,6 +1289,12 @@ export default function MedicationsScreen() {
                 );
               })}
             </View>
+            {editingId !== null && !medications.find(m => m.id === editingId)?.suspended && (
+              <TouchableOpacity style={styles.suspendBtn} onPress={handleSuspend}>
+                <Text style={styles.suspendBtnText}>⏸ Colocar em stand-by</Text>
+                <Text style={styles.suspendBtnHint}>Pausa alarmes e tela de bloqueio sem perder o setup</Text>
+              </TouchableOpacity>
+            )}
           </>
         );
       }
@@ -1262,6 +1322,33 @@ export default function MedicationsScreen() {
           </View>
         }
         renderItem={({ item }) => {
+          // Stand-by: card compacto de uma linha — só nome + Retomar
+          if (item.suspended) {
+            return (
+              <TouchableOpacity
+                style={styles.suspendedCard}
+                activeOpacity={0.85}
+                onPress={() => openEdit(item)}
+                accessibilityLabel={`${item.generic_name} em stand-by. Toque para editar.`}
+              >
+                <Text style={styles.suspendedIcon}>⏸</Text>
+                <Text style={styles.suspendedName} numberOfLines={1}>
+                  {item.commercial_name ? `${item.commercial_name} — ${item.generic_name}` : item.generic_name}
+                </Text>
+                <TouchableOpacity
+                  style={styles.resumeBtn}
+                  onPress={() => handleResume(item)}
+                  accessibilityLabel={`Retomar ${item.generic_name}`}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.resumeBtnText}>Retomar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.id, item.generic_name)} accessibilityLabel={`Remover ${item.generic_name}`} accessibilityRole="button">
+                  <Text style={styles.deleteBtnText}>✕</Text>
+                </TouchableOpacity>
+              </TouchableOpacity>
+            );
+          }
           const itemInteractions = cardInteractions.get(item.id) ?? [];
           const hasHighRisk = itemInteractions.some(i => i.risk_level === 'critical' || i.risk_level === 'high');
           const times = reminderTimes.get(item.id) ?? [];
@@ -1803,4 +1890,23 @@ const styles = StyleSheet.create({
   sumLabel: { fontSize: 11, color: '#8A8F9D', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.4 },
   sumValue: { fontSize: 14, color: '#1A1F2E', fontWeight: '600', marginTop: 2 },
   sumChevron: { fontSize: 22, color: '#C0C5D0' },
+  // Stand-by
+  suspendBtn: {
+    marginTop: 6, borderRadius: 12, padding: 14, alignItems: 'center',
+    borderWidth: 1, borderColor: '#C0C5D0', borderStyle: 'dashed',
+  },
+  suspendBtnText: { fontSize: 14, fontWeight: '600', color: '#8A8F9D' },
+  suspendBtnHint: { fontSize: 11, color: '#B0B5C0', marginTop: 2 },
+  suspendedCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: '#fff', borderRadius: 12, paddingVertical: 8, paddingHorizontal: 14, marginBottom: 10,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)', opacity: 0.75,
+  },
+  suspendedIcon: { fontSize: 14, color: '#8A8F9D' },
+  suspendedName: { flex: 1, fontSize: 14, fontWeight: '600', color: '#8A8F9D' },
+  resumeBtn: {
+    borderWidth: 1, borderColor: '#1C3F7A', borderRadius: 14,
+    paddingVertical: 4, paddingHorizontal: 12,
+  },
+  resumeBtnText: { fontSize: 12, fontWeight: '700', color: '#1C3F7A' },
 });

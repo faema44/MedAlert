@@ -212,6 +212,11 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
   try {
     await database.execAsync('ALTER TABLE medications ADD COLUMN units_per_dose INTEGER DEFAULT 1');
   } catch {}
+  // Stand-by: medicamento pausado temporariamente — sem alarmes, fora da tela de
+  // bloqueio e da ficha de emergência, mas com o setup (lembretes) preservado
+  try {
+    await database.execAsync('ALTER TABLE medications ADD COLUMN suspended INTEGER DEFAULT 0');
+  } catch {}
 }
 
 // Profile
@@ -239,10 +244,16 @@ export async function saveProfile(data: Partial<Profile>): Promise<void> {
 }
 
 // Medications
-export async function getMedications(): Promise<Medication[]> {
+// Por padrão exclui suspensos (stand-by): Home, tela de bloqueio, ficha de
+// emergência e reagendamento ignoram o medicamento sem precisar filtrar.
+// Só a lista de medicamentos passa includeSuspended=true para exibi-los.
+export async function getMedications(includeSuspended = false): Promise<Medication[]> {
   const database = await getDb();
-  const rows = await database.getAllAsync<Medication>('SELECT * FROM medications WHERE archived=0 OR archived IS NULL ORDER BY is_critical DESC, generic_name ASC');
-  return rows.map(r => ({
+  const rows = await database.getAllAsync<Medication>(
+    'SELECT * FROM medications WHERE (archived=0 OR archived IS NULL)' +
+    (includeSuspended ? '' : ' AND (suspended=0 OR suspended IS NULL)')
+  );
+  const meds = rows.map(r => ({
     ...r,
     is_critical: Boolean(r.is_critical),
     stock_quantity: r.stock_quantity ?? null,
@@ -250,7 +261,21 @@ export async function getMedications(): Promise<Medication[]> {
     end_date: r.end_date ?? null,
     home_reminder: r.home_reminder ?? 1,
     save_history: r.save_history ?? 1,
+    suspended: r.suspended ?? 0,
   }));
+  // Alfabético pelo nome exibido no card (comercial, senão genérico), com
+  // acentos tratados; suspensos vão para o fim da lista
+  const displayName = (m: Medication) => (m.commercial_name?.trim() || m.generic_name);
+  meds.sort((a, b) =>
+    (a.suspended ? 1 : 0) - (b.suspended ? 1 : 0) ||
+    displayName(a).localeCompare(displayName(b), 'pt-BR', { sensitivity: 'base' })
+  );
+  return meds;
+}
+
+export async function setMedicationSuspended(id: number, suspended: boolean): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('UPDATE medications SET suspended=? WHERE id=?', [suspended ? 1 : 0, id]);
 }
 
 export async function addMedication(med: Omit<Medication, 'id'>): Promise<number> {
@@ -769,7 +794,7 @@ export async function archiveMedication(id: number): Promise<void> {
 export async function getExpiredUnarchivedMedications(): Promise<Medication[]> {
   const database = await getDb();
   const rows = await database.getAllAsync<Medication>(
-    "SELECT * FROM medications WHERE end_date IS NOT NULL AND end_date < date('now') AND (archived IS NULL OR archived=0)"
+    "SELECT * FROM medications WHERE end_date IS NOT NULL AND end_date < date('now') AND (archived IS NULL OR archived=0) AND (suspended IS NULL OR suspended=0)"
   );
   return rows.map(r => ({
     ...r,
@@ -817,8 +842,8 @@ export async function importBackup(json: string): Promise<void> {
     }
     for (const m of (medications ?? [])) {
       await database.runAsync(
-        'INSERT INTO medications (id, generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, units_per_dose, end_date, archived, home_reminder, save_history) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
-        [m.id, m.generic_name ?? '', m.commercial_name ?? '', m.dose ?? '', m.frequency ?? '', m.is_critical ?? 0, m.notes ?? '', m.stock_quantity ?? null, m.units_per_dose ?? 1, m.end_date ?? null, m.archived ?? 0, m.home_reminder ?? 1, m.save_history ?? 1]
+        'INSERT INTO medications (id, generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, units_per_dose, end_date, archived, home_reminder, save_history, suspended) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        [m.id, m.generic_name ?? '', m.commercial_name ?? '', m.dose ?? '', m.frequency ?? '', m.is_critical ?? 0, m.notes ?? '', m.stock_quantity ?? null, m.units_per_dose ?? 1, m.end_date ?? null, m.archived ?? 0, m.home_reminder ?? 1, m.save_history ?? 1, m.suspended ?? 0]
       );
     }
     for (const r of (medication_reminders ?? [])) {
