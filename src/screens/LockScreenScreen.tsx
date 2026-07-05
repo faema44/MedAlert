@@ -9,7 +9,7 @@ import EmergencyChecklist from '../components/EmergencyChecklist';
 
 const KV_ALERT_ACTIVE = 'alert_active';
 
-export default function EmergencyScreen() {
+export default function LockScreenScreen() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const [profile, setProfile] = useState<Profile | null>(null);

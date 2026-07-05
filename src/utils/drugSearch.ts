@@ -114,7 +114,22 @@ function toSlug(name: string): string {
     .replace(/[^a-z0-9-]/g, '');
 }
 
-export function getBulaUrl(genericName: string, _brandName?: string): string {
+// Bulas de liberação prolongada baixadas à parte (posologia/farmacocinética
+// diferem da versão de liberação imediata do mesmo genérico) — só cobre os
+// poucos casos com bula própria confirmada na ANVISA, não o genérico inteiro.
+const XR_BRAND_PATTERN = /\b(xr|mr|sr|cr|od|lp|retard|xl)\b/i;
+const XR_BULA_SLUGS: Record<string, string> = {
+  'metformina':  'metformina-xr',
+  'gliclazida':  'gliclazida-mr',
+  'venlafaxina': 'venlafaxina-xr',
+  'quetiapina':  'quetiapina-xr',
+};
+
+export function getBulaUrl(genericName: string, brandName?: string): string {
+  if (brandName && XR_BRAND_PATTERN.test(brandName)) {
+    const xrSlug = XR_BULA_SLUGS[normalize(genericName)];
+    if (xrSlug) return `${BULA_BASE}/${xrSlug}.pdf`;
+  }
   return `${BULA_BASE}/${toSlug(genericName)}.pdf`;
 }
 
@@ -433,8 +448,28 @@ export function checkSubstanceInteractions(drugName: string, userMedNames: strin
   return results.sort((a, b) => (order[a.risk_level] ?? 3) - (order[b.risk_level] ?? 3));
 }
 
+// Álcool e barbitúricos nunca aparecem na lista de medicamentos do próprio usuário
+// (ninguém cadastra "Álcool" como remédio que toma), então essas interações precisam
+// ser sinalizadas de forma independente de existingMedNames — um aviso permanente por
+// medicamento, não condicionado a outro cadastro do usuário.
+const ALCOHOL_TERMS = ['alcool', 'etanol', 'alcohol'];
+const BARBITURATE_TERMS = ['barbiturico', 'barbiturate', 'fenobarbital', 'pentobarbital', 'secobarbital', 'amobarbital', 'tiopental'];
+
+// null quando `name` não é álcool nem barbitúrico — usado tanto para achar essas
+// interações "de padrão" (ver checkInteractions) quanto para rotular o aviso na UI.
+export function alcoholOrBarbiturateKind(name: string): 'alcohol' | 'barbiturate' | null {
+  const n = normalize(name);
+  if (ALCOHOL_TERMS.some(t => n.includes(t))) return 'alcohol';
+  if (BARBITURATE_TERMS.some(t => n.includes(t))) return 'barbiturate';
+  return null;
+}
+
+function isAlcoholOrBarbiturateName(name: string): boolean {
+  return alcoholOrBarbiturateKind(name) !== null;
+}
+
 export function checkInteractions(newDrug: string, existingMedNames: string[]): DrugInteraction[] {
-  if (newDrug.trim().length < 3 || existingMedNames.length === 0) return [];
+  if (newDrug.trim().length < 3) return [];
 
   const seen = new Set<string>();
   const results: DrugInteraction[] = [];
@@ -445,9 +480,9 @@ export function checkInteractions(newDrug: string, existingMedNames: string[]): 
     const { tokens1, tokens2 } = INTERACTION_TOKENS[i] ?? { tokens1: [], tokens2: [] };
     const m1 = matchesSide(tokens1, interaction.drug1_rxcuis, newDrug);
     const m2 = m1 ? false : matchesSide(tokens2, interaction.drug2_rxcuis, newDrug);
-    if (m1 && existingMedNames.some(m => matchesSide(tokens2, interaction.drug2_rxcuis, m))) {
+    if (m1 && (isAlcoholOrBarbiturateName(interaction.drug2) || existingMedNames.some(m => matchesSide(tokens2, interaction.drug2_rxcuis, m)))) {
       seen.add(interaction.id); results.push(interaction);
-    } else if (m2 && existingMedNames.some(m => matchesSide(tokens1, interaction.drug1_rxcuis, m))) {
+    } else if (m2 && (isAlcoholOrBarbiturateName(interaction.drug1) || existingMedNames.some(m => matchesSide(tokens1, interaction.drug1_rxcuis, m)))) {
       seen.add(interaction.id); results.push(interaction);
     }
   }

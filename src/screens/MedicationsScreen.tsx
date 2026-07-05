@@ -22,7 +22,7 @@ import {
 } from '../services/notifications';
 import { Medication, MedicationReminder, DrugInteraction } from '../types';
 import MedDisclaimer from '../components/MedDisclaimer';
-import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, checkInteractions, isPhytotherapic, getAllMedGenericNames } from '../utils/drugSearch';
+import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, checkInteractions, isPhytotherapic, getAllMedGenericNames, alcoholOrBarbiturateKind } from '../utils/drugSearch';
 import { useBulaViewer } from '../utils/useBulaViewer';
 import { reportMissingDrug } from '../services/reportMissing';
 // ──────────────────────────────────────────────────────────────────────────────
@@ -406,10 +406,11 @@ export default function MedicationsScreen() {
       try {
         const ri = r.repeat_interval ?? 0;
         const notifName = item.commercial_name.trim() || item.generic_name;
-        if (p === 'day') await scheduleReminder(item.id, notifName, item.dose, h, m, newSound, ri);
-        else if (p.startsWith('week:')) await scheduleReminderWeekly(item.id, notifName, item.dose, p.split(':')[1].split(',').map(Number), h, m, newSound, ri);
-        else if (p.startsWith('month:')) await scheduleReminderMonthly(item.id, notifName, item.dose, p.split(':')[1].split(',').map(Number), h, m, newSound, ri);
-        else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(item.id, notifName, item.dose, Number(nStr), Number(dStr), h, m, newSound, ri); }
+        const isHerbal = isPhytotherapic(item.generic_name);
+        if (p === 'day') await scheduleReminder(item.id, notifName, item.dose, h, m, newSound, ri, undefined, undefined, isHerbal);
+        else if (p.startsWith('week:')) await scheduleReminderWeekly(item.id, notifName, item.dose, p.split(':')[1].split(',').map(Number), h, m, newSound, ri, undefined, undefined, isHerbal);
+        else if (p.startsWith('month:')) await scheduleReminderMonthly(item.id, notifName, item.dose, p.split(':')[1].split(',').map(Number), h, m, newSound, ri, undefined, undefined, isHerbal);
+        else if (p.startsWith('nmonths:')) { const [, nStr, dStr] = p.split(':'); await scheduleReminderEveryNMonths(item.id, notifName, item.dose, Number(nStr), Number(dStr), h, m, newSound, ri, undefined, undefined, isHerbal); }
       } catch {}
     }
     setReminderHasSound(prev => new Map(prev).set(item.id, newSound));
@@ -493,12 +494,13 @@ export default function MedicationsScreen() {
         const ri = e.repeat_interval ?? 0;
         try {
           const notifName = data.commercial_name.trim() || data.generic_name;
-          if (p === 'day') await scheduleReminder(savedMedId, notifName, data.dose, h, m, e.with_sound, ri);
-          else if (p.startsWith('week:')) await scheduleReminderWeekly(savedMedId, notifName, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri);
-          else if (p.startsWith('month:')) await scheduleReminderMonthly(savedMedId, notifName, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri);
+          const isHerbal = isPhytotherapic(data.generic_name);
+          if (p === 'day') await scheduleReminder(savedMedId, notifName, data.dose, h, m, e.with_sound, ri, undefined, undefined, isHerbal);
+          else if (p.startsWith('week:')) await scheduleReminderWeekly(savedMedId, notifName, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri, undefined, undefined, isHerbal);
+          else if (p.startsWith('month:')) await scheduleReminderMonthly(savedMedId, notifName, data.dose, p.split(':')[1].split(',').map(Number), h, m, e.with_sound, ri, undefined, undefined, isHerbal);
           else if (p.startsWith('nmonths:')) {
             const [, nStr, dStr] = p.split(':');
-            await scheduleReminderEveryNMonths(savedMedId, notifName, data.dose, Number(nStr), Number(dStr), h, m, e.with_sound, ri);
+            await scheduleReminderEveryNMonths(savedMedId, notifName, data.dose, Number(nStr), Number(dStr), h, m, e.with_sound, ri, undefined, undefined, isHerbal);
           }
         } catch {}
         await addReminder({ medication_id: savedMedId, time: e.time, period: e.period, with_sound: e.with_sound, is_active: true, repeat_interval: ri }).catch(() => {});
@@ -1292,7 +1294,7 @@ export default function MedicationsScreen() {
           <TouchableOpacity style={[styles.medCard, hasHighRisk && styles.medCardCritical]} activeOpacity={0.85} onPress={() => openEdit(item)}>
             {/* Header: name + delete */}
             <View style={styles.medHeader}>
-              {hasHighRisk && <Text style={styles.criticalIcon}>⚠️</Text>}
+              <Text style={styles.criticalIcon}>{isPhytotherapic(item.generic_name) ? '🌿' : '💊'}</Text>
               <Text style={styles.medGeneric} numberOfLines={2}>
                 {item.commercial_name ? `${item.commercial_name} — ${item.generic_name}` : item.generic_name}
               </Text>
@@ -1305,7 +1307,7 @@ export default function MedicationsScreen() {
                     const url = isPhytotherapic(item.generic_name)
                       ? getPhytoBulaUrl(item.generic_name, item.commercial_name || undefined)
                       : getBulaUrl(item.generic_name, item.commercial_name || undefined);
-                    openBula(url);
+                    openBula(url, item.generic_name);
                   }}
                 >
                   <Text style={styles.bulaCardBtnText}>📋</Text>
@@ -1337,7 +1339,6 @@ export default function MedicationsScreen() {
               {times.length > 0 && (
                 <Text style={styles.medDetail}>
                   {hasSound ? '🔔' : '🔕'} Alarme: {hasSound ? 'Sim' : 'Não'}  ·  Repete: {repeatInt > 0 ? 'Sim' : 'Não'}
-                  {item.is_critical ? '  ·  ⚠️ Crítico' : ''}
                 </Text>
               )}
               {item.notes ? <Text style={styles.medNotes}>📝 {item.notes}</Text> : null}
@@ -1350,10 +1351,14 @@ export default function MedicationsScreen() {
               <TouchableOpacity style={styles.cardInteractionRow} activeOpacity={0.7} onPress={() => setInteractionModal(itemInteractions)}>
                 {itemInteractions.slice(0, 3).map(i => {
                   const color = i.risk_level === 'critical' ? '#CC0000' : i.risk_level === 'high' ? '#e65c00' : '#b58900';
-                  const label = i.risk_level === 'critical' ? 'Interação Crítica' : i.risk_level === 'high' ? 'Interação Alta' : 'Interação Moderada';
+                  const severityWord = i.risk_level === 'critical' ? 'Crítica' : i.risk_level === 'high' ? 'Alta' : 'Moderada';
+                  const kind = alcoholOrBarbiturateKind(i.drug1) ?? alcoholOrBarbiturateKind(i.drug2);
+                  const label = kind === 'alcohol' ? `Interação com Álcool (${severityWord})`
+                    : kind === 'barbiturate' ? `Interação com Barbitúricos (${severityWord})`
+                    : `Interação ${severityWord}`;
                   return (
                     <View key={i.id} style={[styles.cardInteractionBadge, { borderColor: color }]}>
-                      <Text style={[styles.cardInteractionBadgeText, { color }]}>{label}</Text>
+                      <Text style={[styles.cardInteractionBadgeText, { color }]}>⚠ {label}</Text>
                     </View>
                   );
                 })}
@@ -1473,7 +1478,7 @@ export default function MedicationsScreen() {
                           </Text>
                         ) : null}
                       </TouchableOpacity>
-                      <TouchableOpacity style={styles.bulaBtn} onPress={() => openBula(s.bulaUrl)} accessibilityLabel={`Ver bula de ${s.genericName}`} accessibilityRole="button">
+                      <TouchableOpacity style={styles.bulaBtn} onPress={() => openBula(s.bulaUrl, s.genericName)} accessibilityLabel={`Ver bula de ${s.genericName}`} accessibilityRole="button">
                         <Text style={styles.bulaBtnText}>📋</Text>
                       </TouchableOpacity>
                     </View>

@@ -68,7 +68,7 @@ function InteractionCard({ item, expanded, onToggle }: {
   );
 }
 
-function MedCard({ item, isPhyto, onOpenBula }: { item: DbEntry; isPhyto?: boolean; onOpenBula: (url: string) => void }) {
+function MedCard({ item, isPhyto, onOpenBula }: { item: DbEntry; isPhyto?: boolean; onOpenBula: (url: string, medName: string) => void }) {
   const accent = isPhyto ? '#1a6b3a' : '#1C3F7A';
   const bgAccent = isPhyto ? '#EAF4EC' : '#EEF3FF';
   const popularNames = item.brands.slice(0, 3).join(' · ');
@@ -76,7 +76,7 @@ function MedCard({ item, isPhyto, onOpenBula }: { item: DbEntry; isPhyto?: boole
 
   function handleOpenBula() {
     const url = isPhyto ? getPhytoBulaUrl(item.genericName, firstBrand) : getBulaUrl(item.genericName, firstBrand);
-    onOpenBula(url);
+    onOpenBula(url, item.genericName);
   }
 
   return (

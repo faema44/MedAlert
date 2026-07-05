@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import { Profile, Medication, MedicationReminder, ActivityReminder } from '../types';
 import { postMedNotification, cancelMedNotification, postSimpleNotification, cancelSimpleNotification } from './medNotification';
 import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity, getContacts, getKV, setKV, addMedicationLowStockLog } from '../database/db';
+import { isPhytotherapic } from '../utils/drugSearch';
 
 const CHANNEL_ID = 'medalert_emergency_v5';
 const NOTIF_ID = 'emergency';
@@ -20,6 +21,7 @@ const MED_SOUND_CHANNEL = 'medalert_med_sound_v2';
 const MED_SILENT_HEADSUP_CHANNEL = 'medalert_med_silent_headsup_v1';
 const ACTIVITY_SOUND_CHANNEL = 'medalert_activity_sound_v2';
 const APPT_SOUND_CHANNEL = 'medalert_appt_sound_v1';
+const HERBAL_SOUND_CHANNEL = 'medalert_herbal_sound_v1';
 
 const MED_ACTION_CATEGORY = 'med_action';
 const ACTIVITY_MEASURE_CATEGORY = 'activity_measure_action';
@@ -118,6 +120,14 @@ export async function setupNotificationChannels(): Promise<void> {
     lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
     sound: 'appt_reminder',
     vibrationPattern: [0, 300, 100, 300],
+  });
+
+  await Notifications.setNotificationChannelAsync(HERBAL_SOUND_CHANNEL, {
+    name: 'Lembrete de Fitoterápico',
+    importance: Notifications.AndroidImportance.HIGH,
+    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+    sound: 'herbal_reminder',
+    vibrationPattern: [0, 200, 120, 200],
   });
 
   await Notifications.setNotificationChannelAsync(TREATMENT_ENDED_CHANNEL, {
@@ -447,8 +457,8 @@ function timePart(hour: number, minute: number) {
   return `${String(hour).padStart(2,'0')}${String(minute).padStart(2,'0')}`;
 }
 
-function medChannel(withSound: boolean, homeReminder: boolean): string {
-  if (withSound) return MED_SOUND_CHANNEL;
+function medChannel(withSound: boolean, homeReminder: boolean, isHerbal: boolean): string {
+  if (withSound) return isHerbal ? HERBAL_SOUND_CHANNEL : MED_SOUND_CHANNEL;
   return homeReminder ? MED_SILENT_HEADSUP_CHANNEL : REMINDER_SILENT_CHANNEL;
 }
 
@@ -462,6 +472,7 @@ export async function scheduleReminder(
   repeatInterval = 0,
   stockWarning?: string,
   homeReminder = false,
+  isHerbal = false,
 ): Promise<void> {
   const id = `reminder_${medicationId}_${timePart(hour, minute)}`;
   await Notifications.scheduleNotificationAsync({
@@ -471,7 +482,7 @@ export async function scheduleReminder(
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
       hour,
       minute,
-      channelId: medChannel(withSound, homeReminder),
+      channelId: medChannel(withSound, homeReminder, isHerbal),
     },
   });
 }
@@ -487,6 +498,7 @@ export async function scheduleReminderWeekly(
   repeatInterval = 0,
   stockWarning?: string,
   homeReminder = false,
+  isHerbal = false,
 ): Promise<void> {
   for (const wd of weekdays) {
     await Notifications.scheduleNotificationAsync({
@@ -497,7 +509,7 @@ export async function scheduleReminderWeekly(
         weekday: wd,
         hour,
         minute,
-        channelId: medChannel(withSound, homeReminder),
+        channelId: medChannel(withSound, homeReminder, isHerbal),
       },
     });
   }
@@ -514,6 +526,7 @@ export async function scheduleReminderMonthly(
   repeatInterval = 0,
   stockWarning?: string,
   homeReminder = false,
+  isHerbal = false,
 ): Promise<void> {
   for (const day of days) {
     await Notifications.scheduleNotificationAsync({
@@ -525,7 +538,7 @@ export async function scheduleReminderMonthly(
         day,
         hour,
         minute,
-        channelId: medChannel(withSound, homeReminder),
+        channelId: medChannel(withSound, homeReminder, isHerbal),
       } as any,
     });
   }
@@ -543,6 +556,7 @@ export async function scheduleReminderEveryNMonths(
   repeatInterval = 0,
   stockWarning?: string,
   homeReminder = false,
+  isHerbal = false,
 ): Promise<void> {
   const tp = timePart(hour, minute);
   const now = new Date();
@@ -561,7 +575,7 @@ export async function scheduleReminderEveryNMonths(
         day: next.getDate(),
         hour,
         minute,
-        channelId: medChannel(withSound, homeReminder),
+        channelId: medChannel(withSound, homeReminder, isHerbal),
       } as any,
     });
     next.setMonth(next.getMonth() + intervalMonths);
@@ -812,21 +826,22 @@ export async function rescheduleRemindersForMedication(
 ): Promise<void> {
   const notifName = med.commercial_name?.trim() || med.generic_name;
   const homeReminder = med.home_reminder !== 0;
+  const isHerbal = isPhytotherapic(med.generic_name);
   for (const r of reminders) {
     if (!r.is_active) continue;
     const [h, m] = r.time.split(':').map(Number);
     if (isNaN(h)) continue;
     if (!r.period || r.period === 'day') {
-      await scheduleReminder(med.id, notifName, med.dose, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder).catch(() => {});
+      await scheduleReminder(med.id, notifName, med.dose, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal).catch(() => {});
     } else if (r.period.startsWith('week:')) {
       const wds = r.period.split(':')[1].split(',').map(Number);
-      await scheduleReminderWeekly(med.id, notifName, med.dose, wds, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder).catch(() => {});
+      await scheduleReminderWeekly(med.id, notifName, med.dose, wds, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal).catch(() => {});
     } else if (r.period.startsWith('month:')) {
       const days = r.period.split(':')[1].split(',').map(Number);
-      await scheduleReminderMonthly(med.id, notifName, med.dose, days, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder).catch(() => {});
+      await scheduleReminderMonthly(med.id, notifName, med.dose, days, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal).catch(() => {});
     } else if (r.period.startsWith('nmonths:')) {
       const [, nStr, dStr] = r.period.split(':');
-      await scheduleReminderEveryNMonths(med.id, notifName, med.dose, parseInt(nStr), parseInt(dStr), h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder).catch(() => {});
+      await scheduleReminderEveryNMonths(med.id, notifName, med.dose, parseInt(nStr), parseInt(dStr), h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal).catch(() => {});
     }
   }
 }
@@ -954,6 +969,31 @@ export async function notifyTreatmentEnded(medicationId: number, medicationName:
       type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
       seconds: 1,
       channelId: TREATMENT_ENDED_CHANNEL,
+    } as any,
+  });
+}
+
+const SOUND_PREVIEW_CHANNELS = {
+  med: MED_SOUND_CHANNEL,
+  herbal: HERBAL_SOUND_CHANNEL,
+  activity: ACTIVITY_SOUND_CHANNEL,
+  appt: APPT_SOUND_CHANNEL,
+} as const;
+
+export type ReminderSoundType = keyof typeof SOUND_PREVIEW_CHANNELS;
+
+export async function previewReminderSound(type: ReminderSoundType, label: string): Promise<void> {
+  await Notifications.scheduleNotificationAsync({
+    identifier: `sound_preview_${type}`,
+    content: {
+      title: '🔊 Teste de som',
+      body: `Assim soa o lembrete de ${label}`,
+      data: { type: 'sound_preview' },
+    },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+      seconds: 1,
+      channelId: SOUND_PREVIEW_CHANNELS[type],
     } as any,
   });
 }

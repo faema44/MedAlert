@@ -6,14 +6,8 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { File, Paths } from 'expo-file-system';
-import { StorageAccessFramework, writeAsStringAsync } from 'expo-file-system/legacy';
-import * as Sharing from 'expo-sharing';
-import * as DocumentPicker from 'expo-document-picker';
-import { getProfile, saveProfile, exportBackup, importBackup, getAppointments } from '../database/db';
-import { getMedications } from '../database/db';
-import { updateEmergencyNotification, calculateAge, rescheduleAllActiveNotifications, scheduleAppointmentReminders } from '../services/notifications';
-import * as Notifications from 'expo-notifications';
+import { getProfile, saveProfile, getMedications } from '../database/db';
+import { updateEmergencyNotification, calculateAge } from '../services/notifications';
 import { Profile, BLOOD_TYPES } from '../types';
 
 export default function ProfileScreen() {
@@ -47,80 +41,6 @@ export default function ProfileScreen() {
       setNotes(profile.notes);
     }
     setLoading(false);
-  }
-
-  async function handleExport() {
-    Alert.alert('Exportar backup', 'Onde deseja guardar o arquivo?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Compartilhar', onPress: exportViaShare },
-      { text: 'Salvar no celular', onPress: exportToFolder },
-    ]);
-  }
-
-  // Salva numa pasta escolhida pelo usuário (ex.: Downloads) — o arquivo fica
-  // visível no gerenciador de arquivos do próprio celular.
-  async function exportToFolder() {
-    try {
-      const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
-      if (!permissions.granted) return;
-      const json = await exportBackup();
-      const date = new Date().toISOString().slice(0, 10);
-      // Sem extensão no nome: o Android acrescenta .json a partir do MIME
-      const uri = await StorageAccessFramework.createFileAsync(
-        permissions.directoryUri, `medalert_backup_${date}`, 'application/json'
-      );
-      await writeAsStringAsync(uri, json);
-      Alert.alert('Backup salvo', 'Arquivo salvo na pasta escolhida. Para restaurar em outro celular, copie o arquivo e use "Restaurar backup".');
-    } catch {
-      Alert.alert('Erro', 'Não foi possível salvar o backup.');
-    }
-  }
-
-  async function exportViaShare() {
-    try {
-      const json = await exportBackup();
-      const date = new Date().toISOString().slice(0, 10);
-      const file = new File(Paths.document, `medalert_backup_${date}.json`);
-      file.write(json);
-      await Sharing.shareAsync(file.uri, { mimeType: 'application/json', dialogTitle: 'Exportar backup MedAlert' });
-    } catch {
-      Alert.alert('Erro', 'Não foi possível exportar o backup.');
-    }
-  }
-
-  async function handleImport() {
-    Alert.alert(
-      'Restaurar backup',
-      'Isso substituirá todos os seus dados atuais (medicamentos, contatos, atividades, consultas). Histórico de registros não é afetado. Continuar?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Escolher arquivo',
-          onPress: async () => {
-            try {
-              // type '*/*': arquivos .json copiados do PC via USB muitas vezes não têm
-              // MIME application/json e ficariam invisíveis/bloqueados no seletor
-              const result = await DocumentPicker.getDocumentAsync({ type: '*/*', copyToCacheDirectory: true });
-              if (result.canceled || !result.assets?.length) return;
-              const json = await new File(result.assets[0].uri).text();
-              await importBackup(json);
-              // Reagenda tudo na hora — sem exigir reinício do app.
-              // Cancela agendamentos dos dados antigos (substituídos pelo import) e recria dos novos.
-              await Notifications.cancelAllScheduledNotificationsAsync().catch(() => {});
-              await rescheduleAllActiveNotifications().catch(() => {});
-              const appts = await getAppointments().catch(() => []);
-              for (const a of appts) {
-                await scheduleAppointmentReminders(a.id, a.doctor_name, a.date, a.time).catch(() => {});
-              }
-              await loadProfile();
-              Alert.alert('Backup restaurado', 'Dados e lembretes restaurados com sucesso.');
-            } catch (e: any) {
-              Alert.alert('Erro ao restaurar', e?.message ?? 'Arquivo inválido ou corrompido.');
-            }
-          },
-        },
-      ]
-    );
   }
 
   const birthDate = (bdDay.length === 2 && bdMonth.length === 2 && bdYear.length === 4) ? `${bdDay}/${bdMonth}/${bdYear}` : '';
@@ -296,17 +216,6 @@ export default function ProfileScreen() {
           />
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Backup de Dados</Text>
-          <Text style={styles.backupHint}>Salve seus medicamentos, contatos e atividades em um arquivo no celular (ex.: pasta Downloads) ou compartilhe para nuvem/WhatsApp. Útil ao trocar de celular.</Text>
-          <TouchableOpacity style={styles.backupBtn} onPress={handleExport}>
-            <Text style={styles.backupBtnText}>Exportar backup</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.backupBtn, styles.backupBtnImport]} onPress={handleImport}>
-            <Text style={[styles.backupBtnText, styles.backupBtnTextImport]}>Restaurar backup</Text>
-          </TouchableOpacity>
-        </View>
-
         <View style={styles.infoBox}>
           <Text style={styles.infoText}>
             ℹ️  Estas informações serão exibidas na tela de bloqueio para socorristas. Salvar atualiza automaticamente o alerta de emergência.
@@ -366,13 +275,6 @@ const styles = StyleSheet.create({
   bloodTypeBtnSelected: { borderColor: '#1C3F7A', backgroundColor: '#1C3F7A' },
   bloodTypeBtnText: { fontSize: 14, color: '#444', fontWeight: '600' },
   bloodTypeBtnTextSelected: { color: '#fff' },
-  backupHint: { fontSize: 13, color: '#666', marginBottom: 12, lineHeight: 18 },
-  backupBtn: {
-    backgroundColor: '#1C3F7A', borderRadius: 8, paddingVertical: 12, alignItems: 'center', marginBottom: 8,
-  },
-  backupBtnImport: { backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#1C3F7A' },
-  backupBtnText: { fontSize: 14, fontWeight: '700', color: '#fff' },
-  backupBtnTextImport: { color: '#1C3F7A' },
   infoBox: { backgroundColor: '#e8f4fd', borderRadius: 10, padding: 12, marginBottom: 16 },
   infoText: { fontSize: 13, color: '#0066cc', lineHeight: 18 },
   saveBtn: { backgroundColor: '#1C3F7A', borderRadius: 10, padding: 16, alignItems: 'center', marginTop: 4 },

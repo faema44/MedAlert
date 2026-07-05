@@ -18,7 +18,7 @@ import { getCyclePhase, CyclePhaseInfo } from '../utils/cyclePhase';
 type RootTabs = {
   Home: undefined; Profile: undefined; Medications: undefined;
   Contacts: undefined; Agenda: undefined; Interactions: undefined; History: undefined;
-  Emergency: undefined;
+  Settings: undefined; LockScreen: undefined;
 };
 
 import {
@@ -465,7 +465,7 @@ export default function HomeScreen() {
               notifActive={notifActive}
               onPressProfile={() => navigation.navigate('Profile')}
               onPressContacts={() => navigation.navigate('Contacts')}
-              onPressAlert={() => navigation.navigate('Emergency')}
+              onPressAlert={() => navigation.navigate('LockScreen')}
             />
           </View>
         </View>

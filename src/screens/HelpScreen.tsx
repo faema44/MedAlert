@@ -75,7 +75,7 @@ export default function HelpScreen() {
 
       {/* Como usar */}
       <Section title="Como usar — passo a passo">
-        <Step number="1" text="Abra a aba Emergência e complete os 3 passos: Perfil Médico (nome, tipo sanguíneo, alergias), Contato de emergência e Ativar alerta." />
+        <Step number="1" text="Abra Configurações → Tela de Bloqueio e complete os 3 passos: Perfil Médico (nome, tipo sanguíneo, alergias), Contato de emergência e Ativar alerta." />
         <Step number="2" text="Cadastre os medicamentos que você usa na aba Medicamentos, tocando em +. O assistente pergunta nome, dose, horários, prazo e estoque — um passo de cada vez." />
         <Step number="3" text="Use a aba Atividades para registrar atividades físicas, medições (pressão, glicose, peso) e consultas médicas — lembretes são criados automaticamente." />
         <Step number="4" text="Acompanhe na aba Histórico as doses que você tomou ou pulou e as atividades realizadas." />
@@ -142,7 +142,7 @@ export default function HelpScreen() {
           </View>
         </View>
         <Text style={styles.tip}>
-          💡 Toque no ícone 📋 no topo de qualquer tela para abrir as Tabelas — todas as interações da base (mais de 900), com busca e filtros por risco, além das listas completas de medicamentos e fitoterápicos.
+          💡 Toque em Configurações → Tabelas para ver todas as interações da base (mais de 900), com busca e filtros por risco, além das listas completas de medicamentos e fitoterápicos.
         </Text>
       </Section>
 
@@ -181,10 +181,11 @@ export default function HelpScreen() {
           Cada tipo de lembrete toca uma melodia diferente para você identificar o aviso antes mesmo de olhar para o celular:
         </Text>
         <Bullet text="💊 Remédios — três notas ascendentes (ding-ding-ding), mais urgentes" />
+        <Bullet text="🌿 Fitoterápicos — três notas suaves em sino, ritmo calmo" />
         <Bullet text="🏃 Atividades — dois tons suaves e crescentes" />
         <Bullet text="🩺 Consultas — dois tons descendentes e calmos" />
         <Text style={styles.tip}>
-          💡 Na tela Início, toque em 🔔 / 🔕 ao lado de qualquer item para silenciar ou reativar o som daquele lembrete individualmente.
+          💡 Em Configurações → Som você pode ouvir cada melodia. Na tela Início, toque em 🔔 / 🔕 ao lado de qualquer item para silenciar ou reativar o som daquele lembrete individualmente.
         </Text>
       </Section>
 
@@ -243,7 +244,7 @@ export default function HelpScreen() {
           Seus dados são protegidos de duas formas:
         </Text>
         <Bullet text="Automático — com o backup do Android ativo (Configurações → Google → Backup), uma cópia criptografada vai para sua conta Google e é restaurada sozinha ao trocar de celular ou reinstalar o app" />
-        <Bullet text="Manual — em Emergência → Perfil Médico → Backup de Dados, salve um arquivo no celular (ex.: pasta Downloads) ou compartilhe por WhatsApp/e-mail, e restaure quando precisar" />
+        <Bullet text="Manual — em Configurações → Backup, salve um arquivo no celular (ex.: pasta Downloads) ou compartilhe por WhatsApp/e-mail, e restaure quando precisar" />
         <Text style={styles.tip}>
           💡 O backup automático depende do backup do Google estar ativado no aparelho. O arquivo manual é uma garantia extra — guarde-o fora do celular.
         </Text>

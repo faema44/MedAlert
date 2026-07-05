@@ -42,7 +42,10 @@ import InteractionsScreen from './src/screens/InteractionsScreen';
 import AgendaScreen from './src/screens/AgendaScreen';
 import HelpScreen from './src/screens/HelpScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
-import EmergencyScreen from './src/screens/EmergencyScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import LockScreenScreen from './src/screens/LockScreenScreen';
+import BackupScreen from './src/screens/BackupScreen';
+import SoundSettingsScreen from './src/screens/SoundSettingsScreen';
 import {
   setupNotificationChannels, requestPermissions, setupReminderCategory,
   initReminderListeners, initActivityListeners, initResponseListeners, dismissNotification,
@@ -65,7 +68,10 @@ const TITLES: Record<string, string> = {
   Interactions: 'Tabelas',
   Help: 'Ajuda',
   History: 'Histórico',
-  Emergency: 'Emergência',
+  Settings: 'Configurações',
+  LockScreen: 'Tela de Bloqueio',
+  Backup: 'Backup',
+  SoundSettings: 'Som dos Lembretes',
 };
 
 const TAB_ICONS: Record<string, { icon: string; activeIcon: string }> = {
@@ -100,7 +106,7 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
     Interactions: '📋',
     History:      '📋',
   };
-  if (name === 'Emergency') {
+  if (name === 'Settings') {
     return (
       <View style={{ alignItems: 'center' }}>
         <View style={{
@@ -385,16 +391,8 @@ function AppNavigator() {
             headerStyle: { backgroundColor: '#1C3F7A' },
             headerTintColor: '#fff',
             headerTitle: () => <HeaderTitle route={route} />,
-            headerRight: (route.name !== 'Help' && route.name !== 'Interactions') ? () => (
+            headerRight: (route.name !== 'Help') ? () => (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginRight: 12 }}>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('Interactions' as never)}
-                  style={{ padding: 6 }}
-                  accessibilityLabel="Tabelas de medicamentos e interações"
-                  accessibilityRole="button"
-                >
-                  <Text style={{ color: '#fff', fontSize: 19 }}>📋</Text>
-                </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => navigation.navigate('Help' as never)}
                   style={{ padding: 4 }}
@@ -425,15 +423,18 @@ function AppNavigator() {
             tabBarIcon: ({ focused }) => <TabIcon name={route.name} focused={focused} />,
           })}
         >
-          <Tab.Screen name="Home"         component={HomeScreen}         options={{ tabBarLabel: 'Início' }} />
-          <Tab.Screen name="Medications"  component={MedicationsScreen}  options={{ tabBarLabel: 'Medicamentos' }} />
-          <Tab.Screen name="Agenda"       component={AgendaScreen}       options={{ tabBarLabel: 'Atividades' }} />
-          <Tab.Screen name="Emergency"    component={EmergencyScreen}    options={{ tabBarLabel: 'Emergência' }} />
-          <Tab.Screen name="History"      component={HistoryScreen}      options={{ tabBarLabel: 'Histórico', headerTitle: () => <HeaderTitle route={{ name: 'History' }} /> }} />
-          <Tab.Screen name="Profile"      component={ProfileScreen}      options={{ tabBarItemStyle: { display: 'none' } }} />
-          <Tab.Screen name="Contacts"     component={ContactsScreen}     options={{ tabBarItemStyle: { display: 'none' } }} />
-          <Tab.Screen name="Interactions" component={InteractionsScreen} options={{ tabBarItemStyle: { display: 'none' } }} />
-          <Tab.Screen name="Help"         component={HelpScreen}         options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tab.Screen name="Home"          component={HomeScreen}          options={{ tabBarLabel: 'Início' }} />
+          <Tab.Screen name="Medications"   component={MedicationsScreen}   options={{ tabBarLabel: 'Medicamentos' }} />
+          <Tab.Screen name="Agenda"        component={AgendaScreen}        options={{ tabBarLabel: 'Atividades' }} />
+          <Tab.Screen name="Settings"      component={SettingsScreen}      options={{ tabBarLabel: 'Configurações' }} />
+          <Tab.Screen name="History"       component={HistoryScreen}       options={{ tabBarLabel: 'Histórico', headerTitle: () => <HeaderTitle route={{ name: 'History' }} /> }} />
+          <Tab.Screen name="Profile"       component={ProfileScreen}       options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tab.Screen name="Contacts"      component={ContactsScreen}      options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tab.Screen name="Interactions"  component={InteractionsScreen}  options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tab.Screen name="Help"          component={HelpScreen}          options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tab.Screen name="LockScreen"    component={LockScreenScreen}    options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tab.Screen name="Backup"        component={BackupScreen}        options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tab.Screen name="SoundSettings" component={SoundSettingsScreen} options={{ tabBarItemStyle: { display: 'none' } }} />
         </Tab.Navigator>
       </NavigationContainer>
 
