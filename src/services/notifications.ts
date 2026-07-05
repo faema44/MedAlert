@@ -16,11 +16,14 @@ const REMINDER_SOUND_CHANNEL = 'medalert_reminder_sound';
 const REMINDER_SILENT_CHANNEL = 'medalert_reminder_silent';
 const REMINDER_CATEGORY = 'reminder_action';
 // v2: PUBLIC lock-screen visibility + action buttons
-const MED_SOUND_CHANNEL = 'medalert_med_sound_v2';
+// v3: som do canal é fixado na criação e não muda depois — precisa de um ID novo
+// sempre que o arquivo de som mudar, senão instalações existentes ficam com o
+// som antigo (era a causa de "todos os lembretes tocam o mesmo som")
+const MED_SOUND_CHANNEL = 'medalert_med_sound_v3';
 // HIGH importance sem som — usado quando home_reminder=1 e with_sound=false para exibir heads-up
 const MED_SILENT_HEADSUP_CHANNEL = 'medalert_med_silent_headsup_v1';
-const ACTIVITY_SOUND_CHANNEL = 'medalert_activity_sound_v2';
-const APPT_SOUND_CHANNEL = 'medalert_appt_sound_v1';
+const ACTIVITY_SOUND_CHANNEL = 'medalert_activity_sound_v3';
+const APPT_SOUND_CHANNEL = 'medalert_appt_sound_v2';
 const HERBAL_SOUND_CHANNEL = 'medalert_herbal_sound_v1';
 
 const MED_ACTION_CATEGORY = 'med_action';
@@ -969,31 +972,6 @@ export async function notifyTreatmentEnded(medicationId: number, medicationName:
       type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
       seconds: 1,
       channelId: TREATMENT_ENDED_CHANNEL,
-    } as any,
-  });
-}
-
-const SOUND_PREVIEW_CHANNELS = {
-  med: MED_SOUND_CHANNEL,
-  herbal: HERBAL_SOUND_CHANNEL,
-  activity: ACTIVITY_SOUND_CHANNEL,
-  appt: APPT_SOUND_CHANNEL,
-} as const;
-
-export type ReminderSoundType = keyof typeof SOUND_PREVIEW_CHANNELS;
-
-export async function previewReminderSound(type: ReminderSoundType, label: string): Promise<void> {
-  await Notifications.scheduleNotificationAsync({
-    identifier: `sound_preview_${type}`,
-    content: {
-      title: '🔊 Teste de som',
-      body: `Assim soa o lembrete de ${label}`,
-      data: { type: 'sound_preview' },
-    },
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-      seconds: 1,
-      channelId: SOUND_PREVIEW_CHANNELS[type],
     } as any,
   });
 }

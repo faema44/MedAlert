@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { getProfile, getContacts, getKV } from '../database/db';
+import { getProfile, getKV } from '../database/db';
 
 const KV_ALERT_ACTIVE = 'alert_active';
 
@@ -30,12 +30,11 @@ export default function SettingsScreen() {
   const [lockSubtitle, setLockSubtitle] = useState('Perfil, contato e alerta de emergência');
 
   const load = useCallback(async () => {
-    const [p, c, alertActive] = await Promise.all([getProfile(), getContacts(), getKV(KV_ALERT_ACTIVE)]);
+    const [p, alertActive] = await Promise.all([getProfile(), getKV(KV_ALERT_ACTIVE)]);
     const profileDone = !!p?.name;
-    const contactDone = c.length > 0;
     const notifActive = alertActive === '1' && profileDone;
-    if (!profileDone || !contactDone) {
-      setLockSubtitle('Complete o perfil e o contato para ativar');
+    if (!profileDone) {
+      setLockSubtitle('Necessário completar o Perfil Médico');
     } else {
       setLockSubtitle(notifActive ? 'Alerta ativado — visível na tela de bloqueio' : 'Alerta desativado');
     }
@@ -56,12 +55,6 @@ export default function SettingsScreen() {
         title="Backup"
         subtitle="Exportar ou restaurar seus dados"
         onPress={() => (navigation as any).navigate('Backup')}
-      />
-      <MenuRow
-        icon="🎵"
-        title="Som"
-        subtitle="Melodias dos lembretes por tipo"
-        onPress={() => (navigation as any).navigate('SoundSettings')}
       />
       <MenuRow
         icon="📋"

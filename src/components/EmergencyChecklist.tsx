@@ -24,7 +24,7 @@ function profileSummary(profile: Profile | null): string {
 
 export default function EmergencyChecklist({ profile, contacts, notifActive, onPressProfile, onPressContacts, onPressAlert }: Props) {
   const primaryContact = contacts.find(c => c.is_primary) ?? contacts[0] ?? null;
-  const canActivateAlert = !!profile?.name && contacts.length > 0;
+  const canActivateAlert = !!profile?.name;
   const profileDone = !!profile?.name;
   const contactDone = contacts.length > 0;
 
@@ -61,7 +61,7 @@ export default function EmergencyChecklist({ profile, contacts, notifActive, onP
           <Text style={styles.cardSub}>
             {notifActive
               ? 'Visível na tela de bloqueio'
-              : canActivateAlert ? 'Toque para ativar a tela de bloqueio' : 'Preencha perfil e contato primeiro'}
+              : canActivateAlert ? 'Toque para ativar a tela de bloqueio' : 'Preencha o perfil primeiro'}
           </Text>
         </View>
         <Text style={styles.cardChevron}>›</Text>

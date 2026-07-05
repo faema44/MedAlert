@@ -4,7 +4,7 @@ import {
   TouchableOpacity, Alert, ActivityIndicator,
   KeyboardAvoidingView, Platform,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getProfile, saveProfile, getMedications } from '../database/db';
 import { updateEmergencyNotification, calculateAge } from '../services/notifications';
@@ -12,6 +12,8 @@ import { Profile, BLOOD_TYPES } from '../types';
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
+  const returnTo = (route.params as { returnTo?: string } | undefined)?.returnTo;
   const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -57,7 +59,7 @@ export default function ProfileScreen() {
       const profile = await getProfile();
       if (profile) await updateEmergencyNotification(profile, meds).catch(() => {});
       Alert.alert('Salvo!', 'Perfil atualizado.', [
-        { text: 'OK', onPress: () => navigation.goBack() },
+        { text: 'OK', onPress: () => returnTo ? (navigation as any).navigate(returnTo) : navigation.goBack() },
       ]);
     } catch {
       Alert.alert('Erro', 'Não foi possível salvar o perfil. Tente novamente.');

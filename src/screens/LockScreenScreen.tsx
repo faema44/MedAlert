@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Switch } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Switch, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { getProfile, getMedications, getContacts, getKV, setKV } from '../database/db';
@@ -45,7 +45,10 @@ export default function LockScreenScreen() {
     }
   }
 
-  const canActivateAlert = !!profile?.name && contacts.length > 0;
+  // Contato é opcional (só aparece no card se marcado "mostrar na tela de bloqueio"
+  // — ver buildEmergencyCardLines); só o nome no Perfil é realmente obrigatório,
+  // pois updateEmergencyNotification usa profile.name incondicionalmente.
+  const canActivateAlert = !!profile?.name;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -54,9 +57,19 @@ export default function LockScreenScreen() {
         profile={profile}
         contacts={contacts}
         notifActive={notifActive}
-        onPressProfile={() => (navigation as any).navigate('Profile')}
+        onPressProfile={() => (navigation as any).navigate('Profile', { returnTo: 'LockScreen' })}
         onPressContacts={() => (navigation as any).navigate('Contacts')}
-        onPressAlert={() => canActivateAlert ? setShowAlertModal(true) : (navigation as any).navigate('Profile')}
+        onPressAlert={() => {
+          if (canActivateAlert) { setShowAlertModal(true); return; }
+          Alert.alert(
+            'Perfil necessário',
+            'Para ativar o alerta na tela de bloqueio, complete seu Perfil Médico primeiro (pelo menos o nome).',
+            [
+              { text: 'Cancelar', style: 'cancel' },
+              { text: 'Completar perfil', onPress: () => (navigation as any).navigate('Profile', { returnTo: 'LockScreen' }) },
+            ],
+          );
+        }}
       />
 
       {cardLines.length > 0 && (

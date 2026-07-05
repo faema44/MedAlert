@@ -45,7 +45,6 @@ import HistoryScreen from './src/screens/HistoryScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import LockScreenScreen from './src/screens/LockScreenScreen';
 import BackupScreen from './src/screens/BackupScreen';
-import SoundSettingsScreen from './src/screens/SoundSettingsScreen';
 import {
   setupNotificationChannels, requestPermissions, setupReminderCategory,
   initReminderListeners, initActivityListeners, initResponseListeners, dismissNotification,
@@ -71,7 +70,6 @@ const TITLES: Record<string, string> = {
   Settings: 'Configurações',
   LockScreen: 'Tela de Bloqueio',
   Backup: 'Backup',
-  SoundSettings: 'Som dos Lembretes',
 };
 
 const TAB_ICONS: Record<string, { icon: string; activeIcon: string }> = {
@@ -434,7 +432,6 @@ function AppNavigator() {
           <Tab.Screen name="Help"          component={HelpScreen}          options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tab.Screen name="LockScreen"    component={LockScreenScreen}    options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tab.Screen name="Backup"        component={BackupScreen}        options={{ tabBarItemStyle: { display: 'none' } }} />
-          <Tab.Screen name="SoundSettings" component={SoundSettingsScreen} options={{ tabBarItemStyle: { display: 'none' } }} />
         </Tab.Navigator>
       </NavigationContainer>
 
