@@ -108,6 +108,7 @@ export default function InteractionsScreen() {
   const [medSearch, setMedSearch] = useState('');
   const [phytoSearch, setPhytoSearch] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   const intFiltered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -138,6 +139,8 @@ export default function InteractionsScreen() {
     );
   }, [phytoSearch]);
 
+  const activeFilterCount = (typeFilter !== 'all' ? 1 : 0) + (riskFilter !== 'all' ? 1 : 0);
+
   function toggle(id: string) { setExpanded(prev => (prev === id ? null : id)); }
 
   function switchTab(t: Tab) {
@@ -148,6 +151,7 @@ export default function InteractionsScreen() {
     setRiskFilter('all');
     setTypeFilter('all');
     setExpanded(null);
+    setShowFilters(false);
   }
 
   const tabs: { key: Tab; icon: string; label: string; activeColor: string }[] = [
@@ -197,45 +201,60 @@ export default function InteractionsScreen() {
       {tab === 'interactions' && (
         <>
           <View style={styles.controlsWrap}>
-            <View style={styles.searchRow}>
-              <Text style={styles.searchIcon}>🔍</Text>
-              <TextInput
-                style={styles.searchInput}
-                value={search}
-                onChangeText={setSearch}
-                placeholder="Buscar interação..."
-                placeholderTextColor="#9CA3AF"
-                clearButtonMode="while-editing"
-              />
+            <View style={styles.searchFilterRow}>
+              <View style={[styles.searchRow, { flex: 1 }]}>
+                <Text style={styles.searchIcon}>🔍</Text>
+                <TextInput
+                  style={styles.searchInput}
+                  value={search}
+                  onChangeText={setSearch}
+                  placeholder="Buscar interação..."
+                  placeholderTextColor="#9CA3AF"
+                  clearButtonMode="while-editing"
+                />
+              </View>
+              <TouchableOpacity
+                style={[styles.filterBtn, (showFilters || activeFilterCount > 0) && styles.filterBtnActive]}
+                onPress={() => setShowFilters(prev => !prev)}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.filterBtnText, (showFilters || activeFilterCount > 0) && styles.filterBtnTextActive]}>
+                  Filtros{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''} {showFilters ? '▲' : '▼'}
+                </Text>
+              </TouchableOpacity>
             </View>
-            <Text style={styles.filterLabel}>Tipo</Text>
-            <View style={styles.filterRow}>
-              {typeFilters.map(f => (
-                <TouchableOpacity
-                  key={f.key}
-                  style={[styles.filterChip, typeFilter === f.key && styles.filterChipActive]}
-                  onPress={() => setTypeFilter(f.key)}
-                >
-                  <Text style={[styles.filterChipText, typeFilter === f.key && styles.filterChipTextActive]}>
-                    {f.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            <Text style={styles.filterLabel}>Risco</Text>
-            <View style={styles.filterRow}>
-              {riskFilters.map(f => (
-                <TouchableOpacity
-                  key={f.key}
-                  style={[styles.filterChip, riskFilter === f.key && styles.filterChipActive]}
-                  onPress={() => setRiskFilter(f.key)}
-                >
-                  <Text style={[styles.filterChipText, riskFilter === f.key && styles.filterChipTextActive]}>
-                    {f.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            {showFilters && (
+              <>
+                <Text style={styles.filterLabel}>Tipo</Text>
+                <View style={styles.filterRow}>
+                  {typeFilters.map(f => (
+                    <TouchableOpacity
+                      key={f.key}
+                      style={[styles.filterChip, typeFilter === f.key && styles.filterChipActive]}
+                      onPress={() => setTypeFilter(f.key)}
+                    >
+                      <Text style={[styles.filterChipText, typeFilter === f.key && styles.filterChipTextActive]}>
+                        {f.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                <Text style={styles.filterLabel}>Risco</Text>
+                <View style={styles.filterRow}>
+                  {riskFilters.map(f => (
+                    <TouchableOpacity
+                      key={f.key}
+                      style={[styles.filterChip, riskFilter === f.key && styles.filterChipActive]}
+                      onPress={() => setRiskFilter(f.key)}
+                    >
+                      <Text style={[styles.filterChipText, riskFilter === f.key && styles.filterChipTextActive]}>
+                        {f.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </>
+            )}
           </View>
           <FlatList
             data={intFiltered}
@@ -343,12 +362,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', paddingHorizontal: 14, paddingTop: 10, paddingBottom: 6,
     borderBottomWidth: 0.5, borderBottomColor: '#E8EAF0', gap: 6,
   },
+  searchFilterRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   searchRow: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: '#F2F4F8', borderRadius: 8,
     borderWidth: 0.5, borderColor: '#D0D5E8',
     paddingHorizontal: 10,
   },
+  filterBtn: {
+    borderRadius: 8, paddingHorizontal: 12, paddingVertical: 9,
+    backgroundColor: '#F2F4F8', borderWidth: 0.5, borderColor: '#D0D5E8',
+  },
+  filterBtnActive: { backgroundColor: '#1A1F2E', borderColor: '#1A1F2E' },
+  filterBtnText: { fontSize: 13, color: '#6B7280', fontWeight: '600' },
+  filterBtnTextActive: { color: '#fff' },
   searchIcon: { fontSize: 14, marginRight: 6 },
   searchInput: { flex: 1, paddingVertical: 9, fontSize: 14, color: '#1A1F2E' },
   filterLabel: { fontSize: 10, color: '#9CA3AF', fontWeight: '600', letterSpacing: 0.4, marginTop: 2 },

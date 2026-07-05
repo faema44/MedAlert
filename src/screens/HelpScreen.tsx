@@ -75,7 +75,7 @@ export default function HelpScreen() {
 
       {/* Como usar */}
       <Section title="Como usar — passo a passo">
-        <Step number="1" text="Abra Configurações → Tela de Bloqueio e complete os 3 passos: Perfil Médico (nome, tipo sanguíneo, alergias), Contato de emergência e Ativar alerta." />
+        <Step number="1" text="Abra Configurações → Tela de Bloqueio, preencha o Perfil Médico (nome, tipo sanguíneo, alergias) e ative o alerta. O contato de emergência é opcional." />
         <Step number="2" text="Cadastre os medicamentos que você usa na aba Medicamentos, tocando em +. O assistente pergunta nome, dose, horários, prazo e estoque — um passo de cada vez." />
         <Step number="3" text="Use a aba Atividades para registrar atividades físicas, medições (pressão, glicose, peso) e consultas médicas — lembretes são criados automaticamente." />
         <Step number="4" text="Acompanhe na aba Histórico as doses que você tomou ou pulou e as atividades realizadas." />
@@ -170,6 +170,7 @@ export default function HelpScreen() {
         <Bullet text="Intervalo livre (ex.: a cada 2 meses, no dia 10)" />
         <Bullet text="Repetição do alarme a cada 5 min até confirmar Tomei / Não tomei" />
         <Bullet text="Prazo do tratamento e controle de estoque com aviso de reposição" />
+        <Bullet text="Stand-by (⏸) — suspenda um medicamento sem apagar: ele sai dos alarmes, da tela de bloqueio e das interações, e volta com um toque em Retomar" />
         <Text style={styles.tip}>
           💡 O ícone 🔔 / 🔕 no cartão do medicamento silencia ou reativa o som do lembrete sem apagá-lo. Lembretes funcionam offline — nenhuma conexão é necessária.
         </Text>
@@ -185,7 +186,7 @@ export default function HelpScreen() {
         <Bullet text="🏃 Atividades — dois tons suaves e crescentes" />
         <Bullet text="🩺 Consultas — dois tons descendentes e calmos" />
         <Text style={styles.tip}>
-          💡 Em Configurações → Som você pode ouvir cada melodia. Na tela Início, toque em 🔔 / 🔕 ao lado de qualquer item para silenciar ou reativar o som daquele lembrete individualmente.
+          💡 Na tela Início, toque em 🔔 / 🔕 ao lado de qualquer item para silenciar ou reativar o som daquele lembrete individualmente.
         </Text>
       </Section>
 
@@ -196,6 +197,7 @@ export default function HelpScreen() {
         </Text>
         <Bullet text="Atividades de rotina — caminhada, fisioterapia, tomar água e outras com lembretes diários" />
         <Bullet text="Medições de saúde — pressão arterial (❤️), glicose (🩸) e peso/IMC (⚖️) com histórico e faixas de referência coloridas" />
+        <Bullet text="Ciclo menstrual (🌸) — registre o primeiro dia da menstruação e acompanhe a fase do ciclo" />
         <Bullet text="Consultas — médico, dentista, exames, com lembretes automáticos 1 dia e 1 hora antes" />
         <Text style={styles.bodyText}>
           Para registrar uma medição (pressão, glicose ou peso), toque no cartão da atividade na lista —
@@ -214,7 +216,8 @@ export default function HelpScreen() {
         </Text>
         <Text style={styles.bodyText}>
           Nos cartões de medicamento, toque no ícone 📋 para abrir a bula oficial
-          — sem sair do aplicativo.
+          — sem sair do aplicativo. Se o PDF da bula não estiver disponível,
+          o app abre uma busca no navegador.
         </Text>
         <Text style={styles.tip}>
           💡 A busca funciona por nome genérico e comercial. Se um medicamento não aparecer,
