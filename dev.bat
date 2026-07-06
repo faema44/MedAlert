@@ -20,7 +20,7 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":8081" ^| findstr "LISTENING
 )
 
 echo [5/5] Abrindo app...
-adb shell am start -n com.medalert.app/.MainActivity
+adb shell am start -n com.alertamedico.app/.MainActivity
 
 echo.
 echo === Pronto! Iniciando Metro... ===

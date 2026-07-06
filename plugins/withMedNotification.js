@@ -3,7 +3,7 @@ const { withDangerousMod, withAndroidManifest, withAppBuildGradle } = require('@
 const fs = require('fs');
 const path = require('path');
 
-const MODULE_KT = `package com.medalert.app
+const MODULE_KT = `package com.alertamedico.app
 
 import android.app.NotificationManager
 import android.content.Context
@@ -109,7 +109,7 @@ class MedNotificationModule(private val reactContext: ReactApplicationContext) :
 }
 `;
 
-const PACKAGE_KT = `package com.medalert.app
+const PACKAGE_KT = `package com.alertamedico.app
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule
@@ -125,7 +125,7 @@ class MedNotificationPackage : ReactPackage {
 }
 `;
 
-const BOOT_RECEIVER_KT = `package com.medalert.app
+const BOOT_RECEIVER_KT = `package com.alertamedico.app
 
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
@@ -165,7 +165,7 @@ class BootReceiver : BroadcastReceiver() {
 }
 `;
 
-const NOTIF_REFRESH_RECEIVER_KT = `package com.medalert.app
+const NOTIF_REFRESH_RECEIVER_KT = `package com.alertamedico.app
 
 import android.app.AlarmManager
 import android.app.NotificationManager
@@ -239,7 +239,7 @@ function withKotlinFiles(config) {
     (cfg) => {
       const javaDir = path.join(
         cfg.modRequest.platformProjectRoot,
-        'app/src/main/java/com/medalert/app'
+        'app/src/main/java/com/alertamedico/app'
       );
 
       fs.writeFileSync(path.join(javaDir, 'MedNotificationModule.kt'), MODULE_KT);

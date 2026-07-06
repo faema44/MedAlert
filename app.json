@@ -8,7 +8,7 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.medalert.app",
+      "bundleIdentifier": "com.alertamedico.app",
       "infoPlist": {
         "NSHealthShareUsageDescription": "O Alerta Médico usa dados de saúde para exibir informações de emergência."
       }
