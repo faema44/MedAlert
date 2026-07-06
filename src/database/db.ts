@@ -688,7 +688,7 @@ export async function addMedicationTreatmentEndedLog(medicationId: number, medic
 }
 
 // Resposta dada pelo card da Home: se o disparo da notificação já criou uma linha "sem
-// resposta" para o mesmo horário (±4h, mesma janela do isSlotTaken da Home), atualiza essa
+// resposta" para o mesmo horário (±50min, mesma janela do isSlotTaken da Home), atualiza essa
 // linha em vez de criar uma segunda — evita registro duplicado da mesma dose no histórico.
 export async function resolveMedicationLogSlot(entry: {
   medication_id: number;
@@ -704,7 +704,7 @@ export async function resolveMedicationLogSlot(entry: {
   const existing = await database.getFirstAsync<{ id: number }>(
     `SELECT id FROM medication_log
      WHERE medication_id=? AND taken IS NULL AND status IS NULL
-       AND ABS(strftime('%s', scheduled_at) - ?) < 14400
+       AND ABS(strftime('%s', scheduled_at) - ?) < 3000
      ORDER BY ABS(strftime('%s', scheduled_at) - ?) LIMIT 1`,
     [entry.medication_id, slotSecs, slotSecs]
   );

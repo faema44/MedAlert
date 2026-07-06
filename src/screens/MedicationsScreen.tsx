@@ -1211,7 +1211,7 @@ export default function MedicationsScreen() {
               </TouchableOpacity>
             </View>
 
-            <Text style={[styles.wizLabel, { marginTop: 22 }]}>Repetir alarme — a cada 5 min.</Text>
+            <Text style={[styles.wizLabel, { marginTop: 22, fontSize: 16 }]}>Repetir alarme — de 5 em 5 min por 30 min</Text>
             <View style={[styles.yesNoRow, { marginTop: 10 }]}>
               <TouchableOpacity
                 style={[styles.yesNoBtnSm, repeatTouched && repeatInterval > 0 && styles.yesNoBtnActive, !withSound && styles.yesNoBtnDisabled]}

@@ -445,12 +445,12 @@ export function initReminderListeners(
   return () => sub.remove();
 }
 
-function reminderContent(medicationName: string, dose: string, medicationId: number, repeatInterval = 0, stockWarning?: string) {
+function reminderContent(medicationName: string, dose: string, medicationId: number, repeatInterval = 0, stockWarning?: string, mainNotifId?: string) {
   const bodyBase = dose || 'Hora de tomar o medicamento';
   return {
     title: medicationName,
     body: stockWarning ? `${bodyBase} · ${stockWarning}` : bodyBase,
-    data: { type: 'reminder', medicationId, name: medicationName, dose, repeatInterval },
+    data: { type: 'reminder', medicationId, name: medicationName, dose, repeatInterval, ...(mainNotifId ? { mainNotifId } : {}) },
     sticky: true,
     categoryIdentifier: MED_ACTION_CATEGORY,
   };
@@ -458,6 +458,67 @@ function reminderContent(medicationName: string, dose: string, medicationId: num
 
 function timePart(hour: number, minute: number) {
   return `${String(hour).padStart(2,'0')}${String(minute).padStart(2,'0')}`;
+}
+
+// Reagendar na abertura do app substituía o alarme pendente; se o disparo estava
+// atrasado (Doze/Samsung), o DailyTrigger nativo o movia para amanhã e a dose de hoje
+// sumia. Com o mapa `existing`, um lembrete já agendado e sem mudança de conteúdo é
+// deixado intacto — o horário está embutido no identifier, então só título/corpo/
+// canal/repetição precisam ser comparados.
+type ExistingMap = Map<string, Notifications.NotificationRequest>;
+
+function sameScheduled(
+  prev: Notifications.NotificationRequest | undefined,
+  content: ReturnType<typeof reminderContent>,
+  channelId: string,
+): boolean {
+  if (!prev) return false;
+  const trig: any = prev.trigger;
+  return prev.content.title === content.title
+    && prev.content.body === content.body
+    && (prev.content.data as any)?.repeatInterval === content.data.repeatInterval
+    && trig?.channelId === channelId;
+}
+
+// Repetições pré-agendadas como alarmes nativos de data única (REPEAT_COUNT × intervalo
+// após o próximo disparo do lembrete) — antes a repetição era reagendada pelo listener
+// JS a cada recebimento e nunca tocava com o app fechado. Canceladas ao responder
+// (cancelRepeatAlarm); rearmadas para a ocorrência seguinte a cada abertura do app.
+const REPEAT_COUNT = 6;
+
+async function scheduleRepeatSeries(
+  medicationId: number,
+  medicationName: string,
+  dose: string,
+  tp: string,             // HHMM do lembrete-base (compõe o identifier da série)
+  mainNotifId: string,    // identifier do lembrete-base — resposta na repetição resolve o log da dose
+  occurrenceMs: number,   // próximo disparo do lembrete-base
+  intervalMinutes: number,
+  channelId: string,
+  existing?: ExistingMap,
+): Promise<void> {
+  for (let i = 1; i <= REPEAT_COUNT; i++) {
+    const id = `reminder_repeat_${medicationId}_${tp}_${i}`;
+    const fireMs = occurrenceMs + i * intervalMinutes * 60 * 1000;
+    if (fireMs <= Date.now()) continue;
+    const prev = existing?.get(id);
+    if (prev && (prev.trigger as any)?.value === fireMs && (prev.trigger as any)?.channelId === channelId) continue;
+    await Notifications.scheduleNotificationAsync({
+      identifier: id,
+      content: reminderContent(medicationName, dose, medicationId, 0, undefined, mainNotifId),
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: fireMs,
+        channelId,
+      } as any,
+    }).catch(() => {});
+  }
+}
+
+function nextDailyMs(hour: number, minute: number): number {
+  const now = new Date();
+  const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute, 0, 0);
+  return t.getTime() > now.getTime() ? t.getTime() : t.getTime() + 86400000;
 }
 
 function medChannel(withSound: boolean, homeReminder: boolean, isHerbal: boolean): string {
@@ -476,18 +537,27 @@ export async function scheduleReminder(
   stockWarning?: string,
   homeReminder = false,
   isHerbal = false,
+  existing?: ExistingMap,
 ): Promise<void> {
-  const id = `reminder_${medicationId}_${timePart(hour, minute)}`;
-  await Notifications.scheduleNotificationAsync({
-    identifier: id,
-    content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning),
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.DAILY,
-      hour,
-      minute,
-      channelId: medChannel(withSound, homeReminder, isHerbal),
-    },
-  });
+  const tp = timePart(hour, minute);
+  const id = `reminder_${medicationId}_${tp}`;
+  const channelId = medChannel(withSound, homeReminder, isHerbal);
+  const content = reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning);
+  if (!sameScheduled(existing?.get(id), content, channelId)) {
+    await Notifications.scheduleNotificationAsync({
+      identifier: id,
+      content,
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        hour,
+        minute,
+        channelId,
+      },
+    });
+  }
+  if (repeatInterval > 0) {
+    await scheduleRepeatSeries(medicationId, medicationName, dose, tp, id, nextDailyMs(hour, minute), repeatInterval, channelId, existing);
+  }
 }
 
 export async function scheduleReminderWeekly(
@@ -502,19 +572,36 @@ export async function scheduleReminderWeekly(
   stockWarning?: string,
   homeReminder = false,
   isHerbal = false,
+  existing?: ExistingMap,
 ): Promise<void> {
+  const tp = timePart(hour, minute);
+  const channelId = medChannel(withSound, homeReminder, isHerbal);
+  const content = reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning);
+  const now = new Date();
+  const todayWd = now.getDay() + 1; // 1=Dom…7=Sáb
+  let nearest: { ms: number; wd: number } | null = null;
   for (const wd of weekdays) {
-    await Notifications.scheduleNotificationAsync({
-      identifier: `reminder_${medicationId}_w${wd}_${timePart(hour, minute)}`,
-      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning),
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
-        weekday: wd,
-        hour,
-        minute,
-        channelId: medChannel(withSound, homeReminder, isHerbal),
-      },
-    });
+    const id = `reminder_${medicationId}_w${wd}_${tp}`;
+    if (!sameScheduled(existing?.get(id), content, channelId)) {
+      await Notifications.scheduleNotificationAsync({
+        identifier: id,
+        content,
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+          weekday: wd,
+          hour,
+          minute,
+          channelId,
+        },
+      });
+    }
+    const diff = (wd - todayWd + 7) % 7;
+    let ms = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff, hour, minute, 0, 0).getTime();
+    if (diff === 0 && ms <= now.getTime()) ms += 7 * 86400000;
+    if (!nearest || ms < nearest.ms) nearest = { ms, wd };
+  }
+  if (repeatInterval > 0 && nearest) {
+    await scheduleRepeatSeries(medicationId, medicationName, dose, tp, `reminder_${medicationId}_w${nearest.wd}_${tp}`, nearest.ms, repeatInterval, channelId, existing);
   }
 }
 
@@ -530,20 +617,35 @@ export async function scheduleReminderMonthly(
   stockWarning?: string,
   homeReminder = false,
   isHerbal = false,
+  existing?: ExistingMap,
 ): Promise<void> {
+  const tp = timePart(hour, minute);
+  const channelId = medChannel(withSound, homeReminder, isHerbal);
+  const content = reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning);
+  const now = new Date();
+  let nearest: { ms: number; day: number } | null = null;
   for (const day of days) {
-    await Notifications.scheduleNotificationAsync({
-      identifier: `reminder_${medicationId}_m${day}_${timePart(hour, minute)}`,
-      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning),
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
-        repeats: true,
-        day,
-        hour,
-        minute,
-        channelId: medChannel(withSound, homeReminder, isHerbal),
-      } as any,
-    });
+    const id = `reminder_${medicationId}_m${day}_${tp}`;
+    if (!sameScheduled(existing?.get(id), content, channelId)) {
+      await Notifications.scheduleNotificationAsync({
+        identifier: id,
+        content,
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
+          repeats: true,
+          day,
+          hour,
+          minute,
+          channelId,
+        } as any,
+      });
+    }
+    const c = new Date(now.getFullYear(), now.getMonth(), day, hour, minute, 0, 0);
+    const ms = c.getTime() > now.getTime() ? c.getTime() : new Date(now.getFullYear(), now.getMonth() + 1, day, hour, minute, 0, 0).getTime();
+    if (!nearest || ms < nearest.ms) nearest = { ms, day };
+  }
+  if (repeatInterval > 0 && nearest) {
+    await scheduleRepeatSeries(medicationId, medicationName, dose, tp, `reminder_${medicationId}_m${nearest.day}_${tp}`, nearest.ms, repeatInterval, channelId, existing);
   }
 }
 
@@ -560,28 +662,39 @@ export async function scheduleReminderEveryNMonths(
   stockWarning?: string,
   homeReminder = false,
   isHerbal = false,
+  existing?: ExistingMap,
 ): Promise<void> {
   const tp = timePart(hour, minute);
+  const channelId = medChannel(withSound, homeReminder, isHerbal);
+  const content = reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning);
   const now = new Date();
   let next = new Date(now.getFullYear(), now.getMonth(), dayOfMonth, hour, minute, 0, 0);
   if (next <= now) next.setMonth(next.getMonth() + intervalMonths);
+  let firstOccurrence: { ms: number; id: string } | null = null;
   for (let i = 0; i < 12; i++) {
     const dateStr = `${next.getFullYear()}${String(next.getMonth() + 1).padStart(2, '0')}${String(next.getDate()).padStart(2, '0')}`;
-    await Notifications.scheduleNotificationAsync({
-      identifier: `reminder_${medicationId}_nm_${dateStr}_${tp}`,
-      content: reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning),
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
-        repeats: false,
-        year: next.getFullYear(),
-        month: next.getMonth() + 1,
-        day: next.getDate(),
-        hour,
-        minute,
-        channelId: medChannel(withSound, homeReminder, isHerbal),
-      } as any,
-    });
+    const id = `reminder_${medicationId}_nm_${dateStr}_${tp}`;
+    if (!firstOccurrence) firstOccurrence = { ms: next.getTime(), id };
+    if (!sameScheduled(existing?.get(id), content, channelId)) {
+      await Notifications.scheduleNotificationAsync({
+        identifier: id,
+        content,
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
+          repeats: false,
+          year: next.getFullYear(),
+          month: next.getMonth() + 1,
+          day: next.getDate(),
+          hour,
+          minute,
+          channelId,
+        } as any,
+      });
+    }
     next.setMonth(next.getMonth() + intervalMonths);
+  }
+  if (repeatInterval > 0 && firstOccurrence) {
+    await scheduleRepeatSeries(medicationId, medicationName, dose, tp, firstOccurrence.id, firstOccurrence.ms, repeatInterval, channelId, existing);
   }
 }
 
@@ -592,6 +705,11 @@ export async function cancelReminderByTime(
 ): Promise<void> {
   const [hh, mm] = time.split(':');
   const tp = `${hh.padStart(2, '0')}${mm.padStart(2, '0')}`;
+
+  // Série de repetições pré-agendada deste horário (ids fixos 1..REPEAT_COUNT)
+  for (let i = 1; i <= REPEAT_COUNT; i++) {
+    await Notifications.cancelScheduledNotificationAsync(`reminder_repeat_${medicationId}_${tp}_${i}`).catch(() => {});
+  }
 
   if (period === 'day') {
     await Notifications.cancelScheduledNotificationAsync(`reminder_${medicationId}_${tp}`).catch(() => {});
@@ -615,35 +733,30 @@ export async function cancelReminderByTime(
 
 export async function cancelAllRemindersForMedication(medicationId: number): Promise<void> {
   const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+  // reminder_repeat_ não casa com o prefixo reminder_{id}_ — sem o filtro extra a
+  // série de repetições sobrevivia à exclusão do medicamento e tocava órfã
   await Promise.all(
     scheduled
-      .filter(n => n.identifier.startsWith(`reminder_${medicationId}_`))
+      .filter(n =>
+        n.identifier.startsWith(`reminder_${medicationId}_`) ||
+        n.identifier.startsWith(`reminder_repeat_${medicationId}_`) ||
+        n.identifier === `reminder_repeat_${medicationId}`)
       .map(n => Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {}))
   );
 }
 
-export async function scheduleRepeatAlarm(
-  medicationId: number,
-  medicationName: string,
-  dose: string,
-  intervalMinutes: number,
-  withSound: boolean,
-): Promise<void> {
-  const id = `reminder_repeat_${medicationId}`;
-  await Notifications.cancelScheduledNotificationAsync(id).catch(() => {});
-  await Notifications.scheduleNotificationAsync({
-    identifier: id,
-    content: reminderContent(medicationName, dose, medicationId, intervalMinutes),
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-      seconds: intervalMinutes * 60,
-      channelId: withSound ? MED_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
-    },
-  });
-}
-
+// Cancela as repetições pré-agendadas do medicamento (todas as séries; o id legado
+// reminder_repeat_{id} cobre instalações antigas). Rearmadas para a próxima ocorrência
+// no reagendamento seguinte (abertura do app / edição do lembrete).
 export async function cancelRepeatAlarm(medicationId: number): Promise<void> {
-  await Notifications.cancelScheduledNotificationAsync(`reminder_repeat_${medicationId}`).catch(() => {});
+  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+  await Promise.all(
+    scheduled
+      .filter(n =>
+        n.identifier.startsWith(`reminder_repeat_${medicationId}_`) ||
+        n.identifier === `reminder_repeat_${medicationId}`)
+      .map(n => Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {}))
+  );
 }
 
 export interface ActivityAlertPayload {
@@ -826,6 +939,7 @@ export async function rescheduleRemindersForMedication(
   med: Medication,
   reminders: MedicationReminder[],
   stockWarning?: string,
+  existing?: Map<string, Notifications.NotificationRequest>,
 ): Promise<void> {
   const notifName = med.commercial_name?.trim() || med.generic_name;
   const homeReminder = med.home_reminder !== 0;
@@ -835,22 +949,28 @@ export async function rescheduleRemindersForMedication(
     const [h, m] = r.time.split(':').map(Number);
     if (isNaN(h)) continue;
     if (!r.period || r.period === 'day') {
-      await scheduleReminder(med.id, notifName, med.dose, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal).catch(() => {});
+      await scheduleReminder(med.id, notifName, med.dose, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal, existing).catch(() => {});
     } else if (r.period.startsWith('week:')) {
       const wds = r.period.split(':')[1].split(',').map(Number);
-      await scheduleReminderWeekly(med.id, notifName, med.dose, wds, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal).catch(() => {});
+      await scheduleReminderWeekly(med.id, notifName, med.dose, wds, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal, existing).catch(() => {});
     } else if (r.period.startsWith('month:')) {
       const days = r.period.split(':')[1].split(',').map(Number);
-      await scheduleReminderMonthly(med.id, notifName, med.dose, days, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal).catch(() => {});
+      await scheduleReminderMonthly(med.id, notifName, med.dose, days, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal, existing).catch(() => {});
     } else if (r.period.startsWith('nmonths:')) {
       const [, nStr, dStr] = r.period.split(':');
-      await scheduleReminderEveryNMonths(med.id, notifName, med.dose, parseInt(nStr), parseInt(dStr), h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal).catch(() => {});
+      await scheduleReminderEveryNMonths(med.id, notifName, med.dose, parseInt(nStr), parseInt(dStr), h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal, existing).catch(() => {});
     }
   }
 }
 
 export async function rescheduleAllActiveNotifications(): Promise<void> {
   try {
+    // Snapshot dos agendamentos atuais: lembrete já agendado e sem mudança não é
+    // substituído (ver sameScheduled) — substituir movia disparo pendente p/ amanhã
+    const existing: Map<string, Notifications.NotificationRequest> = new Map(
+      (await Notifications.getAllScheduledNotificationsAsync().catch(() => [] as Notifications.NotificationRequest[]))
+        .map(n => [n.identifier, n])
+    );
     const [meds, acts] = await Promise.all([getMedications(), getActivities()]);
     await Promise.all(meds.map(async med => {
       const reminders = await getRemindersForMedication(med.id).catch(() => [] as MedicationReminder[]);
@@ -862,7 +982,7 @@ export async function rescheduleAllActiveNotifications(): Promise<void> {
           stockWarning = `⚠️ Estoque: ~${daysLeft}d`;
         }
       }
-      await rescheduleRemindersForMedication(med, reminders, stockWarning);
+      await rescheduleRemindersForMedication(med, reminders, stockWarning, existing);
     }));
     await Promise.all(acts.map(async act => {
       const reminders = await getRemindersForActivity(act.id).catch(() => []);
@@ -909,10 +1029,13 @@ export function initResponseListeners(handlers: NotificationResponseHandlers): (
     const notifId = notification.request.identifier;
 
     if (data?.type === 'reminder') {
+      // Resposta numa repetição pré-agendada: mainNotifId aponta o lembrete-base,
+      // para o registro cair no mesmo slot de dose (e não criar linha própria)
+      const logNotifId = (data.mainNotifId as string) || notifId;
       if (actionIdentifier === 'TOOK') {
-        handlers.onMedTook(data.medicationId, notifId, data.name ?? '', data.dose ?? '', notification.date);
+        handlers.onMedTook(data.medicationId, logNotifId, data.name ?? '', data.dose ?? '', notification.date);
       } else if (actionIdentifier === 'SKIP') {
-        handlers.onMedSkip(data.medicationId, notifId, data.name ?? '', data.dose ?? '', notification.date);
+        handlers.onMedSkip(data.medicationId, logNotifId, data.name ?? '', data.dose ?? '', notification.date);
       } else {
         // Default action: user tapped the notification body (app opens)
         handlers.onMedDefault({
@@ -1000,9 +1123,10 @@ export async function getLastResponse(): Promise<Notifications.NotificationRespo
   return Notifications.getLastNotificationResponseAsync().catch(() => null);
 }
 
-export async function dismissPresentedForMedication(medicationId: number): Promise<void> {
+export async function dismissPresentedForMedication(medicationId: number, exceptId?: string): Promise<void> {
   const presented = await Notifications.getPresentedNotificationsAsync().catch(() => []);
-  const toRemove = presented.filter(n => (n.request.content.data as any)?.medicationId === medicationId);
+  const toRemove = presented.filter(n =>
+    (n.request.content.data as any)?.medicationId === medicationId && n.request.identifier !== exceptId);
   await Promise.all(toRemove.map(n => Notifications.dismissNotificationAsync(n.request.identifier).catch(() => {})));
 }
 

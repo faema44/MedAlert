@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Switch, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { getProfile, getMedications, getContacts, getKV, setKV } from '../database/db';
 import { updateEmergencyNotification, cancelEmergencyNotification, buildEmergencyCardLines } from '../services/notifications';
 import { Profile, Medication, EmergencyContact } from '../types';
@@ -11,6 +11,7 @@ const KV_ALERT_ACTIVE = 'alert_active';
 
 export default function LockScreenScreen() {
   const navigation = useNavigation();
+  const route = useRoute<any>();
   const insets = useSafeAreaInsets();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [medications, setMedications] = useState<Medication[]>([]);
@@ -28,9 +29,17 @@ export default function LockScreenScreen() {
     setContacts(c);
     setNotifActive(alertActive === '1' && !!p?.name);
     setCardLines(p?.name ? await buildEmergencyCardLines(p, m) : []);
+    return p;
   }, []);
 
-  useFocusEffect(useCallback(() => { load(); }, [load]));
+  useFocusEffect(useCallback(() => {
+    load().then((p) => {
+      if (route.params?.openAlert) {
+        navigation.setParams({ openAlert: undefined } as never);
+        if (p?.name) setShowAlertModal(true);
+      }
+    });
+  }, [load, route.params?.openAlert, navigation]));
 
   async function handleAlertToggle() {
     if (!profile?.name) return;

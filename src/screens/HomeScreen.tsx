@@ -18,7 +18,7 @@ import { getCyclePhase, CyclePhaseInfo } from '../utils/cyclePhase';
 type RootTabs = {
   Home: undefined; Profile: undefined; Medications: undefined;
   Contacts: undefined; Agenda: undefined; Interactions: undefined; History: undefined;
-  Settings: undefined; LockScreen: undefined;
+  Settings: undefined; LockScreen: { openAlert?: boolean } | undefined;
 };
 
 import {
@@ -274,12 +274,15 @@ export default function HomeScreen() {
     const since1y = new Date(nowD); since1y.setFullYear(since1y.getFullYear() - 1); since1y.setHours(0, 0, 0, 0);
     const allLogs = await getMedicationLog({ since_iso: since1y.toISOString() });
 
-    // Slot "respondido" = Tomei OU Não tomei — ambos resolvem a cobrança do dia
+    // Slot "respondido" = Tomei OU Não tomei — ambos resolvem a cobrança do dia.
+    // Janela de ±50min: cobre resposta atrasada via repetição (6×5min = 30min) sem
+    // engolir doses vizinhas — com ±4h, responder uma dose suprimia o popup de
+    // qualquer outra dose do mesmo medicamento nas 4h seguintes (ex.: testes seguidos)
     const isSlotTaken = (medId: number, dateStr: string, timeStr: string) => {
       const slotMs = new Date(`${dateStr}T${timeStr}:00`).getTime();
       return allLogs.some(l =>
         l.medication_id === medId && l.taken != null &&
-        Math.abs(new Date(l.scheduled_at).getTime() - slotMs) < 4 * 60 * 60 * 1000
+        Math.abs(new Date(l.scheduled_at).getTime() - slotMs) < 50 * 60 * 1000
       );
     };
 
@@ -378,6 +381,7 @@ export default function HomeScreen() {
       scheduled_at: scheduledAt,
       taken: false,
     }).catch(() => {});
+    cancelRepeatAlarm(med.id).catch(() => {});
     dismissPresentedForMedication(med.id).catch(() => {});
     load();
   }
@@ -414,6 +418,7 @@ export default function HomeScreen() {
       }
       if (next === 0) Alert.alert('Estoque zerado', `O estoque de ${medDisplayName} acabou. Providencie a reposição e ajuste em Medicamentos > Editar card > Controle de Estoque.`);
     }
+    cancelRepeatAlarm(med.id).catch(() => {});
     dismissPresentedForMedication(med.id).catch(() => {});
     load();
   }
@@ -447,6 +452,18 @@ export default function HomeScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
       {/* Dismissable setup hints — no forced onboarding */}
+      {showMedsHint && (
+        <TouchableOpacity style={styles.hintCard} activeOpacity={0.8} onPress={() => navigation.navigate('Medications')}>
+          <Text style={styles.hintIcon}>💊</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.hintTitle}>Adicionar medicamentos</Text>
+            <Text style={styles.hintSub}>Cadastre para receber lembretes de horário</Text>
+          </View>
+          <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={dismissMedsHint} accessibilityLabel="Dispensar aviso de medicamentos" accessibilityRole="button">
+            <Text style={styles.hintClose}>✕</Text>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      )}
       {showEmergencyHint && (
         <View style={styles.hintExpandedCard}>
           <View style={styles.hintExpandedHeader}>
@@ -465,22 +482,10 @@ export default function HomeScreen() {
               notifActive={notifActive}
               onPressProfile={() => navigation.navigate('Profile')}
               onPressContacts={() => navigation.navigate('Contacts')}
-              onPressAlert={() => navigation.navigate('LockScreen')}
+              onPressAlert={() => navigation.navigate('LockScreen', { openAlert: true })}
             />
           </View>
         </View>
-      )}
-      {showMedsHint && (
-        <TouchableOpacity style={styles.hintCard} activeOpacity={0.8} onPress={() => navigation.navigate('Medications')}>
-          <Text style={styles.hintIcon}>💊</Text>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.hintTitle}>Adicionar medicamentos</Text>
-            <Text style={styles.hintSub}>Cadastre para receber lembretes de horário</Text>
-          </View>
-          <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={dismissMedsHint} accessibilityLabel="Dispensar aviso de medicamentos" accessibilityRole="button">
-            <Text style={styles.hintClose}>✕</Text>
-          </TouchableOpacity>
-        </TouchableOpacity>
       )}
 
       {cycleStatus && (

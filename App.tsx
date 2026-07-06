@@ -49,7 +49,7 @@ import {
   setupNotificationChannels, requestPermissions, setupReminderCategory,
   initReminderListeners, initActivityListeners, initResponseListeners, dismissNotification,
   ActivityAlertPayload,
-  scheduleRepeatAlarm, cancelRepeatAlarm, rescheduleAllActiveNotifications,
+  cancelRepeatAlarm, rescheduleAllActiveNotifications, dismissPresentedForMedication,
   snoozeActivityReminder, getLastResponse, notifyTreatmentEnded, notifyLowStock, cancelAllRemindersForMedication,
   resetEmergencySignature,
 } from './src/services/notifications';
@@ -169,7 +169,7 @@ function dailyLogId(notifId: string, d = new Date()): string {
 // Usa o horário HHMM embutido no identifier (ex: reminder_123_0800) em vez do
 // momento em que a notificação disparou de fato — o disparo pode atrasar (Doze/
 // otimização de bateria), e usar o horário real fazia resolveMedicationLogSlot
-// (janela de ±4h) casar com a dose errada em medicamentos de dose frequente.
+// (janela de ±50min) casar com a dose errada em medicamentos de dose frequente.
 function scheduledTimeFromNotificationId(notificationId: string): string {
   const m = notificationId.match(/_(\d{2})(\d{2})$/);
   if (!m) return new Date().toISOString();
@@ -217,7 +217,8 @@ function AppNavigator() {
               const medName = (data.name as string) ?? '';
               const medDose = (data.dose as string) ?? '';
               const firedAt = new Date(lastResponse.notification.date);
-              const logId = dailyLogId(notifId, firedAt);
+              // Resposta numa repetição: registra no slot do lembrete-base (mainNotifId)
+              const logId = dailyLogId((data.mainNotifId as string) || notifId, firedAt);
               if (actionId === 'TOOK') {
                 cancelRepeatAlarm(medId).catch(() => {});
                 upsertMedicationLogTaken(logId, medId, medName, medDose, true, firedAt.toISOString()).catch(() => {});
@@ -228,11 +229,11 @@ function AppNavigator() {
                   const displayName = med.commercial_name?.trim() || med.generic_name;
                   checkLowStockAndNotify(medId, displayName, next).catch(() => {});
                 }
-                dismissNotification(notifId).catch(() => {});
+                dismissPresentedForMedication(medId).catch(() => {});
               } else if (actionId === 'SKIP') {
                 cancelRepeatAlarm(medId).catch(() => {});
                 upsertMedicationLogTaken(logId, medId, medName, medDose, false, firedAt.toISOString()).catch(() => {});
-                dismissNotification(notifId).catch(() => {});
+                dismissPresentedForMedication(medId).catch(() => {});
               }
               await setKV('last_notif_response_id', notifId).catch(() => {});
             }
@@ -255,6 +256,12 @@ function AppNavigator() {
     init();
 
     const cleanupMed = initReminderListeners(async (data) => {
+      // Repetição pré-agendada: a cobrança já foi registrada no disparo principal —
+      // só limpa os cards anteriores do medicamento para não empilhar na bandeja
+      if (data.notificationId.startsWith('reminder_repeat_')) {
+        dismissPresentedForMedication(data.medicationId, data.notificationId).catch(() => {});
+        return;
+      }
       // Check if treatment has already ended while app was closed
       const med = await getMedicationById(data.medicationId).catch(() => null);
       if (med?.end_date) {
@@ -283,12 +290,6 @@ function AppNavigator() {
           checkLowStockAndNotify(data.medicationId, displayName, med.stock_quantity).catch(() => {});
         }
       }).catch(() => {});
-      if (data.repeatInterval > 0) {
-        scheduleRepeatAlarm(data.medicationId, data.name, data.dose, data.repeatInterval, true).catch(() => {});
-        if (data.notificationId.startsWith('reminder_repeat_')) {
-          dismissNotification(data.notificationId).catch(() => {});
-        }
-      }
     });
 
     const cleanupAct = initActivityListeners((data) => {
@@ -307,13 +308,14 @@ function AppNavigator() {
           const displayName = med.commercial_name?.trim() || med.generic_name;
           checkLowStockAndNotify(medicationId, displayName, next).catch(() => {});
         }
-        await dismissNotification(notifId);
+        // Dispensa todos os cards do medicamento (principal + repetições empilhadas)
+        await dismissPresentedForMedication(medicationId);
       },
       onMedSkip: (medicationId, notifId, name, dose, firedAtMs) => {
         cancelRepeatAlarm(medicationId).catch(() => {});
         const firedAt = new Date(firedAtMs);
         upsertMedicationLogTaken(dailyLogId(notifId, firedAt), medicationId, name, dose, false, firedAt.toISOString()).catch(() => {});
-        dismissNotification(notifId);
+        dismissPresentedForMedication(medicationId).catch(() => {});
       },
       onMedDefault: () => {},
       onActivityDone: async (activityId, activityName, activityType, notifId) => {
@@ -368,7 +370,7 @@ function AppNavigator() {
             const slotMs = new Date(`${todayStr}T${r.time}:00`).getTime();
             const taken = (allLogs as any[]).some(l =>
               l.medication_id === med.id && l.taken != null &&
-              Math.abs(new Date(l.scheduled_at).getTime() - slotMs) < 4 * 60 * 60 * 1000
+              Math.abs(new Date(l.scheduled_at).getTime() - slotMs) < 50 * 60 * 1000
             );
             if (!taken) { navRef.navigate('Home'); return; }
           }
