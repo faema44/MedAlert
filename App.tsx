@@ -45,6 +45,7 @@ import HistoryScreen from './src/screens/HistoryScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import LockScreenScreen from './src/screens/LockScreenScreen';
 import BackupScreen from './src/screens/BackupScreen';
+import OnboardingScreen from './src/screens/OnboardingScreen';
 import {
   setupNotificationChannels, requestPermissions, setupReminderCategory,
   initReminderListeners, initActivityListeners, initResponseListeners, dismissNotification,
@@ -180,6 +181,7 @@ function scheduledTimeFromNotificationId(notificationId: string): string {
 function AppNavigator() {
   const insets = useSafeAreaInsets();
   const [dbReady, setDbReady] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [activityAlert, setActivityAlert] = useState<ActivityAlertPayload | null>(null);
 
   useEffect(() => {
@@ -188,6 +190,8 @@ function AppNavigator() {
       // Antes de dbReady (e do primeiro load() da Home): garante que o alerta de
       // emergência seja repostado neste boot do app — ver resetEmergencySignature.
       await resetEmergencySignature();
+      const onboardingSeen = await getKV('onboarding_seen').catch(() => null);
+      if (!onboardingSeen) setShowOnboarding(true);
       setDbReady(true);
 
       // Check for medications with expired treatment date
@@ -381,6 +385,17 @@ function AppNavigator() {
   }, []);
 
   if (!dbReady) return null;
+
+  if (showOnboarding) {
+    return (
+      <OnboardingScreen
+        onFinish={() => {
+          setKV('onboarding_seen', '1').catch(() => {});
+          setShowOnboarding(false);
+        }}
+      />
+    );
+  }
 
   return (
     <>
