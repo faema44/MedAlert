@@ -52,9 +52,9 @@ import {
   ActivityAlertPayload,
   cancelRepeatAlarm, rescheduleAllActiveNotifications, dismissPresentedForMedication,
   snoozeActivityReminder, getLastResponse, notifyTreatmentEnded, notifyLowStock, cancelAllRemindersForMedication,
-  resetEmergencySignature,
+  resetEmergencySignature, updateEmergencyNotification,
 } from './src/services/notifications';
-import { getDb, getMedications, getMedicationById, updateMedicationStock, addActivityLog, getKV, setKV, addMedicationLog, addMedicationTreatmentEndedLog, upsertMedicationLogTaken, archiveMedication, getExpiredUnarchivedMedications, getRemindersForMedication, getMedicationLog } from './src/database/db';
+import { getDb, getMedications, getMedicationById, updateMedicationStock, addActivityLog, getKV, setKV, addMedicationLog, addMedicationTreatmentEndedLog, upsertMedicationLogTaken, archiveMedication, getExpiredUnarchivedMedications, getRemindersForMedication, getMedicationLog, getProfile } from './src/database/db';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
 
 const Tab = createBottomTabNavigator();
@@ -199,9 +199,16 @@ function AppNavigator() {
         const expired = await getExpiredUnarchivedMedications();
         for (const med of expired) {
           await cancelAllRemindersForMedication(med.id).catch(() => {});
+          await archiveMedication(med.id).catch(() => {});
           const displayName = med.commercial_name?.trim() || med.generic_name;
           await addMedicationTreatmentEndedLog(med.id, displayName).catch(() => {});
           await notifyTreatmentEnded(med.id, displayName).catch(() => {});
+        }
+        // Reflete o fim do(s) tratamento(s) no banner "Próximo medicamento" — sem isso ele
+        // continua mostrando a dose do medicamento já encerrado até o usuário abrir uma tela.
+        if (expired.length) {
+          const [profile, meds] = await Promise.all([getProfile().catch(() => null), getMedications().catch(() => [])]);
+          await updateEmergencyNotification(profile, meds).catch(() => {});
         }
       } catch {}
 
@@ -277,6 +284,8 @@ function AppNavigator() {
           await addMedicationTreatmentEndedLog(data.medicationId, displayName).catch(() => {});
           await notifyTreatmentEnded(data.medicationId, displayName).catch(() => {});
           dismissNotification(data.notificationId).catch(() => {});
+          const [profile, meds] = await Promise.all([getProfile().catch(() => null), getMedications().catch(() => [])]);
+          await updateEmergencyNotification(profile, meds).catch(() => {});
           return;
         }
       }
