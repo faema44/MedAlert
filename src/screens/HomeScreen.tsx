@@ -25,7 +25,7 @@ import {
   updateEmergencyNotification, nextReminderInfo,
   cancelAllRemindersForMedication, cancelAllRemindersForActivity, cancelRepeatAlarm,
   rescheduleRemindersForMedication, rescheduleRemindersForActivity, notifyLowStock,
-  dismissPresentedForMedication,
+  dismissPresentedForMedication, clearBadge,
 } from '../services/notifications';
 import { Profile, Medication, MedicationReminder, DrugInteraction, ActivityReminder, Appointment, ACTIVITY_PRESETS, EmergencyContact } from '../types';
 import { checkInteractions, isPhytotherapic } from '../utils/drugSearch';
@@ -325,12 +325,12 @@ export default function HomeScreen() {
     setForegroundAlerts(overdue);
   }, []);
 
-  useFocusEffect(useCallback(() => { load(); }, [load]));
+  useFocusEffect(useCallback(() => { load(); clearBadge(); }, [load]));
 
   // Re-check when app returns from background (useFocusEffect doesn't fire in this case)
   useEffect(() => {
     const sub = AppState.addEventListener('change', state => {
-      if (state === 'active') load();
+      if (state === 'active') { load(); clearBadge(); }
     });
     return () => sub.remove();
   }, [load]);

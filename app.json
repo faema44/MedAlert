@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Alerta Médico",
-    "slug": "MedAlert",
+    "slug": "alerta-medico",
     "version": "1.2.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -47,6 +47,12 @@
         }
       ],
       "@react-native-community/datetimepicker"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "36e93d0b-41e1-4979-a2c4-d4db79d0de76"
+      }
+    },
+    "owner": "faema44s-team"
   }
 }

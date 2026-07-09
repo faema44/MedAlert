@@ -34,6 +34,13 @@ const TREATMENT_ENDED_CHANNEL = 'medalert_treatment_ended_v1';
 const TREATMENT_ENDED_CATEGORY = 'treatment_ended_action';
 const LOW_STOCK_CATEGORY = 'low_stock_action';
 
+// iOS não tem notificação "ongoing" (fixa, não descartável) como o Android — em vez
+// disso, reenvia o cartão de emergência periodicamente. Mesmo se o usuário descartar,
+// a próxima da série aparece no horário seguinte. Renovada a cada abertura do app
+// (updateEmergencyNotification é chamado no load() do HomeScreen).
+const EMERGENCY_IOS_REPOST_MIN = 30;
+const EMERGENCY_IOS_REPOST_COUNT = 16; // ~8h de cobertura
+
 export async function setupReminderCategory(): Promise<void> {
   // Categories don't work in Expo Go (SDK 53+); work normally in production APK/AAB.
   try {
@@ -160,6 +167,10 @@ export async function setupNotificationChannels(): Promise<void> {
 
 }
 
+export async function clearBadge(): Promise<void> {
+  await Notifications.setBadgeCountAsync(0).catch(() => {});
+}
+
 export async function requestPermissions(): Promise<boolean> {
   try {
     const { status: existing } = await Notifications.getPermissionsAsync();
@@ -250,6 +261,39 @@ async function clearEmergency(): Promise<void> {
   for (const id of [NOTIF_ID, 'emergency_lockscreen', 'emergency_detail', 'emergency_persistent']) {
     try { await Notifications.cancelScheduledNotificationAsync(id); } catch {}
     try { await Notifications.dismissNotificationAsync(id); } catch {}
+  }
+  if (Platform.OS === 'ios') await cancelEmergencyRepostSeriesIOS();
+}
+
+async function cancelEmergencyRepostSeriesIOS(): Promise<void> {
+  for (let i = 1; i <= EMERGENCY_IOS_REPOST_COUNT; i++) {
+    await Notifications.cancelScheduledNotificationAsync(`emergency_ios_${i}`).catch(() => {});
+    await Notifications.dismissNotificationAsync(`emergency_ios_${i}`).catch(() => {});
+  }
+}
+
+// Reagenda a série inteira com o conteúdo atual — chamado a cada abertura do app,
+// então não há checagem de assinatura aqui (diferente do Android): sem "ongoing"
+// nativo, a série precisa ser renovada mesmo quando o conteúdo não mudou, senão
+// esvazia depois de ~8h e o cartão para de reaparecer.
+async function scheduleEmergencyRepostSeriesIOS(title: string, bigText: string): Promise<void> {
+  await cancelEmergencyRepostSeriesIOS();
+  const body = bigText || 'Toque para ver informações médicas';
+  for (let i = 1; i <= EMERGENCY_IOS_REPOST_COUNT; i++) {
+    await Notifications.scheduleNotificationAsync({
+      identifier: `emergency_ios_${i}`,
+      content: {
+        title,
+        body,
+        data: { type: 'emergency' },
+        sound: false,
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: i * EMERGENCY_IOS_REPOST_MIN * 60,
+        repeats: false,
+      } as any,
+    }).catch(() => {});
   }
 }
 
@@ -390,6 +434,13 @@ export async function updateEmergencyNotification(
   // "já alertou" e faria o banner heads-up reaparecer a cada repost.
   const bigText = lines.join('\n');
   const signature = `${title}|${contentText}|${bigText}`;
+
+  if (Platform.OS === 'ios') {
+    await scheduleEmergencyRepostSeriesIOS(title, bigText);
+    await setKV(EMERGENCY_SIGNATURE_KV, signature).catch(() => {});
+    return;
+  }
+
   const lastSignature = await getKV(EMERGENCY_SIGNATURE_KV).catch(() => null);
   if (lastSignature === signature) return;
 
