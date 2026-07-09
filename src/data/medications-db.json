@@ -352,6 +352,20 @@
       "rxcui": "51428"
     },
     {
+      "genericName": "Insulina Detemir",
+      "brands": [
+        "Levemir"
+      ],
+      "category": "Antidiabético"
+    },
+    {
+      "genericName": "Insulina Degludeca",
+      "brands": [
+        "Tresiba"
+      ],
+      "category": "Antidiabético"
+    },
+    {
       "genericName": "Insulina Lispro",
       "brands": [
         "Humalog",
@@ -396,6 +410,15 @@
         "Aradois H"
       ],
       "category": "Anti-hipertensivo"
+    },
+    {
+      "genericName": "Telmisartana",
+      "brands": [
+        "Micardis",
+        "Pritor"
+      ],
+      "category": "Anti-hipertensivo",
+      "rxcui": "73494"
     },
     {
       "genericName": "Valsartana",
@@ -1107,6 +1130,7 @@
     {
       "genericName": "Rosuvastatina",
       "brands": [
+        "Crestor",
         "Rosuvastatina Cálcica",
         "Zinpass",
         "Creste",
@@ -7772,7 +7796,8 @@
       "genericName": "Tenofovir",
       "brands": [
         "Viread",
-        "Tenofovir EMS"
+        "Tenofovir EMS",
+        "Tenofovir Desoproxila Fumarato"
       ],
       "category": "Antiviral (Hepatite B / HIV)",
       "rxcui": "117466"
@@ -7891,6 +7916,52 @@
       ],
       "category": "Antirretroviral",
       "rxcui": "53654"
+    },
+    {
+      "genericName": "Lamivudina",
+      "brands": [
+        "Epivir",
+        "Zeffix",
+        "Lamivudina EMS",
+        "Lamivudina Eurofarma"
+      ],
+      "category": "Antirretroviral",
+      "rxcui": "6472"
+    },
+    {
+      "genericName": "Zidovudina",
+      "brands": [
+        "Retrovir",
+        "AZT",
+        "Zidovudina EMS"
+      ],
+      "category": "Antirretroviral",
+      "rxcui": "11781"
+    },
+    {
+      "genericName": "Lamivudina + Zidovudina",
+      "brands": [
+        "Biovir"
+      ],
+      "category": "Antirretroviral",
+      "rxcui": "202368"
+    },
+    {
+      "genericName": "Atazanavir",
+      "brands": [
+        "Reyataz",
+        "Sulfato de Atazanavir"
+      ],
+      "category": "Antirretroviral",
+      "rxcui": "154046"
+    },
+    {
+      "genericName": "Abacavir",
+      "brands": [
+        "Ziagen"
+      ],
+      "category": "Antirretroviral",
+      "rxcui": "190521"
     },
     {
       "genericName": "Albendazol",
@@ -8742,6 +8813,32 @@
       "rxcui": "993449"
     },
     {
+      "genericName": "Abiraterona",
+      "brands": [
+        "Zytiga",
+        "Acetato de Abiraterona"
+      ],
+      "category": "Oncológico",
+      "rxcui": "1099293"
+    },
+    {
+      "genericName": "Octreotida",
+      "brands": [
+        "Sandostatin",
+        "Acetato de Octreotida"
+      ],
+      "category": "Hormônio",
+      "rxcui": "7515"
+    },
+    {
+      "genericName": "Ácido Tranexâmico",
+      "brands": [
+        "Transamin"
+      ],
+      "category": "Hematopoético",
+      "rxcui": "10318"
+    },
+    {
       "genericName": "Teriparatida",
       "brands": [
         "Forteo",
@@ -8799,6 +8896,18 @@
       ],
       "category": "Suplemento",
       "rxcui": "1897"
+    },
+    {
+      "genericName": "Polivitamínico",
+      "brands": [
+        "Centrum",
+        "Centrum Select",
+        "Centrum Kids",
+        "Supradyn",
+        "Addera Z",
+        "Cebion Multi"
+      ],
+      "category": "Suplemento"
     },
     {
       "genericName": "Carbonato de Cálcio + Vitamina D",
@@ -9023,6 +9132,22 @@
       ],
       "category": "Oncológico",
       "rxcui": "194000"
+    },
+    {
+      "genericName": "Gemcitabina",
+      "brands": [
+        "Gemzar"
+      ],
+      "category": "Oncológico",
+      "rxcui": "40560"
+    },
+    {
+      "genericName": "Decitabina",
+      "brands": [
+        "Dacogen"
+      ],
+      "category": "Oncológico",
+      "rxcui": "135329"
     },
     {
       "genericName": "Imatinibe",
@@ -10043,7 +10168,9 @@
         "Vitasantisa c",
         "Apetiviton bc",
         "Aceviton",
-        "Ceplus"
+        "Ceplus",
+        "Cebion",
+        "Redoxon"
       ],
       "category": "Vitamina",
       "rxcui": "1151"
