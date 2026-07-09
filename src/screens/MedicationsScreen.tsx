@@ -119,6 +119,7 @@ export default function MedicationsScreen() {
   const [form, setForm] = useState(EMPTY_MED);
   const [suggestions, setSuggestions] = useState<DrugSuggestion[]>([]);
   const [knownDrug, setKnownDrug] = useState<boolean>(false);
+  const [customNameConfirmed, setCustomNameConfirmed] = useState<boolean>(false);
   const [commercialSuggestions, setCommercialSuggestions] = useState<DrugSuggestion[]>([]);
   const [interactions, setInteractions] = useState<DrugInteraction[]>([]);
   const [entryType, setEntryType] = useState<'medicamento' | 'fitoterapico'>('medicamento');
@@ -273,6 +274,7 @@ export default function MedicationsScreen() {
     // Update form immediately so the input feels responsive
     setForm(f => ({ ...f, generic_name: v }));
     setKnownDrug(false);
+    setCustomNameConfirmed(false);
 
     // Debounce expensive operations (search + interactions) so they don't block every keystroke
     if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
@@ -294,6 +296,7 @@ export default function MedicationsScreen() {
     setSuggestions([]);
     setCommercialSuggestions([]);
     setKnownDrug(true);
+    setCustomNameConfirmed(false);
     setInteractions([]);
     // Delay interaction check so keyboard dismiss + UI render settle first
     setTimeout(() => {
@@ -600,7 +603,7 @@ export default function MedicationsScreen() {
     setDoseValue(''); setDoseUnit('mg'); setDoseUnitTouched(false);
     setEditingId(null);
     setSuggestions([]); setCommercialSuggestions([]); setInteractions([]);
-    setEntryType('medicamento'); setKnownDrug(false);
+    setEntryType('medicamento'); setKnownDrug(false); setCustomNameConfirmed(false);
     setReminders([]); setStockInput(''); setUnitsPerDoseInput('1'); setDurationDays(''); setHasDeadline(false);
     setDeadlineTouched(false); setSoundTouched(false); setRepeatTouched(false);
     homeReminderRef.current = true; setHomeReminderEnabled(true);
@@ -634,7 +637,7 @@ export default function MedicationsScreen() {
     homeReminderRef.current = item.home_reminder !== 0; setHomeReminderEnabled(item.home_reminder !== 0);
     lockOnlyRef.current = false;
     setEditingId(item.id);
-    setSuggestions([]); setCommercialSuggestions([]); setKnownDrug(true);
+    setSuggestions([]); setCommercialSuggestions([]); setKnownDrug(true); setCustomNameConfirmed(false);
     setEntryType(isPhytotherapic(item.generic_name) ? 'fitoterapico' : 'medicamento');
     setInteractions([]);
     resetPickerState(); setReminders([]);
@@ -833,7 +836,7 @@ export default function MedicationsScreen() {
             <Text style={styles.wizHint}>Digite o nome genérico ou comercial</Text>
 
             <View style={[styles.fieldLabelRow, { marginTop: 14 }]}>
-              {form.generic_name.length >= 2 && suggestions.length === 0 && !knownDrug && (
+              {form.generic_name.length >= 2 && suggestions.length === 0 && !knownDrug && !customNameConfirmed && (
                 <ActivityIndicator size="small" color="#1C3F7A" style={{ marginLeft: 2, marginRight: 6 }} />
               )}
             </View>
@@ -846,20 +849,44 @@ export default function MedicationsScreen() {
               placeholderTextColor="#bbb"
             />
 
-            {entryType === 'fitoterapico' && form.generic_name.length > 0 && (
-              <View style={styles.phytoGrid}>
-                {getSuggestions(form.generic_name, 34, 'Fitoterápico').map(p => {
-                  const popular = p.firstBrand ?? p.genericName;
-                  const scientific = p.genericName.replace(/\s*\(.*\)/, '').trim();
-                  return (
-                    <TouchableOpacity key={p.genericName} style={styles.phytoCard} onPress={() => applySuggestion(p)}>
-                      <Text style={styles.phytoCardName} numberOfLines={2}>{popular}</Text>
-                      <Text style={styles.phytoCardScientific} numberOfLines={1}>{scientific}</Text>
+            {entryType === 'fitoterapico' && form.generic_name.length > 0 && (() => {
+              const phytoList = getSuggestions(form.generic_name, 34, 'Fitoterápico');
+              const typed = form.generic_name.trim().toLowerCase();
+              const exactMatch = phytoList.find(
+                p => p.genericName.toLowerCase() === typed || (p.firstBrand ?? '').toLowerCase() === typed
+              );
+              return (
+                <View style={styles.phytoGrid}>
+                  {phytoList.map(p => {
+                    const popular = p.firstBrand ?? p.genericName;
+                    const scientific = p.genericName.replace(/\s*\(.*\)/, '').trim();
+                    return (
+                      <TouchableOpacity key={p.genericName} style={styles.phytoCard} onPress={() => applySuggestion(p)}>
+                        <Text style={styles.phytoCardName} numberOfLines={2}>{popular}</Text>
+                        <Text style={styles.phytoCardScientific} numberOfLines={1}>{scientific}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                  {/* Card com o nome exatamente como digitado — mesma lógica do fluxo de medicamento:
+                      fica sempre disponível, mesmo com nome igual a alguma sugestão, pois o usuário pode
+                      estar completando o nome. Continua sendo reportado ao Google Drive ao avançar.
+                      Se o nome digitado bate exatamente com um item do BD, tocar aqui aplica o item do BD
+                      (não o texto digitado), pra não reportar como "não encontrado" por engano. */}
+                  {!knownDrug && !customNameConfirmed && (
+                    <TouchableOpacity
+                      style={[styles.phytoCard, styles.phytoCardTyped]}
+                      onPress={() => {
+                        if (exactMatch) { applySuggestion(exactMatch); return; }
+                        Keyboard.dismiss(); setCustomNameConfirmed(true);
+                      }}
+                    >
+                      <Text style={[styles.phytoCardName, styles.phytoCardNameTyped]} numberOfLines={2}>{form.generic_name.trim()}</Text>
+                      <Text style={[styles.phytoCardScientific, styles.phytoCardScientificTyped]}>Digitado</Text>
                     </TouchableOpacity>
-                  );
-                })}
-              </View>
-            )}
+                  )}
+                </View>
+              );
+            })()}
           </>
         );
 
@@ -1544,7 +1571,8 @@ export default function MedicationsScreen() {
               </ScrollView>
 
               {/* Suggestions fixas acima do teclado — visíveis mesmo com teclado aberto */}
-              {wizardStep === 'name' && suggestions.length > 0 && entryType !== 'fitoterapico' && (
+              {wizardStep === 'name' && entryType !== 'fitoterapico' && !knownDrug && !customNameConfirmed
+                && form.generic_name.trim().length >= 2 && (
                 <ScrollView
                   style={styles.suggestionsFloating}
                   keyboardShouldPersistTaps="handled"
@@ -1570,6 +1598,32 @@ export default function MedicationsScreen() {
                       </TouchableOpacity>
                     </View>
                   ))}
+                  {/* Card com o nome exatamente como digitado — dá segurança a quem não acha o remédio na lista.
+                      Fica sempre disponível (mesmo com nome igual a alguma sugestão) porque o usuário pode
+                      ainda estar completando o nome com um complemento/tipo diferente.
+                      O nome continua sendo reportado ao Google Drive (via wizGoNext) para entrarmos com ele no BD.
+                      Se o nome digitado bate exatamente com uma sugestão, tocar aqui aplica a sugestão do BD
+                      (não o texto digitado), pra não reportar como "não encontrado" por engano. */}
+                  <View style={styles.suggestionRow}>
+                    <TouchableOpacity
+                      style={[styles.suggestionChip, styles.suggestionChipTyped]}
+                      onPress={() => {
+                        const typed = form.generic_name.trim().toLowerCase();
+                        const exactMatch = suggestions.find(
+                          s => s.label.toLowerCase() === typed || s.genericName.toLowerCase() === typed
+                        );
+                        if (exactMatch) { applySuggestion(exactMatch); return; }
+                        Keyboard.dismiss(); setCustomNameConfirmed(true);
+                      }}
+                    >
+                      <Text style={[styles.suggestionChipText, styles.suggestionChipTextTyped]} numberOfLines={1}>
+                        {form.generic_name.trim()}
+                      </Text>
+                      <Text style={[styles.suggestionCategory, styles.suggestionCategoryTyped]}>
+                        Digitado
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </ScrollView>
               )}
             </View>
@@ -1804,6 +1858,9 @@ const styles = StyleSheet.create({
   suggestionChipTextBrand: { color: '#6b1a8a' },
   suggestionCategory: { fontSize: 11, color: '#7a92b8', marginTop: 1 },
   suggestionCategoryBrand: { color: '#9a72b8' },
+  suggestionChipTyped: { backgroundColor: '#fbe8dd', borderColor: '#E07B4F' },
+  suggestionChipTextTyped: { color: '#b45526' },
+  suggestionCategoryTyped: { color: '#c46a3a' },
   bulaBtn: { width: 38, height: 38, borderRadius: 10, backgroundColor: '#f0f4ff', borderWidth: 1, borderColor: '#c0ccdf', justifyContent: 'center', alignItems: 'center' },
   bulaBtnText: { fontSize: 16 },
   reportMissingBtn: { marginTop: 6, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8, borderWidth: 1, borderColor: '#b0b8c8', alignSelf: 'flex-start' },
@@ -1867,6 +1924,9 @@ const styles = StyleSheet.create({
   phytoCard: { width: '47%', backgroundColor: '#f0f7f0', borderRadius: 10, borderWidth: 1, borderColor: '#a8d5a8', padding: 10 },
   phytoCardName: { fontSize: 13, fontWeight: '700', color: '#1a6b3a', marginBottom: 2 },
   phytoCardScientific: { fontSize: 10, color: '#5a9a6a', fontStyle: 'italic' },
+  phytoCardTyped: { backgroundColor: '#fbe8dd', borderColor: '#E07B4F' },
+  phytoCardNameTyped: { color: '#b45526' },
+  phytoCardScientificTyped: { color: '#c46a3a', fontStyle: 'normal' },
   stockActionBtn: { backgroundColor: '#1C3F7A', borderRadius: 10, padding: 16, marginBottom: 12 },
   stockActionBtnText: { fontSize: 15, color: '#fff', fontWeight: '700' },
   stockActionBtnHint: { fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 3 },
