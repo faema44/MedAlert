@@ -74,6 +74,7 @@ export default function LockScreenScreen() {
         profile={profile}
         contacts={contacts}
         notifActive={notifActive}
+        batteryWarn={notifActive && !batteryOk}
         onPressProfile={() => (navigation as any).navigate('Profile', { returnTo: 'LockScreen' })}
         onPressContacts={() => (navigation as any).navigate('Contacts')}
         onPressAlert={() => {
@@ -88,20 +89,6 @@ export default function LockScreenScreen() {
           );
         }}
       />
-
-      {notifActive && !batteryOk && (
-        <View style={styles.battCard}>
-          <Text style={styles.battTitle}>⚠️ A ficha pode sumir da tela de bloqueio</Text>
-          <Text style={styles.battBody}>
-            A economia de bateria do celular pode remover suas informações médicas da tela
-            de bloqueio depois de um tempo. Para mantê-las sempre visíveis, permita que o
-            Alerta Médico ignore a otimização de bateria.
-          </Text>
-          <TouchableOpacity style={styles.battBtn} onPress={() => requestIgnoreBatteryOptimizations()}>
-            <Text style={styles.battBtnText}>Permitir sempre visível</Text>
-          </TouchableOpacity>
-        </View>
-      )}
 
       {cardLines.length > 0 && (
         <View style={styles.previewCard}>
@@ -134,6 +121,19 @@ export default function LockScreenScreen() {
                 thumbColor="#fff"
               />
             </View>
+            {notifActive && !batteryOk && (
+              <View style={styles.battModalBox}>
+                <Text style={styles.battModalTitle}>⚠️ A bateria pode escondê-la</Text>
+                <Text style={styles.battModalBody}>
+                  A economia de bateria pode remover a ficha da tela de bloqueio depois de um
+                  tempo. Abra o ajuste, encontre o Alerta Médico na lista e escolha “Não otimizar”.
+                </Text>
+                <TouchableOpacity style={styles.battBtn} onPress={() => requestIgnoreBatteryOptimizations()}>
+                  <Text style={styles.battBtnText}>Abrir ajuste de bateria</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
             <Text style={styles.modalSection}>Para que serve</Text>
             <Text style={styles.modalBody}>
               Exibe suas informações médicas — medicamentos, doses e contatos de emergência — na tela de bloqueio do celular, sem precisar desbloquear.
@@ -170,12 +170,12 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F2F4F8' },
   content: { padding: 14, paddingBottom: 32, gap: 10 },
 
-  battCard: {
-    backgroundColor: '#fff5ef', borderRadius: 12, padding: 14,
+  battModalBox: {
+    backgroundColor: '#fff5ef', borderRadius: 12, padding: 14, marginBottom: 16,
     borderWidth: 0.5, borderColor: '#E07B4F',
   },
-  battTitle: { fontSize: 14, fontWeight: '700', color: '#b45526', marginBottom: 6 },
-  battBody: { fontSize: 13, color: '#7a4a30', lineHeight: 19, marginBottom: 12 },
+  battModalTitle: { fontSize: 14, fontWeight: '700', color: '#b45526', marginBottom: 6 },
+  battModalBody: { fontSize: 13, color: '#7a4a30', lineHeight: 19, marginBottom: 12 },
   battBtn: { backgroundColor: '#E07B4F', borderRadius: 10, padding: 12, alignItems: 'center' },
   battBtnText: { fontSize: 14, color: '#fff', fontWeight: '700' },
 

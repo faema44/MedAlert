@@ -8,7 +8,6 @@ const MODULE_KT = `package com.alertamedico.app
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.PowerManager
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
@@ -131,8 +130,7 @@ class MedNotificationModule(private val reactContext: ReactApplicationContext) :
     @ReactMethod
     fun requestIgnoreBatteryOptimizations(promise: Promise) {
         try {
-            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
-            intent.data = Uri.parse("package:" + reactContext.packageName)
+            val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             reactContext.startActivity(intent)
             promise.resolve(null)

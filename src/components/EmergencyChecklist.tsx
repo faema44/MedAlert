@@ -7,6 +7,9 @@ interface Props {
   profile: Profile | null;
   contacts: EmergencyContact[];
   notifActive: boolean;
+  // Alerta ativo mas o app não está isento da otimização de bateria — a ficha pode
+  // ser removida da tela de bloqueio. Muda o subtítulo da linha "Alerta ativado".
+  batteryWarn?: boolean;
   onPressProfile: () => void;
   onPressContacts: () => void;
   onPressAlert: () => void;
@@ -22,7 +25,7 @@ function profileSummary(profile: Profile | null): string {
   return parts.join(' · ');
 }
 
-export default function EmergencyChecklist({ profile, contacts, notifActive, onPressProfile, onPressContacts, onPressAlert }: Props) {
+export default function EmergencyChecklist({ profile, contacts, notifActive, batteryWarn, onPressProfile, onPressContacts, onPressAlert }: Props) {
   const primaryContact = contacts.find(c => c.is_primary) ?? contacts[0] ?? null;
   const canActivateAlert = !!profile?.name;
   const profileDone = !!profile?.name;
@@ -58,9 +61,11 @@ export default function EmergencyChecklist({ profile, contacts, notifActive, onP
           <Text style={[styles.cardTitle, { color: notifActive ? '#1a6b3a' : canActivateAlert ? '#C0392B' : '#8A8F9D' }]}>
             {notifActive ? 'Alerta ativado' : 'Alerta desativado'}
           </Text>
-          <Text style={styles.cardSub}>
+          <Text style={[styles.cardSub, notifActive && batteryWarn && styles.cardSubWarn]}>
             {notifActive
-              ? 'Visível na tela de bloqueio'
+              ? (batteryWarn
+                  ? '⚠️ A bateria pode escondê-la — toque para ajustar'
+                  : 'Visível na tela de bloqueio')
               : canActivateAlert ? 'Toque para ativar a tela de bloqueio' : 'Preencha o perfil primeiro'}
           </Text>
         </View>
@@ -82,6 +87,7 @@ const styles = StyleSheet.create({
   dotInactive: { backgroundColor: '#E07B4F' },
   cardTitle: { fontSize: 14, fontWeight: '700', color: '#1A1F2E' },
   cardSub: { fontSize: 12, color: '#8A8F9D', marginTop: 2 },
+  cardSubWarn: { color: '#C0651F', fontWeight: '600' },
   cardChevron: { fontSize: 22, color: '#C0C5D0', lineHeight: 24 },
   doneCheck: { fontSize: 16, color: '#5DC994', fontWeight: '700' },
 });
