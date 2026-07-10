@@ -12177,5 +12177,3389 @@
     "drug1_rxcuis": [
       "40001"
     ]
+  },
+  {
+    "id": "int_947",
+    "drug1": "Adenosina",
+    "drug2": "Dipiridamol",
+    "risk_level": "moderate",
+    "risk_description": "Potencializa os efeitos da adenosina.",
+    "mechanism": "Potencialização farmacológica. Conduta: doses menores de adenosina podem ser eficazes na presença de dipiridamol. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_948",
+    "drug1": "Adenosina",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Pode aumentar o grau de bloqueio cardíaco produzido pela adenosina.",
+    "mechanism": "A carbamazepina aumenta o bloqueio cardíaco, e a adenosina diminui a condução no nó AV. Conduta: maior grau de bloqueio cardíaco pode ser produzido na presença de carbamazepina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_949",
+    "drug1": "Alprazolam",
+    "drug2": "Ritonavir",
+    "risk_level": "critical",
+    "risk_description": "Aumenta o risco de reações adversas do alprazolam devido ao aumento de suas concentrações.",
+    "mechanism": "Inibição potente do CYP3A reduz a depuração do alprazolam, aumentando suas concentrações. Conduta: uso concomitante é contraindicado. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_950",
+    "drug1": "Amisulprida",
+    "drug2": "Droperidol",
+    "risk_level": "critical",
+    "risk_description": "Risco de prolongamento adicional do intervalo QT, podendo levar a arritmias cardíacas graves.",
+    "mechanism": "Efeito aditivo no prolongamento do intervalo QT. Conduta: evitar o uso de BARHEMSYS em pacientes que estejam tomando droperidol. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_951",
+    "drug1": "Amitriptilina",
+    "drug2": "Topiramato",
+    "risk_level": "high",
+    "risk_description": "Pode causar grande aumento na concentração de amitriptilina.",
+    "mechanism": "Ajustes na dose de amitriptilina devem ser feitos com base na resposta clínica do paciente, e não nos níveis plasmáticos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_952",
+    "drug1": "Amitriptilina",
+    "drug2": "Fluoxetina",
+    "risk_level": "high",
+    "risk_description": "Inibe o CYP2D6, podendo aumentar os níveis de amitriptilina e causar toxicidade.",
+    "mechanism": "Inibição do citocromo P450 2D6. Deve-se aguardar pelo menos 5 semanas após a retirada da fluoxetina antes de iniciar a amitriptilina. Podem ser necessárias doses menores. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_953",
+    "drug1": "Amitriptilina",
+    "drug2": "Sertralina",
+    "risk_level": "high",
+    "risk_description": "Inibe o CYP2D6, podendo aumentar os níveis de amitriptilina e causar toxicidade.",
+    "mechanism": "Inibição do citocromo P450 2D6. Podem ser necessárias doses menores que as habituais para ambos os fármacos. Recomenda-se monitorar os níveis plasmáticos de TCA. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_954",
+    "drug1": "Amitriptilina",
+    "drug2": "Paroxetina",
+    "risk_level": "high",
+    "risk_description": "Inibe o CYP2D6, podendo aumentar os níveis de amitriptilina e causar toxicidade.",
+    "mechanism": "Inibição do citocromo P450 2D6. Podem ser necessárias doses menores que as habituais para ambos os fármacos. Recomenda-se monitorar os níveis plasmáticos de TCA. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_955",
+    "drug1": "Amitriptilina",
+    "drug2": "Propafenona",
+    "risk_level": "high",
+    "risk_description": "Inibe o CYP2D6, podendo aumentar os níveis de amitriptilina e causar toxicidade.",
+    "mechanism": "Inibição do citocromo P450 2D6. Podem ser necessárias doses menores que as habituais para ambos os fármacos. Recomenda-se monitorar os níveis plasmáticos de TCA. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_956",
+    "drug1": "Amitriptilina",
+    "drug2": "Flecainida",
+    "risk_level": "high",
+    "risk_description": "Inibe o CYP2D6, podendo aumentar os níveis de amitriptilina e causar toxicidade.",
+    "mechanism": "Inibição do citocromo P450 2D6. Podem ser necessárias doses menores que as habituais para ambos os fármacos. Recomenda-se monitorar os níveis plasmáticos de TCA. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_957",
+    "drug1": "Anagrelida",
+    "drug2": "Amiodarona",
+    "risk_level": "critical",
+    "risk_description": "Risco de prolongamento do intervalo QT e arritmias cardíacas graves.",
+    "mechanism": "Mecanismo: potencial aditivo de prolongamento do QT. Conduta: evitar o uso concomitante. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_958",
+    "drug1": "Anagrelida",
+    "drug2": "Cilostazol",
+    "risk_level": "critical",
+    "risk_description": "Exacerbação dos efeitos inotrópicos, aumentando o risco cardiovascular.",
+    "mechanism": "Mecanismo: ambos são inibidores da PDE3, com efeitos inotrópicos aditivos. Conduta: evitar o uso concomitante. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_959",
+    "drug1": "Anagrelida",
+    "drug2": "AAS (Ácido Acetilsalicílico)",
+    "risk_level": "high",
+    "risk_description": "Aumento do risco de sangramento, especialmente em pacientes com alto perfil de risco hemorrágico.",
+    "mechanism": "Mecanismo: potencialização do efeito antiplaquetário. Conduta: avaliar riscos antes do início do tratamento e monitorar sangramentos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_960",
+    "drug1": "Anagrelida",
+    "drug2": "Fluvoxamina",
+    "risk_level": "high",
+    "risk_description": "Aumento da exposição à anagrelida, elevando o risco de eventos cardiovasculares.",
+    "mechanism": "Mecanismo: inibição do metabolismo da anagrelida via CYP1A2. Conduta: monitorar eventos cardiovasculares e ajustar a dose conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_961",
+    "drug1": "Anastrozol",
+    "drug2": "Tamoxifeno",
+    "risk_level": "critical",
+    "risk_description": "Não use em combinação com anastrozol, pois não há benefício adicional em relação à monoterapia com tamoxifeno.",
+    "mechanism": "A coadministração de anastrozol e tamoxifeno reduziu a concentração plasmática de anastrozol em 27%, sem demonstrar benefício de eficácia em comparação com tamoxifeno isolado. Conduta: não administrar tamoxifeno com anastrozol. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_962",
+    "drug1": "Aripiprazol",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Diminuição da exposição ao aripiprazol, necessitando aumento da dose.",
+    "mechanism": "Indução do metabolismo do aripiprazol via CYP3A4. Conduta: considerar aumentar a dose de aripiprazol. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_963",
+    "drug1": "Aripiprazol",
+    "drug2": "Lorazepam",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da sedação e da hipotensão ortostática quando combinados.",
+    "mechanism": "Efeito aditivo de sedação e hipotensão ortostática. Conduta: monitorar sedação e pressão arterial; ajustar a dose conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_964",
+    "drug1": "Asenapina",
+    "drug2": "Fluvoxamina",
+    "risk_level": "moderate",
+    "risk_description": "Inibidores fortes de CYP1A2, como fluvoxamina, podem aumentar a exposição à asenapina.",
+    "mechanism": "A asenapina é metabolizada pela CYP1A2. O uso com fluvoxamina em dose terapêutica completa pode aumentar a exposição à asenapina. Pode ser necessária redução da dose de asenapina com base na resposta clínica. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_965",
+    "drug1": "Asenapina",
+    "drug2": "Paroxetina",
+    "risk_level": "high",
+    "risk_description": "O uso concomitante com paroxetina pode aumentar a exposição à paroxetina em 2 vezes.",
+    "mechanism": "A asenapina pode potencializar os efeitos inibitórios da paroxetina sobre seu próprio metabolismo. Recomenda-se reduzir a dose de paroxetina pela metade quando usada em combinação com asenapina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_966",
+    "drug1": "Atazanavir",
+    "drug2": "Didanosina",
+    "risk_level": "moderate",
+    "risk_description": "Redução da exposição a atazanavir e didanosina.",
+    "mechanism": "Recomenda-se administrar REYATAZ (com alimentos) 2 horas antes ou 1 hora após as formulações tamponadas de didanosina. A administração simultânea de didanosina EC e REYATAZ com alimentos resulta em diminuição da exposição à didanosina; portanto, devem ser administrados em horários diferentes. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_967",
+    "drug1": "Atazanavir",
+    "drug2": "Tenofovir",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de tenofovir, podendo potencializar reações adversas renais.",
+    "mechanism": "Quando coadministrado com tenofovir DF em adultos, recomenda-se administrar REYATAZ 300 mg com ritonavir 100 mg e tenofovir DF 300 mg (todos em dose única diária com alimentos). O mecanismo é desconhecido. Monitorar pacientes para reações adversas associadas ao tenofovir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_968",
+    "drug1": "Atazanavir",
+    "drug2": "Efavirenz",
+    "risk_level": "high",
+    "risk_description": "Redução da concentração de atazanavir, com risco de perda de resposta virológica.",
+    "mechanism": "Em pacientes adultos virgens de tratamento: se combinado com efavirenz, administrar REYATAZ 400 mg com ritonavir 100 mg simultaneamente uma vez ao dia com alimentos, e efavirenz 600 mg uma vez ao dia com o estômago vazio, preferencialmente ao deitar. Em pacientes adultos experientes em tratamento: a coadministração não é recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_969",
+    "drug1": "Atazanavir",
+    "drug2": "Nevirapina",
+    "risk_level": "critical",
+    "risk_description": "Potencial perda de resposta virológica, desenvolvimento de resistência e risco de reações adversas associadas à nevirapina.",
+    "mechanism": "A coadministração de REYATAZ com nevirapina é contraindicada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_970",
+    "drug1": "Atazanavir",
+    "drug2": "Saquinavir",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de saquinavir, sem recomendações de dose estabelecidas para eficácia e segurança.",
+    "mechanism": "Não foram estabelecidas recomendações de dose apropriadas para esta combinação, com ou sem ritonavir, em relação à eficácia e segurança. Em um estudo clínico, saquinavir 1200 mg coadministrado com REYATAZ 400 mg e tenofovir DF 300 mg não forneceu eficácia adequada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_971",
+    "drug1": "Atazanavir",
+    "drug2": "Indinavir",
+    "risk_level": "critical",
+    "risk_description": "Risco de hiperbilirrubinemia indireta (não conjugada) aumentado, pois ambos os fármacos estão associados a esse efeito.",
+    "mechanism": "A coadministração de REYATAZ com indinavir é contraindicada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_972",
+    "drug1": "Atazanavir",
+    "drug2": "Ritonavir",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de atazanavir.",
+    "mechanism": "Se REYATAZ for coadministrado com ritonavir, recomenda-se administrar REYATAZ 300 mg uma vez ao dia com ritonavir 100 mg uma vez ao dia com alimentos em adultos. Consulte a bula completa do ritonavir para informações sobre interações medicamentosas com ritonavir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_973",
+    "drug1": "Atazanavir",
+    "drug2": "Amiodarona",
+    "risk_level": "critical",
+    "risk_description": "Potencial para reações graves ou fatais, como arritmias cardíacas.",
+    "mechanism": "O uso concomitante de REYATAZ com ritonavir e quinidina ou amiodarona é contraindicado. A coadministração com REYATAZ sem ritonavir tem potencial para produzir eventos adversos graves e/ou fatais, mas não foi estudada; recomenda-se cautela e monitoramento terapêutico da concentração desses fármacos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_974",
+    "drug1": "Atazanavir",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Potencial para sangramento grave e/ou fatal.",
+    "mechanism": "A coadministração com REYATAZ tem potencial para produzir sangramento grave e/ou fatal e não foi estudada. Recomenda-se monitorar a Razão Normalizada Internacional (INR). (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_975",
+    "drug1": "Atazanavir",
+    "drug2": "Dabigatrana",
+    "risk_level": "high",
+    "risk_description": "Aumento do risco de sangramento.",
+    "mechanism": "O uso concomitante de REYATAZ com ritonavir, um forte inibidor de CYP3A4/P-gp, pode resultar em aumento do risco de sangramento. Consulte a bula do respectivo DOAC para instruções de dose na coadministração com inibidores de P-gp. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_976",
+    "drug1": "Atazanavir",
+    "drug2": "Rivaroxabana",
+    "risk_level": "high",
+    "risk_description": "Aumento do risco de sangramento.",
+    "mechanism": "A coadministração de REYATAZ com ritonavir e rivaroxabana não é recomendada. Quando REYATAZ é coadministrado com rivaroxabana, recomenda-se monitoramento próximo. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_977",
+    "drug1": "Atazanavir",
+    "drug2": "Apixabana",
+    "risk_level": "high",
+    "risk_description": "Aumento do risco de sangramento.",
+    "mechanism": "O uso concomitante de REYATAZ com ritonavir e apixabana pode resultar em aumento do risco de sangramento. Consulte as instruções de dose da apixabana para coadministração com fortes inibidores de CYP3A4 e P-gp. Quando REYATAZ é coadministrado com apixabana, recomenda-se monitoramento próximo. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_978",
+    "drug1": "Atazanavir",
+    "drug2": "Trazodona",
+    "risk_level": "moderate",
+    "risk_description": "Náusea, tontura, hipotensão e síncope foram observadas após coadministração de trazodona com ritonavir.",
+    "mechanism": "Se a trazodona for usada com um inibidor de CYP3A4 como REYATAZ, a combinação deve ser usada com cautela e uma dose menor de trazodona deve ser considerada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_979",
+    "drug1": "Atazanavir",
+    "drug2": "Carbamazepina",
+    "risk_level": "critical",
+    "risk_description": "Risco de perda de resposta virológica e desenvolvimento de resistência.",
+    "mechanism": "A coadministração de REYATAZ (com ou sem ritonavir) com carbamazepina é contraindicada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_980",
+    "drug1": "Atazanavir",
+    "drug2": "Fenitoína",
+    "risk_level": "critical",
+    "risk_description": "Risco de perda de resposta virológica e desenvolvimento de resistência.",
+    "mechanism": "A coadministração de REYATAZ (com ou sem ritonavir) com fenitoína ou fenobarbital é contraindicada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_981",
+    "drug1": "Atazanavir",
+    "drug2": "Lamotrigina",
+    "risk_level": "moderate",
+    "risk_description": "Redução da concentração de lamotrigina.",
+    "mechanism": "A coadministração de lamotrigina e REYATAZ com ritonavir pode exigir ajuste de dose da lamotrigina. Nenhum ajuste de dose de lamotrigina é necessário quando coadministrado com REYATAZ sem ritonavir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_982",
+    "drug1": "Azatioprina",
+    "drug2": "Varfarina",
+    "risk_level": "moderate",
+    "risk_description": "Risco de inibição do efeito anticoagulante da varfarina.",
+    "mechanism": "Azatioprina pode inibir o efeito anticoagulante da varfarina. Conduta: monitorar parâmetros de coagulação. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_983",
+    "drug1": "Basiliximabe",
+    "drug2": "Azatioprina",
+    "risk_level": "moderate",
+    "risk_description": "Pode reduzir a depuração total do basiliximabe em média 22%.",
+    "mechanism": "Mecanismo não especificado no texto. Conduta: não é necessário ajuste de dose, pois os valores individuais de depuração permanecem dentro da faixa observada com terapia dupla. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_984",
+    "drug1": "Basiliximabe",
+    "drug2": "Micofenolato de Mofetila",
+    "risk_level": "moderate",
+    "risk_description": "Pode reduzir a depuração total do basiliximabe em média 51%.",
+    "mechanism": "Mecanismo não especificado no texto. Conduta: não é necessário ajuste de dose, pois os valores individuais de depuração permanecem dentro da faixa observada com terapia dupla. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_985",
+    "drug1": "Bleomicina",
+    "drug2": "Cisplatina",
+    "risk_level": "high",
+    "risk_description": "Risco de toxicidade pulmonar fatal por bleomicina devido à redução da depuração renal causada por cisplatina.",
+    "mechanism": "A cisplatina, um fármaco nefrotóxico, reduz a depuração renal da bleomicina, aumentando sua meia-vida e exposição sistêmica. A conduta clínica recomendada é monitorar a função renal e ajustar a dose de bleomicina conforme necessário, especialmente com doses cumulativas de cisplatina acima de 300 mg/m². (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_986",
+    "drug1": "Bupropiona",
+    "drug2": "Carbamazepina",
+    "risk_level": "moderate",
+    "risk_description": "Pode reduzir a exposição à bupropiona, necessitando ajuste de dose.",
+    "mechanism": "Indução do CYP2B6, aumentando o metabolismo da bupropiona. Conduta: pode ser necessário aumentar a dose da bupropiona com base na exposição clínica, sem exceder a dose máxima recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_987",
+    "drug1": "Bupropiona",
+    "drug2": "Clopidogrel",
+    "risk_level": "moderate",
+    "risk_description": "Pode aumentar a exposição à bupropiona e diminuir a exposição ao hidroxibupropiona.",
+    "mechanism": "Inibição do CYP2B6. Conduta: pode ser necessário ajuste de dose da bupropiona com base na resposta clínica. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_988",
+    "drug1": "Bussulfano",
+    "drug2": "Fenitoína",
+    "risk_level": "moderate",
+    "risk_description": "Fenitoína aumenta a depuração do bussulfano em 15% ou mais, possivelmente reduzindo a exposição (AUC) ao bussulfano.",
+    "mechanism": "Possível indução da glutationa-S-transferase. A depuração do bussulfano na dose recomendada pode ser menor e a exposição (AUC) maior em pacientes não tratados com fenitoína. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_989",
+    "drug1": "Canabidiol",
+    "drug2": "Valproato de Sódio",
+    "risk_level": "high",
+    "risk_description": "Aumento da incidência de elevações das enzimas hepáticas.",
+    "mechanism": "Mecanismo não especificado. Se ocorrerem elevações, considerar descontinuação ou redução de EPIDIOLEX e/ou valproato. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_990",
+    "drug1": "Carboplatina",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "A administração concomitante de carboplatina e fenitoína/fosfenitoína pode diminuir os níveis séricos de fenitoína, levando à exacerbação de convulsões.",
+    "mechanism": "Mecanismo: redução dos níveis séricos de fenitoína. Conduta: monitorar níveis séricos de fenitoína e ajustar a dose conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_991",
+    "drug1": "Ciclofosfamida",
+    "drug2": "Tamoxifeno",
+    "risk_level": "high",
+    "risk_description": "Aumento do risco de complicações tromboembólicas.",
+    "mechanism": "Mecanismo: Não especificado. Conduta: Monitorar sinais e sintomas de eventos tromboembólicos em pacientes recebendo tamoxifeno. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_992",
+    "drug1": "Ciclofosfamida",
+    "drug2": "Ciclosporina",
+    "risk_level": "high",
+    "risk_description": "Diminuição das concentrações séricas de ciclosporina, podendo aumentar a incidência de doença do enxerto contra hospedeiro.",
+    "mechanism": "Mecanismo: Não especificado. Conduta: Monitorar sinais e sintomas de doença do enxerto contra hospedeiro em pacientes recebendo ciclosporina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_993",
+    "drug1": "Citrato de Tamoxifeno",
+    "drug2": "Anastrozol",
+    "risk_level": "high",
+    "risk_description": "A combinação de anastrozol e tamoxifeno não demonstrou benefício e deve ser evitada.",
+    "mechanism": "A coadministração de anastrozol e tamoxifeno reduziu a concentração plasmática de anastrozol em 27% em comparação com anastrozol isolado. A combinação não demonstrou benefício em relação ao tamoxifeno isolado e deve ser evitada em todos os pacientes. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_994",
+    "drug1": "Citrato de Tamoxifeno",
+    "drug2": "Letrozol",
+    "risk_level": "high",
+    "risk_description": "O uso concomitante de letrozol com tamoxifeno não é recomendado devido à falta de eficácia estabelecida.",
+    "mechanism": "O tamoxifeno reduziu a concentração plasmática de letrozol em 38% quando coadministrados. O uso concomitante não é recomendado porque a eficácia da combinação no tratamento adjuvante do câncer de mama não foi estabelecida. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_995",
+    "drug1": "Citrato de Tamoxifeno",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Pode ocorrer um aumento acentuado no efeito anticoagulante quando o tamoxifeno é usado com varfarina.",
+    "mechanism": "Monitorar de perto os índices de coagulação em pacientes que tomam tamoxifeno para câncer de mama metastático ou como terapia adjuvante e que necessitam de uso concomitante de varfarina. O uso em pacientes com DCIS e para redução da incidência de câncer de mama em mulheres de alto risco é contraindicado. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_996",
+    "drug1": "Clonazepam",
+    "drug2": "Fenitoína",
+    "risk_level": "moderate",
+    "risk_description": "Clonazepam pode influenciar as concentrações de fenitoína.",
+    "mechanism": "Potencial de influenciar as concentrações de fenitoína. Recomenda-se monitoramento da concentração de fenitoína quando coadministrado com clonazepam. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_997",
+    "drug1": "Clonazepam",
+    "drug2": "Carbamazepina",
+    "risk_level": "moderate",
+    "risk_description": "Indutor do CYP450 que diminui os níveis plasmáticos de clonazepam.",
+    "mechanism": "Indução do metabolismo do clonazepam, causando aproximadamente 38% de diminuição nos níveis plasmáticos. Monitorar a eficácia do clonazepam. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_998",
+    "drug1": "Clonazepam",
+    "drug2": "Lamotrigina",
+    "risk_level": "moderate",
+    "risk_description": "Indutor do CYP450 que diminui os níveis plasmáticos de clonazepam.",
+    "mechanism": "Indução do metabolismo do clonazepam, causando aproximadamente 38% de diminuição nos níveis plasmáticos. Monitorar a eficácia do clonazepam. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_999",
+    "drug1": "Clonazepam",
+    "drug2": "Fenobarbital",
+    "risk_level": "moderate",
+    "risk_description": "Indutor do CYP450 que diminui os níveis plasmáticos de clonazepam.",
+    "mechanism": "Indução do metabolismo do clonazepam, causando aproximadamente 38% de diminuição nos níveis plasmáticos. Monitorar a eficácia do clonazepam. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1000",
+    "drug1": "Clopidogrel",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Aumenta o risco de sangramento devido a efeitos independentes na hemostasia.",
+    "mechanism": "Embora a administração de clopidogrel 75 mg por dia não tenha modificado a farmacocinética da S-warfarina ou o INR em pacientes em terapia prolongada com varfarina, a coadministração com varfarina aumenta o risco de sangramento devido a efeitos independentes na hemostasia. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1001",
+    "drug1": "Clorazepato",
+    "drug2": "Clorpromazina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento dos efeitos inibitórios da clorpromazina.",
+    "mechanism": "Baseado em experiência animal, o clorazepato aumenta os efeitos inibitórios da clorpromazina. Monitorar o paciente quanto a sedação excessiva e efeitos inibitórios. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1002",
+    "drug1": "Cloridrato de Epirrubicina",
+    "drug2": "Paclitaxel",
+    "risk_level": "high",
+    "risk_description": "Aumento da exposição sistêmica à epirrubicina, epirrubicinol e 7-deoxydoxorrubicina aglicona.",
+    "mechanism": "A administração de epirrubicina imediatamente antes ou após paclitaxel aumentou a exposição sistêmica de epirrubicina, epirrubicinol e 7-deoxydoxorrubicina aglicona. Monitorar toxicidade. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1003",
+    "drug1": "Cloridrato de Epirrubicina",
+    "drug2": "Docetaxel",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da exposição sistêmica a epirrubicinol e 7-deoxydoxorrubicina aglicona.",
+    "mechanism": "A administração de epirrubicina imediatamente antes ou após docetaxel não afetou a exposição à epirrubicina, mas aumentou a exposição a epirrubicinol e 7-deoxydoxorrubicina aglicona. Monitorar toxicidade. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1004",
+    "drug1": "Clozapina",
+    "drug2": "Fluvoxamina",
+    "risk_level": "high",
+    "risk_description": "Aumento dos níveis plasmáticos de clozapina, potencialmente resultando em reações adversas.",
+    "mechanism": "Inibição do CYP1A2, reduzindo o metabolismo da clozapina. Reduzir a dose de Clozapine ODT para um terço da dose original durante a coadministração. A dose deve ser aumentada para a original quando a coadministração for descontinuada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1005",
+    "drug1": "Clozapina",
+    "drug2": "Bupropiona",
+    "risk_level": "moderate",
+    "risk_description": "Aumento dos níveis de clozapina, podendo levar a reações adversas.",
+    "mechanism": "Inibição do CYP2D6 ou CYP3A4, reduzindo o metabolismo da clozapina. Usar cautela, monitorar o paciente de perto e considerar redução da dose de Clozapine ODT. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1006",
+    "drug1": "Clozapina",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Diminuição da concentração plasmática de clozapina, resultando em eficácia reduzida.",
+    "mechanism": "Indução do CYP1A2 ou CYP3A4, aumentando o metabolismo da clozapina. Pode ser necessário aumentar a dose de Clozapine ODT. O uso concomitante com indutores fortes de CYP3A4 não é recomendado. Considerar redução da dose ao descontinuar os indutores. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1007",
+    "drug1": "Clozapina",
+    "drug2": "Amiodarona",
+    "risk_level": "moderate",
+    "risk_description": "Aumento do risco de prolongamento do intervalo QT.",
+    "mechanism": "Efeito aditivo no prolongamento do intervalo QT. Usar cautela ao administrar concomitantemente. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1008",
+    "drug1": "Dabigatrana",
+    "drug2": "Dronedarona",
+    "risk_level": "high",
+    "risk_description": "Aumenta a exposição à dabigatrana, especialmente em pacientes com insuficiência renal moderada (CrCl 30-50 mL/min).",
+    "mechanism": "Inibição da P-gp combinada com insuficiência renal, aumentando a exposição. Conduta: reduzir a dose de dabigatrana para 75 mg duas vezes ao dia em pacientes adultos com CrCl 30-50 mL/min. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1009",
+    "drug1": "Dabigatrana",
+    "drug2": "Amiodarona",
+    "risk_level": "moderate",
+    "risk_description": "Não requer ajuste de dose de dabigatrana, mas o texto adverte que esses resultados não devem ser extrapolados para outros inibidores da P-gp.",
+    "mechanism": "Inibição da P-gp sem necessidade de ajuste de dose para dabigatrana, conforme dados específicos. Conduta: não requer ajuste de dose, mas monitorar conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1010",
+    "drug1": "Dabrafenibe",
+    "drug2": "Midazolam",
+    "risk_level": "high",
+    "risk_description": "Diminuição da exposição sistêmica de midazolam, com possível perda de eficácia.",
+    "mechanism": "Dabrafenibe diminui a exposição sistêmica de midazolam (substrato de CYP3A4). Monitorar perda de eficácia ou substituir o medicamento se inevitável. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1011",
+    "drug1": "Dabrafenibe",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Diminuição da exposição sistêmica de varfarina, com possível perda de eficácia anticoagulante.",
+    "mechanism": "Dabrafenibe diminui a exposição sistêmica de S-warfarina (substrato de CYP2C9) e R-warfarina (substrato de CYP3A4/CYP1A2). Monitorar o INR com mais frequência durante início ou descontinuação de dabrafenibe. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1012",
+    "drug1": "Daunorrubicina",
+    "drug2": "Doxorrubicina",
+    "risk_level": "critical",
+    "risk_description": "Aumenta o risco de cardiotoxicidade.",
+    "mechanism": "Uso de daunorrubicina em paciente que recebeu previamente doxorrubicina aumenta o risco de cardiotoxicidade. Não deve ser usado em pacientes que já receberam as doses cumulativas máximas recomendadas de doxorrubicina ou cloridrato de daunorrubicina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1013",
+    "drug1": "Daunorrubicina",
+    "drug2": "Ciclofosfamida",
+    "risk_level": "high",
+    "risk_description": "Pode resultar em aumento da cardiotoxicidade.",
+    "mechanism": "Ciclofosfamida usada concomitantemente com cloridrato de daunorrubicina pode resultar em aumento da cardiotoxicidade. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1014",
+    "drug1": "Diazepam",
+    "drug2": "Fenitoína",
+    "risk_level": "moderate",
+    "risk_description": "Diminuição da eliminação metabólica da fenitoína.",
+    "mechanism": "Há relatos de que a eliminação metabólica da fenitoína é diminuída pelo diazepam. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1015",
+    "drug1": "Dolutegravir",
+    "drug2": "Etravirina",
+    "risk_level": "high",
+    "risk_description": "Redução significativa das concentrações plasmáticas de dolutegravir, com risco de perda de eficácia.",
+    "mechanism": "Etravirina reduz as concentrações de dolutegravir. O uso com TRIUMEQ ou TRIUMEQ PD não é recomendado sem coadministração de atazanavir/ritonavir, darunavir/ritonavir ou lopinavir/ritonavir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1016",
+    "drug1": "Dolutegravir",
+    "drug2": "Efavirenz",
+    "risk_level": "high",
+    "risk_description": "Redução das concentrações de dolutegravir, com risco de perda de eficácia.",
+    "mechanism": "Efavirenz diminui as concentrações de dolutegravir. Ajustar a dose de dolutegravir para 50 mg duas vezes ao dia em adultos e crianças ≥25 kg, com dose adicional separada por 12 horas. Em crianças de 6 a <25 kg, administrar dose adicional baseada no peso. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1017",
+    "drug1": "Dolutegravir",
+    "drug2": "Nevirapina",
+    "risk_level": "high",
+    "risk_description": "Redução das concentrações de dolutegravir, com risco de perda de eficácia.",
+    "mechanism": "Nevirapina diminui as concentrações de dolutegravir. Evitar coadministração com TRIUMEQ ou TRIUMEQ PD devido a dados insuficientes para recomendações de dose. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1018",
+    "drug1": "Dolutegravir",
+    "drug2": "Amprenavir",
+    "risk_level": "high",
+    "risk_description": "Redução das concentrações de dolutegravir, com risco de perda de eficácia.",
+    "mechanism": "Fosamprenavir/ritonavir diminui as concentrações de dolutegravir. Ajustar a dose de dolutegravir para 50 mg duas vezes ao dia em adultos e crianças ≥25 kg, com dose adicional baseada no peso para crianças de 6 a <25 kg. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1019",
+    "drug1": "Dolutegravir",
+    "drug2": "Ritonavir",
+    "risk_level": "high",
+    "risk_description": "Redução das concentrações de dolutegravir, com risco de perda de eficácia.",
+    "mechanism": "Tipranavir/ritonavir diminui as concentrações de dolutegravir. Ajustar a dose de dolutegravir para 50 mg duas vezes ao dia em adultos e crianças ≥25 kg, com dose adicional baseada no peso para crianças de 6 a <25 kg. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1020",
+    "drug1": "Dolutegravir",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Redução das concentrações de dolutegravir, com risco de perda de eficácia.",
+    "mechanism": "Carbamazepina diminui as concentrações de dolutegravir. Ajustar a dose de dolutegravir para 50 mg duas vezes ao dia em adultos e crianças ≥25 kg, com dose adicional baseada no peso para crianças de 6 a <25 kg. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1021",
+    "drug1": "Dolutegravir",
+    "drug2": "Oxcarbazepina",
+    "risk_level": "high",
+    "risk_description": "Redução das concentrações de dolutegravir, com risco de perda de eficácia.",
+    "mechanism": "Oxcarbazepina diminui as concentrações de dolutegravir. Evitar coadministração com TRIUMEQ ou TRIUMEQ PD devido a dados insuficientes para recomendações de dose. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1022",
+    "drug1": "Dolutegravir",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Redução das concentrações de dolutegravir, com risco de perda de eficácia.",
+    "mechanism": "Fenitoína diminui as concentrações de dolutegravir. Evitar coadministração com TRIUMEQ ou TRIUMEQ PD devido a dados insuficientes para recomendações de dose. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1023",
+    "drug1": "Dolutegravir",
+    "drug2": "Fenobarbital",
+    "risk_level": "high",
+    "risk_description": "Redução das concentrações de dolutegravir, com risco de perda de eficácia.",
+    "mechanism": "Fenobarbital diminui as concentrações de dolutegravir. Evitar coadministração com TRIUMEQ ou TRIUMEQ PD devido a dados insuficientes para recomendações de dose. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1024",
+    "drug1": "Doxorrubicina",
+    "drug2": "Trastuzumabe",
+    "risk_level": "critical",
+    "risk_description": "Aumento do risco de disfunção cardíaca.",
+    "mechanism": "Uso concomitante de trastuzumabe e doxorrubicina aumenta o risco de disfunção cardíaca. Conduta: evitar administração concomitante. Após parar trastuzumabe, evitar terapia com antraciclina por até 7 meses; se usada antes, monitorar função cardíaca cuidadosamente. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1025",
+    "drug1": "Dronedarona",
+    "drug2": "Sirolimo",
+    "risk_level": "high",
+    "risk_description": "Aumento das concentrações plasmáticas de substratos do CYP3A com estreita faixa terapêutica.",
+    "mechanism": "Dronedarona pode aumentar as concentrações plasmáticas de tacrolimo, sirolimo e outros substratos do CYP3A com estreita faixa terapêutica quando administrados por via oral. Conduta: monitorar concentrações plasmáticas e ajustar a dose conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1026",
+    "drug1": "Dronedarona",
+    "drug2": "Varfarina",
+    "risk_level": "moderate",
+    "risk_description": "Possível elevação da INR com risco de sangramento.",
+    "mechanism": "Exposição ao S-warfarin ligeiramente aumentada; casos pós-comercialização de aumento da INR com ou sem sangramento foram relatados. Conduta: monitorar a INR após iniciar dronedarona em pacientes em uso de varfarina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1027",
+    "drug1": "Duloxetina",
+    "drug2": "AAS (Ácido Acetilsalicílico)",
+    "risk_level": "high",
+    "risk_description": "O uso concomitante com aspirina pode aumentar o risco de sangramento gastrointestinal superior.",
+    "mechanism": "A duloxetina interfere na hemostasia ao inibir a recaptação de serotonina pelas plaquetas; aspirina potencializa esse risco. Monitorar sinais de sangramento. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1028",
+    "drug1": "Duloxetina",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "O uso concomitante com varfarina pode alterar o efeito anticoagulante e aumentar o risco de sangramento.",
+    "mechanism": "A duloxetina pode afetar a função plaquetária. Embora estudos não tenham mostrado alteração significativa na INR, pacientes em uso de varfarina devem ser monitorados cuidadosamente ao iniciar ou descontinuar a duloxetina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1029",
+    "drug1": "Enoxaparina",
+    "drug2": "Dipiridamol",
+    "risk_level": "high",
+    "risk_description": "Aumento do risco de hemorragia.",
+    "mechanism": "Agentes que podem aumentar o risco de hemorragia devem ser descontinuados antes do início da enoxaparina, se possível. Se a coadministração for essencial, realizar monitoramento clínico e laboratorial rigoroso. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1030",
+    "drug1": "Epirrubicina",
+    "drug2": "Paclitaxel",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da exposição sistêmica de epirrubicina, epirrubicinol e 7-deoxydoxorrubicina aglicona.",
+    "mechanism": "Mecanismo: aumento da exposição sistêmica. Conduta: monitorar sinais de toxicidade; considerar ajuste de dose se necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1031",
+    "drug1": "Epirrubicina",
+    "drug2": "Docetaxel",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da exposição sistêmica de epirrubicinol e 7-deoxydoxorrubicina aglicona.",
+    "mechanism": "Mecanismo: aumento da exposição sistêmica de metabólitos. Conduta: monitorar sinais de toxicidade; considerar ajuste de dose se necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1032",
+    "drug1": "Erlotinibe",
+    "drug2": "Indinavir",
+    "risk_level": "high",
+    "risk_description": "Aumenta a exposição ao erlotinibe, elevando o risco de toxicidade.",
+    "mechanism": "Inibição do CYP3A4, principal via de metabolização do erlotinibe. Evitar coadministração. Se inevitável, reduzir a dose de erlotinibe. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1033",
+    "drug1": "Erlotinibe",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Diminui a exposição ao erlotinibe, reduzindo sua eficácia.",
+    "mechanism": "Indução do CYP3A4. Evitar coadministração. Se inevitável, aumentar a dose de erlotinibe. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1034",
+    "drug1": "Erlotinibe",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Diminui a exposição ao erlotinibe, reduzindo sua eficácia.",
+    "mechanism": "Indução do CYP1A2. Evitar uso concomitante. Se inevitável, aumentar a dose de erlotinibe. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1035",
+    "drug1": "Erlotinibe",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Aumento do INR e risco de sangramento, que pode ser fatal.",
+    "mechanism": "Interação com anticoagulantes cumarínicos. Monitorar regularmente o tempo de protrombina ou INR. Não é recomendada modificação da dose de erlotinibe. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1036",
+    "drug1": "Escitalopram",
+    "drug2": "Pimozida",
+    "risk_level": "critical",
+    "risk_description": "Aumenta as concentrações plasmáticas de pimozida, elevando o risco de prolongamento do QT e/ou arritmias ventriculares.",
+    "mechanism": "Mecanismo: o uso concomitante de citalopram racêmico com pimozida aumenta as concentrações plasmáticas de pimozida, um fármaco com índice terapêutico estreito. Conduta: escitalopram é contraindicado em pacientes que estejam tomando pimozida. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1037",
+    "drug1": "Escitalopram",
+    "drug2": "AAS (Ácido Acetilsalicílico)",
+    "risk_level": "high",
+    "risk_description": "Potencializa o risco de sangramento.",
+    "mechanism": "Mecanismo: o uso concomitante de escitalopram e um antiplaquetário ou anticoagulante pode potencializar o risco de sangramento. Conduta: informar os pacientes sobre o aumento do risco de sangramento associado ao uso concomitante de escitalopram e agentes antiplaquetários e anticoagulantes. Para pacientes em uso de varfarina, monitorar cuidadosamente a razão normalizada internacional. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1038",
+    "drug1": "Escitalopram",
+    "drug2": "Carbamazepina",
+    "risk_level": "moderate",
+    "risk_description": "Pode aumentar a depuração de escitalopram, reduzindo sua eficácia.",
+    "mechanism": "Mecanismo: a administração combinada de citalopram racêmico e carbamazepina não afetou significativamente a farmacocinética da carbamazepina, mas, dadas as propriedades indutoras enzimáticas da carbamazepina, a possibilidade de que a carbamazepina aumente a depuração de escitalopram deve ser considerada. Conduta: considerar essa possibilidade se os dois fármacos forem coadministrados. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1039",
+    "drug1": "Eslicarbazepina",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Pode ser necessário ajuste de dose de eslicarbazepina ou carbamazepina.",
+    "mechanism": "Carbamazepina induz enzimas que metabolizam eslicarbazepina, reduzindo sua concentração plasmática. Conduta: ajuste de dose de eslicarbazepina ou carbamazepina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1040",
+    "drug1": "Eslicarbazepina",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Pode ser necessária dose maior de eslicarbazepina e ajuste de dose de fenitoína.",
+    "mechanism": "Fenitoína induz enzimas que metabolizam eslicarbazepina, reduzindo sua concentração plasmática; além disso, eslicarbazepina inibe CYP2C19, aumentando a concentração de fenitoína. Conduta: ajuste de dose de ambos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1041",
+    "drug1": "Eslicarbazepina",
+    "drug2": "Fenobarbital",
+    "risk_level": "high",
+    "risk_description": "Pode ser necessária dose maior de eslicarbazepina.",
+    "mechanism": "Fenobarbital e primidona induzem enzimas que metabolizam eslicarbazepina, reduzindo sua concentração plasmática. Conduta: aumentar a dose de eslicarbazepina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1042",
+    "drug1": "Etossuximida",
+    "drug2": "Fenitoína",
+    "risk_level": "moderate",
+    "risk_description": "A etossuximida pode elevar os níveis séricos de fenitoína.",
+    "mechanism": "Monitoramento periódico dos níveis séricos de fenitoína é necessário devido à possível elevação causada pela etossuximida. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1043",
+    "drug1": "Etossuximida",
+    "drug2": "Ácido Valpróico",
+    "risk_level": "moderate",
+    "risk_description": "O ácido valproico pode tanto aumentar quanto diminuir os níveis séricos de etossuximida.",
+    "mechanism": "Monitoramento periódico dos níveis séricos de etossuximida é necessário devido ao efeito variável do ácido valproico. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1044",
+    "drug1": "Etravirina",
+    "drug2": "Efavirenz",
+    "risk_level": "critical",
+    "risk_description": "Pode causar diminuição significativa nas concentrações plasmáticas de etravirina e perda do efeito terapêutico.",
+    "mechanism": "Efavirenz induz o metabolismo de etravirina (CYP3A, CYP2C9, CYP2C19). A coadministração de etravirina e outros NNRTIs não é recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1045",
+    "drug1": "Etravirina",
+    "drug2": "Nevirapina",
+    "risk_level": "critical",
+    "risk_description": "Pode causar diminuição significativa nas concentrações plasmáticas de etravirina e perda do efeito terapêutico.",
+    "mechanism": "Nevirapina induz o metabolismo de etravirina (CYP3A, CYP2C9, CYP2C19). A coadministração de etravirina e outros NNRTIs não é recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1046",
+    "drug1": "Etravirina",
+    "drug2": "Atazanavir",
+    "risk_level": "critical",
+    "risk_description": "Pode causar diminuição nas concentrações plasmáticas de atazanavir.",
+    "mechanism": "A coadministração de etravirina e atazanavir sem ritonavir em baixa dose não é recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1047",
+    "drug1": "Etravirina",
+    "drug2": "Darunavir",
+    "risk_level": "critical",
+    "risk_description": "Pode resultar em perda do efeito terapêutico e desenvolvimento de resistência ao darunavir.",
+    "mechanism": "A coadministração de etravirina com darunavir/cobicistat não é recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1048",
+    "drug1": "Etravirina",
+    "drug2": "Amprenavir",
+    "risk_level": "critical",
+    "risk_description": "Pode causar alteração significativa na concentração plasmática de amprenavir.",
+    "mechanism": "A coadministração de etravirina e fosamprenavir sem ritonavir em baixa dose não é recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1049",
+    "drug1": "Etravirina",
+    "drug2": "Indinavir",
+    "risk_level": "critical",
+    "risk_description": "Pode causar alteração significativa na concentração plasmática de indinavir.",
+    "mechanism": "A coadministração de etravirina e indinavir sem ritonavir em baixa dose não é recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1050",
+    "drug1": "Etravirina",
+    "drug2": "Nelfinavir",
+    "risk_level": "critical",
+    "risk_description": "Pode causar alteração significativa na concentração plasmática de nelfinavir.",
+    "mechanism": "A coadministração de etravirina e nelfinavir sem ritonavir em baixa dose não é recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1051",
+    "drug1": "Etravirina",
+    "drug2": "Ritonavir",
+    "risk_level": "critical",
+    "risk_description": "Pode causar diminuição significativa na concentração plasmática de etravirina e perda do efeito terapêutico.",
+    "mechanism": "Ritonavir 600 mg duas vezes ao dia induz o metabolismo de etravirina. A coadministração de etravirina e ritonavir 600 mg duas vezes ao dia não é recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1052",
+    "drug1": "Etravirina",
+    "drug2": "Carbamazepina",
+    "risk_level": "critical",
+    "risk_description": "Pode causar diminuições significativas nas concentrações plasmáticas de etravirina e perda do efeito terapêutico.",
+    "mechanism": "Carbamazepina é um indutor das enzimas CYP450. Etravirina não deve ser coadministrada com carbamazepina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1053",
+    "drug1": "Etravirina",
+    "drug2": "Fenobarbital",
+    "risk_level": "critical",
+    "risk_description": "Pode causar diminuições significativas nas concentrações plasmáticas de etravirina e perda do efeito terapêutico.",
+    "mechanism": "Fenobarbital é um indutor das enzimas CYP450. Etravirina não deve ser coadministrada com fenobarbital. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1054",
+    "drug1": "Etravirina",
+    "drug2": "Fenitoína",
+    "risk_level": "critical",
+    "risk_description": "Pode causar diminuições significativas nas concentrações plasmáticas de etravirina e perda do efeito terapêutico.",
+    "mechanism": "Fenitoína é um indutor das enzimas CYP450. Etravirina não deve ser coadministrada com fenitoína. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1055",
+    "drug1": "Etravirina",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "As concentrações de varfarina podem aumentar quando coadministrada com etravirina.",
+    "mechanism": "Etravirina inibe o metabolismo da varfarina (CYP2C9). A razão normalizada internacional (INR) deve ser monitorada quando a varfarina é combinada com etravirina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1056",
+    "drug1": "Fenobarbital",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Efeito variável do fenobarbital sobre o metabolismo da fenitoína; valproato e ácido valproico aumentam os níveis séricos de fenobarbital.",
+    "mechanism": "O efeito dos barbitúricos no metabolismo da fenitoína é imprevisível; valproato de sódio e ácido valproico aumentam os níveis séricos de fenobarbital. Conduta: monitorar com mais frequência os níveis sanguíneos de fenitoína e barbitúricos se administrados concomitantemente; monitorar de perto os níveis de fenobarbital e fazer ajustes de dose conforme indicado clinicamente. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1057",
+    "drug1": "Flecainida",
+    "drug2": "Carbamazepina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento de 30% na taxa de eliminação de flecainida com indutores enzimáticos.",
+    "mechanism": "Indução enzimática aumentando a eliminação de flecainida. Monitorar eficácia e considerar ajuste de dose. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1058",
+    "drug1": "Fluoruracila",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Elevação dos tempos de coagulação em pacientes que usam fluorouracila concomitantemente com varfarina.",
+    "mechanism": "Possível inibição do citocromo P450 2C9 pela fluorouracila ou seus metabólitos, resultando em aumento das concentrações de varfarina. A conduta clínica recomendada é monitorar os tempos de coagulação. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1059",
+    "drug1": "Fluoxetina",
+    "drug2": "AAS (Ácido Acetilsalicílico)",
+    "risk_level": "high",
+    "risk_description": "Aumento do risco de sangramento, especialmente gastrointestinal superior.",
+    "mechanism": "A fluoxetina inibe a recaptação de serotonina, afetando a hemostasia. Monitorar pacientes em uso de varfarina ao iniciar ou descontinuar fluoxetina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1060",
+    "drug1": "Fluoxetina",
+    "drug2": "Diazepam",
+    "risk_level": "moderate",
+    "risk_description": "Prolongamento da meia-vida do diazepam.",
+    "mechanism": "Fluoxetina pode prolongar a meia-vida do diazepam. Monitorar efeitos clínicos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1061",
+    "drug1": "Fluoxetina",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Elevação das concentrações plasmáticas de fenitoína com risco de toxicidade anticonvulsivante.",
+    "mechanism": "Fluoxetina pode aumentar níveis de fenitoína. Monitorar concentrações e sinais de toxicidade. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1062",
+    "drug1": "Fluoxetina",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Elevação das concentrações plasmáticas de carbamazepina com risco de toxicidade anticonvulsivante.",
+    "mechanism": "Fluoxetina pode aumentar níveis de carbamazepina. Monitorar concentrações e sinais de toxicidade. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1063",
+    "drug1": "Flutamida",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Aumento do tempo de protrombina em pacientes recebendo varfarina a longo prazo após o início da flutamida.",
+    "mechanism": "Monitoramento próximo do tempo de protrombina é recomendado e ajuste da dose do anticoagulante pode ser necessário quando a flutamida é administrada concomitantemente com varfarina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1064",
+    "drug1": "Fluvoxamina",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Elevados níveis de carbamazepina e sintomas de toxicidade com coadministração.",
+    "mechanism": "A fluvoxamina inibe o metabolismo da carbamazepina, elevando seus níveis plasmáticos. Monitorar níveis de carbamazepina e sintomas de toxicidade. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1065",
+    "drug1": "Gefitinibe",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Uso concomitante com varfarina pode elevar o INR e causar hemorragia.",
+    "mechanism": "Elevações do INR e/ou hemorragia foram relatadas em pacientes em uso de varfarina durante terapia com gefitinibe. A conduta recomendada é monitorar regularmente o tempo de protrombina ou INR. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1066",
+    "drug1": "Heparina",
+    "drug2": "Antitrombina III",
+    "risk_level": "high",
+    "risk_description": "Potencializa o efeito anticoagulante da heparina, aumentando o risco de sangramento.",
+    "mechanism": "O efeito anticoagulante da heparina é potencializado pelo tratamento concomitante com antitrombina III (humana) em pacientes com deficiência hereditária de antitrombina III. Para reduzir o risco de sangramento, recomenda-se uma dose reduzida de heparina durante o tratamento com antitrombina III (humana). (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1067",
+    "drug1": "Hidroxiureia",
+    "drug2": "Didanosina",
+    "risk_level": "critical",
+    "risk_description": "Risco de pancreatite fatal e não fatal em pacientes com HIV.",
+    "mechanism": "Mecanismo não especificado. Conduta: monitorar sinais e sintomas de pancreatite; descontinuar hidroxiureia permanentemente se ocorrerem. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1068",
+    "drug1": "Imatinibe",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Pode aumentar o risco de sangramento devido à inibição do metabolismo da varfarina.",
+    "mechanism": "A varfarina é metabolizada por CYP2C9 e CYP3A4; o imatinibe inibe essas enzimas. Use heparina de baixo peso molecular ou heparina padrão em vez de varfarina em pacientes que necessitam de anticoagulação. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1069",
+    "drug1": "Imatinibe",
+    "drug2": "Metotrexato",
+    "risk_level": "high",
+    "risk_description": "Pode atrasar a depuração do metotrexato, resultando em concentrações sustentadas quando usado em altas doses.",
+    "mechanism": "O imatinibe retarda a depuração do metotrexato. Consulte a bula do metotrexato para recomendações de manejo das concentrações. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1070",
+    "drug1": "Lamivudina",
+    "drug2": "Zidovudina",
+    "risk_level": "high",
+    "risk_description": "O uso concomitante deve ser evitado devido à relação antagônica demonstrada in vitro.",
+    "mechanism": "Antagonismo in vitro. Conduta: evitar o uso concomitante. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1071",
+    "drug1": "Lamotrigina",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Reduz a concentração de lamotrigina em aproximadamente 40% e pode aumentar os níveis de carbamazepina epóxido.",
+    "mechanism": "Indução da glucuronidação da lamotrigina. Ajuste de dose da lamotrigina é necessário conforme orientação na seção de Posologia e Administração. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1072",
+    "drug1": "Lamotrigina",
+    "drug2": "Fenobarbital",
+    "risk_level": "high",
+    "risk_description": "Reduz a concentração de lamotrigina em aproximadamente 40%.",
+    "mechanism": "Indução da glucuronidação da lamotrigina. Ajuste de dose da lamotrigina é necessário conforme orientação na seção de Posologia e Administração. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1073",
+    "drug1": "Lamotrigina",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Reduz a concentração de lamotrigina em aproximadamente 40%.",
+    "mechanism": "Indução da glucuronidação da lamotrigina. Ajuste de dose da lamotrigina é necessário conforme orientação na seção de Posologia e Administração. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1074",
+    "drug1": "Lapatinibe",
+    "drug2": "Midazolam",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da exposição ao midazolam, um substrato de CYP3A4.",
+    "mechanism": "Lapatinibe inibe CYP3A4, aumentando o AUC do midazolam oral em 45% e intravenoso em 22%. Considerar redução da dose do substrato. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1075",
+    "drug1": "Lapatinibe",
+    "drug2": "Paclitaxel",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da exposição ao paclitaxel, um substrato de CYP2C8 e P-gp.",
+    "mechanism": "Lapatinibe inibe CYP2C8 e P-gp, aumentando o AUC do paclitaxel em 23%. Considerar redução da dose do substrato. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1076",
+    "drug1": "Lapatinibe",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Redução significativa da exposição ao lapatinibe (AUC diminuída em aproximadamente 72%).",
+    "mechanism": "Carbamazepina é um indutor forte de CYP3A4, aumentando o metabolismo do lapatinibe. Considerar aumento gradual da dose de lapatinibe se o uso concomitante for inevitável. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1077",
+    "drug1": "Letrozol",
+    "drug2": "Tamoxifeno",
+    "risk_level": "moderate",
+    "risk_description": "A coadministração de letrozol e tamoxifeno reduz os níveis plasmáticos de letrozol em média 38%.",
+    "mechanism": "Mecanismo não especificado no texto. Conduta: a experiência clínica indica que o efeito terapêutico do letrozol não é prejudicado se administrado imediatamente após tamoxifeno. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1078",
+    "drug1": "Lorazepam",
+    "drug2": "Clozapina",
+    "risk_level": "high",
+    "risk_description": "Pode causar sedação acentuada, salivação excessiva, hipotensão, ataxia, delírio e parada respiratória.",
+    "mechanism": "Efeito aditivo de depressão do SNC. Monitorar sinais de sedação excessiva e depressão respiratória. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1079",
+    "drug1": "Lorazepam",
+    "drug2": "Valproato de Sódio",
+    "risk_level": "high",
+    "risk_description": "Aumento das concentrações plasmáticas e redução da depuração de lorazepam.",
+    "mechanism": "Provável inibição da glucuronidação. Reduzir a dose de lorazepam em aproximadamente 50% quando coadministrado com valproato. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1080",
+    "drug1": "Metotrexato",
+    "drug2": "Pemetrexede",
+    "risk_level": "high",
+    "risk_description": "Pode aumentar a exposição ao metotrexato, elevando o risco de reações adversas graves.",
+    "mechanism": "Aumento das concentrações plasmáticas de metotrexato. Se a coadministração não puder ser evitada, monitore atentamente as reações adversas ao metotrexato. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1081",
+    "drug1": "Metotrexato",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Pode aumentar a exposição ao metotrexato, elevando o risco de reações adversas graves.",
+    "mechanism": "Aumento das concentrações plasmáticas de metotrexato. Se a coadministração não puder ser evitada, monitore atentamente as reações adversas ao metotrexato. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1082",
+    "drug1": "Midazolam",
+    "drug2": "Droperidol",
+    "risk_level": "high",
+    "risk_description": "Acentuação do efeito sedativo do midazolam intravenoso.",
+    "mechanism": "Depressão do sistema nervoso central. Conduta: ajustar a dose de midazolam de acordo com o tipo e quantidade de medicamentos concomitantes e a resposta clínica desejada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1083",
+    "drug1": "Midazolam",
+    "drug2": "Saquinavir",
+    "risk_level": "moderate",
+    "risk_description": "Redução de 56% na depuração do midazolam, com meia-vida aproximadamente duplicada.",
+    "mechanism": "Inibição do sistema enzimático P450-3A4. Conduta: cautela ao administrar concomitantemente. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1084",
+    "drug1": "MILNACIPRANO",
+    "drug2": "AAS (Ácido Acetilsalicílico)",
+    "risk_level": "high",
+    "risk_description": "Potencializa o risco de sangramento devido ao efeito na liberação de serotonina pelas plaquetas.",
+    "mechanism": "Interação farmacodinâmica: SAVELLA afeta a liberação de serotonina pelas plaquetas, aumentando o risco de sangramento. Conduta: monitorar de perto sangramentos ao iniciar ou descontinuar SAVELLA em pacientes recebendo antiplaquetários ou anticoagulantes. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1085",
+    "drug1": "Mirtazapina",
+    "drug2": "Varfarina",
+    "risk_level": "moderate",
+    "risk_description": "Pode resultar em aumento do INR.",
+    "mechanism": "Uso concomitante de varfarina com mirtazapina. Monitorar o INR durante o uso concomitante de varfarina com mirtazapina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1086",
+    "drug1": "Naltrexona",
+    "drug2": "Tioridazina",
+    "risk_level": "high",
+    "risk_description": "Foram relatados letargia e sonolência após doses de naltrexona e tioridazina.",
+    "mechanism": "Mecanismo não especificado. Conduta: monitorar para letargia e sonolência. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1087",
+    "drug1": "Natalizumabe",
+    "drug2": "Azatioprina",
+    "risk_level": "critical",
+    "risk_description": "Aumento do risco de leucoencefalopatia multifocal progressiva (PML) e outras infecções.",
+    "mechanism": "Potencialização do efeito imunossupressor, elevando o risco de infecções oportunistas. Conduta: não usar concomitantemente em pacientes com doença de Crohn; em pacientes com esclerose múltipla, geralmente não devem ser tratados com TYSABRI se já estiverem em uso de imunossupressores ou imunomoduladores crônicos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1088",
+    "drug1": "Nelfinavir",
+    "drug2": "Didanosina",
+    "risk_level": "moderate",
+    "risk_description": "Recomenda-se administrar didanosina com o estômago vazio, uma hora antes ou duas horas após VIRACEPT (com alimentos).",
+    "mechanism": "Interação farmacocinética: didanosina deve ser administrada com o estômago vazio, enquanto VIRACEPT deve ser administrado com alimentos. Conduta: administrar didanosina uma hora antes ou duas horas após VIRACEPT. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1089",
+    "drug1": "Nelfinavir",
+    "drug2": "Nevirapina",
+    "risk_level": "high",
+    "risk_description": "Diminuição das concentrações de nelfinavir; dose apropriada de nelfinavir para segurança e eficácia não foi estabelecida.",
+    "mechanism": "Interação farmacocinética: concentrações de nelfinavir diminuíram. Conduta: dose apropriada de nelfinavir não foi estabelecida. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1090",
+    "drug1": "Nelfinavir",
+    "drug2": "Indinavir",
+    "risk_level": "high",
+    "risk_description": "Aumento das concentrações de ambos indinavir e nelfinavir; doses apropriadas para segurança e eficácia não foram estabelecidas.",
+    "mechanism": "Interação farmacocinética: concentrações de ambos aumentaram. Conduta: doses apropriadas para a combinação não foram estabelecidas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1091",
+    "drug1": "Nelfinavir",
+    "drug2": "Ritonavir",
+    "risk_level": "high",
+    "risk_description": "Aumento das concentrações de nelfinavir; dose apropriada de nelfinavir para esta combinação não foi estabelecida.",
+    "mechanism": "Interação farmacocinética: concentrações de nelfinavir aumentaram. Conduta: dose apropriada de nelfinavir para esta combinação não foi estabelecida. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1092",
+    "drug1": "Nelfinavir",
+    "drug2": "Saquinavir",
+    "risk_level": "high",
+    "risk_description": "Aumento das concentrações de ambos saquinavir e nelfinavir; doses apropriadas para segurança e eficácia não foram estabelecidas.",
+    "mechanism": "Interação farmacocinética: concentrações de ambos aumentaram. Conduta: doses apropriadas para a combinação não foram estabelecidas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1093",
+    "drug1": "Nelfinavir",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "A coadministração pode afetar as concentrações de varfarina.",
+    "mechanism": "Interação farmacocinética: concentrações de varfarina podem ser afetadas. Conduta: monitorar cuidadosamente o INR durante o tratamento com VIRACEPT, especialmente ao iniciar a terapia. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1094",
+    "drug1": "Nelfinavir",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Diminuição das concentrações de nelfinavir; VIRACEPT pode não ser eficaz devido à diminuição das concentrações plasmáticas.",
+    "mechanism": "Interação farmacocinética: concentrações de nelfinavir podem diminuir. Conduta: monitorar concentrações plasmáticas/séricas de fenitoína; a dose de fenitoína pode precisar de ajuste. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1095",
+    "drug1": "Nelfinavir",
+    "drug2": "Fenobarbital",
+    "risk_level": "high",
+    "risk_description": "Diminuição das concentrações de nelfinavir; VIRACEPT pode não ser eficaz devido à diminuição das concentrações plasmáticas.",
+    "mechanism": "Interação farmacocinética: concentrações de nelfinavir podem diminuir. Conduta: monitorar concentrações plasmáticas/séricas de fenitoína; a dose de fenitoína pode precisar de ajuste. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1096",
+    "drug1": "Nelfinavir",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Diminuição das concentrações de nelfinavir e fenitoína; VIRACEPT pode não ser eficaz devido à diminuição das concentrações plasmáticas de nelfinavir.",
+    "mechanism": "Interação farmacocinética: concentrações de nelfinavir podem diminuir. Conduta: monitorar concentrações plasmáticas/séricas de fenitoína; a dose de fenitoína pode precisar de ajuste. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1097",
+    "drug1": "Nelfinavir",
+    "drug2": "Trazodona",
+    "risk_level": "high",
+    "risk_description": "Aumento das concentrações plasmáticas de trazodona, com risco de náusea, tontura, hipotensão e síncope.",
+    "mechanism": "Inibição do CYP3A4 pelo nelfinavir. Conduta: usar com cautela e considerar dose menor de trazodona. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1098",
+    "drug1": "Nelfinavir",
+    "drug2": "Ciclosporina",
+    "risk_level": "high",
+    "risk_description": "Aumento das concentrações de imunossupressores e de nelfinavir.",
+    "mechanism": "Interação farmacocinética: concentrações de imunossupressores e nelfinavir podem aumentar. Conduta: monitorar concentrações. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1099",
+    "drug1": "Nelfinavir",
+    "drug2": "Tacrolimo",
+    "risk_level": "high",
+    "risk_description": "Aumento das concentrações de imunossupressores e de nelfinavir.",
+    "mechanism": "Interação farmacocinética: concentrações de imunossupressores e nelfinavir podem aumentar. Conduta: monitorar concentrações. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1100",
+    "drug1": "Nelfinavir",
+    "drug2": "Sirolimo",
+    "risk_level": "high",
+    "risk_description": "Aumento das concentrações de imunossupressores e de nelfinavir.",
+    "mechanism": "Interação farmacocinética: concentrações de imunossupressores e nelfinavir podem aumentar. Conduta: monitorar concentrações. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1101",
+    "drug1": "Nelfinavir",
+    "drug2": "Quetiapina",
+    "risk_level": "high",
+    "risk_description": "Aumento das concentrações de quetiapina.",
+    "mechanism": "Inibição do CYP3A pelo nelfinavir. Conduta: ao iniciar VIRACEPT em pacientes em uso de quetiapina, considerar terapia antirretroviral alternativa; se coadministração necessária, reduzir a dose de quetiapina para 1/6 da dose atual e monitorar reações adversas. Ao iniciar quetiapina em pacientes em uso de VIRACEPT, consultar a bula de quetiapina para dosagem inicial e titulação. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1102",
+    "drug1": "Olanzapina",
+    "drug2": "Diazepam",
+    "risk_level": "high",
+    "risk_description": "Potencializa a hipotensão ortostática observada com olanzapina.",
+    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar sinais de hipotensão ortostática. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1103",
+    "drug1": "Olanzapina",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Aumenta a depuração de olanzapina em aproximadamente 50%, reduzindo sua eficácia.",
+    "mechanism": "Carbamazepina é um potente indutor da CYP1A2, aumentando a depuração de olanzapina. Doses mais altas de carbamazepina podem causar aumento ainda maior. Conduta: considerar ajuste de dose de olanzapina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1104",
+    "drug1": "Olanzapina",
+    "drug2": "Fluvoxamina",
+    "risk_level": "high",
+    "risk_description": "Aumenta os níveis de olanzapina (Cmax em 54-77%, AUC em 52-108%).",
+    "mechanism": "Fluvoxamina é um inibidor da CYP1A2, diminuindo a depuração de olanzapina. Conduta: considerar doses mais baixas de olanzapina em pacientes recebendo fluvoxamina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1105",
+    "drug1": "Oxcarbazepina",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Aumento dos níveis de fenitoína, podendo exigir redução da dose.",
+    "mechanism": "Oxcarbazepina em doses > 1.200 mg/dia aumenta os níveis plasmáticos de fenitoína. Recomenda-se monitorar os níveis plasmáticos de fenitoína durante a titulação da oxcarbazepina e ajustar a dose, se necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1106",
+    "drug1": "Oxcarbazepina",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Diminuição dos níveis plasmáticos do MHD (metabólito ativo da oxcarbazepina), podendo exigir ajuste de dose.",
+    "mechanism": "Indutores fortes de CYP450 e/ou UGT (como carbamazepina, fenitoína e fenobarbital) reduzem os níveis de MHD em 25% a 49%. Recomenda-se monitorar os níveis plasmáticos de MHD durante a titulação da oxcarbazepina e ajustar a dose após início, modificação ou descontinuação desses indutores. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1107",
+    "drug1": "Paclitaxel",
+    "drug2": "Midazolam",
+    "risk_level": "moderate",
+    "risk_description": "Possível interação metabólica com substratos de CYP3A4, exigindo cautela.",
+    "mechanism": "Paclitaxel é metabolizado por CYP3A4; a coadministração com substratos dessa isoenzima pode alterar a exposição de ambos os fármacos. A conduta clínica recomendada é monitorar o paciente e ajustar doses conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1108",
+    "drug1": "Paclitaxel",
+    "drug2": "Atazanavir",
+    "risk_level": "moderate",
+    "risk_description": "Possível aumento da exposição ao paclitaxel devido à inibição de seu metabolismo.",
+    "mechanism": "Inibidores de CYP3A4 podem reduzir o metabolismo do paclitaxel, aumentando seus níveis plasmáticos e risco de toxicidade. A conduta clínica recomendada é monitorar o paciente e considerar ajuste de dose. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1109",
+    "drug1": "Paclitaxel",
+    "drug2": "Carbamazepina",
+    "risk_level": "moderate",
+    "risk_description": "Possível redução da exposição ao paclitaxel devido à indução de seu metabolismo.",
+    "mechanism": "Indutores de CYP3A4 podem aumentar o metabolismo do paclitaxel, reduzindo sua eficácia. A conduta clínica recomendada é monitorar a resposta terapêutica e considerar ajuste de dose. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1110",
+    "drug1": "Paliperidona",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Risco de redução significativa da exposição à paliperidona.",
+    "mechanism": "A carbamazepina é um indutor forte de CYP3A4 e P-gp, reduzindo a Cmáx e AUC da paliperidona em aproximadamente 37%. Ao iniciar a carbamazepina, reavaliar e aumentar a dose de paliperidona se necessário; ao descontinuar a carbamazepina, reavaliar e diminuir a dose de paliperidona se necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1111",
+    "drug1": "Paliperidona",
+    "drug2": "Paroxetina",
+    "risk_level": "moderate",
+    "risk_description": "Risco de aumento modesto da exposição à paliperidona em metabolizadores extensos de CYP2D6.",
+    "mechanism": "A paroxetina é um potente inibidor de CYP2D6, aumentando a exposição à paliperidona em média 16% em metabolizadores extensos. A relevância clínica é desconhecida; doses mais altas de paroxetina não foram estudadas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1112",
+    "drug1": "Paroxetina",
+    "drug2": "Pimozida",
+    "risk_level": "critical",
+    "risk_description": "Aumenta o risco de prolongamento do QTc e arritmias ventriculares.",
+    "mechanism": "O aumento das concentrações plasmáticas de pimozida e tioridazina, drogas com estreita margem terapêutica, pode aumentar o risco de prolongamento do QTc e arritmias ventriculares. Paroxetina é contraindicada em pacientes que tomam pimozida ou tioridazina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1113",
+    "drug1": "Paroxetina",
+    "drug2": "Amprenavir",
+    "risk_level": "moderate",
+    "risk_description": "Diminui significativamente os níveis plasmáticos de paroxetina.",
+    "mechanism": "A coadministração de fosamprenavir/ritonavir com paroxetina diminuiu significativamente os níveis plasmáticos de paroxetina. Qualquer ajuste de dose deve ser guiado pelo efeito clínico (tolerabilidade e eficácia). (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1114",
+    "drug1": "Propafenona",
+    "drug2": "Paroxetina",
+    "risk_level": "high",
+    "risk_description": "Aumento dos níveis plasmáticos de propafenona, com risco de pró-arritmia e reações adversas.",
+    "mechanism": "Inibição das enzimas CYP2D6 e CYP3A4, reduzindo o metabolismo da propafenona. A combinação de inibição de CYP3A4 com deficiência ou inibição de CYP2D6 deve ser evitada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1115",
+    "drug1": "Propafenona",
+    "drug2": "Fluoxetina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento significativo da exposição aos enantiômeros S e R da propafenona.",
+    "mechanism": "Inibição do CYP2D6 pela fluoxetina, reduzindo o metabolismo da propafenona. Monitorar sinais de toxicidade. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1116",
+    "drug1": "Propafenona",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Aumento de 39% nas concentrações plasmáticas de varfarina e prolongamento do tempo de protrombina.",
+    "mechanism": "Aumento da exposição à varfarina. Monitorar INR e ajustar dose de varfarina conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1117",
+    "drug1": "Quetiapina",
+    "drug2": "Ritonavir",
+    "risk_level": "high",
+    "risk_description": "Aumento significativo da exposição à quetiapina, exigindo redução da dose.",
+    "mechanism": "Inibição do CYP3A4, reduzindo o metabolismo da quetiapina. Conduta: reduzir a dose de quetiapina para um sexto da dose original quando coadministrado com inibidores potentes do CYP3A4. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1118",
+    "drug1": "Quetiapina",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Redução significativa da exposição à quetiapina, exigindo aumento da dose.",
+    "mechanism": "Indução do CYP3A4, aumentando o clearance da quetiapina. Conduta: aumentar a dose de quetiapina em até 5 vezes quando usado em combinação com tratamento crônico (mais de 7-14 dias) de indutores potentes do CYP3A4. Quando o indutor for descontinuado, reduzir a dose de quetiapina em 5 vezes dentro de 7-14 dias. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1119",
+    "drug1": "Raltegravir",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "O impacto na concentração de raltegravir é desconhecido, mas pode reduzir os níveis.",
+    "mechanism": "A coadministração não é recomendada devido ao potencial de redução dos níveis de raltegravir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1120",
+    "drug1": "Risperidona",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Diminui as concentrações plasmáticas de risperidona, reduzindo sua eficácia.",
+    "mechanism": "Indução enzimática (CYP3A/PgP). Aumentar a dose de risperidona em até o dobro da dose habitual do paciente. Titular lentamente. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1121",
+    "drug1": "Risperidona",
+    "drug2": "Fluoxetina",
+    "risk_level": "high",
+    "risk_description": "Aumenta as concentrações plasmáticas de risperidona, elevando o risco de efeitos adversos.",
+    "mechanism": "Inibição enzimática (CYP2D6). Reduzir a dose inicial. Não exceder a dose final de 8 mg por dia de risperidona. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1122",
+    "drug1": "Risperidona",
+    "drug2": "Clozapina",
+    "risk_level": "moderate",
+    "risk_description": "Pode diminuir a depuração de risperidona, aumentando sua exposição.",
+    "mechanism": "Administração crônica de clozapina com risperidona pode diminuir a depuração de risperidona. Monitorar níveis e ajustar dose se necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1123",
+    "drug1": "Rivaroxabana",
+    "drug2": "Enoxaparina",
+    "risk_level": "high",
+    "risk_description": "Aumenta o risco de sangramento.",
+    "mechanism": "Efeito anticoagulante aditivo. Conduta: evitar uso concomitante, a menos que o benefício supere o risco. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1124",
+    "drug1": "Rivaroxabana",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Aumenta o risco de sangramento.",
+    "mechanism": "Efeito anticoagulante aditivo. Conduta: evitar uso concomitante, a menos que o benefício supere o risco. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1125",
+    "drug1": "Rivaroxabana",
+    "drug2": "AAS (Ácido Acetilsalicílico)",
+    "risk_level": "high",
+    "risk_description": "Aumenta o risco de sangramento.",
+    "mechanism": "Efeito antiplaquetário aditivo. Conduta: avaliar prontamente sinais de perda sanguínea se usado concomitantemente. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1126",
+    "drug1": "Rivaroxabana",
+    "drug2": "Clopidogrel",
+    "risk_level": "high",
+    "risk_description": "Aumenta o risco de sangramento.",
+    "mechanism": "Efeito antiplaquetário aditivo. Conduta: avaliar prontamente sinais de perda sanguínea se usado concomitantemente. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1127",
+    "drug1": "Rufinamida",
+    "drug2": "Valproato de Sódio",
+    "risk_level": "high",
+    "risk_description": "Pacientes em uso de valproato devem iniciar BANZEL com dose menor que a usual para evitar toxicidade.",
+    "mechanism": "O valproato aumenta a concentração de rufinamida em até 70%, dependente da concentração de valproato. Conduta: pacientes em valproato devem iniciar BANZEL com dose menor que 10 mg/kg/dia (pediátricos) ou 400 mg/dia (adultos). (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1128",
+    "drug1": "Rufinamida",
+    "drug2": "Carbamazepina",
+    "risk_level": "moderate",
+    "risk_description": "Carbamazepina diminui a concentração de rufinamida em 19-26% e rufinamida diminui a concentração de carbamazepina em 7-13%.",
+    "mechanism": "Interação bidirecional: carbamazepina (indutor enzimático) aumenta a depuração de rufinamida; rufinamida reduz levemente a concentração de carbamazepina. Efeitos mais pronunciados em pacientes pediátricos. Monitorar níveis séricos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1129",
+    "drug1": "Rufinamida",
+    "drug2": "Fenitoína",
+    "risk_level": "moderate",
+    "risk_description": "Fenitoína diminui a concentração de rufinamida em 25-46% e rufinamida aumenta a concentração de fenitoína em 7-21%.",
+    "mechanism": "Fenitoína (indutor enzimático) aumenta a depuração de rufinamida; rufinamida inibe o clearance de fenitoína, podendo elevar seus níveis plasmáticos, especialmente devido à farmacocinética não linear da fenitoína. Monitorar níveis de fenitoína. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1130",
+    "drug1": "Rufinamida",
+    "drug2": "Fenobarbital",
+    "risk_level": "moderate",
+    "risk_description": "Fenobarbital diminui a concentração de rufinamida em 25-46% e rufinamida aumenta a concentração de fenobarbital em 8-13%.",
+    "mechanism": "Fenobarbital (indutor enzimático) aumenta a depuração de rufinamida; rufinamida reduz o clearance de fenobarbital. Efeitos mais pronunciados em pacientes pediátricos. Monitorar níveis séricos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1131",
+    "drug1": "Rufinamida",
+    "drug2": "Primidona",
+    "risk_level": "moderate",
+    "risk_description": "Primidona diminui a concentração de rufinamida em 25-46%.",
+    "mechanism": "Primidona (indutor enzimático) aumenta a depuração de rufinamida. Efeito independente da dose ou concentração de primidona. Monitorar eficácia da rufinamida. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1132",
+    "drug1": "Rufinamida",
+    "drug2": "Lamotrigina",
+    "risk_level": "moderate",
+    "risk_description": "Rufinamida diminui a concentração de lamotrigina em 7-13%.",
+    "mechanism": "Rufinamida reduz os níveis de lamotrigina de forma concentração-dependente, com maior efeito em pacientes pediátricos. Monitorar eficácia da lamotrigina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1133",
+    "drug1": "Rufinamida",
+    "drug2": "Topiramato",
+    "risk_level": "moderate",
+    "risk_description": "Não há efeito significativo de rufinamida sobre topiramato ou vice-versa.",
+    "mechanism": "Nenhuma interação farmacocinética clinicamente relevante foi observada entre rufinamida e topiramato. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1134",
+    "drug1": "Sertralina",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Aumento médio de 8% no tempo de protrombina, com normalização retardada.",
+    "mechanism": "Deslocamento de ligação a proteínas plasmáticas. Monitorar cuidadosamente o tempo de protrombina ao iniciar ou interromper a sertralina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1135",
+    "drug1": "Sertralina",
+    "drug2": "Diazepam",
+    "risk_level": "moderate",
+    "risk_description": "Redução de 32% na depuração do diazepam e aumento de 23% no Tmax do desmetildiazepam.",
+    "mechanism": "Inibição do metabolismo do diazepam. Significância clínica desconhecida; monitorar efeitos sedativos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1136",
+    "drug1": "Sertralina",
+    "drug2": "Fenitoína",
+    "risk_level": "moderate",
+    "risk_description": "Potencial alteração nos níveis de fenitoína, embora estudo não tenha mostrado inibição clinicamente importante.",
+    "mechanism": "Possível inibição do metabolismo. Recomenda-se monitorar concentrações plasmáticas de fenitoína após início da sertralina e ajustar dose, especialmente em pacientes com múltiplas condições ou medicamentos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1137",
+    "drug1": "Sertralina",
+    "drug2": "Valproato de Sódio",
+    "risk_level": "moderate",
+    "risk_description": "Efeito sobre níveis de valproato não avaliado; risco de alteração nas concentrações.",
+    "mechanism": "Mecanismo desconhecido. Recomenda-se monitorar níveis plasmáticos de valproato após início da sertralina e ajustar dose. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1138",
+    "drug1": "Sertralina",
+    "drug2": "Propafenona",
+    "risk_level": "high",
+    "risk_description": "Aumento das concentrações plasmáticas de propafenona devido à inibição da CYP2D6.",
+    "mechanism": "Inibição da CYP2D6. Pode ser necessário reduzir a dose de propafenona. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1139",
+    "drug1": "Sertralina",
+    "drug2": "Flecainida",
+    "risk_level": "high",
+    "risk_description": "Aumento das concentrações plasmáticas de flecainida devido à inibição da CYP2D6.",
+    "mechanism": "Inibição da CYP2D6. Pode ser necessário reduzir a dose de flecainida. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1140",
+    "drug1": "Sertralina",
+    "drug2": "AAS (Ácido Acetilsalicílico)",
+    "risk_level": "high",
+    "risk_description": "Aumento do risco de sangramento gastrointestinal superior quando usado concomitantemente.",
+    "mechanism": "Interferência na hemostasia por inibição da recaptação de serotonina nas plaquetas. Monitorar sinais de sangramento. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1141",
+    "drug1": "Sirolimo",
+    "drug2": "Indinavir",
+    "risk_level": "moderate",
+    "risk_description": "Podem aumentar as concentrações sanguíneas de sirolimo.",
+    "mechanism": "Fármacos que podem aumentar as concentrações de sirolimo. A dose pode precisar de ajuste. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1142",
+    "drug1": "Sirolimo",
+    "drug2": "Carbamazepina",
+    "risk_level": "moderate",
+    "risk_description": "Pode diminuir as concentrações sanguíneas de sirolimo.",
+    "mechanism": "Fármaco que pode diminuir as concentrações de sirolimo. A dose pode precisar de ajuste. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1143",
+    "drug1": "Sirolimo",
+    "drug2": "Fenobarbital",
+    "risk_level": "moderate",
+    "risk_description": "Pode diminuir as concentrações sanguíneas de sirolimo.",
+    "mechanism": "Fármaco que pode diminuir as concentrações de sirolimo. A dose pode precisar de ajuste. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1144",
+    "drug1": "Sirolimo",
+    "drug2": "Fenitoína",
+    "risk_level": "moderate",
+    "risk_description": "Pode diminuir as concentrações sanguíneas de sirolimo.",
+    "mechanism": "Fármaco que pode diminuir as concentrações de sirolimo. A dose pode precisar de ajuste. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1145",
+    "drug1": "Sirolimo",
+    "drug2": "Canabidiol",
+    "risk_level": "high",
+    "risk_description": "Pode aumentar os níveis sanguíneos de sirolimo, com risco de toxicidade.",
+    "mechanism": "Os níveis sanguíneos de sirolimo podem aumentar com o uso concomitante de canabidiol. Monitorar de perto os níveis de sirolimo e reações adversas; considerar redução da dose de sirolimo. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1146",
+    "drug1": "Sorafenibe",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Aumenta o risco de sangramento ou elevação do INR.",
+    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar INR e sinais clínicos de sangramento em pacientes recebendo varfarina concomitantemente com sorafenibe. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1147",
+    "drug1": "Sulfato de Vincristina",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Redução dos níveis sanguíneos do anticonvulsivante e aumento da atividade convulsiva.",
+    "mechanism": "Possível redução da absorção de fenitoína e aumento da taxa de seu metabolismo e eliminação. Ajuste de dose baseado em monitoramento seriado dos níveis sanguíneos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1148",
+    "drug1": "Tacrolimo",
+    "drug2": "Canabidiol",
+    "risk_level": "high",
+    "risk_description": "Pode aumentar os níveis sanguíneos de tacrolimo e o risco de toxicidade.",
+    "mechanism": "Mecanismo: Aumento dos níveis sanguíneos de tacrolimo. Conduta: Monitorar de perto os níveis sanguíneos de tacrolimo e reações adversas sugestivas de toxicidade; considerar redução da dose de tacrolimo conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1149",
+    "drug1": "Tenofovir",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Redução das concentrações de bictegravir e tenofovir alafenamida, com risco de perda de eficácia terapêutica e desenvolvimento de resistência.",
+    "mechanism": "Indução de CYP3A e P-gp pelo carbamazepina, diminuindo a exposição ao bictegravir e tenofovir alafenamida. Deve-se considerar o uso de anticonvulsivantes alternativos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1150",
+    "drug1": "Tenofovir",
+    "drug2": "Oxcarbazepina",
+    "risk_level": "high",
+    "risk_description": "Redução das concentrações de bictegravir e tenofovir alafenamida, com risco de perda de eficácia terapêutica e desenvolvimento de resistência.",
+    "mechanism": "Indução de CYP3A e P-gp pela oxcarbazepina, diminuindo a exposição ao bictegravir e tenofovir alafenamida. Deve-se considerar o uso de anticonvulsivantes alternativos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1151",
+    "drug1": "Tenofovir",
+    "drug2": "Fenobarbital",
+    "risk_level": "high",
+    "risk_description": "Redução das concentrações de bictegravir e tenofovir alafenamida, com risco de perda de eficácia terapêutica e desenvolvimento de resistência.",
+    "mechanism": "Indução de CYP3A e P-gp pelo fenobarbital, diminuindo a exposição ao bictegravir e tenofovir alafenamida. Deve-se considerar o uso de anticonvulsivantes alternativos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1152",
+    "drug1": "Tenofovir",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Redução das concentrações de bictegravir e tenofovir alafenamida, com risco de perda de eficácia terapêutica e desenvolvimento de resistência.",
+    "mechanism": "Indução de CYP3A e P-gp pela fenitoína, diminuindo a exposição ao bictegravir e tenofovir alafenamida. Deve-se considerar o uso de anticonvulsivantes alternativos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1153",
+    "drug1": "Teriflunomida",
+    "drug2": "Paclitaxel",
+    "risk_level": "high",
+    "risk_description": "Aumento da exposição a substratos da CYP2C8, podendo elevar o risco de toxicidade.",
+    "mechanism": "Inibição da CYP2C8 pela teriflunomida. Monitorar os pacientes e ajustar a dose do medicamento concomitante conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1154",
+    "drug1": "Teriflunomida",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Possível redução do pico de INR em aproximadamente 25%, alterando o efeito anticoagulante.",
+    "mechanism": "Mecanismo não especificado no texto. Monitorar de perto a INR e ajustar a dose de varfarina conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1155",
+    "drug1": "Teriflunomida",
+    "drug2": "Duloxetina",
+    "risk_level": "moderate",
+    "risk_description": "Possível redução da exposição a substratos da CYP1A2, podendo diminuir a eficácia desses medicamentos.",
+    "mechanism": "Indução fraca da CYP1A2 pela teriflunomida. Monitorar os pacientes e ajustar a dose do medicamento concomitante conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1156",
+    "drug1": "Teriflunomida",
+    "drug2": "Metotrexato",
+    "risk_level": "high",
+    "risk_description": "Aumento da exposição a substratos do OAT3, podendo elevar o risco de toxicidade.",
+    "mechanism": "Inibição do OAT3 pela teriflunomida. Monitorar os pacientes e ajustar a dose do medicamento concomitante conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1157",
+    "drug1": "Tioridazina",
+    "drug2": "Paroxetina",
+    "risk_level": "critical",
+    "risk_description": "Aumento dos níveis de tioridazina, prolongando o intervalo QTc e elevando o risco de arritmias cardíacas graves, como Torsades de pointes.",
+    "mechanism": "Inibição do citocromo P450 2D6 pela paroxetina, reduzindo o metabolismo da tioridazina e elevando seus níveis plasmáticos. A coadministração é contraindicada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1158",
+    "drug1": "Topiramato",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Diminuição clinicamente significativa nas concentrações plasmáticas de topiramato.",
+    "mechanism": "A administração concomitante de fenitoína ou carbamazepina com topiramato resulta em diminuição clinicamente significativa nas concentrações plasmáticas de topiramato. Pode ser necessário ajuste de dose. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1159",
+    "drug1": "Topiramato",
+    "drug2": "Ácido Valpróico",
+    "risk_level": "high",
+    "risk_description": "Associação com hipotermia e hiperamonemia, com ou sem encefalopatia.",
+    "mechanism": "A administração concomitante de ácido valproico e topiramato está associada a hipotermia e hiperamonemia. Exames de níveis de amônia no sangue devem ser realizados em pacientes nos quais o início de hipotermia foi relatado. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1160",
+    "drug1": "Topiramato",
+    "drug2": "Zonisamida",
+    "risk_level": "high",
+    "risk_description": "Pode aumentar a gravidade da acidose metabólica e o risco de formação de cálculos renais.",
+    "mechanism": "O uso concomitante de topiramato com outro inibidor da anidrase carbônica pode aumentar a gravidade da acidose metabólica e o risco de formação de cálculos renais. Pacientes devem ser monitorados de perto para o aparecimento ou piora da acidose metabólica. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1161",
+    "drug1": "Trametinibe",
+    "drug2": "Dabrafenibe",
+    "risk_level": "high",
+    "risk_description": "Risco aumentado de eventos adversos quando usado em combinação com dabrafenibe.",
+    "mechanism": "O uso combinado é indicado, mas requer consulta à bula de dabrafenibe para informações adicionais de risco. A conduta clínica recomendada é revisar a bula de dabrafenibe para manejo adequado. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1162",
+    "drug1": "Trastuzumabe",
+    "drug2": "Atazanavir",
+    "risk_level": "high",
+    "risk_description": "Aumento da exposição ao DM1 e toxicidade.",
+    "mechanism": "O DM1 é metabolizado principalmente por CYP3A4. O uso concomitante com inibidores fortes de CYP3A4 deve ser evitado. Considere um medicamento alternativo sem ou com mínimo potencial de inibir CYP3A4. Se o uso concomitante for inevitável, considere atrasar o tratamento com KADCYLA até que os inibidores fortes de CYP3A4 tenham sido eliminados da circulação (aproximadamente 3 meias-vidas de eliminação dos inibidores), quando possível. Se um inibidor forte de CYP3A4 for coadministrado e o tratamento com KADCYLA não puder ser adiado, os pacientes devem ser monitorados de perto quanto a reações adversas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1163",
+    "drug1": "Trazodona",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Aumento dos níveis séricos de fenitoína, com risco de toxicidade.",
+    "mechanism": "Mecanismo: possível inibição do metabolismo ou excreção da fenitoína. Conduta: monitorar níveis séricos de fenitoína e ajustar dose conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1164",
+    "drug1": "Trazodona",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Alteração do tempo de protrombina (aumento ou diminuição), com risco de sangramento ou trombose.",
+    "mechanism": "Mecanismo: interação farmacodinâmica ou farmacocinética não totalmente elucidada. Conduta: monitorar o INR ao iniciar ou descontinuar a trazodona. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1165",
+    "drug1": "Venetoclax",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Aumenta a exposição à varfarina, elevando o risco de sangramento.",
+    "mechanism": "Venetoclax aumenta a concentração plasmática de varfarina. Monitore a INR com mais frequência em pacientes usando varfarina concomitantemente com VENCLEXTA. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1166",
+    "drug1": "Venlafaxina",
+    "drug2": "Haloperidol",
+    "risk_level": "high",
+    "risk_description": "A venlafaxina diminui a depuração oral total do haloperidol em 42%, resultando em um aumento de 70% na AUC e 88% no Cmax do haloperidol.",
+    "mechanism": "Mecanismo desconhecido. A meia-vida de eliminação do haloperidol não foi alterada. Monitorar o paciente quanto a efeitos aumentados do haloperidol. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1167",
+    "drug1": "Venlafaxina",
+    "drug2": "AAS (Ácido Acetilsalicílico)",
+    "risk_level": "high",
+    "risk_description": "O uso concomitante de AINEs ou aspirina pode aumentar o risco de sangramento gastrointestinal superior, e a coadministração com varfarina pode alterar os efeitos anticoagulantes, incluindo aumento do sangramento.",
+    "mechanism": "A venlafaxina interfere na recaptação de serotonina pelas plaquetas, afetando a hemostasia. Pacientes em uso de varfarina devem ser monitorados cuidadosamente ao iniciar ou descontinuar a venlafaxina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1168",
+    "drug1": "Venlafaxina",
+    "drug2": "Risperidona",
+    "risk_level": "moderate",
+    "risk_description": "A venlafaxina inibe ligeiramente o metabolismo da risperidona mediado pela CYP2D6, resultando em um aumento de aproximadamente 32% na AUC da risperidona, mas sem alterar significativamente o perfil farmacocinético do total da fração ativa.",
+    "mechanism": "Inibição da CYP2D6 pela venlafaxina. Como a concentração total de risperidona mais 9-hidroxirisperidona não foi significativamente alterada, o significado clínico é limitado. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1169",
+    "drug1": "Venlafaxina",
+    "drug2": "Indinavir",
+    "risk_level": "moderate",
+    "risk_description": "A venlafaxina diminui a AUC do indinavir em 28% e o Cmax em 36%, mas o significado clínico é desconhecido.",
+    "mechanism": "Mecanismo não especificado. O indinavir não afetou a farmacocinética da venlafaxina ou ODV. O significado clínico é desconhecido. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1170",
+    "drug1": "Vigabatrina",
+    "drug2": "Fenitoína",
+    "risk_level": "moderate",
+    "risk_description": "Vigabatrina pode causar uma redução moderada nos níveis plasmáticos totais de fenitoína.",
+    "mechanism": "Mecanismo não especificado no texto. Conduta: o ajuste de dose da fenitoína deve ser considerado se clinicamente indicado. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1171",
+    "drug1": "Vigabatrina",
+    "drug2": "Clonazepam",
+    "risk_level": "moderate",
+    "risk_description": "Vigabatrina pode aumentar moderadamente a Cmax do clonazepam, resultando em aumento de reações adversas associadas ao clonazepam.",
+    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar quanto a reações adversas do clonazepam. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1172",
+    "drug1": "Vilazodona",
+    "drug2": "Carbamazepina",
+    "risk_level": "moderate",
+    "risk_description": "Diminui a exposição à vilazodona, podendo necessitar de aumento da dose.",
+    "mechanism": "O uso concomitante de vilazodona com indutores fortes do CYP3A4 diminui a exposição à vilazodona. Com base na resposta clínica, considerar aumentar a dose de vilazodona em até 2 vezes, até 80 mg uma vez ao dia, ao longo de 1 a 2 semanas em pacientes que tomam indutores fortes do CYP3A4 por mais de 14 dias. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1173",
+    "drug1": "Vimblastina",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Redução dos níveis sanguíneos do anticonvulsivante e aumento da atividade convulsiva.",
+    "mechanism": "Possível redução da absorção de fenitoína ou aumento da taxa de seu metabolismo e eliminação. Ajuste de dose baseado em monitoramento seriado dos níveis sanguíneos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1174",
+    "drug1": "Vincristina",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Redução dos níveis sanguíneos do anticonvulsivante e aumento da atividade convulsiva.",
+    "mechanism": "Possível redução da absorção de fenitoína e aumento da taxa de seu metabolismo e eliminação. Ajuste de dose baseado em monitoramento seriado dos níveis sanguíneos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1175",
+    "drug1": "Zidovudina",
+    "drug2": "Doxorrubicina",
+    "risk_level": "high",
+    "risk_description": "Antagonismo in vitro demonstrado; uso concomitante deve ser evitado.",
+    "mechanism": "Antagonismo in vitro. Conduta: evitar uso concomitante. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1176",
+    "drug1": "Ziprasidona",
+    "drug2": "Carbamazepina",
+    "risk_level": "moderate",
+    "risk_description": "Redução da exposição à ziprasidona, podendo diminuir sua eficácia.",
+    "mechanism": "Interação farmacocinética: carbamazepina é indutora do CYP3A4, reduzindo a AUC da ziprasidona em aproximadamente 35%. Conduta: monitorar a eficácia da ziprasidona e considerar ajuste de dose, especialmente com doses mais altas de carbamazepina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1177",
+    "drug1": "Ciclosporina",
+    "drug2": "Metotrexato",
+    "risk_level": "high",
+    "risk_description": "Aumento significativo da AUC de metotrexato.",
+    "mechanism": "Inibição do metabolismo do metotrexato pela ciclosporina. Monitorar níveis. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1178",
+    "drug1": "Ciclosporina",
+    "drug2": "Imatinibe",
+    "risk_level": "high",
+    "risk_description": "Aumento das concentrações de ciclosporina.",
+    "mechanism": "Inibição do CYP3A4. Ajustar dose de ciclosporina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1179",
+    "drug1": "Ciclosporina",
+    "drug2": "Carbamazepina",
+    "risk_level": "moderate",
+    "risk_description": "Diminuição das concentrações de ciclosporina.",
+    "mechanism": "Indução do CYP3A4. Ajustar dose de ciclosporina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1180",
+    "drug1": "Ciclosporina",
+    "drug2": "Oxcarbazepina",
+    "risk_level": "moderate",
+    "risk_description": "Diminuição das concentrações de ciclosporina.",
+    "mechanism": "Indução do CYP3A4. Ajustar dose de ciclosporina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1181",
+    "drug1": "Ciclosporina",
+    "drug2": "Fenitoína",
+    "risk_level": "moderate",
+    "risk_description": "Diminuição das concentrações de ciclosporina.",
+    "mechanism": "Indução do CYP3A4. Ajustar dose de ciclosporina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1182",
+    "drug1": "Ciclosporina",
+    "drug2": "Ticlopidina",
+    "risk_level": "moderate",
+    "risk_description": "Diminuição das concentrações de ciclosporina.",
+    "mechanism": "Indução do metabolismo. Ajustar dose de ciclosporina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1183",
+    "drug1": "Ciclosporina",
+    "drug2": "Micofenolato de Mofetila",
+    "risk_level": "moderate",
+    "risk_description": "Diminuição da exposição ao MPA em 20-50%.",
+    "mechanism": "Inibição da circulação entero-hepática. Monitorar eficácia. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1184",
+    "drug1": "Darunavir",
+    "drug2": "Didanosina",
+    "risk_level": "moderate",
+    "risk_description": "Potencial para alteração na absorção de didanosina.",
+    "mechanism": "Interação na absorção. Administrar didanosina 1h antes ou 2h após darunavir/ritonavir com alimentos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1185",
+    "drug1": "Darunavir",
+    "drug2": "Indinavir",
+    "risk_level": "high",
+    "risk_description": "Aumento das concentrações de darunavir e indinavir.",
+    "mechanism": "Inibição do CYP3A. Dose apropriada não estabelecida. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1186",
+    "drug1": "Darunavir",
+    "drug2": "Saquinavir",
+    "risk_level": "high",
+    "risk_description": "Redução da concentração de darunavir.",
+    "mechanism": "Indução do CYP3A. Co-administração não recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1187",
+    "drug1": "Darunavir",
+    "drug2": "Atazanavir",
+    "risk_level": "high",
+    "risk_description": "Interação não estudada, risco potencial.",
+    "mechanism": "Falta de dados. Co-administração não recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1188",
+    "drug1": "Darunavir",
+    "drug2": "Apixabana",
+    "risk_level": "high",
+    "risk_description": "Aumento do risco de sangramento.",
+    "mechanism": "Inibição do CYP3A e P-gp. Seguir bula da apixabana para coadministração com inibidores fortes. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1189",
+    "drug1": "Darunavir",
+    "drug2": "Rivaroxabana",
+    "risk_level": "high",
+    "risk_description": "Aumento do risco de sangramento.",
+    "mechanism": "Inibição do CYP3A e P-gp. Co-administração não recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1190",
+    "drug1": "Darunavir",
+    "drug2": "Dabigatrana",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de dabigatrana.",
+    "mechanism": "Inibição da P-gp. Seguir bula da dabigatrana; monitorar clinicamente. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1191",
+    "drug1": "Darunavir",
+    "drug2": "Edoxabana",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de edoxabana.",
+    "mechanism": "Inibição da P-gp. Seguir bula do edoxabana; monitorar clinicamente. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1192",
+    "drug1": "Darunavir",
+    "drug2": "Varfarina",
+    "risk_level": "moderate",
+    "risk_description": "Redução da concentração de varfarina.",
+    "mechanism": "Indução do CYP3A? Monitorar INR. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1193",
+    "drug1": "Darunavir",
+    "drug2": "Carbamazepina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de carbamazepina.",
+    "mechanism": "Inibição do CYP3A. Monitorar concentrações e titular dose. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1194",
+    "drug1": "Darunavir",
+    "drug2": "Clonazepam",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de clonazepam.",
+    "mechanism": "Inibição do CYP3A. Monitorar clinicamente. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1195",
+    "drug1": "Darunavir",
+    "drug2": "Fenobarbital",
+    "risk_level": "moderate",
+    "risk_description": "Redução da concentração de fenobarbital.",
+    "mechanism": "Indução do CYP3A. Monitorar níveis de fenobarbital. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1196",
+    "drug1": "Darunavir",
+    "drug2": "Fenitoína",
+    "risk_level": "moderate",
+    "risk_description": "Redução da concentração de fenitoína.",
+    "mechanism": "Indução do CYP3A. Monitorar níveis de fenitoína. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1197",
+    "drug1": "Darunavir",
+    "drug2": "Paroxetina",
+    "risk_level": "moderate",
+    "risk_description": "Redução da concentração de paroxetina.",
+    "mechanism": "Indução do CYP2D6. Titular dose da ISRS conforme resposta. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1198",
+    "drug1": "Darunavir",
+    "drug2": "Sertralina",
+    "risk_level": "moderate",
+    "risk_description": "Redução da concentração de sertralina.",
+    "mechanism": "Indução do CYP2D6. Titular dose da ISRS conforme resposta. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1199",
+    "drug1": "Darunavir",
+    "drug2": "Amitriptilina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de amitriptilina.",
+    "mechanism": "Inibição do CYP2D6. Usar dose menor de ADT. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1200",
+    "drug1": "Darunavir",
+    "drug2": "Trazodona",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de trazodona.",
+    "mechanism": "Inibição do CYP3A. Usar dose menor de trazodona. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1201",
+    "drug1": "Darunavir",
+    "drug2": "Dasatinibe",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de dasatinibe.",
+    "mechanism": "Inibição do CYP3A. Ajustar dose conforme bula do dasatinibe. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1202",
+    "drug1": "Darunavir",
+    "drug2": "Nilotinibe",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de nilotinibe.",
+    "mechanism": "Inibição do CYP3A. Ajustar dose conforme bula do nilotinibe. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1203",
+    "drug1": "Darunavir",
+    "drug2": "Vimblastina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de vimblastina.",
+    "mechanism": "Inibição do CYP3A. Considerar suspensão temporária do ritonavir se toxicidade. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1204",
+    "drug1": "Darunavir",
+    "drug2": "Vincristina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de vincristina.",
+    "mechanism": "Inibição do CYP3A. Considerar suspensão temporária do ritonavir se toxicidade. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1205",
+    "drug1": "Darunavir",
+    "drug2": "Lurasidona",
+    "risk_level": "critical",
+    "risk_description": "Risco de reações graves ou fatais.",
+    "mechanism": "Aumento da concentração de lurasidona. Contraindicado. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1206",
+    "drug1": "Darunavir",
+    "drug2": "Pimozida",
+    "risk_level": "critical",
+    "risk_description": "Risco de arritmias cardíacas.",
+    "mechanism": "Aumento da concentração de pimozida. Contraindicado. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1207",
+    "drug1": "Darunavir",
+    "drug2": "Quetiapina",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de quetiapina.",
+    "mechanism": "Inibição do CYP3A. Reduzir dose de quetiapina para 1/6 se coadministração necessária. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1208",
+    "drug1": "Darunavir",
+    "drug2": "Perfenazina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de perfenazina.",
+    "mechanism": "Inibição do CYP3A/CYP2D6. Reduzir dose do antipsicótico. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1209",
+    "drug1": "Darunavir",
+    "drug2": "Risperidona",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de risperidona.",
+    "mechanism": "Inibição do CYP3A/CYP2D6. Reduzir dose do antipsicótico. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1210",
+    "drug1": "Darunavir",
+    "drug2": "Tioridazina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de tioridazina.",
+    "mechanism": "Inibição do CYP3A/CYP2D6. Reduzir dose do antipsicótico. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1211",
+    "drug1": "Darunavir",
+    "drug2": "Dronedarona",
+    "risk_level": "critical",
+    "risk_description": "Risco de arritmias cardíacas.",
+    "mechanism": "Aumento da concentração de dronedarona. Contraindicado. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1212",
+    "drug1": "Darunavir",
+    "drug2": "Amiodarona",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de amiodarona.",
+    "mechanism": "Inibição do CYP3A. Monitorar concentração terapêutica. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1213",
+    "drug1": "Darunavir",
+    "drug2": "Flecainida",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de flecainida.",
+    "mechanism": "Inibição do CYP2D6. Monitorar concentração terapêutica. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1214",
+    "drug1": "Darunavir",
+    "drug2": "Propafenona",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de propafenona.",
+    "mechanism": "Inibição do CYP2D6. Monitorar concentração terapêutica. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1215",
+    "drug1": "Darunavir",
+    "drug2": "Ciclosporina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de ciclosporina.",
+    "mechanism": "Inibição do CYP3A. Monitorar concentração terapêutica do imunossupressor. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1216",
+    "drug1": "Darunavir",
+    "drug2": "Tacrolimo",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de tacrolimo.",
+    "mechanism": "Inibição do CYP3A. Monitorar concentração terapêutica do imunossupressor. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1217",
+    "drug1": "Darunavir",
+    "drug2": "Sirolimo",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de sirolimo.",
+    "mechanism": "Inibição do CYP3A. Monitorar concentração terapêutica do imunossupressor. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1218",
+    "drug1": "Darunavir",
+    "drug2": "Irinotecano",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de irinotecano.",
+    "mechanism": "Inibição do CYP3A. Descontinuar darunavir/ritonavir 1 semana antes. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1219",
+    "drug1": "Efavirenz",
+    "drug2": "Amprenavir",
+    "risk_level": "high",
+    "risk_description": "Diminuição da concentração de amprenavir.",
+    "mechanism": "Indução do CYP3A pelo efavirenz. Ajuste de dose: adicionar 100 mg/dia de ritonavir com fosamprenavir/ritonavir uma vez ao dia. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1220",
+    "drug1": "Efavirenz",
+    "drug2": "Indinavir",
+    "risk_level": "high",
+    "risk_description": "Diminuição da concentração de indinavir.",
+    "mechanism": "Indução do CYP3A. Aumento da dose de indinavir para 1000 mg a cada 8 horas não compensa; dose ótima desconhecida. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1221",
+    "drug1": "Efavirenz",
+    "drug2": "Ritonavir",
+    "risk_level": "high",
+    "risk_description": "Aumento de ritonavir e efavirenz.",
+    "mechanism": "Inibição/indução mútua. Monitorar enzimas hepáticas e eventos adversos (tontura, náusea, parestesia). (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1222",
+    "drug1": "Efavirenz",
+    "drug2": "Saquinavir",
+    "risk_level": "high",
+    "risk_description": "Diminuição da concentração de saquinavir.",
+    "mechanism": "Indução do CYP3A. Doses adequadas da combinação com saquinavir/ritonavir não estabelecidas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1223",
+    "drug1": "Efavirenz",
+    "drug2": "Varfarina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento ou diminuição do efeito de warfarin.",
+    "mechanism": "Indução ou inibição do metabolismo. Monitorar INR e ajustar dose de warfarin. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1224",
+    "drug1": "Efavirenz",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Diminuição de carbamazepina e efavirenz.",
+    "mechanism": "Indução mútua do CYP3A. Dados insuficientes para dose; usar anticonvulsivante alternativo. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1225",
+    "drug1": "Efavirenz",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Diminuição de anticonvulsivante e/ou efavirenz.",
+    "mechanism": "Indução do CYP3A. Monitorar níveis plasmáticos do anticonvulsivante. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1226",
+    "drug1": "Efavirenz",
+    "drug2": "Bupropiona",
+    "risk_level": "moderate",
+    "risk_description": "Diminuição da concentração de bupropiona.",
+    "mechanism": "Indução do CYP2B6. Aumentar dose guiado por resposta clínica; não exceder dose máxima. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1227",
+    "drug1": "Efavirenz",
+    "drug2": "Sertralina",
+    "risk_level": "moderate",
+    "risk_description": "Diminuição da concentração de sertralina.",
+    "mechanism": "Indução do CYP3A. Aumentar dose guiado por resposta clínica. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1228",
+    "drug1": "Efavirenz",
+    "drug2": "Ciclosporina",
+    "risk_level": "high",
+    "risk_description": "Diminuição da concentração do imunossupressor.",
+    "mechanism": "Indução do CYP3A. Ajustar dose e monitorar níveis por pelo menos 2 semanas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1229",
+    "drug1": "Nevirapina",
+    "drug2": "Fosamprenavir",
+    "risk_level": "high",
+    "risk_description": "Nevirapina reduz amprenavir e aumenta nevirapina; coadministração sem ritonavir não recomendada.",
+    "mechanism": "Indução enzimática. Não coadministrar sem ritonavir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1230",
+    "drug1": "Nevirapina",
+    "drug2": "Amprenavir",
+    "risk_level": "moderate",
+    "risk_description": "Nevirapina reduz amprenavir e aumenta nevirapina; ajuste de dose não necessário com 700/100 mg duas vezes ao dia.",
+    "mechanism": "Indução enzimática. Sem ajuste com dose específica; evitar dose única diária. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1231",
+    "drug1": "Nevirapina",
+    "drug2": "Indinavir",
+    "risk_level": "high",
+    "risk_description": "Nevirapina reduz indinavir; doses apropriadas não estabelecidas.",
+    "mechanism": "Indução enzimática. Doses não estabelecidas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1232",
+    "drug1": "Nevirapina",
+    "drug2": "Ritonavir",
+    "risk_level": "high",
+    "risk_description": "Interação não avaliada; doses apropriadas não estabelecidas.",
+    "mechanism": "Não avaliado. Doses não estabelecidas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1233",
+    "drug1": "Nevirapina",
+    "drug2": "Efavirenz",
+    "risk_level": "high",
+    "risk_description": "Nevirapina reduz efavirenz; combinação não benéfica.",
+    "mechanism": "Indução enzimática. Não coadministrar com outro NNRTI. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1234",
+    "drug1": "Nevirapina",
+    "drug2": "Amiodarona",
+    "risk_level": "moderate",
+    "risk_description": "Concentrações plasmáticas podem diminuir; doses apropriadas não estabelecidas.",
+    "mechanism": "Indução enzimática. Doses não estabelecidas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1235",
+    "drug1": "Nevirapina",
+    "drug2": "Carbamazepina",
+    "risk_level": "moderate",
+    "risk_description": "Concentrações de nevirapina e anticonvulsivante podem diminuir.",
+    "mechanism": "Indução enzimática. Usar com cautela e monitorar resposta virológica e níveis. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1236",
+    "drug1": "Nevirapina",
+    "drug2": "Clonazepam",
+    "risk_level": "moderate",
+    "risk_description": "Concentrações de nevirapina e anticonvulsivante podem diminuir.",
+    "mechanism": "Indução enzimática. Usar com cautela e monitorar resposta virológica e níveis. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1237",
+    "drug1": "Nevirapina",
+    "drug2": "Etossuximida",
+    "risk_level": "moderate",
+    "risk_description": "Concentrações de nevirapina e anticonvulsivante podem diminuir.",
+    "mechanism": "Indução enzimática. Usar com cautela e monitorar resposta virológica e níveis. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1238",
+    "drug1": "Nevirapina",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Concentrações plasmáticas podem aumentar; potencial efeito na anticoagulação.",
+    "mechanism": "Interação complexa in vitro. Monitorar níveis de anticoagulação frequentemente. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1239",
+    "drug1": "Nevirapina",
+    "drug2": "Ciclofosfamida",
+    "risk_level": "moderate",
+    "risk_description": "Concentrações plasmáticas podem diminuir; doses apropriadas não estabelecidas.",
+    "mechanism": "Indução enzimática. Doses não estabelecidas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1240",
+    "drug1": "Nevirapina",
+    "drug2": "Ciclosporina",
+    "risk_level": "moderate",
+    "risk_description": "Concentrações plasmáticas podem diminuir; doses apropriadas não estabelecidas.",
+    "mechanism": "Indução enzimática. Doses não estabelecidas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1241",
+    "drug1": "Nevirapina",
+    "drug2": "Tacrolimo",
+    "risk_level": "moderate",
+    "risk_description": "Concentrações plasmáticas podem diminuir; doses apropriadas não estabelecidas.",
+    "mechanism": "Indução enzimática. Doses não estabelecidas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1242",
+    "drug1": "Nevirapina",
+    "drug2": "Sirolimo",
+    "risk_level": "moderate",
+    "risk_description": "Concentrações plasmáticas podem diminuir; doses apropriadas não estabelecidas.",
+    "mechanism": "Indução enzimática. Doses não estabelecidas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1243",
+    "drug1": "Ritonavir",
+    "drug2": "Amprenavir",
+    "risk_level": "high",
+    "risk_description": "Aumento de reações adversas com coadministração.",
+    "mechanism": "↓ amprenavir e ↓ lopinavir. Doses apropriadas não estabelecidas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1244",
+    "drug1": "Ritonavir",
+    "drug2": "Indinavir",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de indinavir.",
+    "mechanism": "↑ indinavir. Reduzir dose de indinavir para 600 mg duas vezes ao dia com lopinavir/ritonavir 400/100 mg duas vezes ao dia. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1245",
+    "drug1": "Ritonavir",
+    "drug2": "Saquinavir",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de saquinavir.",
+    "mechanism": "↑ saquinavir. Dose de saquinavir: 1000 mg duas vezes ao dia com lopinavir/ritonavir 400/100 mg duas vezes ao dia. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1246",
+    "drug1": "Ritonavir",
+    "drug2": "Didanosina",
+    "risk_level": "moderate",
+    "risk_description": "Interação com administração de solução oral.",
+    "mechanism": "Administrar comprimidos juntos com alimentos; solução oral: didanosina 1h antes ou 2h após. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1247",
+    "drug1": "Ritonavir",
+    "drug2": "Tenofovir",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de tenofovir.",
+    "mechanism": "↑ tenofovir. Monitorar reações adversas associadas ao tenofovir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1248",
+    "drug1": "Ritonavir",
+    "drug2": "Abacavir",
+    "risk_level": "moderate",
+    "risk_description": "Redução da concentração de abacavir.",
+    "mechanism": "↓ abacavir. Significância clínica desconhecida. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1249",
+    "drug1": "Ritonavir",
+    "drug2": "Zidovudina",
+    "risk_level": "moderate",
+    "risk_description": "Redução da concentração de zidovudina.",
+    "mechanism": "↓ zidovudina. Significância clínica desconhecida. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1250",
+    "drug1": "Ritonavir",
+    "drug2": "Dronedarona",
+    "risk_level": "critical",
+    "risk_description": "Potencial arritmias cardíacas.",
+    "mechanism": "↑ dronedarona. Contraindicado devido a potencial arritmias cardíacas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1251",
+    "drug1": "Ritonavir",
+    "drug2": "Amiodarona",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de antiarrítmicos.",
+    "mechanism": "↑ antiarrítmicos. Cautela e monitorização terapêutica recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1252",
+    "drug1": "Ritonavir",
+    "drug2": "Abemaciclibe",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de anticancerígenos.",
+    "mechanism": "↑ anticancerígenos. Ver condutas específicas no texto. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1253",
+    "drug1": "Ritonavir",
+    "drug2": "Apalutamida",
+    "risk_level": "critical",
+    "risk_description": "Perda de resposta virológica e possível resistência.",
+    "mechanism": "↓ lopinavir/ritonavir. Contraindicado devido a perda de resposta virológica. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1254",
+    "drug1": "Ritonavir",
+    "drug2": "Ibrutinibe",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de ibrutinibe.",
+    "mechanism": "↑ anticancerígenos. Evitar uso com lopinavir/ritonavir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1255",
+    "drug1": "Ritonavir",
+    "drug2": "Dasatinibe",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de dasatinibe.",
+    "mechanism": "↑ anticancerígenos. Pode necessitar redução de dose ou ajuste de intervalo; consultar bula do dasatinibe. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1256",
+    "drug1": "Ritonavir",
+    "drug2": "Nilotinibe",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de nilotinibe.",
+    "mechanism": "↑ anticancerígenos. Pode necessitar redução de dose ou ajuste de intervalo; consultar bula do nilotinibe. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1257",
+    "drug1": "Ritonavir",
+    "drug2": "Venetoclax",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de venetoclax.",
+    "mechanism": "↑ anticancerígenos. Evitar uso com lopinavir/ritonavir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1258",
+    "drug1": "Ritonavir",
+    "drug2": "Vimblastina",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de vinblastina.",
+    "mechanism": "↑ anticancerígenos. Considerar suspender temporariamente o regime contendo ritonavir se efeitos colaterais significativos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1259",
+    "drug1": "Ritonavir",
+    "drug2": "Vincristina",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de vincristina.",
+    "mechanism": "↑ anticancerígenos. Considerar suspender temporariamente o regime contendo ritonavir se efeitos colaterais significativos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1260",
+    "drug1": "Ritonavir",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Concentrações de varfarina podem ser afetadas.",
+    "mechanism": "↑↓ varfarina. Monitorar INR frequentemente no início da coadministração. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1261",
+    "drug1": "Ritonavir",
+    "drug2": "Fenobarbital",
+    "risk_level": "high",
+    "risk_description": "Redução da concentração de lopinavir.",
+    "mechanism": "↓ lopinavir. Usar com cautela; não usar lopinavir/ritonavir uma vez ao dia. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1262",
+    "drug1": "Ritonavir",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Redução de lopinavir e fenitoína.",
+    "mechanism": "↓ lopinavir e ↓ fenitoína. Monitorar níveis de fenitoína; não usar lopinavir/ritonavir uma vez ao dia. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1263",
+    "drug1": "Ritonavir",
+    "drug2": "Lamotrigina",
+    "risk_level": "moderate",
+    "risk_description": "Redução da concentração de lamotrigina.",
+    "mechanism": "↓ lamotrigina. Pode necessitar aumento de dose; monitorar concentração terapêutica. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1264",
+    "drug1": "Ritonavir",
+    "drug2": "Valproato de Sódio",
+    "risk_level": "moderate",
+    "risk_description": "Redução ou manutenção da concentração de valproato.",
+    "mechanism": "↓ ou ↔ valproato. Pode necessitar aumento de dose. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1265",
+    "drug1": "Ritonavir",
+    "drug2": "Bupropiona",
+    "risk_level": "moderate",
+    "risk_description": "Redução da concentração de bupropiona e metabólito.",
+    "mechanism": "↓ bupropiona e hidroxibupropiona. Monitorar resposta clínica adequada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1266",
+    "drug1": "Ritonavir",
+    "drug2": "Trazodona",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de trazodona com reações adversas.",
+    "mechanism": "↑ trazodona. Considerar dose menor de trazodona. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1267",
+    "drug1": "Ritonavir",
+    "drug2": "Lurasidona",
+    "risk_level": "critical",
+    "risk_description": "Potencial reações graves/risco de vida.",
+    "mechanism": "↑ lurasidona. Contraindicado devido a potencial reações graves/risco de vida. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1268",
+    "drug1": "Ritonavir",
+    "drug2": "Pimozida",
+    "risk_level": "critical",
+    "risk_description": "Potencial arritmias cardíacas.",
+    "mechanism": "↑ pimozida. Contraindicado devido a potencial arritmias cardíacas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1269",
+    "drug1": "Ritonavir",
+    "drug2": "Ciclosporina",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de imunossupressores.",
+    "mechanism": "↑ imunossupressores. Monitorização terapêutica recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1270",
+    "drug1": "Ritonavir",
+    "drug2": "Tacrolimo",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de imunossupressores.",
+    "mechanism": "↑ imunossupressores. Monitorização terapêutica recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1271",
+    "drug1": "Ritonavir",
+    "drug2": "Sirolimo",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de imunossupressores.",
+    "mechanism": "↑ imunossupressores. Monitorização terapêutica recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1272",
+    "drug1": "Carbamazepina",
+    "drug2": "Clorpromazina",
+    "risk_level": "moderate",
+    "risk_description": "Formação de precipitado laranja borrachento quando administrado simultaneamente como suspensão.",
+    "mechanism": "Incompatibilidade física entre as suspensões. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1273",
+    "drug1": "Carbamazepina",
+    "drug2": "Tioridazina",
+    "risk_level": "moderate",
+    "risk_description": "Formação de precipitado quando administrado simultaneamente como suspensão.",
+    "mechanism": "Incompatibilidade física entre as suspensões. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1274",
+    "drug1": "Carbamazepina",
+    "drug2": "Trazodona",
+    "risk_level": "high",
+    "risk_description": "Aumenta os níveis plasmáticos de carbamazepina.",
+    "mechanism": "Inibição do CYP3A4. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1275",
+    "drug1": "Carbamazepina",
+    "drug2": "Ticlopidina",
+    "risk_level": "high",
+    "risk_description": "Aumenta os níveis plasmáticos de carbamazepina.",
+    "mechanism": "Inibição do CYP3A4. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1276",
+    "drug1": "Carbamazepina",
+    "drug2": "Quetiapina",
+    "risk_level": "high",
+    "risk_description": "Aumenta os níveis do metabólito carbamazepina-10,11 epóxido.",
+    "mechanism": "Inibição da epóxido hidrolase microssomal. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1277",
+    "drug1": "Carbamazepina",
+    "drug2": "Cisplatina",
+    "risk_level": "high",
+    "risk_description": "Diminui os níveis plasmáticos de carbamazepina.",
+    "mechanism": "Indução do CYP3A4. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1278",
+    "drug1": "Carbamazepina",
+    "drug2": "Doxorrubicina",
+    "risk_level": "high",
+    "risk_description": "Diminui os níveis plasmáticos de carbamazepina.",
+    "mechanism": "Indução do CYP3A4. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1279",
+    "drug1": "Carbamazepina",
+    "drug2": "Fenobarbital",
+    "risk_level": "high",
+    "risk_description": "Diminui os níveis plasmáticos de carbamazepina.",
+    "mechanism": "Indução do CYP3A4. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1280",
+    "drug1": "Carbamazepina",
+    "drug2": "Primidona",
+    "risk_level": "high",
+    "risk_description": "Diminui os níveis plasmáticos de carbamazepina.",
+    "mechanism": "Indução do CYP3A4. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1281",
+    "drug1": "Carbamazepina",
+    "drug2": "Tacrolimo",
+    "risk_level": "high",
+    "risk_description": "Diminui os níveis de tacrolimo.",
+    "mechanism": "Indução do CYP3A4. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1282",
+    "drug1": "Carbamazepina",
+    "drug2": "Alprazolam",
+    "risk_level": "moderate",
+    "risk_description": "Diminui níveis de alprazolam.",
+    "mechanism": "Indução do CYP3A4. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1283",
+    "drug1": "Carbamazepina",
+    "drug2": "Citalopram",
+    "risk_level": "moderate",
+    "risk_description": "Diminui níveis de citalopram.",
+    "mechanism": "Indução do metabolismo hepático. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1284",
+    "drug1": "Carbamazepina",
+    "drug2": "Etossuximida",
+    "risk_level": "moderate",
+    "risk_description": "Diminui níveis de etossuximida.",
+    "mechanism": "Indução do metabolismo hepático. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1285",
+    "drug1": "Carbamazepina",
+    "drug2": "Imatinibe",
+    "risk_level": "moderate",
+    "risk_description": "Diminui níveis de imatinibe.",
+    "mechanism": "Indução do metabolismo hepático. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1286",
+    "drug1": "Carbamazepina",
+    "drug2": "Midazolam",
+    "risk_level": "moderate",
+    "risk_description": "Diminui níveis de midazolam.",
+    "mechanism": "Indução do CYP3A4. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1287",
+    "drug1": "Carbamazepina",
+    "drug2": "Sertralina",
+    "risk_level": "moderate",
+    "risk_description": "Diminui níveis de sertralina.",
+    "mechanism": "Indução do metabolismo hepático. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1288",
+    "drug1": "Carbamazepina",
+    "drug2": "Zonisamida",
+    "risk_level": "moderate",
+    "risk_description": "Diminui níveis de zonisamida.",
+    "mechanism": "Indução do metabolismo hepático. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1289",
+    "drug1": "Carbamazepina",
+    "drug2": "Ciclofosfamida",
+    "risk_level": "high",
+    "risk_description": "Aumenta toxicidade da ciclofosfamida (leucopenia).",
+    "mechanism": "Indução do CYP3A4, aumentando metabolismo do pró-fármaco. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1290",
+    "drug1": "Carbamazepina",
+    "drug2": "Rivaroxabana",
+    "risk_level": "high",
+    "risk_description": "Diminui níveis de rivaroxabana; evitar uso concomitante.",
+    "mechanism": "Indução do metabolismo hepático. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1291",
+    "drug1": "Carbamazepina",
+    "drug2": "Apixabana",
+    "risk_level": "high",
+    "risk_description": "Diminui níveis de apixabana; evitar uso concomitante.",
+    "mechanism": "Indução do metabolismo hepático. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1292",
+    "drug1": "Carbamazepina",
+    "drug2": "Dabigatrana",
+    "risk_level": "high",
+    "risk_description": "Diminui níveis de dabigatrana; evitar uso concomitante.",
+    "mechanism": "Indução do metabolismo hepático. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1293",
+    "drug1": "Carbamazepina",
+    "drug2": "Edoxabana",
+    "risk_level": "high",
+    "risk_description": "Diminui níveis de edoxabana; evitar uso concomitante.",
+    "mechanism": "Indução do metabolismo hepático. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1294",
+    "drug1": "Fosamprenavir",
+    "drug2": "Flecainida",
+    "risk_level": "critical",
+    "risk_description": "Contraindicado se coadministrado com ritonavir devido ao potencial de reações graves ou fatais, como arritmias cardíacas.",
+    "mechanism": "Aumento das concentrações dos antiarrítmicos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1295",
+    "drug1": "Fosamprenavir",
+    "drug2": "Lurasidona",
+    "risk_level": "critical",
+    "risk_description": "Contraindicado com fosamprenavir/ritonavir devido ao potencial de reações graves ou fatais.",
+    "mechanism": "Aumento das concentrações de lurasidona. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1296",
+    "drug1": "Fosamprenavir",
+    "drug2": "Pimozida",
+    "risk_level": "critical",
+    "risk_description": "Contraindicado devido ao potencial de reações graves ou fatais, como arritmias cardíacas.",
+    "mechanism": "Aumento das concentrações de pimozida. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1297",
+    "drug1": "Fosamprenavir",
+    "drug2": "Ritonavir",
+    "risk_level": "high",
+    "risk_description": "Não recomendado com fosamprenavir/ritonavir; doses apropriadas não estabelecidas.",
+    "mechanism": "Aumento previsto do paritaprevir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1298",
+    "drug1": "Fosamprenavir",
+    "drug2": "Efavirenz",
+    "risk_level": "high",
+    "risk_description": "Redução do amprenavir; doses apropriadas não estabelecidas; requer ajuste de ritonavir.",
+    "mechanism": "Indução do CYP3A4 pelo efavirenz, reduzindo as concentrações de amprenavir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1299",
+    "drug1": "Fosamprenavir",
+    "drug2": "Quetiapina",
+    "risk_level": "high",
+    "risk_description": "Com fosamprenavir/ritonavir: reduzir dose de quetiapina para 1/6 da dose atual; monitorar reações adversas.",
+    "mechanism": "Aumento das concentrações de quetiapina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1300",
+    "drug1": "Fosamprenavir",
+    "drug2": "Atazanavir",
+    "risk_level": "high",
+    "risk_description": "Com fosamprenavir/ritonavir: redução do atazanavir; doses apropriadas não estabelecidas.",
+    "mechanism": "Redução das concentrações de atazanavir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1301",
+    "drug1": "Fosamprenavir",
+    "drug2": "Indinavir",
+    "risk_level": "high",
+    "risk_description": "Aumento do amprenavir; efeito sobre indinavir e nelfinavir não bem estabelecido; doses apropriadas não estabelecidas.",
+    "mechanism": "Aumento das concentrações de amprenavir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1302",
+    "drug1": "Fosamprenavir",
+    "drug2": "Saquinavir",
+    "risk_level": "high",
+    "risk_description": "Redução do amprenavir; efeito sobre saquinavir não bem estabelecido; doses apropriadas não estabelecidas.",
+    "mechanism": "Redução das concentrações de amprenavir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1303",
+    "drug1": "Fosamprenavir",
+    "drug2": "Raltegravir",
+    "risk_level": "high",
+    "risk_description": "Redução de ambas as concentrações; doses apropriadas não estabelecidas.",
+    "mechanism": "Redução das concentrações de amprenavir e raltegravir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1304",
+    "drug1": "Fosamprenavir",
+    "drug2": "Dolutegravir",
+    "risk_level": "high",
+    "risk_description": "Redução do dolutegravir; recomenda-se 50 mg duas vezes ao dia com fosamprenavir/ritonavir.",
+    "mechanism": "Redução das concentrações de dolutegravir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1305",
+    "drug1": "AAS (Ácido Acetilsalicílico)",
+    "drug2": "Clordiazepóxido",
+    "risk_level": "high",
+    "risk_description": "Aumento da depressão do SNC.",
+    "mechanism": "Mecanismo: efeito aditivo de depressão do SNC. Conduta: evitar o uso concomitante ou monitorar rigorosamente o paciente quanto a sedação excessiva e depressão respiratória. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1306",
+    "drug1": "Bictegravir",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Pode diminuir as concentrações de BIC e TAF, levando à perda do efeito terapêutico e desenvolvimento de resistência.",
+    "mechanism": "Carbamazepina é um indutor de CYP3A e UGT1A1, diminuindo BIC, e indutor de P-gp, diminuindo TAF. Deve-se considerar o uso de anticonvulsivantes alternativos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1307",
+    "drug1": "Bictegravir",
+    "drug2": "Oxcarbazepina",
+    "risk_level": "high",
+    "risk_description": "Pode diminuir as concentrações de BIC e TAF, levando à perda do efeito terapêutico e desenvolvimento de resistência.",
+    "mechanism": "Oxcarbazepina é um indutor de CYP3A e UGT1A1, diminuindo BIC, e indutor de P-gp, diminuindo TAF. Deve-se considerar o uso de anticonvulsivantes alternativos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1308",
+    "drug1": "Bictegravir",
+    "drug2": "Fenobarbital",
+    "risk_level": "high",
+    "risk_description": "Pode diminuir as concentrações de BIC e TAF, levando à perda do efeito terapêutico e desenvolvimento de resistência.",
+    "mechanism": "Fenobarbital é um indutor de CYP3A e UGT1A1, diminuindo BIC, e indutor de P-gp, diminuindo TAF. Deve-se considerar o uso de anticonvulsivantes alternativos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1309",
+    "drug1": "Bictegravir",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Pode diminuir as concentrações de BIC e TAF, levando à perda do efeito terapêutico e desenvolvimento de resistência.",
+    "mechanism": "Fenitoína é um indutor de CYP3A e UGT1A1, diminuindo BIC, e indutor de P-gp, diminuindo TAF. Deve-se considerar o uso de anticonvulsivantes alternativos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1310",
+    "drug1": "Emtricitabina",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Pode diminuir as concentrações de BIC e TAF, levando à perda do efeito terapêutico e desenvolvimento de resistência.",
+    "mechanism": "Carbamazepina é um indutor de CYP3A e P-gp, reduzindo as concentrações de BIC e TAF. Deve-se considerar o uso de anticonvulsivantes alternativos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1311",
+    "drug1": "Emtricitabina",
+    "drug2": "Oxcarbazepina",
+    "risk_level": "high",
+    "risk_description": "Pode diminuir as concentrações de BIC e TAF, levando à perda do efeito terapêutico e desenvolvimento de resistência.",
+    "mechanism": "Oxcarbazepina é um indutor de CYP3A e P-gp, reduzindo as concentrações de BIC e TAF. Deve-se considerar o uso de anticonvulsivantes alternativos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1312",
+    "drug1": "Emtricitabina",
+    "drug2": "Fenobarbital",
+    "risk_level": "high",
+    "risk_description": "Pode diminuir as concentrações de BIC e TAF, levando à perda do efeito terapêutico e desenvolvimento de resistência.",
+    "mechanism": "Fenobarbital é um indutor de CYP3A e P-gp, reduzindo as concentrações de BIC e TAF. Deve-se considerar o uso de anticonvulsivantes alternativos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1313",
+    "drug1": "Emtricitabina",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Pode diminuir as concentrações de BIC e TAF, levando à perda do efeito terapêutico e desenvolvimento de resistência.",
+    "mechanism": "Fenitoína é um indutor de CYP3A e P-gp, reduzindo as concentrações de BIC e TAF. Deve-se considerar o uso de anticonvulsivantes alternativos. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1314",
+    "drug1": "Fenitoína",
+    "drug2": "Bleomicina",
+    "risk_level": "moderate",
+    "risk_description": "Podem diminuir os níveis séricos de fenitoína, reduzindo sua eficácia.",
+    "mechanism": "Indução do metabolismo hepático da fenitoína. Recomenda-se monitorar os níveis séricos de fenitoína e ajustar a dose conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1315",
+    "drug1": "Fenitoína",
+    "drug2": "Amprenavir",
+    "risk_level": "moderate",
+    "risk_description": "Podem diminuir os níveis séricos de fenitoína, reduzindo sua eficácia.",
+    "mechanism": "Indução do metabolismo hepático da fenitoína. Recomenda-se monitorar os níveis séricos de fenitoína e ajustar a dose conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1316",
+    "drug1": "Fenitoína",
+    "drug2": "Irinotecano",
+    "risk_level": "moderate",
+    "risk_description": "A eficácia destes antineoplásicos pode ser prejudicada pela fenitoína.",
+    "mechanism": "Indução do metabolismo hepático dos antineoplásicos pela fenitoína. Recomenda-se ajustar a dose dos antineoplásicos conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1317",
+    "drug1": "Fenitoína",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Podem ocorrer respostas aumentadas e diminuídas do PT/INR quando a fenitoína é coadministrada com varfarina.",
+    "mechanism": "Interação complexa envolvendo metabolismo e ligação proteica. Recomenda-se monitorar o PT/INR e ajustar a dose de varfarina conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1318",
+    "drug1": "Fenitoína",
+    "drug2": "Paroxetina",
+    "risk_level": "moderate",
+    "risk_description": "A eficácia destes medicamentos pode ser prejudicada pela fenitoína.",
+    "mechanism": "Indução do metabolismo hepático pela fenitoína. Recomenda-se ajustar a dose destes agentes conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1319",
+    "drug1": "Fenitoína",
+    "drug2": "Fosamprenavir",
+    "risk_level": "moderate",
+    "risk_description": "A fenitoína, quando administrada com fosamprenavir isoladamente, pode diminuir a concentração de amprenavir; quando administrada com a combinação de fosamprenavir e ritonavir, pode aumentar a concentração de amprenavir.",
+    "mechanism": "Interação complexa envolvendo indução e inibição do metabolismo. Recomenda-se monitorar e ajustar a dose conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1320",
+    "drug1": "Lamotrigina",
+    "drug2": "Lopinavir",
+    "risk_level": "high",
+    "risk_description": "Reduz a concentração de lamotrigina em aproximadamente 50%.",
+    "mechanism": "Indução da glucuronidação da lamotrigina. Ajuste de dose da lamotrigina é necessário conforme orientação na seção de Posologia e Administração. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1321",
+    "drug1": "Micofenolato de Sódio",
+    "drug2": "Azatioprina",
+    "risk_level": "high",
+    "risk_description": "Competição pelo metabolismo das purinas; a administração concomitante não é recomendada.",
+    "mechanism": "Mecanismo: inibição do metabolismo das purinas. Conduta: não administrar concomitantemente com azatioprina ou MMF. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1322",
+    "drug1": "Micofenolato de Sódio",
+    "drug2": "Ciclosporina",
+    "risk_level": "moderate",
+    "risk_description": "Pode diminuir as concentrações plasmáticas de MPA; ter cautela ao mudar de ciclosporina para outros medicamentos ou vice-versa.",
+    "mechanism": "Mecanismo: inibição da recirculação entero-hepática de MPA. Conduta: estar ciente da potencial alteração das concentrações de MPA ao trocar de ciclosporina para outros imunossupressores ou vice-versa. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1323",
+    "drug1": "Ácido Valpróico",
+    "drug2": "AAS (Ácido Acetilsalicílico)",
+    "risk_level": "high",
+    "risk_description": "Aumenta a fração livre do valproato e inibe seu metabolismo, elevando o risco de toxicidade.",
+    "mechanism": "O ácido acetilsalicílico em doses antipiréticas (11 a 16 mg/kg) reduz a ligação proteica e inibe o metabolismo do valproato, aumentando a fração livre em 4 vezes. Precaução deve ser observada na coadministração. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1324",
+    "drug1": "Ácido Valpróico",
+    "drug2": "Diazepam",
+    "risk_level": "high",
+    "risk_description": "Aumento significativo da fração livre de diazepam, com redução de sua depuração e volume de distribuição, elevando o risco de sedação excessiva.",
+    "mechanism": "O valproato desloca o diazepam dos sítios de ligação à albumina e inibe seu metabolismo. A fração livre de diazepam aumentou 90% em voluntários saudáveis. Monitorar sinais de sedação e considerar ajuste de dose. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1325",
+    "drug1": "Ácido Valpróico",
+    "drug2": "Lamotrigina",
+    "risk_level": "critical",
+    "risk_description": "Aumento expressivo da meia-vida da lamotrigina (165%), com risco de reações cutâneas graves (Síndrome de Stevens-Johnson e necrólise epidérmica tóxica).",
+    "mechanism": "O valproato inibe o metabolismo da lamotrigina, aumentando sua meia-vida de 26 para 70 horas. A dose de lamotrigina deve ser reduzida na coadministração. Consultar a bula da lamotrigina para detalhes de dosagem. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1326",
+    "drug1": "Ácido Valpróico",
+    "drug2": "Varfarina",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da fração livre de varfarina in vitro, com potencial para aumento do efeito anticoagulante.",
+    "mechanism": "Em estudo in vitro, o valproato aumentou a fração livre de varfarina. A relevância clínica desse deslocamento é desconhecida, mas pode ser necessário ajuste de dose. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1327",
+    "drug1": "Ácido Valpróico",
+    "drug2": "Zidovudina",
+    "risk_level": "moderate",
+    "risk_description": "Pode ser necessário ajuste de dose de zidovudina quando usada concomitantemente com ácido valproico.",
+    "mechanism": "Ajuste de dose de zidovudina pode ser necessário se usada concomitantemente com ácido valproico, conforme mencionado no texto. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1328",
+    "drug1": "Ácido Valpróico",
+    "drug2": "Amitriptilina",
+    "risk_level": "high",
+    "risk_description": "Redução da depuração plasmática de amitriptilina e nortriptilina, com risco de toxicidade.",
+    "mechanism": "Administração de valproato com amitriptilina resultou em diminuição da depuração de ambos. Raros relatos de toxicidade. Monitorar níveis de amitriptilina e considerar redução da dose de amitriptilina/nortriptilina. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1329",
+    "drug1": "Ácido Valpróico",
+    "drug2": "Clonazepam",
+    "risk_level": "high",
+    "risk_description": "Pode induzir estado de ausência em pacientes com histórico de crises de ausência.",
+    "mechanism": "O uso concomitante de valproato e clonazepam pode induzir estado de ausência em pacientes com histórico de crises de ausência. Monitorar neurologicamente. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1330",
+    "drug1": "Ácido Valpróico",
+    "drug2": "Primidona",
+    "risk_level": "high",
+    "risk_description": "Interação similar à do fenobarbital, com risco de depressão do SNC.",
+    "mechanism": "A primidona é metabolizada a um barbitúrico e pode estar envolvida em interação similar com o valproato. Monitorar toxicidade neurológica e ajustar dose conforme necessário. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1331",
+    "drug1": "Ácido Valpróico",
+    "drug2": "Rufinamida",
+    "risk_level": "moderate",
+    "risk_description": "Aumento das concentrações de rufinamida, especialmente em pacientes pediátricos com altas doses de valproato.",
+    "mechanism": "A depuração de rufinamida é reduzida pelo valproato, aumentando suas concentrações em <16% a 70%. Pacientes estabilizados em rufinamida devem iniciar valproato em dose baixa e titular. Pacientes em valproato devem iniciar rufinamida em dose inferior a 10 mg/kg/dia (pediátricos) ou 400 mg/dia (adultos). (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1332",
+    "drug1": "Darunavir",
+    "drug2": "Lopinavir",
+    "risk_level": "high",
+    "risk_description": "Redução da concentração de darunavir.",
+    "mechanism": "Indução do CYP3A. Co-administração não recomendada. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1333",
+    "drug1": "Efavirenz",
+    "drug2": "Lopinavir",
+    "risk_level": "high",
+    "risk_description": "Diminuição da concentração de lopinavir.",
+    "mechanism": "Indução do CYP3A. Dose única diária não recomendada; aumentar dose de lopinavir/ritonavir conforme bula do produto. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1334",
+    "drug1": "Lopinavir",
+    "drug2": "Amprenavir",
+    "risk_level": "high",
+    "risk_description": "Aumento de reações adversas com coadministração.",
+    "mechanism": "Inibição do CYP3A pelo lopinavir/ritonavir. Doses apropriadas não estabelecidas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1335",
+    "drug1": "Lopinavir",
+    "drug2": "Indinavir",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de indinavir.",
+    "mechanism": "Inibição do CYP3A. Reduzir dose de indinavir para 600 mg duas vezes ao dia. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1336",
+    "drug1": "Lopinavir",
+    "drug2": "Nelfinavir",
+    "risk_level": "high",
+    "risk_description": "Aumento de nelfinavir e metabólito M8; redução de lopinavir.",
+    "mechanism": "Inibição do CYP3A. Não recomendado uso uma vez ao dia com nelfinavir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1337",
+    "drug1": "Lopinavir",
+    "drug2": "Ritonavir",
+    "risk_level": "moderate",
+    "risk_description": "Aumento da concentração de lopinavir.",
+    "mechanism": "Inibição do CYP3A. Doses adicionais de ritonavir não estabelecidas. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1338",
+    "drug1": "Lopinavir",
+    "drug2": "Saquinavir",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de saquinavir.",
+    "mechanism": "Inibição do CYP3A. Dose de saquinavir: 1000 mg duas vezes ao dia. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1339",
+    "drug1": "Lopinavir",
+    "drug2": "Nevirapina",
+    "risk_level": "high",
+    "risk_description": "Redução da concentração de lopinavir.",
+    "mechanism": "Indução do CYP3A. Aumentar dose de lopinavir/ritonavir para 500/125 mg. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1340",
+    "drug1": "Lopinavir",
+    "drug2": "Didanosina",
+    "risk_level": "moderate",
+    "risk_description": "Interação com administração de solução oral.",
+    "mechanism": "Didanosina deve ser administrada com estômago vazio; separar 1h antes ou 2h após solução oral. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1341",
+    "drug1": "Lopinavir",
+    "drug2": "Tenofovir",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de tenofovir.",
+    "mechanism": "Inibição do CYP3A. Monitorar reações adversas associadas ao tenofovir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1342",
+    "drug1": "Lopinavir",
+    "drug2": "Abacavir",
+    "risk_level": "moderate",
+    "risk_description": "Redução da concentração de abacavir.",
+    "mechanism": "Indução da glucuronidação. Significância clínica desconhecida. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1343",
+    "drug1": "Lopinavir",
+    "drug2": "Zidovudina",
+    "risk_level": "moderate",
+    "risk_description": "Redução da concentração de zidovudina.",
+    "mechanism": "Indução da glucuronidação. Significância clínica desconhecida. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1344",
+    "drug1": "Lopinavir",
+    "drug2": "Dronedarona",
+    "risk_level": "critical",
+    "risk_description": "Aumento da concentração de dronedarona; risco de arritmias cardíacas.",
+    "mechanism": "Inibição do CYP3A. Contraindicado. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1345",
+    "drug1": "Lopinavir",
+    "drug2": "Amiodarona",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de antiarrítmicos.",
+    "mechanism": "Inibição do CYP3A. Monitorar concentração terapêutica. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1346",
+    "drug1": "Lopinavir",
+    "drug2": "Abemaciclibe",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de abemaciclib.",
+    "mechanism": "Inibição do CYP3A. Evitar coadministração. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1347",
+    "drug1": "Lopinavir",
+    "drug2": "Apalutamida",
+    "risk_level": "critical",
+    "risk_description": "Redução de lopinavir/ritonavir; risco de perda de resposta virológica.",
+    "mechanism": "Indução do CYP3A. Contraindicado. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1348",
+    "drug1": "Lopinavir",
+    "drug2": "Ibrutinibe",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de ibrutinibe.",
+    "mechanism": "Inibição do CYP3A. Evitar uso com lopinavir/ritonavir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1349",
+    "drug1": "Lopinavir",
+    "drug2": "Dasatinibe",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de dasatinibe.",
+    "mechanism": "Inibição do CYP3A. Ajustar dose de dasatinibe conforme bula. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1350",
+    "drug1": "Lopinavir",
+    "drug2": "Nilotinibe",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de nilotinibe.",
+    "mechanism": "Inibição do CYP3A. Ajustar dose de nilotinibe conforme bula. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1351",
+    "drug1": "Lopinavir",
+    "drug2": "Venetoclax",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de venetoclax.",
+    "mechanism": "Inibição do CYP3A. Evitar uso com lopinavir/ritonavir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1352",
+    "drug1": "Lopinavir",
+    "drug2": "Vimblastina",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de vimblastina.",
+    "mechanism": "Inibição do CYP3A. Considerar suspensão temporária do regime antirretroviral. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1353",
+    "drug1": "Lopinavir",
+    "drug2": "Vincristina",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de vincristina.",
+    "mechanism": "Inibição do CYP3A. Considerar suspensão temporária do regime antirretroviral. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1354",
+    "drug1": "Lopinavir",
+    "drug2": "Varfarina",
+    "risk_level": "high",
+    "risk_description": "Concentrações de varfarina podem ser afetadas (aumento ou redução).",
+    "mechanism": "Inibição/indução do CYP3A. Monitorar INR frequentemente. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1355",
+    "drug1": "Lopinavir",
+    "drug2": "Rivaroxabana",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de rivaroxabana; risco de sangramento.",
+    "mechanism": "Inibição do CYP3A. Evitar uso concomitante. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1356",
+    "drug1": "Lopinavir",
+    "drug2": "Carbamazepina",
+    "risk_level": "high",
+    "risk_description": "Redução da concentração de lopinavir.",
+    "mechanism": "Indução do CYP3A. Usar com cautela; não recomendado uma vez ao dia. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1357",
+    "drug1": "Lopinavir",
+    "drug2": "Fenobarbital",
+    "risk_level": "high",
+    "risk_description": "Redução da concentração de lopinavir.",
+    "mechanism": "Indução do CYP3A. Usar com cautela; não recomendado uma vez ao dia. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1358",
+    "drug1": "Lopinavir",
+    "drug2": "Fenitoína",
+    "risk_level": "high",
+    "risk_description": "Redução de lopinavir e fenitoína.",
+    "mechanism": "Indução do CYP3A. Monitorar níveis de fenitoína. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1359",
+    "drug1": "Lopinavir",
+    "drug2": "Valproato de Sódio",
+    "risk_level": "moderate",
+    "risk_description": "Redução ou manutenção da concentração de valproato.",
+    "mechanism": "Indução da glucuronidação. Pode ser necessário aumentar dose de valproato. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1360",
+    "drug1": "Lopinavir",
+    "drug2": "Bupropiona",
+    "risk_level": "high",
+    "risk_description": "Redução da concentração de bupropiona e metabólito ativo.",
+    "mechanism": "Indução da glucuronidação. Monitorar resposta clínica à bupropiona. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1361",
+    "drug1": "Lopinavir",
+    "drug2": "Trazodona",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de trazodona; risco de náusea, tontura, hipotensão e síncope.",
+    "mechanism": "Inibição do CYP3A. Considerar dose menor de trazodona. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1362",
+    "drug1": "Lopinavir",
+    "drug2": "Lurasidona",
+    "risk_level": "critical",
+    "risk_description": "Aumento da concentração de lurasidona; risco de reações graves.",
+    "mechanism": "Inibição do CYP3A. Contraindicado. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1363",
+    "drug1": "Lopinavir",
+    "drug2": "Pimozida",
+    "risk_level": "critical",
+    "risk_description": "Aumento da concentração de pimozida; risco de arritmias cardíacas.",
+    "mechanism": "Inibição do CYP3A. Contraindicado. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1364",
+    "drug1": "Lopinavir",
+    "drug2": "Quetiapina",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de quetiapina.",
+    "mechanism": "Inibição do CYP3A. Reduzir dose de quetiapina para 1/6 da dose atual. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1365",
+    "drug1": "Lopinavir",
+    "drug2": "Ciclosporina",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de ciclosporina.",
+    "mechanism": "Inibição do CYP3A. Monitorar concentração terapêutica. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1366",
+    "drug1": "Lopinavir",
+    "drug2": "Tacrolimo",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de tacrolimo.",
+    "mechanism": "Inibição do CYP3A. Monitorar concentração terapêutica. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1367",
+    "drug1": "Lopinavir",
+    "drug2": "Sirolimo",
+    "risk_level": "high",
+    "risk_description": "Aumento da concentração de sirolimo.",
+    "mechanism": "Inibição do CYP3A. Monitorar concentração terapêutica. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1368",
+    "drug1": "Fosamprenavir",
+    "drug2": "Lopinavir",
+    "risk_level": "high",
+    "risk_description": "Doses apropriadas não estabelecidas; aumento de eventos adversos observado.",
+    "mechanism": "Redução de ambas as concentrações de amprenavir e lopinavir. (Fonte: bula FDA)"
+  },
+  {
+    "id": "int_1369",
+    "drug1": "Bevacizumabe (oncológico)",
+    "drug2": "Paclitaxel",
+    "risk_level": "moderate",
+    "risk_description": "Pode haver redução na exposição ao paclitaxel após múltiplos ciclos de tratamento combinado com bevacizumabe.",
+    "mechanism": "Mecanismo não especificado. Monitorar a exposição ao paclitaxel durante o tratamento combinado, especialmente após ciclos repetidos. (Fonte: bula FDA)"
   }
 ]

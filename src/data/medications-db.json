@@ -3486,7 +3486,8 @@
         "Salicetil",
         "Dormec",
         "Lfm - Acido Acetil Salicilico",
-        "Febridor"
+        "Febridor",
+        "AAS Infantil"
       ],
       "category": "Antiagregante/Analgésico",
       "rxcui": "1191"
@@ -8911,7 +8912,12 @@
       "brands": [
         "Genotropin",
         "Saizen",
-        "Biomatrop"
+        "Biomatrop",
+        "Eutropin",
+        "Hormotrop",
+        "Norditropin SimpleXx™",
+        "Norditropin- 4 UI e 12UI",
+        "Omnitrope"
       ],
       "category": "Hormônio",
       "rxcui": "61148"
@@ -10325,7 +10331,9 @@
       "genericName": "Vitamina E (Tocoferol)",
       "brands": [
         "E-Vit",
-        "Bio E"
+        "Bio E",
+        "Ephynal",
+        "Teutovit E"
       ],
       "category": "Vitamina",
       "rxcui": "11256"
@@ -10811,14 +10819,24 @@
     {
       "genericName": "Hypericum perforatum (Erva de São João)",
       "brands": [
-        "St. John's Wort"
+        "St. John's Wort",
+        "Hipericin",
+        "Hipérico Herbarium",
+        "Hyperium"
       ],
       "category": "Fitoterápico",
       "rxcui": "258326"
     },
     {
       "genericName": "Passiflora incarnata (Maracujá)",
-      "brands": [],
+      "brands": [
+        "MARACUJÁ HERBARIUM",
+        "Maracugina PI",
+        "PASSIFLORINE Solução",
+        "Sosseg",
+        "PASSIFLORINE Drágeas",
+        "Seakalm"
+      ],
       "category": "Fitoterápico",
       "rxcui": "1309979"
     },
@@ -10868,7 +10886,8 @@
     {
       "genericName": "Panax ginseng (Ginseng)",
       "brands": [
-        "Ginseng americano"
+        "Ginseng americano",
+        "GINSENG REFORÇADO"
       ],
       "category": "Fitoterápico",
       "rxcui": "259470"
@@ -10878,7 +10897,11 @@
       "brands": [
         "Valdispert",
         "Valeriol",
-        "Valerien"
+        "Valerien",
+        "Valerance",
+        "Valeriane",
+        "Valerimed",
+        "Valerinati"
       ],
       "category": "Fitoterápico",
       "rxcui": "1537753"
@@ -10924,7 +10947,8 @@
     {
       "genericName": "Melissa officinalis (Erva Cidreira)",
       "brands": [
-        "Lemon Balm"
+        "Lemon Balm",
+        "Água de Melissa"
       ],
       "category": "Fitoterápico",
       "rxcui": "1311497"
@@ -10948,7 +10972,9 @@
     },
     {
       "genericName": "Maytenus ilicifolia (Espinheira Santa)",
-      "brands": [],
+      "brands": [
+        "Espinheira Santa Herbarium"
+      ],
       "category": "Fitoterápico",
       "rxcui": "2123365"
     },
@@ -10971,41 +10997,51 @@
     },
     {
       "genericName": "Cynara scolymus (Alcachofra)",
-      "brands": [],
+      "brands": [
+        "CHOPHYTOL Gotas e Drágeas"
+      ],
       "category": "Fitoterápico",
       "rxcui": "1809830"
     },
     {
       "genericName": "Matricaria recutita (Camomila)",
       "brands": [
-        "Camomila Sachê"
+        "Camomila Sachê",
+        "Camomilina C"
       ],
       "category": "Fitoterápico",
       "rxcui": "285157"
     },
     {
       "genericName": "Rhamnus purshiana (Cáscara Sagrada)",
-      "brands": [],
+      "brands": [
+        "Cáscara Sagrada Herbarium"
+      ],
       "category": "Fitoterápico",
       "rxcui": "1350209"
     },
     {
       "genericName": "Aesculus hippocastanum (Castanha da Índia)",
       "brands": [
-        "Escina"
+        "Escina",
+        "Castanha da Índia Atalaia",
+        "Castanha da Índia Herbarium"
       ],
       "category": "Fitoterápico"
     },
     {
       "genericName": "Centella asiatica (Centella Asiática)",
-      "brands": [],
+      "brands": [
+        "Centella Herbarium"
+      ],
       "category": "Fitoterápico",
       "rxcui": "1310164"
     },
     {
       "genericName": "Cimicifuga racemosa (Cimicífuga)",
       "brands": [
-        "Black Cohosh"
+        "Black Cohosh",
+        "CIMICIFUGA HERBARIUM"
       ],
       "category": "Fitoterápico",
       "rxcui": "236665"
@@ -11296,13 +11332,6 @@
       ],
       "category": "Anti-hipertensivo",
       "rxcui": "5487"
-    },
-    {
-      "genericName": "Ácido Acetilsalicílico",
-      "brands": [
-        "AAS Infantil"
-      ],
-      "category": "Analgésico"
     },
     {
       "genericName": "Quinapril",
@@ -12278,14 +12307,6 @@
       "category": "Urológico"
     },
     {
-      "genericName": "Vitamina E",
-      "brands": [
-        "Ephynal",
-        "Teutovit E"
-      ],
-      "category": "Vitamina"
-    },
-    {
       "genericName": "Adapaleno + Peróxido de benzoíla",
       "brands": [
         "Epiduo"
@@ -12347,17 +12368,6 @@
         "Hypnomidate"
       ],
       "category": "Anestésico"
-    },
-    {
-      "genericName": "Somatropina",
-      "brands": [
-        "Eutropin",
-        "Hormotrop",
-        "Norditropin SimpleXx™",
-        "Norditropin- 4 UI e 12UI",
-        "Omnitrope"
-      ],
-      "category": "Hormônio"
     },
     {
       "genericName": "Ácido Acetilsalicílico + Cafeína + Paracetamol",
@@ -14475,42 +14485,6 @@
       "category": "Suplemento"
     },
     {
-      "genericName": "Cynara scolymus",
-      "brands": [
-        "CHOPHYTOL Gotas e Drágeas"
-      ],
-      "category": "Fitoterápico"
-    },
-    {
-      "genericName": "Cimicifuga racemosa",
-      "brands": [
-        "CIMICIFUGA HERBARIUM"
-      ],
-      "category": "Fitoterápico"
-    },
-    {
-      "genericName": "Aesculus hippocastanum",
-      "brands": [
-        "Castanha da Índia Atalaia",
-        "Castanha da Índia Herbarium"
-      ],
-      "category": "Fitoterápico"
-    },
-    {
-      "genericName": "Centella asiatica",
-      "brands": [
-        "Centella Herbarium"
-      ],
-      "category": "Fitoterápico"
-    },
-    {
-      "genericName": "Rhamnus purshiana",
-      "brands": [
-        "Cáscara Sagrada Herbarium"
-      ],
-      "category": "Fitoterápico"
-    },
-    {
       "genericName": "Eucaliptol",
       "brands": [
         "EUCALIPTOL"
@@ -14526,23 +14500,9 @@
       "category": "Vitamina"
     },
     {
-      "genericName": "Maytenus ilicifolia",
-      "brands": [
-        "Espinheira Santa Herbarium"
-      ],
-      "category": "Fitoterápico"
-    },
-    {
       "genericName": "Pfaffia paniculata",
       "brands": [
         "GINSENG BRASILEIRO HERBARIUM"
-      ],
-      "category": "Fitoterápico"
-    },
-    {
-      "genericName": "Panax ginseng",
-      "brands": [
-        "GINSENG REFORÇADO"
       ],
       "category": "Fitoterápico"
     },
@@ -14551,15 +14511,6 @@
       "brands": [
         "Garra do Diabo Herbarium",
         "Artroflan"
-      ],
-      "category": "Fitoterápico"
-    },
-    {
-      "genericName": "Hypericum perforatum",
-      "brands": [
-        "Hipericin",
-        "Hipérico Herbarium",
-        "Hyperium"
       ],
       "category": "Fitoterápico"
     },
@@ -14585,18 +14536,6 @@
         "LEVEDURA DE CERVEJA"
       ],
       "category": "Suplemento"
-    },
-    {
-      "genericName": "Passiflora incarnata",
-      "brands": [
-        "MARACUJÁ HERBARIUM",
-        "Maracugina PI",
-        "PASSIFLORINE Solução",
-        "Sosseg",
-        "PASSIFLORINE Drágeas",
-        "Seakalm"
-      ],
-      "category": "Fitoterápico"
     },
     {
       "genericName": "Dimenidrinato + Piridoxina",
@@ -14626,23 +14565,6 @@
         "TAURARGIN"
       ],
       "category": "Suplemento"
-    },
-    {
-      "genericName": "Valeriana officinalis",
-      "brands": [
-        "Valerance",
-        "Valeriane",
-        "Valerimed",
-        "Valerinati"
-      ],
-      "category": "Fitoterápico"
-    },
-    {
-      "genericName": "Melissa officinalis",
-      "brands": [
-        "Água de Melissa"
-      ],
-      "category": "Fitoterápico"
     },
     {
       "genericName": "Vitamina A",
@@ -15917,13 +15839,6 @@
       "genericName": "Catuaba",
       "brands": [
         "CATUABA NATURAL IMA"
-      ],
-      "category": "Fitoterápico"
-    },
-    {
-      "genericName": "Matricaria recutita",
-      "brands": [
-        "Camomilina C"
       ],
       "category": "Fitoterápico"
     },
