@@ -34,6 +34,19 @@ export function cancelSimpleNotification(notifId: number): void {
   MedNotification?.cancelSimpleNotification(notifId)?.catch?.(() => {});
 }
 
+// Agenda do banner "Próximo medicamento": JSON de [{ ms, title, body }] com as doses de
+// hoje. O nativo posta a próxima e reagenda um alarme exato em cada horário para avançar
+// o banner sozinho (mesmo com o app fechado). Passar "[]" limpa o banner.
+export function setNextMedSchedule(scheduleJson: string): void {
+  if (Platform.OS !== 'android') return;
+  MedNotification?.setNextMedSchedule?.(scheduleJson)?.catch?.(() => {});
+}
+
+export function cancelNextMedBanner(): void {
+  if (Platform.OS !== 'android') return;
+  MedNotification?.cancelNextMedBanner?.()?.catch?.(() => {});
+}
+
 // O card de emergência é ongoing, mas o Samsung o remove ao chegar um heads-up. Sem
 // checar a presença real, a assinatura em cache faz o app achar que ainda está na tela
 // e nunca repostar. undefined (método ausente em build antigo) → assume ativo.

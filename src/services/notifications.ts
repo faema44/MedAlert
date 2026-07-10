@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { Profile, Medication, MedicationReminder, ActivityReminder } from '../types';
-import { postMedNotification, cancelMedNotification, postSimpleNotification, cancelSimpleNotification, isEmergencyActive } from './medNotification';
+import { postMedNotification, cancelMedNotification, isEmergencyActive, setNextMedSchedule, cancelNextMedBanner } from './medNotification';
 import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity, getContacts, getKV, setKV, addMedicationLowStockLog } from '../database/db';
 import { isPhytotherapic } from '../utils/drugSearch';
 
@@ -257,7 +257,7 @@ export function nextReminderInfo(reminders: MedicationReminder[]): ReminderInfo 
 
 async function clearEmergency(): Promise<void> {
   try { cancelMedNotification(); } catch {}
-  try { cancelSimpleNotification(NEXT_MED_NATIVE_ID); } catch {}
+  try { cancelNextMedBanner(); } catch {}
   for (const id of [NOTIF_ID, 'emergency_lockscreen', 'emergency_detail', 'emergency_persistent']) {
     try { await Notifications.cancelScheduledNotificationAsync(id); } catch {}
     try { await Notifications.dismissNotificationAsync(id); } catch {}
@@ -297,29 +297,50 @@ async function scheduleEmergencyRepostSeriesIOS(title: string, bigText: string):
   }
 }
 
-// Banner separado com o próximo medicamento de hoje. Notificação nativa (não Expo) para
-// poder usar setShowWhen(false) — sem isso o Android sempre mostra o carimbo de quando
-// a notificação foi postada, que confunde com o horário do remédio escrito no corpo.
-// Ongoing (não dá para dispensar por engano); atualizada in-place pelo mesmo id; some
-// quando não há mais dose hoje. Assinatura própria em KV evita repost igual.
-async function updateNextMedNotification(
-  nextMed: { name: string; label: string; critical: boolean } | null
-): Promise<void> {
-  const signature = nextMed ? `${nextMed.name}|${nextMed.label}|${nextMed.critical}` : '';
-  const lastSignature = await getKV(NEXT_MED_SIGNATURE_KV).catch(() => null);
-  if (lastSignature === signature) return;
-
-  if (nextMed) {
-    postSimpleNotification(
-      'Próximo medicamento',
-      `${nextMed.critical ? '⚠️' : '💊'} ${nextMed.name} · ${nextMed.label}`,
-      NEXT_MED_CHANNEL,
-      NEXT_MED_NATIVE_ID,
-    );
-  } else {
-    cancelSimpleNotification(NEXT_MED_NATIVE_ID);
+// Todos os horários de HOJE ainda futuros dos lembretes de um medicamento. Diferente de
+// nextReminderInfo (que dá só a próxima ocorrência), aqui expandimos cada dose do dia para
+// o banner poder AVANÇAR sozinho ao longo do dia. nmonths (a cada N meses) fica de fora do
+// banner — é raro e a cadência não cabe numa checagem simples; o lembrete em si segue normal.
+function medDosesToday(reminders: MedicationReminder[], now: Date, todayEndMs: number): number[] {
+  const y = now.getFullYear(), mo = now.getMonth(), d = now.getDate();
+  const todayWd = now.getDay() + 1; // 1=Dom…7=Sáb
+  const nowMs = now.getTime();
+  const out: number[] = [];
+  for (const r of reminders) {
+    if (!r.is_active) continue;
+    const [h, m] = r.time.split(':').map(Number);
+    if (isNaN(h) || isNaN(m)) continue;
+    const p = r.period || 'day';
+    let occursToday = false;
+    if (p === 'day') occursToday = true;
+    else if (p.startsWith('week:')) occursToday = p.split(':')[1].split(',').map(Number).includes(todayWd);
+    else if (p.startsWith('month:')) occursToday = p.split(':')[1].split(',').map(Number).includes(d);
+    if (!occursToday) continue;
+    const ms = new Date(y, mo, d, h, m, 0, 0).getTime();
+    if (ms > nowMs && ms <= todayEndMs) out.push(ms);
   }
-  await setKV(NEXT_MED_SIGNATURE_KV, signature).catch(() => {});
+  return out;
+}
+
+// O banner "Próximo medicamento" é uma notificação nativa fixa (id 1002). Antes era
+// recalculado só na abertura do app, então ficava preso mostrando a dose que já venceu.
+// Agora mandamos ao nativo a agenda de todas as doses de hoje; ele posta a próxima e
+// reagenda um alarme exato em cada horário para AVANÇAR/limpar o banner sozinho, mesmo
+// com o app fechado. Android apenas (no iOS não há notificação ongoing).
+async function updateNextMedBanner(
+  doses: { ms: number; name: string; critical: boolean }[]
+): Promise<void> {
+  if (Platform.OS !== 'android') return;
+  const schedule = doses.map(x => {
+    const t = new Date(x.ms);
+    const label = `hoje às ${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`;
+    return {
+      ms: x.ms,
+      title: 'Próximo medicamento',
+      body: `${x.critical ? '⚠️' : '💊'} ${x.name} · ${label}`,
+    };
+  });
+  setNextMedSchedule(JSON.stringify(schedule));
 }
 
 export function calculateAge(birthDate: string): number | null {
@@ -406,20 +427,20 @@ export async function updateEmergencyNotification(
   // Esses dados só aparecem quando o usuário expande manualmente (privacidade).
   const title = 'Informações Médicas';
 
-  // Próximo lembrete do dia — vai para um banner separado (updateNextMedNotification),
-  // fora da ficha fixa de emergência.
+  // Próximo lembrete do dia — vai para um banner separado (updateNextMedBanner),
+  // fora da ficha fixa de emergência. Expande todas as doses de hoje para o nativo
+  // avançar o banner em cada horário.
+  const now = new Date();
   const todayEnd = new Date();
   todayEnd.setHours(23, 59, 59, 999);
-  const upcoming: { sortMs: number; name: string; label: string; critical: boolean }[] = [];
+  const doses: { ms: number; name: string; critical: boolean }[] = [];
   meds8.forEach((m, idx) => {
-    const info = nextReminderInfo(medReminders[idx] ?? []);
-    if (info && info.sortMs <= todayEnd.getTime()) {
-      upcoming.push({ name: m.commercial_name?.trim() || m.generic_name, label: info.label, sortMs: info.sortMs, critical: m.is_critical });
+    for (const ms of medDosesToday(medReminders[idx] ?? [], now, todayEnd.getTime())) {
+      doses.push({ ms, name: m.commercial_name?.trim() || m.generic_name, critical: m.is_critical });
     }
   });
-  upcoming.sort((a, b) => a.sortMs - b.sortMs);
-  const nextMed = upcoming[0] ?? null;
-  await updateNextMedNotification(nextMed);
+  doses.sort((a, b) => a.ms - b.ms);
+  await updateNextMedBanner(doses);
 
   // Colapsado mostra só o título (privacidade) — dados apenas ao expandir.
   const contentText = '';

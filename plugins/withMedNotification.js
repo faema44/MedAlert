@@ -108,6 +108,29 @@ class MedNotificationModule(private val reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
+    fun setNextMedSchedule(scheduleJson: String, promise: Promise) {
+        try {
+            reactContext.getSharedPreferences("MedAlertNotif", Context.MODE_PRIVATE).edit()
+                .putString("next_med_schedule", scheduleJson)
+                .apply()
+            NextMedReceiver.refresh(reactContext)
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("ERR_NEXTMED", e.message)
+        }
+    }
+
+    @ReactMethod
+    fun cancelNextMedBanner(promise: Promise) {
+        try {
+            NextMedReceiver.cancelBanner(reactContext)
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("ERR_NEXTMED", e.message)
+        }
+    }
+
+    @ReactMethod
     fun isEmergencyActive(promise: Promise) {
         try {
             val nm = reactContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -173,6 +196,8 @@ class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action ?: return
         if (action != Intent.ACTION_BOOT_COMPLETED && action != "android.intent.action.QUICKBOOT_POWERON") return
+
+        NextMedReceiver.refresh(context)
 
         val prefs = context.getSharedPreferences("MedAlertNotif", Context.MODE_PRIVATE)
         if (!prefs.getBoolean("alert_active", false)) return
@@ -272,6 +297,104 @@ class NotifRefreshReceiver : BroadcastReceiver() {
 }
 `;
 
+const NEXT_MED_RECEIVER_KT = `package com.alertamedico.app
+
+import android.app.AlarmManager
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import androidx.core.app.NotificationCompat
+import org.json.JSONArray
+
+class NextMedReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        refresh(context)
+    }
+
+    companion object {
+        const val NEXT_MED_ID = 1002
+        private const val CHANNEL = "medalert_next_med_v1"
+        private const val PREF_KEY = "next_med_schedule"
+
+        fun refresh(context: Context) {
+            val prefs = context.getSharedPreferences("MedAlertNotif", Context.MODE_PRIVATE)
+            val json = prefs.getString(PREF_KEY, null)
+            val now = System.currentTimeMillis()
+            val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+            var atMs = 0L
+            var title: String? = null
+            var body: String? = null
+            if (json != null) {
+                try {
+                    val arr = JSONArray(json)
+                    for (i in 0 until arr.length()) {
+                        val o = arr.getJSONObject(i)
+                        val ms = o.getLong("ms")
+                        if (ms > now) { atMs = ms; title = o.getString("title"); body = o.getString("body"); break }
+                    }
+                } catch (e: Exception) {}
+            }
+
+            if (title == null) {
+                nm.cancel(NEXT_MED_ID)
+                cancelAlarm(context)
+                return
+            }
+
+            val n = NotificationCompat.Builder(context, CHANNEL)
+                .setSmallIcon(R.drawable.notification_icon)
+                .setContentTitle(title)
+                .setContentText(body)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setShowWhen(false)
+                .setOnlyAlertOnce(true)
+                .build()
+            nm.notify(NEXT_MED_ID, n)
+
+            scheduleAt(context, atMs)
+        }
+
+        fun cancelBanner(context: Context) {
+            context.getSharedPreferences("MedAlertNotif", Context.MODE_PRIVATE)
+                .edit().remove(PREF_KEY).apply()
+            val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            nm.cancel(NEXT_MED_ID)
+            cancelAlarm(context)
+        }
+
+        private fun pendingIntent(context: Context, flag: Int): PendingIntent =
+            PendingIntent.getBroadcast(
+                context, 9002,
+                Intent(context, NextMedReceiver::class.java),
+                flag or PendingIntent.FLAG_IMMUTABLE
+            )
+
+        private fun scheduleAt(context: Context, triggerMs: Long) {
+            val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val pi = pendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT)
+            try {
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMs, pi)
+            } catch (e: SecurityException) {
+                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMs, pi)
+            }
+        }
+
+        private fun cancelAlarm(context: Context) {
+            val pi = pendingIntent(context, PendingIntent.FLAG_NO_CREATE) ?: return
+            val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            am.cancel(pi)
+            pi.cancel()
+        }
+    }
+}
+`;
+
 function withKotlinFiles(config) {
   return withDangerousMod(config, [
     'android',
@@ -285,6 +408,7 @@ function withKotlinFiles(config) {
       fs.writeFileSync(path.join(javaDir, 'MedNotificationPackage.kt'), PACKAGE_KT);
       fs.writeFileSync(path.join(javaDir, 'BootReceiver.kt'), BOOT_RECEIVER_KT);
       fs.writeFileSync(path.join(javaDir, 'NotifRefreshReceiver.kt'), NOTIF_REFRESH_RECEIVER_KT);
+      fs.writeFileSync(path.join(javaDir, 'NextMedReceiver.kt'), NEXT_MED_RECEIVER_KT);
 
       const mainAppPath = path.join(javaDir, 'MainApplication.kt');
       let src = fs.readFileSync(mainAppPath, 'utf8');
@@ -329,6 +453,12 @@ function withBootReceiver(config) {
     if (!application.receiver.some(r => r.$?.['android:name'] === '.NotifRefreshReceiver')) {
       application.receiver.push({
         $: { 'android:name': '.NotifRefreshReceiver', 'android:exported': 'false' },
+      });
+    }
+
+    if (!application.receiver.some(r => r.$?.['android:name'] === '.NextMedReceiver')) {
+      application.receiver.push({
+        $: { 'android:name': '.NextMedReceiver', 'android:exported': 'false' },
       });
     }
 
