@@ -33,3 +33,31 @@ export function cancelSimpleNotification(notifId: number): void {
   if (Platform.OS !== 'android') return;
   MedNotification?.cancelSimpleNotification(notifId)?.catch?.(() => {});
 }
+
+// O card de emergência é ongoing, mas o Samsung o remove ao chegar um heads-up. Sem
+// checar a presença real, a assinatura em cache faz o app achar que ainda está na tela
+// e nunca repostar. undefined (método ausente em build antigo) → assume ativo.
+export async function isEmergencyActive(): Promise<boolean> {
+  if (Platform.OS !== 'android') return true;
+  try {
+    const res = await MedNotification?.isEmergencyActive?.();
+    return res === undefined ? true : !!res;
+  } catch {
+    return true;
+  }
+}
+
+export async function isIgnoringBatteryOptimizations(): Promise<boolean> {
+  if (Platform.OS !== 'android') return true;
+  try {
+    const res = await MedNotification?.isIgnoringBatteryOptimizations?.();
+    return res === undefined ? true : !!res;
+  } catch {
+    return true;
+  }
+}
+
+export function requestIgnoreBatteryOptimizations(): void {
+  if (Platform.OS !== 'android') return;
+  MedNotification?.requestIgnoreBatteryOptimizations?.()?.catch?.(() => {});
+}

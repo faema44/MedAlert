@@ -1,9 +1,10 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Switch, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Switch, Alert, AppState } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { getProfile, getMedications, getContacts, getKV, setKV } from '../database/db';
 import { updateEmergencyNotification, cancelEmergencyNotification, buildEmergencyCardLines } from '../services/notifications';
+import { isIgnoringBatteryOptimizations, requestIgnoreBatteryOptimizations } from '../services/medNotification';
 import { Profile, Medication, EmergencyContact } from '../types';
 import EmergencyChecklist from '../components/EmergencyChecklist';
 
@@ -19,15 +20,17 @@ export default function LockScreenScreen() {
   const [notifActive, setNotifActive] = useState(false);
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [cardLines, setCardLines] = useState<string[]>([]);
+  const [batteryOk, setBatteryOk] = useState(true);
 
   const load = useCallback(async () => {
-    const [p, m, c, alertActive] = await Promise.all([
-      getProfile(), getMedications(), getContacts(), getKV(KV_ALERT_ACTIVE),
+    const [p, m, c, alertActive, battOk] = await Promise.all([
+      getProfile(), getMedications(), getContacts(), getKV(KV_ALERT_ACTIVE), isIgnoringBatteryOptimizations(),
     ]);
     setProfile(p);
     setMedications(m);
     setContacts(c);
     setNotifActive(alertActive === '1' && !!p?.name);
+    setBatteryOk(battOk);
     setCardLines(p?.name ? await buildEmergencyCardLines(p, m) : []);
     return p;
   }, []);
@@ -39,6 +42,11 @@ export default function LockScreenScreen() {
         if (p?.name) setShowAlertModal(true);
       }
     });
+    // Reconfere a isenção de bateria ao voltar da tela de Configurações do sistema
+    const sub = AppState.addEventListener('change', s => {
+      if (s === 'active') isIgnoringBatteryOptimizations().then(setBatteryOk);
+    });
+    return () => sub.remove();
   }, [load, route.params?.openAlert, navigation]));
 
   async function handleAlertToggle() {
@@ -80,6 +88,20 @@ export default function LockScreenScreen() {
           );
         }}
       />
+
+      {notifActive && !batteryOk && (
+        <View style={styles.battCard}>
+          <Text style={styles.battTitle}>⚠️ A ficha pode sumir da tela de bloqueio</Text>
+          <Text style={styles.battBody}>
+            A economia de bateria do celular pode remover suas informações médicas da tela
+            de bloqueio depois de um tempo. Para mantê-las sempre visíveis, permita que o
+            Alerta Médico ignore a otimização de bateria.
+          </Text>
+          <TouchableOpacity style={styles.battBtn} onPress={() => requestIgnoreBatteryOptimizations()}>
+            <Text style={styles.battBtnText}>Permitir sempre visível</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {cardLines.length > 0 && (
         <View style={styles.previewCard}>
@@ -147,6 +169,15 @@ export default function LockScreenScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F2F4F8' },
   content: { padding: 14, paddingBottom: 32, gap: 10 },
+
+  battCard: {
+    backgroundColor: '#fff5ef', borderRadius: 12, padding: 14,
+    borderWidth: 0.5, borderColor: '#E07B4F',
+  },
+  battTitle: { fontSize: 14, fontWeight: '700', color: '#b45526', marginBottom: 6 },
+  battBody: { fontSize: 13, color: '#7a4a30', lineHeight: 19, marginBottom: 12 },
+  battBtn: { backgroundColor: '#E07B4F', borderRadius: 10, padding: 12, alignItems: 'center' },
+  battBtnText: { fontSize: 14, color: '#fff', fontWeight: '700' },
 
   previewCard: {
     backgroundColor: '#fff', borderRadius: 12, padding: 14,

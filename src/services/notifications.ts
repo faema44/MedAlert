@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { Profile, Medication, MedicationReminder, ActivityReminder } from '../types';
-import { postMedNotification, cancelMedNotification, postSimpleNotification, cancelSimpleNotification } from './medNotification';
+import { postMedNotification, cancelMedNotification, postSimpleNotification, cancelSimpleNotification, isEmergencyActive } from './medNotification';
 import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity, getContacts, getKV, setKV, addMedicationLowStockLog } from '../database/db';
 import { isPhytotherapic } from '../utils/drugSearch';
 
@@ -441,8 +441,11 @@ export async function updateEmergencyNotification(
     return;
   }
 
+  // Só pula o repost quando o conteúdo é o mesmo E o card ainda está de fato na tela.
+  // O Samsung remove notificações ongoing ao chegar um heads-up de lembrete; sem a
+  // checagem de presença, a assinatura em cache impedia o card de voltar até um cold start.
   const lastSignature = await getKV(EMERGENCY_SIGNATURE_KV).catch(() => null);
-  if (lastSignature === signature) return;
+  if (lastSignature === signature && await isEmergencyActive()) return;
 
   try {
     postMedNotification(title, contentText, bigText, CHANNEL_ID);

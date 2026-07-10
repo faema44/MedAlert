@@ -7,6 +7,10 @@ const MODULE_KT = `package com.alertamedico.app
 
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.PowerManager
+import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -40,6 +44,7 @@ class MedNotificationModule(private val reactContext: ReactApplicationContext) :
                 .setOngoing(true)
                 .setAutoCancel(false)
                 .setShowWhen(false)
+                .setOnlyAlertOnce(true)
                 .build()
             nm.notify(NOTIF_ID, notification)
 
@@ -103,6 +108,39 @@ class MedNotificationModule(private val reactContext: ReactApplicationContext) :
         }
     }
 
+    @ReactMethod
+    fun isEmergencyActive(promise: Promise) {
+        try {
+            val nm = reactContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            promise.resolve(nm.activeNotifications.any { it.id == NOTIF_ID })
+        } catch (e: Exception) {
+            promise.resolve(true)
+        }
+    }
+
+    @ReactMethod
+    fun isIgnoringBatteryOptimizations(promise: Promise) {
+        try {
+            val pm = reactContext.getSystemService(Context.POWER_SERVICE) as PowerManager
+            promise.resolve(pm.isIgnoringBatteryOptimizations(reactContext.packageName))
+        } catch (e: Exception) {
+            promise.resolve(true)
+        }
+    }
+
+    @ReactMethod
+    fun requestIgnoreBatteryOptimizations(promise: Promise) {
+        try {
+            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+            intent.data = Uri.parse("package:" + reactContext.packageName)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            reactContext.startActivity(intent)
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("ERR_BATT", e.message)
+        }
+    }
+
     companion object {
         const val NOTIF_ID = 1001
     }
@@ -151,12 +189,13 @@ class BootReceiver : BroadcastReceiver() {
             .setSmallIcon(R.drawable.notification_icon)
             .setContentTitle(title)
             .setContentText(contentText)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(bigText).setSummaryText(contentText))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(true)
             .setAutoCancel(false)
             .setShowWhen(false)
+            .setOnlyAlertOnce(true)
             .build()
         nm.notify(MedNotificationModule.NOTIF_ID, notification)
 
@@ -191,12 +230,13 @@ class NotifRefreshReceiver : BroadcastReceiver() {
             .setSmallIcon(R.drawable.notification_icon)
             .setContentTitle(title)
             .setContentText(contentText)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(bigText).setSummaryText(contentText))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(true)
             .setAutoCancel(false)
             .setShowWhen(false)
+            .setOnlyAlertOnce(true)
             .build()
         nm.notify(MedNotificationModule.NOTIF_ID, notification)
 
@@ -204,7 +244,7 @@ class NotifRefreshReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        private const val INTERVAL_MS = 30 * 60 * 1000L
+        private const val INTERVAL_MS = 15 * 60 * 1000L
 
         private fun pendingIntent(context: Context, flag: Int): PendingIntent =
             PendingIntent.getBroadcast(
@@ -216,11 +256,12 @@ class NotifRefreshReceiver : BroadcastReceiver() {
         fun scheduleNext(context: Context) {
             val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val trigger = SystemClock.elapsedRealtime() + INTERVAL_MS
-            am.setAndAllowWhileIdle(
-                AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                trigger,
-                pendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT)
-            )
+            val pi = pendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT)
+            try {
+                am.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi)
+            } catch (e: SecurityException) {
+                am.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi)
+            }
         }
 
         fun cancel(context: Context) {
