@@ -105,13 +105,31 @@ function normalize(s: string): string {
 
 // ─── Bula URL (ANVISA Bulário Eletrônico — fonte oficial brasileira) ───────────
 
-function toSlug(name: string): string {
+function slugPart(name: string): string {
   return name
-    .split('+')[0].split('/')[0].trim()
+    .trim()
     .toLowerCase()
     .normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '');
+}
+
+function toSlug(name: string): string {
+  return slugPart(name.split('+')[0].split('/')[0]);
+}
+
+// Medicamento composto (nome com "+") tem bula própria, diferente da do
+// primeiro ingrediente isolado (a combinação muda dose/interação/contraindicação) —
+// slug é a junção de cada princípio ativo, não só o primeiro. Ordena
+// alfabeticamente pra "A + B" e "B + A" (o banco tem entradas duplicadas
+// nas duas ordens) caírem no mesmo arquivo.
+function toComboSlug(name: string): string {
+  return name
+    .split('+')
+    .map(part => slugPart(part.split('/')[0]))
+    .filter(Boolean)
+    .sort()
+    .join('-');
 }
 
 // Bulas de liberação prolongada baixadas à parte (posologia/farmacocinética
@@ -130,7 +148,8 @@ export function getBulaUrl(genericName: string, brandName?: string): string {
     const xrSlug = XR_BULA_SLUGS[normalize(genericName)];
     if (xrSlug) return `${BULA_BASE}/${xrSlug}.pdf`;
   }
-  return `${BULA_BASE}/${toSlug(genericName)}.pdf`;
+  const slug = genericName.includes('+') ? toComboSlug(genericName) : toSlug(genericName);
+  return `${BULA_BASE}/${slug}.pdf`;
 }
 
 const PHYTO_BULA_MAP: Record<string, string> = {
