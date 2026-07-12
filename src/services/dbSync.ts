@@ -3,8 +3,9 @@
  *
  * Fluxo:
  *   1. Carrega do cache SQLite imediatamente (substitui bundled se mais completo)
- *   2. Em background, busca versão nova do jsDelivr (CDN do GitHub)
- *   3. Se nova versão tem mais medicamentos → atualiza cache e memória
+ *   2. Em background, lê o manifesto da branch para descobrir o commit publicado
+ *   3. Baixa .json + .sig FIXADOS naquele commit, verifica a assinatura e valida o schema
+ *   4. Se o lote passar em tudo → atualiza cache e memória
  *
  * Não bloqueia o startup. Em caso de erro de rede, o app funciona normalmente
  * com o bundled ou com a última versão cacheada.
@@ -33,13 +34,74 @@ const INT_CACHE_KEY = 'interactions_db_v1';
 const CACHE_TTL_DAYS = 1;
 
 const INT_PATH = 'src/data/interactions.json';
+const MANIFEST_PATH = 'src/data/manifest.json';
 
-const JSDELIVR_URL =
-  `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/${DB_PATH}`;
-const JSDELIVR_INT_URL =
-  `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/${INT_PATH}`;
-const JSDELIVR_URL_SIG = `${JSDELIVR_URL}.sig`;
-const JSDELIVR_INT_URL_SIG = `${JSDELIVR_INT_URL}.sig`;
+// ─── Por que o app NÃO baixa os dados direto da branch ────────────────────────
+//
+// O jsDelivr cacheia uma URL de BRANCH (`@main`) por 12h — inclusive a resolução
+// branch→commit. Como o .json e o .sig são duas entradas de cache independentes, cada
+// publicação abria uma janela em que uma delas estava fresca e a outra velha:
+//
+//     .sig novo  +  .json velho  →  assinatura não confere  →  app rejeita o lote
+//
+// Falha fechada, então nunca foi perigoso — mas derrubava o canal de atualização justamente
+// nas horas seguintes a publicar, que é quando a atualização mais importa. E `purge` não
+// resolve: o jsDelivr também cacheia a resolução da branch.
+//
+// A correção é tirar a branch do caminho dos DADOS:
+//
+//   1. o app lê um MANIFESTO minúsculo da branch, que contém só o SHA do commit publicado
+//      (raw.githubusercontent → `max-age=300`, 5 min de cache);
+//   2. baixa .json e .sig FIXADOS naquele commit
+//      (jsDelivr @<sha> → `immutable`, cache de 1 ano).
+//
+// Fixados no mesmo commit, .json e .sig são coerentes POR CONSTRUÇÃO — dessincronizar deixa
+// de ser possível. O cache do manifesto só pode ATRASAR a atualização (por até 5 min), nunca
+// corrompê-la: um manifesto velho aponta para um commit velho, cujos dados e assinatura
+// batem entre si.
+//
+// Um atacante com push pode apontar o manifesto para outro commit, mas não consegue assinar
+// dados novos. O máximo que consegue é servir uma versão ANTERIOR já assinada por nós — e o
+// piso de quantidade (acceptInteractions) barra qualquer commit com menos entradas que o
+// embarcado. Por isso o manifesto não precisa de assinatura própria: assiná-lo criaria uma
+// segunda entrada de cache e traria o problema de volta.
+
+const RAW_MANIFEST_URL =
+  `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${MANIFEST_PATH}`;
+const JSDELIVR_MANIFEST_URL =
+  `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/${MANIFEST_PATH}`;
+
+const dataUrl = (commit: string, filePath: string) =>
+  `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${commit}/${filePath}`;
+
+/**
+ * Descobre de qual commit baixar os dados. Uma resolução por execução do app: os dois syncs
+ * (medicamentos e interações) compartilham a mesma, para não baterem duas vezes na rede e —
+ * mais importante — para não pegarem commits diferentes um do outro.
+ *
+ * O raw.githubusercontent é a fonte preferida (5 min de cache). Se ele falhar, cai no
+ * jsDelivr (12h) — mais velho, porém ainda coerente. Se ambos falharem, devolve null e o app
+ * simplesmente não atualiza: segue com o cache ou com a base embarcada.
+ */
+let commitResolvido: Promise<string | null> | null = null;
+
+function resolveDataCommit(timeoutMs: number): Promise<string | null> {
+  if (!commitResolvido) commitResolvido = fetchDataCommit(timeoutMs);
+  return commitResolvido;
+}
+
+async function fetchDataCommit(timeoutMs: number): Promise<string | null> {
+  for (const url of [RAW_MANIFEST_URL, JSDELIVR_MANIFEST_URL]) {
+    try {
+      const res = await fetchWithTimeout(url, timeoutMs);
+      if (!res.ok) continue;
+      const commit = JSON.parse(await res.text())?.commit;
+      // Validação estrita: o valor vai direto para dentro de uma URL. Só SHA de 40 hex.
+      if (typeof commit === 'string' && /^[0-9a-f]{40}$/.test(commit)) return commit;
+    } catch { /* tenta a próxima origem */ }
+  }
+  return null;
+}
 
 /**
  * Baixa o JSON e a sua assinatura, e só devolve o texto se a assinatura CONFERIR.
@@ -163,7 +225,11 @@ async function fetchAndUpdate(): Promise<void> {
   } catch { /* proceed */ }
 
   try {
-    const raw = await fetchSigned(JSDELIVR_URL, JSDELIVR_URL_SIG, 8000);
+    const commit = await resolveDataCommit(8000);
+    if (!commit) return; // sem manifesto → não atualiza (segue com cache/bundled)
+
+    const url = dataUrl(commit, DB_PATH);
+    const raw = await fetchSigned(url, `${url}.sig`, 8000);
     if (!raw) return; // assinatura ausente ou inválida → descarta
 
     const accepted = acceptMeds(JSON.parse(raw), bundledMeds.medications.length);
@@ -210,7 +276,11 @@ async function fetchAndUpdateInteractions(): Promise<void> {
   } catch {}
 
   try {
-    const raw = await fetchSigned(JSDELIVR_INT_URL, JSDELIVR_INT_URL_SIG, 8000);
+    const commit = await resolveDataCommit(8000);
+    if (!commit) return; // sem manifesto → não atualiza (segue com cache/bundled)
+
+    const url = dataUrl(commit, INT_PATH);
+    const raw = await fetchSigned(url, `${url}.sig`, 8000);
     if (!raw) return; // assinatura ausente ou inválida → descarta
 
     const accepted = acceptInteractions(JSON.parse(raw), bundledInts.length);

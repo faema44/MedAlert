@@ -36,7 +36,9 @@
     "update-meds": "node scripts/update-medications.js",
     "test:dbsync": "node tests/dbsync-guard.js",
     "sign:data": "node tools/sign-data.js",
-    "test:signature": "node tests/signature-guard.js"
+    "test:signature": "node tests/signature-guard.js",
+    "publish:data": "node tools/publish-data.js",
+    "test:ota": "node tools/check-ota.js"
   },
   "private": true
 }
