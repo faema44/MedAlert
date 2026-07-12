@@ -576,7 +576,6 @@
         "Pressomed",
         "Atens",
         "Pressomede",
-        "Sanpronol",
         "Cardionato",
         "Eupressin",
         "Enaplex",
@@ -902,7 +901,6 @@
         "Succinato de Metoprolol",
         "Tartarato de Metoprolol",
         "Seloken",
-        "Selozok",
         "Metoprobal",
         "Emprol xr",
         "Zarmine",
@@ -1176,7 +1174,6 @@
       "genericName": "Lovastatina",
       "brands": [
         "Mevacor",
-        "Lovacor",
         "Mevalip",
         "Lovasterol",
         "Redustatin",
@@ -1672,7 +1669,6 @@
         "Lqfex Amoxicilina",
         "Atak",
         "Nemoxil",
-        "Doclaxin",
         "Camoxin",
         "Licilon",
         "Clavicin",
@@ -3253,7 +3249,6 @@
         "Tandrex-A",
         "Coristina Termus",
         "Termo-Ped",
-        "Alivium",
         "Ntf Paracetamol",
         "Tirador",
         "Furp - Paracetamol",
@@ -3370,7 +3365,6 @@
         "Dipirogen",
         "Calm.dor",
         "Alivdip",
-        "Doralflex",
         "Dipiralgin",
         "Atroveran Dip",
         "Dipirosim",
@@ -3405,7 +3399,6 @@
         "Dipfar",
         "Dipirosil",
         "Calm. Dor",
-        "Doraliv",
         "Termosil",
         "Piridor",
         "Diplapon",
@@ -3425,7 +3418,6 @@
         "Dipiroplex",
         "Belspan Dip",
         "Dipirac",
-        "Sedalive",
         "Solução De Dipirona Barros",
         "Secudip",
         "Cedil",
@@ -3527,7 +3519,6 @@
       "genericName": "Codeína",
       "brands": [
         "Fosfato de Codeína",
-        "Tylex",
         "Codein",
         "Cloridrato de Codeína"
       ],
@@ -3908,8 +3899,7 @@
     {
       "genericName": "Isossorbida",
       "brands": [
-        "Isordil",
-        "Monocordil"
+        "Isossorbida"
       ],
       "category": "Cardiovascular",
       "rxcui": "6057"
@@ -4089,7 +4079,6 @@
         "Dexaden",
         "Dexametasona",
         "Ozurdex",
-        "Maxidex",
         "Dexam",
         "Dexameral",
         "Neodronex",
@@ -4184,7 +4173,6 @@
         "Carbamazepina (port 344/98 - Lista C1)",
         "Lfm - Carbamazepina",
         "Farmanguinhos - Carbamazepina",
-        "Proleptol",
         "Lafepe - Carbamazepina",
         "Carbax",
         "Epizetol",
@@ -4522,8 +4510,7 @@
         "Uniclozapin",
         "Clozapina",
         "Clopar",
-        "Xynaz",
-        "Vidmax"
+        "Xynaz"
       ],
       "category": "Antipsicótico",
       "rxcui": "2626"
@@ -4690,7 +4677,6 @@
         "Salrolin",
         "Teoden",
         "Pneumocris",
-        "Asmaliv",
         "Furp-salbutamol",
         "Salbutamox",
         "Aerofrin",
@@ -5280,8 +5266,6 @@
       "genericName": "Etinilestradiol",
       "brands": [
         "Diane 35",
-        "Yasmin",
-        "Microvlar",
         "Dalyne",
         "Diva",
         "Liara",
@@ -5879,7 +5863,6 @@
         "Cloridrato de Orfenadrina",
         "Norflex",
         "Citrato de Orfenadrina",
-        "Doralflex",
         "Fenaflex - Odc",
         "Sedalex",
         "Miorrelax"
@@ -6131,8 +6114,7 @@
     {
       "genericName": "Mometasona Inalatória",
       "brands": [
-        "Asmanex",
-        "Dulera"
+        "Asmanex"
       ],
       "category": "Corticosteroide Inalatório",
       "rxcui": "108118"
@@ -6727,7 +6709,6 @@
         "Transcope",
         "Buscapina",
         "Belscopan",
-        "Buscopan",
         "Buscoveran",
         "Hiospan",
         "Neocopan",
@@ -7389,8 +7370,7 @@
         "Lqfe Isoniazida",
         "Isoniazida",
         "Nuplam - Isoniazida",
-        "Iquego-Isoniazida",
-        "Ison"
+        "Iquego-Isoniazida"
       ],
       "category": "Antituberculoso",
       "rxcui": "6038"
@@ -7949,8 +7929,7 @@
     {
       "genericName": "Tenofovir + Emtricitabina + Dolutegravir",
       "brands": [
-        "Triumeq",
-        "Biktarvy"
+        "Triumeq"
       ],
       "category": "Antirretroviral"
     },
@@ -8272,7 +8251,6 @@
       "brands": [
         "Cloroquina EMS",
         "Difosfato de Cloroquina",
-        "Reuquinol",
         "Quinacris",
         "Diclokin",
         "Lqfex Cloroquina",
@@ -8459,8 +8437,7 @@
     {
       "genericName": "Dexametasona Ocular",
       "brands": [
-        "Maxidex",
-        "Tobradex"
+        "Maxidex"
       ],
       "category": "Oftalmológico (anti-inflamatório)",
       "rxcui": "3264"
@@ -9912,7 +9889,8 @@
     {
       "genericName": "Dipirona + Orfenadrina + Cafeína",
       "brands": [
-        "Dorflex"
+        "Dorflex",
+        "Doralflex"
       ],
       "category": "Analgésico",
       "rxcui": "7715"
