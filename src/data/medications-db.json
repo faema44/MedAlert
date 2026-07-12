@@ -829,7 +829,6 @@
         "Nifehexal",
         "Prodopina",
         "Cardalin Retard",
-        "Normopres",
         "Nifedipina",
         "Cardiopina",
         "Nifemax",
@@ -4726,12 +4725,10 @@
         "Berotec",
         "Bromifen",
         "Febiotec",
-        "cp - Suprafen",
         "Fenozan",
         "Brofentec",
         "Fenatec",
-        "Bromotec",
-        "Suprafen"
+        "Bromotec"
       ],
       "category": "Broncodilatador",
       "rxcui": "4333"
@@ -7927,13 +7924,6 @@
       "category": "Antirretroviral"
     },
     {
-      "genericName": "Tenofovir + Emtricitabina + Dolutegravir",
-      "brands": [
-        "Triumeq"
-      ],
-      "category": "Antirretroviral"
-    },
-    {
       "genericName": "Dolutegravir",
       "brands": [
         "Tivicay"
@@ -10388,7 +10378,6 @@
       "genericName": "Sacarato de Hidróxido Férrico",
       "brands": [
         "Noripurum EV",
-        "Suprafen",
         "Sadol",
         "Hemacit",
         "Sucrofer",
@@ -15876,6 +15865,13 @@
         "STIMULANCE MULTI FIBER"
       ],
       "category": "Suplemento"
+    },
+    {
+      "genericName": "Dolutegravir + Abacavir + Lamivudina",
+      "brands": [
+        "Triumeq"
+      ],
+      "category": "Antirretroviral"
     }
   ],
   "updatedAt": "2026-07-06"
