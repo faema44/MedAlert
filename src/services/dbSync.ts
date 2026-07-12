@@ -15,6 +15,7 @@
 import { getDb, getKV, setKV, getKVAge } from '../database/db';
 import { loadExternalDb, loadExternalInteractions } from '../utils/drugSearch';
 import { DrugInteraction } from '../types';
+import { verifyDataSignature } from './dataSignature';
 
 // Seed local — sempre disponível, não depende de rede
 const bundledMeds = require('../data/medications-db.json');
@@ -37,6 +38,30 @@ const JSDELIVR_URL =
   `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/${DB_PATH}`;
 const JSDELIVR_INT_URL =
   `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/${INT_PATH}`;
+const JSDELIVR_URL_SIG = `${JSDELIVR_URL}.sig`;
+const JSDELIVR_INT_URL_SIG = `${JSDELIVR_INT_URL}.sig`;
+
+/**
+ * Baixa o JSON e a sua assinatura, e só devolve o texto se a assinatura CONFERIR.
+ *
+ * Falha fechada: sem .sig, com .sig inválido, ou com qualquer erro → devolve null e o
+ * chamador descarta o lote, seguindo com a base embarcada. Preferimos dados desatualizados
+ * (mas revisados pela Play Store) a dados adulterados.
+ *
+ * Assinamos e verificamos os BYTES CRUS do arquivo — não o objeto re-serializado. Qualquer
+ * diferença de formatação invalidaria uma assinatura legítima.
+ */
+async function fetchSigned(url: string, sigUrl: string, timeoutMs: number): Promise<string | null> {
+  const [res, sigRes] = await Promise.all([
+    fetchWithTimeout(url, timeoutMs),
+    fetchWithTimeout(sigUrl, timeoutMs),
+  ]);
+  if (!res.ok || !sigRes.ok) return null;
+
+  const raw = await res.text();
+  const sig = await sigRes.text();
+  return (await verifyDataSignature(raw, sig)) ? raw : null;
+}
 
 type MedsDb = { version?: string; medications: { genericName: string; brands: string[]; category: string }[] };
 
@@ -138,10 +163,10 @@ async function fetchAndUpdate(): Promise<void> {
   } catch { /* proceed */ }
 
   try {
-    const res = await fetchWithTimeout(JSDELIVR_URL, 8000);
-    if (!res.ok) return;
+    const raw = await fetchSigned(JSDELIVR_URL, JSDELIVR_URL_SIG, 8000);
+    if (!raw) return; // assinatura ausente ou inválida → descarta
 
-    const accepted = acceptMeds(await res.json(), bundledMeds.medications.length);
+    const accepted = acceptMeds(JSON.parse(raw), bundledMeds.medications.length);
     if (!accepted) return; // menor que o embarcado ou schema inválido → descarta o lote
 
     await setKV(CACHE_KEY, JSON.stringify(accepted));
@@ -185,10 +210,10 @@ async function fetchAndUpdateInteractions(): Promise<void> {
   } catch {}
 
   try {
-    const res = await fetchWithTimeout(JSDELIVR_INT_URL, 8000);
-    if (!res.ok) return;
+    const raw = await fetchSigned(JSDELIVR_INT_URL, JSDELIVR_INT_URL_SIG, 8000);
+    if (!raw) return; // assinatura ausente ou inválida → descarta
 
-    const accepted = acceptInteractions(await res.json(), bundledInts.length);
+    const accepted = acceptInteractions(JSON.parse(raw), bundledInts.length);
     if (!accepted) return; // menor que o embarcado ou schema inválido → descarta o lote
 
     await setKV(INT_CACHE_KEY, JSON.stringify(accepted));
