@@ -14459,6 +14459,13 @@
       "category": "Antibiótico"
     },
     {
+      "genericName": "Ácido Fusídico + Valerato de Betametasona",
+      "brands": [
+        "Ácido Fusídico + Valerato de Betametasona"
+      ],
+      "category": "Antibiótico + Corticosteroide"
+    },
+    {
       "genericName": "Hedera helix",
       "brands": [
         "Abrilar",
@@ -14856,6 +14863,13 @@
       "category": "Anti-inflamatório (AINE)"
     },
     {
+      "genericName": "Clonixinato de Lisina + Cloridrato de Ciclobenzaprina",
+      "brands": [
+        "Clonixinato de Lisina + Cloridrato de Ciclobenzaprina"
+      ],
+      "category": "Relaxante Muscular"
+    },
+    {
       "genericName": "Cloridrato de Benazepril",
       "brands": [
         "Cloridrato de Benazepril"
@@ -14882,13 +14896,6 @@
         "Cloridrato de Cinacalcete"
       ],
       "category": "Outros"
-    },
-    {
-      "genericName": "Cloridrato de Clobutinol",
-      "brands": [
-        "Cloridrato de Clobutinol"
-      ],
-      "category": "Antitussígeno"
     },
     {
       "genericName": "Cloridrato de Clobutinol + Succinato de Doxilamina",
