@@ -297,27 +297,35 @@ async function scheduleEmergencyRepostSeriesIOS(title: string, bigText: string):
   }
 }
 
-// Todos os horários de HOJE ainda futuros dos lembretes de um medicamento. Diferente de
-// nextReminderInfo (que dá só a próxima ocorrência), aqui expandimos cada dose do dia para
-// o banner poder AVANÇAR sozinho ao longo do dia. nmonths (a cada N meses) fica de fora do
-// banner — é raro e a cadência não cabe numa checagem simples; o lembrete em si segue normal.
-function medDosesToday(reminders: MedicationReminder[], now: Date, todayEndMs: number): number[] {
-  const y = now.getFullYear(), mo = now.getMonth(), d = now.getDate();
-  const todayWd = now.getDay() + 1; // 1=Dom…7=Sáb
+// Todos os horários futuros dos lembretes de um medicamento dentro da janela. Diferente de
+// nextReminderInfo (que dá só a próxima ocorrência), aqui expandimos cada dose para o banner
+// poder AVANÇAR sozinho. nmonths (a cada N meses) fica de fora do banner — é raro e a cadência
+// não cabe numa checagem simples; o lembrete em si segue normal.
+//
+// A janela cobre HOJE E AMANHÃ. Antes ia só até o fim do dia: passada a última dose, o nativo
+// não achava mais nenhum ms futuro na agenda, cancelava o banner e não voltava até o app ser
+// aberto — nada reescrevia a agenda para o dia seguinte. Com amanhã incluído, depois da última
+// dose de hoje o banner avança para a primeira de amanhã em vez de sumir.
+function medDosesInWindow(reminders: MedicationReminder[], now: Date, windowEndMs: number): number[] {
   const nowMs = now.getTime();
   const out: number[] = [];
-  for (const r of reminders) {
-    if (!r.is_active) continue;
-    const [h, m] = r.time.split(':').map(Number);
-    if (isNaN(h) || isNaN(m)) continue;
-    const p = r.period || 'day';
-    let occursToday = false;
-    if (p === 'day') occursToday = true;
-    else if (p.startsWith('week:')) occursToday = p.split(':')[1].split(',').map(Number).includes(todayWd);
-    else if (p.startsWith('month:')) occursToday = p.split(':')[1].split(',').map(Number).includes(d);
-    if (!occursToday) continue;
-    const ms = new Date(y, mo, d, h, m, 0, 0).getTime();
-    if (ms > nowMs && ms <= todayEndMs) out.push(ms);
+  for (let dayOffset = 0; dayOffset <= 1; dayOffset++) {
+    const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset);
+    const y = day.getFullYear(), mo = day.getMonth(), d = day.getDate();
+    const todayWd = day.getDay() + 1; // 1=Dom…7=Sáb
+    for (const r of reminders) {
+      if (!r.is_active) continue;
+      const [h, m] = r.time.split(':').map(Number);
+      if (isNaN(h) || isNaN(m)) continue;
+      const p = r.period || 'day';
+      let occursToday = false;
+      if (p === 'day') occursToday = true;
+      else if (p.startsWith('week:')) occursToday = p.split(':')[1].split(',').map(Number).includes(todayWd);
+      else if (p.startsWith('month:')) occursToday = p.split(':')[1].split(',').map(Number).includes(d);
+      if (!occursToday) continue;
+      const ms = new Date(y, mo, d, h, m, 0, 0).getTime();
+      if (ms > nowMs && ms <= windowEndMs) out.push(ms);
+    }
   }
   return out;
 }
@@ -331,9 +339,14 @@ async function updateNextMedBanner(
   doses: { ms: number; name: string; critical: boolean }[]
 ): Promise<void> {
   if (Platform.OS !== 'android') return;
+  const now = new Date();
+  const todayYmd = now.toDateString();
   const schedule = doses.map(x => {
     const t = new Date(x.ms);
-    const label = `hoje às ${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`;
+    const hhmm = `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`;
+    // A agenda agora inclui amanhã — o rótulo precisa dizer qual dia, senão o banner
+    // mostraria "hoje às 08:00" para a dose de amanhã de madrugada.
+    const label = t.toDateString() === todayYmd ? `hoje às ${hhmm}` : `amanhã às ${hhmm}`;
     return {
       ms: x.ms,
       title: 'Próximo medicamento',
@@ -427,15 +440,14 @@ export async function updateEmergencyNotification(
   // Esses dados só aparecem quando o usuário expande manualmente (privacidade).
   const title = 'Informações Médicas';
 
-  // Próximo lembrete do dia — vai para um banner separado (updateNextMedBanner),
-  // fora da ficha fixa de emergência. Expande todas as doses de hoje para o nativo
-  // avançar o banner em cada horário.
+  // Próximo lembrete — vai para um banner separado (updateNextMedBanner), fora da ficha
+  // fixa de emergência. Expande as doses de HOJE E AMANHÃ para o nativo avançar o banner
+  // em cada horário; amanhã entra para o banner não morrer depois da última dose do dia.
   const now = new Date();
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
+  const windowEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 23, 59, 59, 999);
   const doses: { ms: number; name: string; critical: boolean }[] = [];
   meds8.forEach((m, idx) => {
-    for (const ms of medDosesToday(medReminders[idx] ?? [], now, todayEnd.getTime())) {
+    for (const ms of medDosesInWindow(medReminders[idx] ?? [], now, windowEnd.getTime())) {
       doses.push({ ms, name: m.commercial_name?.trim() || m.generic_name, critical: m.is_critical });
     }
   });
@@ -1203,6 +1215,38 @@ export async function dismissPresentedForMedication(medicationId: number, except
   const toRemove = presented.filter(n =>
     (n.request.content.data as any)?.medicationId === medicationId && n.request.identifier !== exceptId);
   await Promise.all(toRemove.map(n => Notifications.dismissNotificationAsync(n.request.identifier).catch(() => {})));
+}
+
+// Rede de segurança para o empilhamento de repetições na tela de bloqueio: o listener
+// de recebimento (initReminderListeners) só limpa os cards antigos com o app vivo — se o
+// Android mata o processo entre uma repetição e outra (Doze/RAM), os cards duplicados
+// ficam presos até a próxima vez que o app rodar. Chamada no cold start e ao voltar do
+// background para varrer e manter só o mais recente por medicamento.
+export async function dismissDuplicateReminders(): Promise<void> {
+  const presented = await Notifications.getPresentedNotificationsAsync().catch(() => []);
+  // Agrupa por DOSE, não por medicamento. Antes agrupava por medicationId e mantinha só a
+  // notificação mais recente — o que descartava SILENCIOSAMENTE uma dose não respondida:
+  // com 8h e 20h pendentes, abrir o app apagava o card das 8h e a evidência de que aquela
+  // dose ficou sem resposta. A chave é o lembrete-base (mainNotifId nas repetições, ou o
+  // próprio identifier), que já embute medicamento + horário. Assim as repetições de uma
+  // MESMA dose continuam colapsando numa só, e doses diferentes sobrevivem — elas só saem
+  // da bandeja quando chega o próximo lembrete daquele medicamento (dismissPresentedForMedication).
+  const bySlot = new Map<string, Notifications.Notification[]>();
+  for (const n of presented) {
+    const data = n.request.content.data as any;
+    if (data?.type !== 'reminder' || data?.medicationId == null) continue;
+    const slotKey = (data.mainNotifId as string) || n.request.identifier;
+    const list = bySlot.get(slotKey) ?? [];
+    list.push(n);
+    bySlot.set(slotKey, list);
+  }
+  const toRemove: string[] = [];
+  for (const list of bySlot.values()) {
+    if (list.length < 2) continue;
+    list.sort((a, b) => b.date - a.date);
+    for (const n of list.slice(1)) toRemove.push(n.request.identifier);
+  }
+  await Promise.all(toRemove.map(id => Notifications.dismissNotificationAsync(id).catch(() => {})));
 }
 
 Notifications.setNotificationHandler({

@@ -12,6 +12,7 @@ import {
   getAppointments, resolveMedicationLogSlot, updateMedicationStock, getMedicationLog,
 } from '../database/db';
 import MedDisclaimer from '../components/MedDisclaimer';
+import InteractionConsentModal, { hasAcceptedInteractionTerms, acceptInteractionTerms } from '../components/InteractionConsentModal';
 import EmergencyChecklist from '../components/EmergencyChecklist';
 import { getCyclePhase, CyclePhaseInfo } from '../utils/cyclePhase';
 
@@ -130,6 +131,7 @@ export default function HomeScreen() {
   const [showPhoneConfigModal, setShowPhoneConfigModal] = useState(false);
   const [allInteractions, setAllInteractions] = useState<DrugInteraction[]>([]);
   const [showInteractionsModal, setShowInteractionsModal] = useState(false);
+  const [showInteractionsConsent, setShowInteractionsConsent] = useState(false);
   const [unifiedItems, setUnifiedItems] = useState<UnifiedItem[]>([]);
   const [emergencyReady, setEmergencyReady] = useState(false);
   const [medsHintDismissedAt, setMedsHintDismissedAt] = useState<string | null>(null);
@@ -638,7 +640,14 @@ export default function HomeScreen() {
       )}
 
       {allInteractions.length > 0 && (
-        <TouchableOpacity style={styles.interactionChip} activeOpacity={0.7} onPress={() => setShowInteractionsModal(true)}>
+        <TouchableOpacity
+          style={styles.interactionChip}
+          activeOpacity={0.7}
+          onPress={() => {
+            if (hasAcceptedInteractionTerms()) setShowInteractionsModal(true);
+            else setShowInteractionsConsent(true);
+          }}
+        >
           <Text style={styles.interactionChipIcon}>⚠</Text>
           <Text style={styles.interactionChipText}>
             {allInteractions.length} interaç{allInteractions.length > 1 ? 'ões' : 'ão'} detectada{allInteractions.length > 1 ? 's' : ''}
@@ -646,6 +655,16 @@ export default function HomeScreen() {
           <Text style={styles.cardChevron}>›</Text>
         </TouchableOpacity>
       )}
+
+      <InteractionConsentModal
+        visible={showInteractionsConsent}
+        onCancel={() => setShowInteractionsConsent(false)}
+        onAccept={() => {
+          acceptInteractionTerms();
+          setShowInteractionsConsent(false);
+          setShowInteractionsModal(true);
+        }}
+      />
 
       {fgHModalItem && (
         <Modal visible transparent animationType="fade" onRequestClose={() => setFgHModalItem(null)}>

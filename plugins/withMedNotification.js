@@ -269,7 +269,9 @@ class NotifRefreshReceiver : BroadcastReceiver() {
     companion object {
         private const val INTERVAL_MS = 15 * 60 * 1000L
 
-        private fun pendingIntent(context: Context, flag: Int): PendingIntent =
+        // Nulável: com FLAG_NO_CREATE o Android devolve null quando não há PendingIntent
+        // (e ele não sobrevive a reboot). Declarado não-nulo, o Kotlin lançava NPE.
+        private fun pendingIntent(context: Context, flag: Int): PendingIntent? =
             PendingIntent.getBroadcast(
                 context, 9001,
                 Intent(context, NotifRefreshReceiver::class.java),
@@ -279,7 +281,7 @@ class NotifRefreshReceiver : BroadcastReceiver() {
         fun scheduleNext(context: Context) {
             val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val trigger = SystemClock.elapsedRealtime() + INTERVAL_MS
-            val pi = pendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT)
+            val pi = pendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT) ?: return
             try {
                 am.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi)
             } catch (e: SecurityException) {
@@ -368,7 +370,12 @@ class NextMedReceiver : BroadcastReceiver() {
             cancelAlarm(context)
         }
 
-        private fun pendingIntent(context: Context, flag: Int): PendingIntent =
+        // Nulável: com FLAG_NO_CREATE o Android devolve null quando não há PendingIntent
+        // (e ele não sobrevive a reboot). Declarado não-nulo, o Kotlin lançava NPE em
+        // cancelAlarm() — o que MATAVA o BootReceiver antes de ele restaurar a ficha de
+        // emergência. Como cancelAlarm() só é chamado quando não há dose futura na agenda
+        // do dia, a falha acontecia justamente nos reboots à noite e depois da meia-noite.
+        private fun pendingIntent(context: Context, flag: Int): PendingIntent? =
             PendingIntent.getBroadcast(
                 context, 9002,
                 Intent(context, NextMedReceiver::class.java),
@@ -377,7 +384,7 @@ class NextMedReceiver : BroadcastReceiver() {
 
         private fun scheduleAt(context: Context, triggerMs: Long) {
             val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val pi = pendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT)
+            val pi = pendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT) ?: return
             try {
                 am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMs, pi)
             } catch (e: SecurityException) {
@@ -484,18 +491,29 @@ function withCompatResizability(config) {
   });
 }
 
+// Injeta o signingConfig de release no build.gradle gerado.
+//
+// As credenciais NÃO ficam aqui. Este arquivo é versionado num repositório PÚBLICO — a
+// senha da keystore chegou a ser commitada em texto puro neste bloco (rotacionada em
+// 12/07/2026). Agora os valores vêm de propriedades do Gradle, que moram em
+// ~/.gradle/gradle.properties, fora do repositório E fora da pasta do projeto:
+//
+//   MEDALERT_STORE_FILE, MEDALERT_STORE_PASSWORD, MEDALERT_KEY_ALIAS, MEDALERT_KEY_PASSWORD
+//
+// Sem essas propriedades, o build de release cai no debug signing em vez de quebrar — quem
+// clonar o repo sem a chave ainda consegue compilar.
 function withReleaseSigning(config) {
   return withAppBuildGradle(config, (cfg) => {
     let gradle = cfg.modResults.contents;
-    if (gradle.includes('signingConfigs.release')) return cfg;
+    if (gradle.includes('MEDALERT_STORE_FILE')) return cfg;
 
     gradle = gradle.replace(
       /signingConfigs \{\s*debug \{/,
-      `signingConfigs {\n        release {\n            storeFile rootProject.file('../medalert.keystore')\n            storePassword 'medalert123'\n            keyAlias 'medalert'\n            keyPassword 'medalert123'\n        }\n        debug {`
+      `signingConfigs {\n        release {\n            if (project.hasProperty('MEDALERT_STORE_FILE')) {\n                storeFile rootProject.file(MEDALERT_STORE_FILE)\n                storePassword MEDALERT_STORE_PASSWORD\n                keyAlias MEDALERT_KEY_ALIAS\n                keyPassword MEDALERT_KEY_PASSWORD\n            }\n        }\n        debug {`
     );
     gradle = gradle.replace(
       /\/\/ Caution.*\n.*signingConfig signingConfigs\.debug/,
-      `// Caution! In production, you need to generate your own keystore file.\n            // see https://reactnative.dev/docs/signed-apk-android.\n            signingConfig signingConfigs.release`
+      `// Assina com a chave de upload quando ela estiver configurada (ver acima).\n            signingConfig project.hasProperty('MEDALERT_STORE_FILE') ? signingConfigs.release : signingConfigs.debug`
     );
 
     cfg.modResults.contents = gradle;

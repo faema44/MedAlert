@@ -1,5 +1,29 @@
 name: 🔄 Atualizar Banco de Medicamentos
 
+# ⚠️  ESTE WORKFLOW NÃO PUBLICA MAIS NA `main`.
+#
+# O app baixa src/data/*.json da `main` (via jsDelivr) em runtime e os usa para gerar
+# ALERTAS MÉDICOS. Esses arquivos agora são ASSINADOS (Ed25519) e o app rejeita qualquer
+# payload sem assinatura válida — ver src/services/dataSignature.ts.
+#
+# A chave privada fica OFFLINE, fora do repositório, junto da keystore. Ela NÃO está aqui
+# de propósito: se a chave vivesse nos secrets do Actions, comprometer o CI (uma action de
+# terceiros sequestrada, um push indevido) permitiria assinar dados maliciosos — e a
+# assinatura perderia todo o sentido.
+#
+# Por isso o bot agora publica numa BRANCH SEPARADA. O jsDelivr serve a `main`, então nada
+# do que sair daqui chega ao aparelho de ninguém até um humano:
+#
+#   1. revisar o diff da branch `data/auto-update`
+#   2. mesclar na main localmente
+#   3. rodar `npm run sign:data`   (assina com a chave offline)
+#   4. `npm run test:signature`    (confirma que .json e .sig batem)
+#   5. commitar os .json E os .sig juntos, e dar push
+#
+# Se o .json for publicado sem o .sig correspondente, o app REJEITA os dados remotos e segue
+# com a base embarcada — falha segura, mas o canal de atualização para de funcionar em
+# silêncio. Por isso o passo 4 existe.
+
 on:
   schedule:
     # Toda segunda-feira às 4h UTC (1h Brasília)
@@ -8,7 +32,7 @@ on:
     # Permite disparar manualmente pela aba Actions do GitHub
 
 permissions:
-  contents: write   # necessário para fazer commit e push
+  contents: write   # necessário para push na branch de trabalho (NUNCA na main)
 
 jobs:
   update:
@@ -16,11 +40,14 @@ jobs:
     timeout-minutes: 15
 
     steps:
+      # Actions pinadas por SHA, não por tag. Tag é mutável: quem comprometesse o repo da
+      # action poderia reapontar `v4` para código malicioso e herdar o GITHUB_TOKEN com
+      # contents:write deste workflow.
       - name: Checkout repositório
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Configurar Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '20'
           # Não faz npm install — o script usa apenas built-ins do Node.js
@@ -31,17 +58,17 @@ jobs:
           # Desativa verificação SSL se necessário (ANVISA tem cert inconsistente)
           NODE_TLS_REJECT_UNAUTHORIZED: '0'
 
-      - name: Commit e push se houver mudanças
+      - name: Publicar na branch de revisão (nunca na main)
         run: |
           git config user.name  "MedAlert Bot"
           git config user.email "bot@medalert.app"
           git add src/data/medications-db.json
           if git diff --staged --quiet; then
             echo "✅ Banco já está atualizado. Nenhuma mudança."
-          else
-            ADDED=$(git diff --staged --stat | grep -oP '\d+(?= insertion)' || true)
-            COMMIT_MSG=$(printf 'chore(data): atualização automática do banco de medicamentos [skip ci]\n\nMedicamentos adicionados/atualizados: %s linhas\nFonte: ANVISA Dados Abertos' "${ADDED:-?}")
-            git commit -m "$COMMIT_MSG"
-            git push
-            echo "✅ Banco atualizado e publicado."
+            exit 0
           fi
+          ADDED=$(git diff --staged --stat | grep -oP '\d+(?= insertion)' || true)
+          git commit -m "$(printf 'chore(data): atualização automática do banco de medicamentos [skip ci]\n\nMedicamentos adicionados/atualizados: %s linhas\nFonte: ANVISA Dados Abertos\n\nNÃO vai para a main automaticamente: os dados precisam ser ASSINADOS com a\nchave offline antes de chegarem aos aparelhos. Ver o cabeçalho do workflow.' "${ADDED:-?}")"
+          git push --force origin HEAD:data/auto-update
+          echo "✅ Publicado em data/auto-update — aguardando revisão + assinatura manual."
+          echo "   Para liberar:  git merge data/auto-update && npm run sign:data && npm run test:signature"

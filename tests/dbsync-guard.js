@@ -1,0 +1,69 @@
+// Testa a lógica de aceitação REAL do dbSync.ts contra payloads maliciosos.
+// Extrai as funções do arquivo e transpila com o TypeScript de verdade — o teste roda o
+// código que está em produção, não uma reimplementação que poderia divergir.
+const fs = require('fs');
+const path = require('path');
+const ROOT = path.join(__dirname, '..');
+const ts = require(path.join(ROOT, 'node_modules/typescript'));
+
+const src = fs.readFileSync(path.join(ROOT, 'src/services/dbSync.ts'), 'utf8');
+
+// Pega do marcador de validação até o fim do bloco acceptMeds
+const ini = src.indexOf('const RISK_LEVELS');
+const fim = src.indexOf('// ─── Public API');
+if (ini < 0 || fim < 0) throw new Error('não achei o bloco de validação em dbSync.ts');
+const trecho = src.slice(ini, fim) + '\nmodule.exports = { acceptInteractions, acceptMeds };\n';
+
+const js = ts.transpileModule(trecho, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
+const mod = { exports: {} };
+new Function('module', 'exports', js)(mod, mod.exports);
+const { acceptInteractions, acceptMeds } = mod.exports;
+
+const bundled = require(path.join(ROOT, 'src/data/interactions.json'));
+const N = bundled.length;
+const ok = id => ({ id, drug1: 'A', drug2: 'B', risk_description: 'x', risk_level: 'high' });
+const lote = n => Array.from({ length: n }, (_, i) => ok('int_' + i));
+
+const casos = [
+  ['ATAQUE: array vazio (apaga tudo)',                  [],                                       false],
+  [`ATAQUE: 1 entrada (zera as ${N})`,                  [ok('int_1')],                            false],
+  ['ATAQUE: metade do lote (some alerta crítico)',      lote(Math.floor(N / 2)),                  false],
+  ['ATAQUE: N-1 (remove UM alerta crítico)',            lote(N - 1),                              false],
+  ['ATAQUE: risk_level inventado ("none")',             [...lote(N - 1), { ...ok('x'), risk_level: 'none' }], false],
+  ['ATAQUE: entrada sem drug2',                         [...lote(N - 1), { id: 'x', drug1: 'A', risk_description: 'x', risk_level: 'high' }], false],
+  ['ATAQUE: null no meio do lote',                      [...lote(N - 1), null],                   false],
+  ['ATAQUE: objeto em vez de array',                    { medications: [] },                      false],
+  ['ATAQUE: string crua',                               'pwned',                                  false],
+  [`LEGÍTIMO: mesma quantidade (${N})`,                 lote(N),                                  true],
+  ['LEGÍTIMO: base cresceu (+50 interações)',           lote(N + 50),                             true],
+];
+
+let falhas = 0;
+for (const [nome, payload, esperado] of casos) {
+  const aceito = acceptInteractions(payload, N) !== null;
+  const passou = aceito === esperado;
+  if (!passou) falhas++;
+  console.log(`  ${passou ? '✓' : '✗ FALHOU'}  ${nome.padEnd(45)} → ${aceito ? 'ACEITO' : 'rejeitado'}`);
+}
+
+// medications-db
+const bMeds = require(path.join(ROOT, 'src/data/medications-db.json'));
+const M = bMeds.medications.length;
+const med = n => ({ medications: Array.from({ length: n }, (_, i) => ({ genericName: 'g' + i, brands: [], category: 'c' })) });
+console.log('');
+for (const [nome, payload, esperado] of [
+  [`ATAQUE meds: 1 entrada (zera as ${M})`,   med(1),                                             false],
+  ['ATAQUE meds: sem genericName',            { medications: [{ brands: [] }] },                  false],
+  [`LEGÍTIMO meds: mesma quantidade (${M})`,  med(M),                                             true],
+]) {
+  const aceito = acceptMeds(payload, M) !== null;
+  const passou = aceito === esperado;
+  if (!passou) falhas++;
+  console.log(`  ${passou ? '✓' : '✗ FALHOU'}  ${nome.padEnd(45)} → ${aceito ? 'ACEITO' : 'rejeitado'}`);
+}
+
+console.log('');
+console.log(falhas === 0
+  ? `  ✓ Todos os cenários passaram. Baseline: ${N} interações, ${M} medicamentos.`
+  : `  ✗ ${falhas} FALHA(S) — a defesa está furada.`);
+process.exit(falhas === 0 ? 0 : 1);

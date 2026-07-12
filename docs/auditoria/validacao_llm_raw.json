@@ -1,0 +1,2569 @@
+[
+  {
+    "id": "CTRL+1",
+    "drug1": "Varfarina",
+    "drug2": "Ibuprofeno",
+    "esperado": "sim",
+    "tier": "CONTROLE",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "O ibuprofeno inibe a agregação plaquetária e pode causar erosão/úlcera gastrointestinal, aumentando significativamente o risco de sangramento maior em pacientes anticoagulados com varfarina.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Ibuprofeno inibe a função plaquetária e irrita a mucosa gástrica, aumentando significativamente o risco de sangramento gastrointestinal em pacientes anticoagulados com varfarina.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "CTRL+2",
+    "drug1": "Sinvastatina",
+    "drug2": "Claritromicina",
+    "esperado": "sim",
+    "tier": "CONTROLE",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Claritromicina inibe potentemente CYP3A4, aumentando a exposição à sinvastatina e elevando o risco de miopatia e rabdomiólise.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Claritromicina inibe fortemente o CYP3A4, aumentando drasticamente as concentrações plasmáticas da sinvastatina e o risco de miopatia e rabdomiólise.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "CTRL+3",
+    "drug1": "Tranilcipromina",
+    "drug2": "Tramadol",
+    "esperado": "sim",
+    "tier": "CONTROLE",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Tranilcipromina (IMAO) inibe a degradação de serotonina e tramadol aumenta a liberação e inibe a recaptação de serotonina, com risco de síndrome serotoninérgica grave e potencialmente fatal.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Inibição da MAO por tranilcipromina associada à recaptação de serotonina inibida pelo tramadol predispõe à síndrome serotoninérgica grave.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "CTRL+4",
+    "drug1": "Sildenafila",
+    "drug2": "Nitroglicerina",
+    "esperado": "sim",
+    "tier": "CONTROLE",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Sildenafila potencializa o efeito hipotensor da nitroglicerina por inibir a PDE5, aumentando o GMPc e causando vasodilatação sistêmica grave e risco de colapso cardiovascular.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Ambos aumentam os níveis de GMPc (sildenafila inibe a PDE5 e nitroglicerina libera óxido nítrico), resultando em hipotensão grave e potencialmente fatal.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "CTRL+5",
+    "drug1": "Alopurinol",
+    "drug2": "Azatioprina",
+    "esperado": "sim",
+    "tier": "CONTROLE",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Alopurinol inibe a xantina oxidase, enzima que metaboliza a azatioprina, levando a acúmulo de metabólitos ativos e risco de toxicidade medular grave.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "O alopurinol inibe a xantina oxidase, reduzindo o metabolismo da azatioprina e aumentando drasticamente os níveis de 6-mercaptopurina, com risco severo de mielossupressão.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "CTRL+6",
+    "drug1": "Metotrexato",
+    "drug2": "Sulfametoxazol + Trimetoprima",
+    "esperado": "sim",
+    "tier": "CONTROLE",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "O trimetoprim inibe a secreção tubular renal e desloca o metotrexato das proteínas plasmáticas, aumentando significativamente sua concentração e toxicidade (mielossupressão grave).",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Aditiva inibição da via do folato e redução da depuração renal do metotrexato, aumentando o risco de mielotoxicidade severa.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "CTRL-1",
+    "drug1": "Loratadina",
+    "drug2": "Paracetamol",
+    "esperado": "nao",
+    "tier": "CONTROLE",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacocinética ou farmacodinâmica clinicamente significativa entre loratadina e paracetamol.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacológica clinicamente significativa conhecida entre loratadina e paracetamol, sendo frequentemente coadministrados para sintomas de resfriado.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "CTRL-2",
+    "drug1": "Amoxicilina",
+    "drug2": "Dipirona",
+    "esperado": "nao",
+    "tier": "CONTROLE",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacocinética ou farmacodinâmica clinicamente significativa documentada entre amoxicilina e dipirona.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há evidência de interação farmacocinética ou farmacodinâmica clinicamente relevante entre amoxicilina e dipirona.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "CTRL-3",
+    "drug1": "Cetirizina",
+    "drug2": "Vitamina C (Ácido Ascórbico)",
+    "esperado": "nao",
+    "tier": "CONTROLE",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacocinética ou farmacodinâmica clinicamente significativa entre cetirizina e vitamina C.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há evidências de interação farmacológica clinicamente significativa entre cetirizina e ácido ascórbico.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "CTRL-4",
+    "drug1": "Bromoprida",
+    "drug2": "Vitamina D",
+    "esperado": "nao",
+    "tier": "CONTROLE",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacocinética ou farmacodinâmica clinicamente significativa descrita entre bromoprida e vitamina D.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há mecanismo farmacológico conhecido que resulte em interação clinicamente significativa entre bromoprida e vitamina D.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "CTRL-5",
+    "drug1": "Hidroxizina",
+    "drug2": "Ácido Fólico",
+    "esperado": "nao",
+    "tier": "CONTROLE",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacocinética ou farmacodinâmica clinicamente significativa entre hidroxizina e ácido fólico.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há evidências de interação farmacocinética ou farmacodinâmica clinicamente relevante entre hidroxizina e ácido fólico.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "CTRL-6",
+    "drug1": "Cefalexina",
+    "drug2": "Loratadina",
+    "esperado": "nao",
+    "tier": "CONTROLE",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacocinética ou farmacodinâmica clinicamente significativa entre cefalexina e loratadina.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacológica clinicamente significativa conhecida entre cefalexina e loratadina.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_784",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Vitamina D",
+    "drug2": "Colecalciferol",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Colecalciferol é a própria vitamina D3, portanto são o mesmo fármaco.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Colecalciferol é uma forma de vitamina D, representando duplicação terapêutica e não uma interação farmacológica entre fármacos distintos.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1070",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Lamivudina",
+    "drug2": "Zidovudina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Lamivudina e zidovudina são frequentemente coadministradas como parte da terapia antirretroviral combinada para HIV, sem interação farmacocinética clinicamente significativa que exija ajuste de dose ou alerta específico além do monitoramento padrão.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "São frequentemente coadministrados de propósito em terapia antirretroviral combinada, sem necessidade de ajuste de dose por interação farmacológica clinicamente significativa.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_514",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Lítio",
+    "drug2": "Metformina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há evidência de interação farmacocinética ou farmacodinâmica clinicamente significativa entre lítio e metformina.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há evidências de interação farmacológica clinicamente significativa entre lítio e metformina.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1734",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Esomeprazol",
+    "drug2": "Claritromicina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "nao",
+        "mecanismo": "A claritromicina inibe a CYP3A4, aumentando a exposição ao esomeprazol, mas o efeito não é clinicamente significativo e a combinação é usada terapeuticamente para erradicação de H. pylori.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Claritromicina inibe o metabolismo do esomeprazol via CYP3A4/CYP2C19, aumentando sua exposição, mas o aumento não é clinicamente significativo e a combinação é frequentemente co-prescrita intencionalmente para erradicação de H. pylori.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_2114",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Lansoprazol",
+    "drug2": "Claritromicina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "nao",
+        "mecanismo": "A claritromicina inibe a CYP3A4, aumentando a exposição ao lansoprazol, mas o efeito clínico é geralmente benéfico na terapia de erradicação do H. pylori.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Claritromicina inibe CYP3A4 aumentando os níveis de lansoprazol, mas sem relevância clínica devido ao amplo índice terapêutico e uso combinado rotineiro para erradicação de H. pylori.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_2486",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Omeprazol",
+    "drug2": "Claritromicina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "nao",
+        "mecanismo": "O omeprazol pode aumentar a concentração plasmática da claritromicina por inibição do CYP3A4 e competição pelo mesmo sítio de metabolismo, enquanto a claritromicina pode inibir o CYP3A4 e aumentar a exposição ao omeprazol; esta interação é frequentemente explorada terapeuticamente na erradicação do H. pylori.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "A claritromicina inibe o CYP3A4 e pode aumentar os níveis de omeprazol, mas são rotineiramente co-prescritos de propósito na erradicação do H. pylori sem prejuízo clínico significativo.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_2485",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Omeprazol",
+    "drug2": "Amoxicilina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacocinética ou farmacodinâmica clinicamente significativa. São frequentemente co-prescritos para erradicação de H. pylori.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Omeprazol pode aumentar a absorção da amoxicilina pelo aumento do pH gástrico, mas isso não é clinicamente prejudicial e frequentemente são coadministrados intencionalmente para erradicação de H. pylori.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1735",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Esomeprazol",
+    "drug2": "Amoxicilina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacocinética ou farmacodinâmica clinicamente significativa. São frequentemente co-prescritos para erradicação de H. pylori.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "São frequentemente coadministrados de propósito (terapia de erradicação de H. pylori), sem interações farmacológicas adversas clinicamente significativas.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_2115",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Lansoprazol",
+    "drug2": "Amoxicilina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacocinética ou farmacodinâmica clinicamente significativa. São frequentemente co-prescritos em esquemas de erradicação de H. pylori.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacológica clinicamente significativa; são frequentemente coadministrados intencionalmente para erradicação do H. pylori.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_3019",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Betametasona",
+    "drug2": "Hidrocortisona",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Ambos são corticosteroides com mecanismo de ação similar; a coadministração é redundante, mas não constitui uma interação farmacológica clinicamente significativa.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Efeitos farmacológicos e tóxicos aditivos pelo uso concomitante de dois glicocorticoides, aumentando o risco de efeitos adversos sistêmicos.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1337",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Lopinavir",
+    "drug2": "Ritonavir",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Lopinavir e ritonavir são coformulados intencionalmente; o ritonavir atua como potencializador farmacocinético do lopinavir, inibindo seu metabolismo via CYP3A4 para aumentar sua biodisponibilidade.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Ritonavir é usado intencionalmente como potencializador farmacocinético do lopinavir, inibindo seu metabolismo pelo CYP3A4.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_972",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Atazanavir",
+    "drug2": "Ritonavir",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "nao",
+        "mecanismo": "O ritonavir é usado como booster farmacocinético do atazanavir, inibindo o CYP3A4 e aumentando intencionalmente os níveis plasmáticos do atazanavir.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "erro": "sem JSON"
+      }
+    }
+  },
+  {
+    "id": "int_1297",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Fosamprenavir",
+    "drug2": "Ritonavir",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Ritonavir é usado como booster farmacocinético do fosamprenavir, sendo uma combinação terapêutica intencional e benéfica, não uma interação adversa.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Ritonavir é intencionalmente coadministrado como potencializador farmacocinético (inibidor de CYP3A4) de fosamprenavir, sendo uma prática padrão e não uma interação prejudicial.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1742",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Espironolactona",
+    "drug2": "Digoxina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "A espironolactona reduz a secreção tubular renal da digoxina, aumentando sua concentração sérica e o risco de toxicidade digitálica.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A espironolactona inibe a secreção tubular renal e o transportador P-gp da digoxina, reduzindo sua depuração e aumentando as concentrações plasmáticas, com risco de toxicidade digitálica.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1746",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Espironolactona (acne)",
+    "drug2": "Digoxina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "A espironolactona pode aumentar as concentrações séricas de digoxina por reduzir sua secreção tubular renal, elevando o risco de toxicidade digitálica.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Espironolactona inibe a depuração renal da digoxina (via P-gp) e pode elevar o potássio sérico, aumentando o risco de toxicidade por digoxina.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1272",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Carbamazepina",
+    "drug2": "Clorpromazina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A carbamazepina induz o metabolismo hepático da clorpromazina via CYP3A4, podendo reduzir sua concentração plasmática e eficácia; a clorpromazina pode inibir o metabolismo da carbamazepina, aumentando o risco de toxicidade por carbamazepina.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A carbamazepina induz enzimas hepáticas (como CYP3A4 e CYP1A2), reduzindo as concentrações plasmáticas e a eficácia da clorpromazina.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1273",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Carbamazepina",
+    "drug2": "Tioridazina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Carbamazepina é um potente indutor do CYP3A4 e pode reduzir drasticamente as concentrações plasmáticas de tioridazina, enquanto a tioridazina pode inibir o metabolismo da carbamazepina, aumentando o risco de toxicidade por carbamazepina e potencialmente exacerbando o prolongamento do intervalo QT.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Carbamazepina induz o metabolismo da tioridazina reduzindo sua eficácia, e ambos apresentam risco aditivo de prolongamento do intervalo QT.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1375",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Ceftriaxona",
+    "drug2": "Fluconazol",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacocinética ou farmacodinâmica clinicamente significativa documentada entre ceftriaxona e fluconazol.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacocinética ou farmacodinâmica clinicamente relevante entre ceftriaxona e fluconazol, sendo frequentemente coadministrados em terapias empíricas.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1376",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Ceftriaxona",
+    "drug2": "Vancomicina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacocinética ou farmacodinâmica clinicamente significativa entre ceftriaxona e vancomicina. São frequentemente coadministradas em terapêutica empírica de infeções graves.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacológica clinicamente significativa; são frequentemente coadministrados para cobertura empírica ampla, exigindo apenas monitorização padrão da vancomicina.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_3021",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Bicarbonato de Sódio",
+    "drug2": "Norepinefrina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "O bicarbonato de sódio alcaliniza a solução, causando inativação e degradação acelerada da norepinefrina, reduzindo sua eficácia terapêutica.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "A interação descrita em bases de dados refere-se à incompatibilidade físico-química em misturas intravenosas, não a uma interação farmacológica sistêmica clinicamente significativa.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_3022",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Bicarbonato de Sódio",
+    "drug2": "Dobutamina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacocinética ou farmacodinâmica clinicamente significativa. A dobutamina é estável em pH ácido, e a alcalinização sistêmica pelo bicarbonato não altera seu efeito inotrópico de forma relevante.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacológica clinicamente significativa; a coadministração pode apresentar incompatibilidade física intravenosa, mas isso não configura interação farmacológica.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_3035",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Brometo de vecurônio",
+    "drug2": "Tiopental",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "O tiopental pode potencializar o bloqueio neuromuscular do vecurônio, aumentando o risco de depressão respiratória prolongada.",
+        "confianca": "media"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacológica clinicamente significativa; a coadministração é padrão na anestesia, havendo apenas incompatibilidade física se misturados na mesma seringa.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1415",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Ciclobenzaprina",
+    "drug2": "Verapamil",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Ambos os fármacos são metabolizados pelo CYP3A4 e possuem efeitos aditivos de depressão do SNC e prolongamento do intervalo QT, aumentando o risco de arritmias e sedação excessiva.",
+        "confianca": "media"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "O verapamil inibe o CYP3A4, podendo elevar os níveis de ciclobenzaprina, e ambos possuem efeitos farmacodinâmicos aditivos que podem causar bradicardia, hipotensão e depressão da condução cardíaca.",
+        "confianca": "media"
+      }
+    }
+  },
+  {
+    "id": "int_734",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Tizanidina",
+    "drug2": "Fluoxetina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "A fluoxetina inibe potentemente a CYP1A2, enzima responsável pelo metabolismo da tizanidina, aumentando significativamente a exposição e o risco de hipotensão, sedação e bradicardia.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A fluoxetina pode inibir levemente o metabolismo da tizanidina via CYP1A2 e potencializar a sedação e a hipotensão.",
+        "confianca": "media"
+      }
+    }
+  },
+  {
+    "id": "int_735",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Tizanidina",
+    "drug2": "Paroxetina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "A paroxetina inibe potentemente a CYP1A2, enzima responsável pelo metabolismo da tizanidina, causando aumento drástico das concentrações plasmáticas de tizanidina e risco de hipotensão grave, bradicardia e sedação excessiva.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "A tizanidina é metabolizada principalmente pelo CYP1A2, e a paroxetina é um inibidor potente do CYP2D6, com efeito desprezível sobre o CYP1A2, não havendo interação farmacocinética clinicamente significativa; embora ambos possam causar sedação, isso não configura uma interação medicamentosa específica.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_736",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Tizanidina",
+    "drug2": "Sertralina",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A sertralina inibe moderadamente a CYP1A2, principal via de metabolização da tizanidina, podendo aumentar significativamente os níveis plasmáticos e os efeitos hipotensores e sedativos da tizanidina.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "A sertralina não inibe clinicamente o CYP1A2, principal via de metabolização da tizanidina, não havendo risco farmacocinético ou farmacodinâmico clinicamente relevante.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_671",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Rizatriptano",
+    "drug2": "Pimozida",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Rizatriptano pode prolongar o intervalo QT de forma aditiva com pimozida, aumentando o risco de arritmias ventriculares graves como torsades de pointes.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há evidências de interação farmacocinética ou farmacodinâmica clinicamente relevante entre rizatriptano e pimozida.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_448",
+    "tier": "T1-REMOVIDA",
+    "drug1": "Formoterol",
+    "drug2": "Tramadol",
+    "minhaDecisao": "REMOVI (não é interação)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacodinâmica ou farmacocinética clinicamente significativa entre formoterol (agonista beta-2 adrenérgico) e tramadol (opioide atípico).",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacológica ou farmacocinética clinicamente significativa estabelecida entre formoterol e tramadol.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1133",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Rufinamida",
+    "drug2": "Topiramato",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Ambos são moduladores dos canais de sódio e podem ter efeitos aditivos no sistema nervoso central, aumentando o risco de depressão do SNC, tontura e sonolência.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há evidências de interação farmacocinética ou farmacodinâmica clinicamente significativa entre os dois fármacos.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1519",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Desloratadina",
+    "drug2": "Azitromicina",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacocinética ou farmacodinâmica clinicamente significativa. Estudos formais não demonstraram alterações relevantes nos níveis plasmáticos ou no QTc com a coadministração.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Azitromicina é um fraco inibidor do CYP3A4 e não altera significativamente a farmacocinética da desloratadina, que possui ampla margem de segurança cardiovascular.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1520",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Desloratadina",
+    "drug2": "Cetoconazol",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "O cetoconazol inibe a CYP3A4 e a glicoproteína-P, mas a desloratadina não é substrato clinicamente relevante dessas vias, sendo excretada principalmente de forma inalterada; estudos farmacocinéticos não demonstraram alteração significativa na exposição à desloratadina.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Cetoconazol inibe discretamente o metabolismo da desloratadina via CYP3A4, aumentando sua exposição, mas sem relevância clínica devido à ampla margem de segurança do antialérgico.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1521",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Desloratadina",
+    "drug2": "Eritromicina",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "A eritromicina pode inibir o CYP3A4, mas a desloratadina não é significativamente metabolizada por essa via; estudos clínicos não demonstraram alterações farmacocinéticas ou de segurança relevantes.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Embora a eritromicina iniba o CYP3A4 e possa aumentar as concentrações plasmáticas da desloratadina, este aumento não se traduz em efeitos adversos clinicamente significativos, como prolongamento do QT ou sedação.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1522",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Desloratadina",
+    "drug2": "Fluoxetina",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacocinética ou farmacodinâmica clinicamente significativa. A desloratadina não é metabolizada significativamente pelo CYP2D6, e a fluoxetina não altera sua exposição de forma relevante.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Embora a fluoxetina iniba o CYP2D6, o aumento teórico dos níveis de desloratadina não tem relevância clínica devido à ampla margem de segurança e perfil não sedativo do fármaco.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1523",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Desloratadina",
+    "drug2": "Cimetidina",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "A cimetidina pode inibir o metabolismo hepático de alguns anti-histamínicos, mas estudos específicos com desloratadina não demonstraram interação farmacocinética clinicamente significativa.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "A cimetidina pode inibir levemente o metabolismo da desloratadina aumentando sua exposição, mas o aumento não é clinicamente significativo e não exige ajuste de dose.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_2327",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Mirabegrona",
+    "drug2": "Varfarina",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há evidência de interação farmacocinética ou farmacodinâmica clinicamente significativa entre mirabegrona e varfarina.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Mirabegrona inibe moderadamente o CYP2D6, mas a varfarina é metabolizada principalmente pelo CYP2C9, não havendo sobreposição farmacocinética ou farmacodinâmica clinicamente relevante.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1009",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Dabigatrana",
+    "drug2": "Amiodarona",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "A amiodarona inibe a glicoproteína-P (P-gp), reduzindo o efluxo intestinal e renal da dabigatrana, o que aumenta sua biodisponibilidade e concentração plasmática, elevando o risco de sangramento.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A amiodarona inibe a P-glicoproteína (P-gp) intestinal, aumentando a absorção e a exposição plasmática à dabigatrana, elevando o risco de sangramento.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_2722",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Tolcapona",
+    "drug2": "Varfarina",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "A tolcapona inibe a CYP2C9, principal via de metabolismo da varfarina, podendo aumentar significativamente o efeito anticoagulante e o risco de sangramento.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há evidências de interação farmacocinética ou farmacodinâmica clinicamente relevante entre tolcapona e varfarina.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1136",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Sertralina",
+    "drug2": "Fenitoína",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A sertralina pode inibir o metabolismo hepático da fenitoína via CYP2C9/2C19, aumentando os níveis plasmáticos e o risco de toxicidade da fenitoína.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A sertralina pode inibir o metabolismo da fenitoína (CYP2C9/2C19), elevando seus níveis plasmáticos e aumentando o risco de toxicidade.",
+        "confianca": "media"
+      }
+    }
+  },
+  {
+    "id": "int_1137",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Sertralina",
+    "drug2": "Valproato de Sódio",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "O valproato pode inibir a glicuronidação da sertralina, aumentando sua concentração plasmática e o risco de síndrome serotoninérgica.",
+        "confianca": "media"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Risco aditivo de sangramento devido à inibição da agregação plaquetária pela sertralina e potencial trombocitopenia induzida pelo valproato.",
+        "confianca": "media"
+      }
+    }
+  },
+  {
+    "id": "int_1187",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Darunavir",
+    "drug2": "Atazanavir",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Ambos são inibidores da protease do HIV com perfis de toxicidade sobrepostos e potencial para interações farmacocinéticas complexas mediadas por CYP3A4 e UGT1A1, resultando em aumento do risco de hiperbilirrubinemia, prolongamento do intervalo PR e cardiotoxicidade aditiva.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "A coadministração de inibidores da protease (como darunavir e atazanavir) resulta em complexas interações farmacocinéticas, com redução significativa na exposição ao atazanavir, aumentando o risco de falha virológica e toxicidade aditiva.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1232",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Nevirapina",
+    "drug2": "Ritonavir",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "nao",
+        "mecanismo": "Ritonavir é um inibidor potente do CYP3A4 e pode aumentar as concentrações de nevirapina, mas a nevirapina é indutora do CYP3A4 e pode reduzir as concentrações de ritonavir; o efeito líquido é variável e geralmente não requer ajuste de dose, mas monitoramento é recomendado.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "O ritonavir inibe o CYP3A4, podendo aumentar a exposição à nevirapina e o risco de hepatotoxicidade, enquanto a nevirapina induz o CYP3A4, podendo reduzir os níveis de ritonavir.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1478",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Cloridrato de Ropivacaína",
+    "drug2": "Amiodarona",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Amiodarona pode prolongar o intervalo QT e, em combinação com ropivacaína (que bloqueia canais de sódio cardíacos), há risco aditivo de arritmias ventriculares, especialmente com doses altas ou administração intravenosa acidental de ropivacaína.",
+        "confianca": "media"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Aditivos efeitos cardiotóxicos e depressores miocárdicos devido ao bloqueio de canais de sódio e potássio por ambos os fármacos.",
+        "confianca": "media"
+      }
+    }
+  },
+  {
+    "id": "int_2392",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Nifedipina",
+    "drug2": "Flecainida",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "A nifedipina pode aumentar as concentrações plasmáticas de flecainida por inibição moderada do CYP2D6, aumentando o risco de cardiotoxicidade (prolongamento do QRS, arritmias).",
+        "confianca": "media"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Potencialização farmacodinâmica com depressão miocárdica aditiva e risco aumentado de hipotensão e insuficiência cardíaca.",
+        "confianca": "media"
+      }
+    }
+  },
+  {
+    "id": "int_2412",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Nifedipino",
+    "drug2": "Flecainida",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Nifedipino pode aumentar a concentração plasmática de flecainida por inibição moderada do CYP2D6, aumentando o risco de cardiotoxicidade (prolongamento do QRS, arritmias).",
+        "confianca": "media"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Adição de efeitos cardiovasculares depressores, podendo resultar em hipotensão acentuada e depressão miocárdica.",
+        "confianca": "media"
+      }
+    }
+  },
+  {
+    "id": "int_1947",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Granisetrona",
+    "drug2": "Cetoconazol",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "nao",
+        "mecanismo": "Cetoconazol é um inibidor potente do CYP3A4, enquanto a granisetrona é metabolizada por esta via; a coadministração pode aumentar a exposição à granisetrona, mas sem relevância clínica significativa devido à sua ampla margem terapêutica.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Cetoconazol inibe o CYP3A4 podendo aumentar a exposição à granisetrona, porém sem relevância clínica que exija ajuste de dose ou alerta ao paciente.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1948",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Granisetrona",
+    "drug2": "Fenobarbital",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Fenobarbital induz CYP3A4, podendo reduzir a concentração plasmática e a eficácia antiemética da granisetrona.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "O fenobarbital é um indutor enzimático (CYP3A4) que pode reduzir as concentrações plasmáticas da granisetrona, diminuindo sua eficácia antiemética.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1168",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Venlafaxina",
+    "drug2": "Risperidona",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A venlafaxina inibe fracamente CYP2D6, podendo aumentar as concentrações de risperidona e seu metabólito ativo, elevando o risco de efeitos adversos dopaminérgicos e prolongamento do intervalo QT.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A venlafaxina inibe moderadamente o CYP2D6, podendo aumentar as concentrações plasmáticas da risperidona, além de potencializar efeitos farmacodinâmicos como sedação, prolongamento do QT e risco de síndrome serotoninérgica.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1169",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Venlafaxina",
+    "drug2": "Indinavir",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A venlafaxina pode inibir competitivamente o metabolismo hepático do indinavir via CYP2D6, aumentando o risco de toxicidade por indinavir.",
+        "confianca": "media"
+      },
+      "zai-org/GLM-5.2": {
+        "erro": "sem JSON"
+      }
+    }
+  },
+  {
+    "id": "int_2267",
+    "tier": "T3-REMOVIDA",
+    "drug1": "Memantina",
+    "drug2": "Cetamina",
+    "minhaDecisao": "REMOVI (texto negava)",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Antagonismo competitivo no receptor NMDA, com possível redução da eficácia da cetamina e risco de efeitos aditivos no SNC (confusão, sedação, alucinações).",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Ambos são antagonistas do receptor NMDA, podendo resultar em efeitos aditivos no SNC e risco aumentado de neurotoxicidade ou reações psicodislépticas.",
+        "confianca": "media"
+      }
+    }
+  },
+  {
+    "id": "int_063",
+    "tier": "T2-REESCRITA",
+    "drug1": "Fluconazol",
+    "drug2": "Losartana / Valsartana (BRA)",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Redução do efeito anti-hipertensivo — risco de perda de controle da pressão",
+    "antesEra": "moderate: Hipotensão por redução da ativação do losartana",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacocinética ou farmacodinâmica clinicamente significativa entre fluconazol e bloqueadores dos receptores da angiotensina II (losartana, valsartana).",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "O fluconazol inibe o CYP2C9, reduzindo a conversão da losartana em seu metabólito ativo, o que pode diminuir o efeito anti-hipertensivo (não se aplica à valsartana, que não é metabolizada pelo CYP2C9).",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_116",
+    "tier": "T2-REESCRITA",
+    "drug1": "Arnica montana",
+    "drug2": "Varfarina",
+    "minhaDecisao": "MANTIVE, mecanismo -> high: Hemorragia grave",
+    "antesEra": "moderate: Aumento do risco de sangramento",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há evidência de interação farmacológica clinicamente significativa. Arnica montana em preparações homeopáticas diluídas não contém princípios ativos em concentração suficiente para interferir na coagulação ou no metabolismo da varfarina.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A Arnica montana pode possuir efeitos antiplaquetários e anticoagulantes aditivos, aumentando o risco de sangramento quando coadministrada com varfarina.",
+        "confianca": "media"
+      }
+    }
+  },
+  {
+    "id": "int_218",
+    "tier": "T2-REESCRITA",
+    "drug1": "Alprazolam",
+    "drug2": "Citalopram",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Sedação excessiva por aumento dos níveis de alprazolam",
+    "antesEra": "moderate: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Efeito aditivo de depressão do SNC e possível aumento das concentrações de alprazolam por inibição do CYP3A4 pelo citalopram, aumentando o risco de sedação excessiva e comprometimento psicomotor.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Depressão aditiva do sistema nervoso central e potencial inibição leve do metabolismo do alprazolam via CYP3A4 pelo citalopram.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_219",
+    "tier": "T2-REESCRITA",
+    "drug1": "Alprazolam",
+    "drug2": "Fluoxetina",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Sedação excessiva por aumento dos níveis de alprazolam",
+    "antesEra": "moderate: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A fluoxetina inibe o CYP3A4, aumentando a concentração plasmática e os efeitos sedativos do alprazolam.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A fluoxetina inibe moderadamente a enzima CYP3A4, podendo aumentar as concentrações plasmáticas do alprazolam e potencializar a depressão do sistema nervoso central.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_242",
+    "tier": "T2-REESCRITA",
+    "drug1": "Aripiprazol",
+    "drug2": "Citalopram",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Aumento dos níveis de aripiprazol — pode exigir ajuste de dose",
+    "antesEra": "high: Aumento do risco de síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Ambos prolongam o intervalo QT e aumentam o risco de arritmias ventriculares como Torsades de Pointes por efeito aditivo.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Citalopram inibe fracamente o CYP2D6, podendo aumentar as concentrações de aripiprazol, além de potencializar efeitos adversos no SNC e risco de prolongamento do intervalo QT.",
+        "confianca": "media"
+      }
+    }
+  },
+  {
+    "id": "int_244",
+    "tier": "T2-REESCRITA",
+    "drug1": "Aripiprazol",
+    "drug2": "Fluoxetina",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Aumento dos níveis de aripiprazol — reduzir a dose pela metade",
+    "antesEra": "moderate: Aumento do risco de síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Fluoxetina inibe CYP2D6, aumentando as concentrações de aripiprazol, o que pode elevar o risco de efeitos adversos como acatisia e síndrome extrapiramidal.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A fluoxetina inibe fortemente o CYP2D6 e o CYP3A4, reduzindo o clearance do aripiprazol e aumentando significativamente sua exposição plasmática.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_245",
+    "tier": "T2-REESCRITA",
+    "drug1": "Aripiprazol",
+    "drug2": "Paroxetina",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Aumento dos níveis de aripiprazol — reduzir a dose pela metade",
+    "antesEra": "high: Aumento do risco de síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "A paroxetina inibe fortemente a CYP2D6, aumentando significativamente as concentrações plasmáticas do aripiprazol, o que eleva o risco de efeitos adversos como síndrome extrapiramidal e prolongamento do intervalo QT.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Paroxetina inibe fortemente o CYP2D6, aumentando significativamente a exposição ao aripiprazol, com risco de efeitos adversos dose-dependentes.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_246",
+    "tier": "T2-REESCRITA",
+    "drug1": "Aripiprazol",
+    "drug2": "Sertralina",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Aumento discreto dos níveis de aripiprazol",
+    "antesEra": "moderate: Aumento do risco de síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A sertralina inibe CYP2D6, aumentando a exposição ao aripiprazol, que é substrato dessa enzima, podendo elevar o risco de efeitos adversos como síndrome extrapiramidal e prolongamento do intervalo QT.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A sertralina inibe moderadamente o CYP2D6, podendo aumentar as concentrações plasmáticas do aripiprazol e o risco de efeitos adversos como acatisia ou sintomas extrapiramidais.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_270",
+    "tier": "T2-REESCRITA",
+    "drug1": "Brexpiprazol",
+    "drug2": "Linezolida",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Cautela ao associar linezolida (inibidor fraco da MAO)",
+    "antesEra": "critical: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacocinética ou farmacodinâmica clinicamente significativa descrita entre brexpiprazol e linezolida. Embora a linezolida seja um inibidor fraco e reversível da monoaminoxidase (IMAO), o brexpiprazol não é metabolizado primariamente pela MAO e não há evidência de risco de síndrome serotoninérgica ou crise hipertensiva com esta combinação.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "erro": "sem JSON"
+      }
+    }
+  },
+  {
+    "id": "int_273",
+    "tier": "T2-REESCRITA",
+    "drug1": "Buspirona",
+    "drug2": "Cetoconazol",
+    "minhaDecisao": "MANTIVE, mecanismo -> high: Aumento acentuado dos níveis de buspirona — tontura e sedação",
+    "antesEra": "high: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Cetoconazol inibe CYP3A4, aumentando significativamente a concentração plasmática de buspirona, com risco de sedação excessiva e prolongamento do intervalo QT.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "O cetoconazol inibe fortemente a enzima CYP3A4, aumentando significativamente as concentrações plasmáticas e os efeitos adversos da buspirona.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_274",
+    "tier": "T2-REESCRITA",
+    "drug1": "Buspirona",
+    "drug2": "Itraconazol",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Aumento dos níveis de buspirona — tontura e sedação",
+    "antesEra": "moderate: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Itraconazol inibe CYP3A4, aumentando significativamente as concentrações plasmáticas de buspirona, o que pode levar a sedação excessiva e tontura.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "O itraconazol inibe potente o CYP3A4, reduzindo o metabolismo da buspirona e aumentando significativamente sua exposição e efeitos adversos.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_275",
+    "tier": "T2-REESCRITA",
+    "drug1": "Buspirona",
+    "drug2": "Ritonavir",
+    "minhaDecisao": "MANTIVE, mecanismo -> high: Aumento acentuado dos níveis de buspirona — tontura e sedação",
+    "antesEra": "high: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Ritonavir inibe CYP3A4, aumentando significativamente as concentrações plasmáticas de buspirona, com risco de toxicidade (sedação excessiva, tontura, depressão respiratória).",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Ritonavir inibe fortemente a CYP3A4, reduzindo o metabolismo da buspirona e aumentando significativamente suas concentrações plasmáticas e o risco de efeitos adversos no SNC.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_285",
+    "tier": "T2-REESCRITA",
+    "drug1": "Celecoxibe",
+    "drug2": "Metotrexato",
+    "minhaDecisao": "MANTIVE, mecanismo -> high: Aumento do risco de toxicidade do metotrexato (neutropenia, trombocitopenia, disfunção renal).",
+    "antesEra": "moderate: Toxicidade por metotrexato",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Celecoxibe pode reduzir a depuração renal do metotrexato, aumentando sua concentração plasmática e o risco de toxicidade hematológica e gastrointestinal.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Celecoxibe pode reduzir a perfusão renal e a secreção tubular do metotrexato, elevando suas concentrações plasmáticas e o risco de toxicidade.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_304",
+    "tier": "T2-REESCRITA",
+    "drug1": "Citalopram",
+    "drug2": "Pimozida",
+    "minhaDecisao": "MANTIVE, mecanismo -> critical: Prolongamento do intervalo QT — risco de torsades de pointes",
+    "antesEra": "high: Síndrome serotoninérgica grave",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Citalopram inibe CYP2D6, aumentando as concentrações de pimozida, o que prolonga o intervalo QT e eleva o risco de arritmias ventriculares graves como Torsades de Pointes.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Adição de efeitos farmacodinâmicos no prolongamento do intervalo QT, aumentando o risco de torsades de pointes e morte súbita.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_310",
+    "tier": "T2-REESCRITA",
+    "drug1": "Clobazam",
+    "drug2": "Citalopram",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Sedação excessiva por aumento do metabólito ativo do clobazam",
+    "antesEra": "moderate: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Ambos prolongam o intervalo QT e têm efeitos depressores do SNC, com risco aditivo de sedação e arritmias.",
+        "confianca": "media"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A coadministração pode resultar em depressão aditiva do sistema nervoso central, aumentando sedação, tonturas e comprometimento psicomotor.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_311",
+    "tier": "T2-REESCRITA",
+    "drug1": "Clobazam",
+    "drug2": "Escitalopram",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Sedação excessiva por aumento do metabólito ativo do clobazam",
+    "antesEra": "moderate: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Efeitos aditivos de depressão do sistema nervoso central e possível aumento das concentrações de escitalopram por inibição do CYP2C19 pelo clobazam.",
+        "confianca": "media"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Potencialização da depressão do sistema nervoso central, aumentando o risco de sedação, tonturas e comprometimento cognitivo.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_312",
+    "tier": "T2-REESCRITA",
+    "drug1": "Clobazam",
+    "drug2": "Fluoxetina",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Sedação excessiva por aumento do metabólito ativo do clobazam",
+    "antesEra": "moderate: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Fluoxetina inibe CYP2C19, aumentando a exposição ao N-desmetilclobazam (metabólito ativo), potencializando sedação e depressão respiratória.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A fluoxetina inibe o CYP2C19, reduzindo o metabolismo do metabólito ativo do clobazam (N-desmetilclobazam) e aumentando seu risco de sedação e toxicidade.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_313",
+    "tier": "T2-REESCRITA",
+    "drug1": "Clobazam",
+    "drug2": "Paroxetina",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Sedação excessiva por aumento do metabólito ativo do clobazam",
+    "antesEra": "high: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A paroxetina inibe a CYP2D6, mas o clobazam é metabolizado principalmente pela CYP3A4 e CYP2C19; a interação clinicamente significativa decorre do efeito aditivo depressor do SNC e do risco aumentado de síndrome serotoninérgica.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A paroxetina inibe o CYP2C19, podendo aumentar as concentrações do metabólito ativo do clobazam (N-desmetilclobazam), potencializando a depressão do SNC e a sedação.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_314",
+    "tier": "T2-REESCRITA",
+    "drug1": "Clobazam",
+    "drug2": "Sertralina",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Sedação excessiva por aumento do metabólito ativo do clobazam",
+    "antesEra": "moderate: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A sertralina inibe moderadamente a CYP2C19, enzima que metaboliza o clobazam em seu metabólito ativo N-desmetilclobazam, podendo aumentar os níveis e efeitos sedativos do clobazam.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A sertralina inibe moderadamente o CYP2C19, reduzindo o metabolismo do metabólito ativo do clobazam (N-desmetilclobazam) e aumentando o risco de sedação excessiva e toxicidade.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_317",
+    "tier": "T2-REESCRITA",
+    "drug1": "Clomipramina",
+    "drug2": "Pimozida",
+    "minhaDecisao": "MANTIVE, mecanismo -> critical: Prolongamento do intervalo QT — risco de torsades de pointes",
+    "antesEra": "critical: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Ambos prolongam o intervalo QT e podem causar torsades de pointes; a clomipramina também inibe o metabolismo hepático da pimozida, aumentando seu risco de cardiotoxicidade.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Aditivo prolongamento do intervalo QT e risco de arritmias graves (Torsades de Pointes), potencializado pela inibição do CYP2D6 pela clomipramina que eleva os níveis de pimozida.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_318",
+    "tier": "T2-REESCRITA",
+    "drug1": "Clomipramina",
+    "drug2": "Tioridazina",
+    "minhaDecisao": "MANTIVE, mecanismo -> critical: Prolongamento do intervalo QT — risco de torsades de pointes",
+    "antesEra": "critical: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Ambos prolongam o intervalo QT e inibem o metabolismo hepático um do outro (CYP2D6), com risco aditivo de arritmias ventriculares graves como Torsades de Pointes.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Risco aditivo de prolongamento do intervalo QT e torsades de pointes, potencializado pela inibição do CYP2D6 que eleva as concentrações plasmáticas de ambos os fármacos.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_328",
+    "tier": "T2-REESCRITA",
+    "drug1": "Clorpromazina",
+    "drug2": "Metoclopramida",
+    "minhaDecisao": "MANTIVE, mecanismo -> high: Reações extrapiramidais graves, síndrome neuroléptica maligna e prolongamento do QT",
+    "antesEra": "critical: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Ambos são antagonistas dopaminérgicos, com risco aditivo de sintomas extrapiramidais e discinesia tardia.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Antagonismo aditivo dos receptores de dopamina no sistema nervoso central, aumentando o risco de efeitos extrapiramidais.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_333",
+    "tier": "T2-REESCRITA",
+    "drug1": "Clozapina",
+    "drug2": "Fluoxetina",
+    "minhaDecisao": "MANTIVE, mecanismo -> high: Aumento dos níveis de clozapina — risco de sedação, convulsão e toxicidade hematológica",
+    "antesEra": "high: Aumento do risco de síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Fluoxetina inibe CYP2D6 e CYP1A2, aumentando significativamente os níveis plasmáticos de clozapina, com risco de toxicidade (convulsões, sedação, hipotensão).",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A fluoxetina inibe as enzimas CYP2D6 e CYP2C19, reduzindo o metabolismo da clozapina e aumentando seus níveis plasmáticos e o risco de toxicidade.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_334",
+    "tier": "T2-REESCRITA",
+    "drug1": "Clozapina",
+    "drug2": "Paroxetina",
+    "minhaDecisao": "MANTIVE, mecanismo -> high: Aumento dos níveis de clozapina — risco de sedação, convulsão e toxicidade hematológica",
+    "antesEra": "high: Aumento do risco de síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Paroxetina inibe fortemente CYP1A2 e CYP2D6, aumentando significativamente os níveis plasmáticos de clozapina, com risco de toxicidade grave (convulsões, agranulocitose).",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Paroxetine inibe o CYP1A2 (e CYP2D6), reduzindo o metabolismo da clozapina e aumentando suas concentrações plasmáticas e risco de toxicidade.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_372",
+    "tier": "T2-REESCRITA",
+    "drug1": "Dissulfiram",
+    "drug2": "Metronidazol",
+    "minhaDecisao": "MANTIVE, mecanismo -> critical: Reação psicótica aguda e estado confusional",
+    "antesEra": "high: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "nao",
+        "severidade": "nenhuma",
+        "prejudicial": "nao",
+        "mecanismo": "Não há interação farmacológica clinicamente significativa. Relatos históricos de psicose ou confusão com a combinação são anedóticos, não comprovados em estudos controlados, e a coadministração não é contraindicada pela maioria das diretrizes atuais.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Inibição aditiva da aldeído desidrogenase e risco aumentado de reações neuropsiquiátricas graves, como psicose aguda e confusão mental.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_389",
+    "tier": "T2-REESCRITA",
+    "drug1": "Duloxetina",
+    "drug2": "Tioridazina",
+    "minhaDecisao": "MANTIVE, mecanismo -> critical: Prolongamento do intervalo QT — risco de torsades de pointes",
+    "antesEra": "critical: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "A duloxetina inibe CYP2D6, aumentando as concentrações de tioridazina, o que eleva o risco de prolongamento do intervalo QT e arritmias ventriculares potencialmente fatais.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Duloxetina inibe moderadamente o CYP2D6, aumentando as concentrações de tioridazina e potencializando o risco de prolongamento do intervalo QT e arritmias fatais.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_390",
+    "tier": "T2-REESCRITA",
+    "drug1": "Duloxetina",
+    "drug2": "Pimozida",
+    "minhaDecisao": "MANTIVE, mecanismo -> critical: Prolongamento do intervalo QT — risco de torsades de pointes",
+    "antesEra": "critical: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Duloxetina inibe CYP2D6, aumentando drasticamente os níveis de pimozida, o que prolonga o intervalo QT e eleva o risco de arritmias ventriculares graves como Torsades de Pointes.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "A duloxetina inibe moderadamente a CYP2D6, aumentando as concentrações plasmáticas da pimozida e elevando o risco de prolongamento do intervalo QT e torsades de pointes.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_438",
+    "tier": "T2-REESCRITA",
+    "drug1": "Flufenazina",
+    "drug2": "Lítio",
+    "minhaDecisao": "MANTIVE, mecanismo -> high: Neurotoxicidade — confusão, rigidez, tremor e discinesia",
+    "antesEra": "high: Síndrome serotoninérgica grave",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Risco aumentado de neurotoxicidade (síndrome encefalopática) e sintomas extrapiramidais, com possível redução dos níveis plasmáticos de flufenazina pelo lítio.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Mecanismo não totalmente elucidado, mas pode ocorrer potencialização da neurotoxicidade (sintomas extrapiramidais, delírio) devido a efeitos farmacológicos aditivos no SNC.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_440",
+    "tier": "T2-REESCRITA",
+    "drug1": "Fluoxetina",
+    "drug2": "Pimozida",
+    "minhaDecisao": "MANTIVE, mecanismo -> critical: Prolongamento do intervalo QT — risco de torsades de pointes",
+    "antesEra": "critical: Síndrome serotoninérgica grave",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Fluoxetina inibe CYP2D6, aumentando acentuadamente os níveis de pimozida, o que prolonga o intervalo QT e eleva o risco de arritmias ventriculares graves como Torsades de Pointes.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "A fluoxetina inibe o CYP2D6, aumentando a exposição à pimozida e o risco de prolongamento do intervalo QT e arritmias ventriculares graves.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_593",
+    "tier": "T2-REESCRITA",
+    "drug1": "Olanzapina",
+    "drug2": "Fluoxetina",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Aumento dos níveis de olanzapina — monitorar sedação e efeitos metabólicos",
+    "antesEra": "moderate: Aumento do risco de síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A fluoxetina inibe CYP2D6, aumentando as concentrações de olanzapina, com risco de prolongamento do intervalo QT e aumento de efeitos adversos.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A fluoxetina inibe o CYP2D6, podendo aumentar as concentrações plasmáticas de olanzapina e o risco de efeitos adversos como sedação e sintomas extrapiramidais.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_622",
+    "tier": "T2-REESCRITA",
+    "drug1": "Piper methysticum (Kava Kava)",
+    "drug2": "Citalopram",
+    "minhaDecisao": "MANTIVE, mecanismo -> high: Sedação excessiva e risco de hepatotoxicidade",
+    "antesEra": "high: Síndrome serotoninérgica grave",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Kava pode inibir CYP2C19 e CYP3A4, aumentando a exposição ao citalopram e potencializando risco de síndrome serotoninérgica e prolongamento do intervalo QT.",
+        "confianca": "media"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Potencial efeito aditivo no sistema nervoso central e risco teórico de síndrome serotoninérgica devido à possível atividade inibidora da MAO pela kava.",
+        "confianca": "baixa"
+      }
+    }
+  },
+  {
+    "id": "int_623",
+    "tier": "T2-REESCRITA",
+    "drug1": "Piper methysticum (Kava Kava)",
+    "drug2": "Fluoxetina",
+    "minhaDecisao": "MANTIVE, mecanismo -> high: Sedação excessiva e risco de hepatotoxicidade",
+    "antesEra": "high: Síndrome serotoninérgica grave",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Kava pode inibir CYP2D6 e CYP3A4, aumentando a exposição à fluoxetina e seu metabólito ativo, com risco de síndrome serotoninérgica.",
+        "confianca": "media"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Potencialização de efeitos depressores do SNC e risco teórico de síndrome serotoninérgica devido à inibição fraca da MAO-B pelas kavalactonas combinada com a inibição da recaptação de serotonina pela fluoxetina.",
+        "confianca": "media"
+      }
+    }
+  },
+  {
+    "id": "int_624",
+    "tier": "T2-REESCRITA",
+    "drug1": "Piper methysticum (Kava Kava)",
+    "drug2": "Paroxetina",
+    "minhaDecisao": "MANTIVE, mecanismo -> high: Sedação excessiva e risco de hepatotoxicidade",
+    "antesEra": "moderate: Síndrome serotoninérgica grave",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Kava kava inibe CYP2D6, enzima que metaboliza a paroxetina, podendo aumentar significativamente os níveis plasmáticos e o risco de síndrome serotoninérgica.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Potencialização dos efeitos depressores do SNC e risco aumentado de síndrome serotoninérgica e hepatotoxicidade.",
+        "confianca": "media"
+      }
+    }
+  },
+  {
+    "id": "int_625",
+    "tier": "T2-REESCRITA",
+    "drug1": "Piper methysticum (Kava Kava)",
+    "drug2": "Sertralina",
+    "minhaDecisao": "MANTIVE, mecanismo -> high: Sedação excessiva e risco de hepatotoxicidade",
+    "antesEra": "critical: Síndrome serotoninérgica grave",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Kava Kava inibe CYP2C19 e CYP3A4, enzimas que metabolizam a sertralina, podendo aumentar significativamente seus níveis plasmáticos e o risco de síndrome serotoninérgica.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Risco potencial de efeitos aditivos no sistema nervoso central (sedação, tonturas) e risco teórico de síndrome serotoninérgica devido à combinação de efeitos farmacodinâmicos.",
+        "confianca": "media"
+      }
+    }
+  },
+  {
+    "id": "int_657",
+    "tier": "T2-REESCRITA",
+    "drug1": "Reboxetina",
+    "drug2": "Pimozida",
+    "minhaDecisao": "MANTIVE, mecanismo -> critical: Prolongamento do intervalo QT — risco de torsades de pointes",
+    "antesEra": "critical: Síndrome serotoninérgica grave",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "A reboxetina pode inibir o metabolismo hepático da pimozida via CYP2D6, aumentando suas concentrações plasmáticas e o risco de prolongamento do intervalo QT e arritmias ventriculares.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Risco aditivo de prolongamento do intervalo QT e potencial inibição leve do CYP2D6/CYP3A4 pela reboxetina, podendo aumentar os níveis de pimozida.",
+        "confianca": "media"
+      }
+    }
+  },
+  {
+    "id": "int_658",
+    "tier": "T2-REESCRITA",
+    "drug1": "Reboxetina",
+    "drug2": "Tioridazina",
+    "minhaDecisao": "MANTIVE, mecanismo -> critical: Prolongamento do intervalo QT — risco de torsades de pointes",
+    "antesEra": "high: Síndrome serotoninérgica grave",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Ambos prolongam o intervalo QT, com risco aditivo de torsades de pointes e arritmias ventriculares fatais.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Reboxetina inibe o CYP2D6, aumentando os níveis de tioridazina, o que potencializa o risco de prolongamento do intervalo QT e torsades de pointes.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_683",
+    "tier": "T2-REESCRITA",
+    "drug1": "Sertralina",
+    "drug2": "Pimozida",
+    "minhaDecisao": "MANTIVE, mecanismo -> critical: Prolongamento do intervalo QT — risco de torsades de pointes",
+    "antesEra": "critical: Síndrome serotoninérgica grave",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Sertralina inibe CYP2D6, aumentando acentuadamente os níveis de pimozida, o que prolonga o intervalo QT e eleva o risco de arritmias ventriculares graves como Torsades de Pointes.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "A sertralina inibe o CYP2D6, aumentando as concentrações plasmáticas de pimozida e elevando o risco de prolongamento do intervalo QT e arritmias ventriculares graves.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_778",
+    "tier": "T2-REESCRITA",
+    "drug1": "Venlafaxina",
+    "drug2": "Pimozida",
+    "minhaDecisao": "MANTIVE, mecanismo -> critical: Prolongamento do intervalo QT — risco de torsades de pointes",
+    "antesEra": "critical: Síndrome serotoninérgica grave",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Venlafaxina pode inibir o metabolismo da pimozida via CYP2D6, aumentando seus níveis plasmáticos e o risco de prolongamento do intervalo QT e arritmias ventriculares graves.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Aditivo prolongamento do intervalo QT associado ao potencial aumento dos níveis de pimozida por inibição do CYP2D6 pela venlafaxina, elevando o risco de arritmias ventriculares graves como Torsades de Pointes.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_779",
+    "tier": "T2-REESCRITA",
+    "drug1": "Venlafaxina",
+    "drug2": "Tioridazina",
+    "minhaDecisao": "MANTIVE, mecanismo -> critical: Prolongamento do intervalo QT — risco de torsades de pointes",
+    "antesEra": "critical: Síndrome serotoninérgica grave",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "critical",
+        "prejudicial": "sim",
+        "mecanismo": "Ambos prolongam o intervalo QT e são metabolizados pela CYP2D6; a venlafaxina inibe a CYP2D6, aumentando os níveis de tioridazina e o risco de arritmias ventriculares graves como Torsades de Pointes.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "A venlafaxina inibe o CYP2D6, aumentando as concentrações de tioridazina, e ambos prolongam o intervalo QT, elevando o risco de arritmias fatais.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_812",
+    "tier": "T2-REESCRITA",
+    "drug1": "Alfuzosina",
+    "drug2": "Itraconazol",
+    "minhaDecisao": "MANTIVE, mecanismo -> critical: Aumento dos níveis sanguíneos de alfuzosina, com risco de hipotensão sintomática.",
+    "antesEra": "high: Aumento do risco de hipotensão ortostática",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Itraconazol inibe CYP3A4, aumentando a exposição à alfuzosina e o risco de hipotensão grave e prolongamento do intervalo QT.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "O itraconazol inibe fortemente o CYP3A4, aumentando as concentrações plasmáticas da alfuzosina e o risco de hipotensão e síncope.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_858",
+    "tier": "T2-REESCRITA",
+    "drug1": "Clomipramina",
+    "drug2": "Álcool/etanol",
+    "minhaDecisao": "MANTIVE, mecanismo -> high: Depressão do SNC aditiva — sedação intensa e prejuízo psicomotor",
+    "antesEra": "moderate: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Efeitos aditivos de depressão do sistema nervoso central e possível interferência no metabolismo hepático da clomipramina, aumentando o risco de sedação excessiva, comprometimento psicomotor e cardiotoxicidade.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Depressão aditiva do sistema nervoso central, com potencialização dos efeitos sedativos e risco aumentado de comprometimento psicomotor.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_871",
+    "tier": "T2-REESCRITA",
+    "drug1": "Desvenlafaxina",
+    "drug2": "Álcool/etanol",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Depressão do SNC aditiva — sedação e prejuízo do julgamento",
+    "antesEra": "moderate: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Efeitos aditivos no sistema nervoso central, podendo aumentar sedação, tontura e comprometimento psicomotor.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "O etanol pode potencializar os efeitos depressores do sistema nervoso central da desvenlafaxina, aumentando o risco de tontura, sedação e comprometimento cognitivo.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_878",
+    "tier": "T2-REESCRITA",
+    "drug1": "Duloxetina",
+    "drug2": "Álcool/etanol",
+    "minhaDecisao": "MANTIVE, mecanismo -> high: Risco de lesão hepática e sedação aditiva",
+    "antesEra": "high: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "A duloxetina e o álcool podem ambos causar hepatotoxicidade, e o uso concomitante aumenta o risco de lesão hepática grave.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "O álcool pode potencializar os efeitos depressores do SNC da duloxetina e aumentar o risco de hepatotoxicidade.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_880",
+    "tier": "T2-REESCRITA",
+    "drug1": "Escitalopram",
+    "drug2": "Álcool/etanol",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Depressão do SNC aditiva — sedação e prejuízo do julgamento",
+    "antesEra": "moderate: Síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Efeitos aditivos no sistema nervoso central, podendo aumentar sedação, tontura e comprometimento psicomotor.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "O etanol pode potencializar os efeitos depressores do sistema nervoso central do escitalopram e agravar sintomas depressivos.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_883",
+    "tier": "T2-REESCRITA",
+    "drug1": "Fenitoína",
+    "drug2": "Álcool/etanol",
+    "minhaDecisao": "MANTIVE, mecanismo -> high: Perda do controle das convulsões e sedação aditiva",
+    "antesEra": "high: Síndrome serotoninérgica e convulsão",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "O consumo crônico de álcool induz o metabolismo hepático da fenitoína, reduzindo seus níveis plasmáticos e eficácia; o consumo agudo pode inibir o metabolismo, aumentando o risco de toxicidade.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "O etanol agudo inibe o metabolismo da fenitoína aumentando o risco de toxicidade, enquanto o uso crônico induz enzimas hepáticas reduzindo sua eficácia, além de potencializar a depressão do sistema nervoso central.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_887",
+    "tier": "T2-REESCRITA",
+    "drug1": "Fluvoxamina",
+    "drug2": "Álcool/etanol",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Depressão do SNC aditiva — sedação e prejuízo do julgamento",
+    "antesEra": "moderate: Aumento do risco de síndrome serotoninérgica",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A fluvoxamina pode potencializar os efeitos depressores do SNC do álcool, como sedação e comprometimento psicomotor, e o álcool pode exacerbar efeitos adversos da fluvoxamina, como tontura e sonolência.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Potencialização farmacodinâmica da depressão do sistema nervoso central, resultando em aumento de sedação, tonturas e comprometimento cognitivo.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_930",
+    "tier": "T2-REESCRITA",
+    "drug1": "Sertralina",
+    "drug2": "Álcool/etanol",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Depressão do SNC aditiva — sedação e prejuízo do julgamento",
+    "antesEra": "moderate: Síndrome serotoninérgica grave",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Efeitos aditivos no sistema nervoso central, podendo aumentar sedação, tontura e comprometimento psicomotor.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Potencialização dos efeitos depressores do sistema nervoso central e possível antagonismo do efeito terapêutico do antidepressivo.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_943",
+    "tier": "T2-REESCRITA",
+    "drug1": "Venlafaxina",
+    "drug2": "Álcool/etanol",
+    "minhaDecisao": "MANTIVE, mecanismo -> high: Depressão do SNC aditiva — sedação e prejuízo do julgamento",
+    "antesEra": "high: Síndrome serotoninérgica grave",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "high",
+        "prejudicial": "sim",
+        "mecanismo": "Efeitos aditivos no sistema nervoso central, com risco aumentado de sedação, comprometimento psicomotor e, em casos raros, síndrome serotoninérgica.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "Potencialização aditiva da depressão do sistema nervoso central, aumentando risco de tontura, sedação e comprometimento cognitivo/motor.",
+        "confianca": "alta"
+      }
+    }
+  },
+  {
+    "id": "int_1817",
+    "tier": "T2-REESCRITA",
+    "drug1": "Ezetimiba",
+    "drug2": "Ciclosporina",
+    "minhaDecisao": "MANTIVE, mecanismo -> moderate: Aumento da exposição à ezetimiba e possível elevação da ciclosporina",
+    "antesEra": "critical: Aumenta o risco de miopatia, incluindo rabdomiólise.",
+    "veredito": {
+      "deepseek-ai/DeepSeek-V4-Pro": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A ciclosporina inibe a OATP1B1 e a MRP2, aumentando a exposição à ezetimiba e ao seu metabólito ativo, com potencial para miopatia.",
+        "confianca": "alta"
+      },
+      "zai-org/GLM-5.2": {
+        "interage": "sim",
+        "severidade": "moderate",
+        "prejudicial": "sim",
+        "mecanismo": "A ciclosporina inibe transportadores OATP, aumentando significativamente a exposição sistêmica à ezetimiba e seu metabólito ativo.",
+        "confianca": "alta"
+      }
+    }
+  }
+]

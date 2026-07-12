@@ -163,20 +163,13 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
       'CREATE UNIQUE INDEX IF NOT EXISTS idx_medlog_notif ON medication_log(notification_id) WHERE notification_id IS NOT NULL'
     );
   } catch {}
-  // Track overdue alerts that have fired (so "não informados" only shows real alerts, not historical guesses)
+  // medication_overdue_log: tabela criada para a feature de "não informados", que nunca foi
+  // ligada — logOverdueAlert() jamais foi chamado, então a tabela sempre esteve VAZIA em
+  // qualquer instalação. A necessidade que a motivou (saber quais doses ficaram sem
+  // resposta) é atendida por reconcileMissedDoses(), que grava direto no medication_log.
+  // Drop é seguro: não há dado a perder.
   try {
-    await database.execAsync(`
-      CREATE TABLE IF NOT EXISTS medication_overdue_log (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        medication_id INTEGER NOT NULL,
-        alert_date TEXT NOT NULL,
-        alert_time TEXT NOT NULL,
-        created_at TEXT DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    await database.execAsync(
-      'CREATE UNIQUE INDEX IF NOT EXISTS idx_overdue_slot ON medication_overdue_log(medication_id, alert_date, alert_time)'
-    );
+    await database.execAsync('DROP TABLE IF EXISTS medication_overdue_log');
   } catch {}
   try {
     await database.execAsync('ALTER TABLE medication_log ADD COLUMN taken_at TEXT');
@@ -735,32 +728,112 @@ export async function updateMedicationLogEntry(
   );
 }
 
-export async function logOverdueAlert(medicationId: number, alertDate: string, alertTime: string): Promise<void> {
+
+// ---------------------------------------------------------------------------
+// "Sem resposta" no histórico.
+//
+// A linha do log só era criada dentro do addNotificationReceivedListener, que exige o JS
+// VIVO. Quando o Android matava o processo, o lembrete disparava nativamente e NENHUMA
+// linha era criada: se o usuário não respondesse, a dose simplesmente não existia no
+// histórico. Silêncio, no app cuja função é lembrar de tomar remédio, é o pior modo de
+// falha — o paciente não tem como saber o que esqueceu.
+//
+// Esta reconciliação varre os horários já vencidos e cria a linha faltante com
+// taken/status NULL — que é o estado "Sem resposta" que a tela de Histórico já sabe
+// exibir. Roda na abertura do app e ao voltar do background.
+//
+// O notification_id usa EXATAMENTE o mesmo formato do dailyLogId() do App.tsx
+// (`<identifier do lembrete>_YYYY-MM-DD`), então o INSERT OR IGNORE colide de propósito
+// com a linha do listener: nunca duplica, e responder "Tomei" depois atualiza esta mesma
+// linha (upsertMedicationLogTaken faz UPDATE ... WHERE notification_id=?).
+// ---------------------------------------------------------------------------
+function reminderBaseId(medicationId: number, time: string, period: string): string | null {
+  const [h, m] = time.split(':').map(Number);
+  if (isNaN(h) || isNaN(m)) return null;
+  const tp = `${String(h).padStart(2, '0')}${String(m).padStart(2, '0')}`;
+  if (period === 'day') return `reminder_${medicationId}_${tp}`;
+  if (period.startsWith('week:')) return `reminder_${medicationId}_w{WD}_${tp}`;   // {WD} trocado por dia
+  if (period.startsWith('month:')) return `reminder_${medicationId}_m{DOM}_${tp}`; // {DOM} trocado por dia
+  return null; // 'year:' não tem lembrete diário — fora do escopo
+}
+
+function occursOn(period: string, d: Date): boolean {
+  if (period === 'day') return true;
+  if (period.startsWith('week:')) {
+    const wd = d.getDay() + 1; // 1=Dom … 7=Sáb
+    return period.split(':')[1].split(',').map(Number).includes(wd);
+  }
+  if (period.startsWith('month:')) {
+    return period.split(':')[1].split(',').map(Number).includes(d.getDate());
+  }
+  return false;
+}
+
+export async function reconcileMissedDoses(lookbackDays = 7): Promise<number> {
   const database = await getDb();
-  await database.runAsync(
-    'INSERT OR IGNORE INTO medication_overdue_log (medication_id, alert_date, alert_time) VALUES (?, ?, ?)',
-    [medicationId, alertDate, alertTime]
+  const now = new Date();
+  // Margem: não marca como "sem resposta" uma dose que acabou de vencer — o usuário
+  // ainda pode estar respondendo e o listener pode estar criando a linha agora.
+  const cutoffMs = now.getTime() - 5 * 60 * 1000;
+
+  const meds = await database.getAllAsync<{
+    id: number; generic_name: string; commercial_name: string | null; dose: string | null;
+    end_date: string | null; save_history: number | null; created_at: string;
+  }>(
+    `SELECT id, generic_name, commercial_name, dose, end_date, save_history, created_at
+       FROM medications
+      WHERE (archived=0 OR archived IS NULL) AND (suspended=0 OR suspended IS NULL)`
   );
-}
 
-export interface OverdueAlertEntry {
-  id: number;
-  medication_id: number;
-  alert_date: string;
-  alert_time: string;
-  created_at: string;
-}
+  let created = 0;
+  for (const med of meds) {
+    // save_history=0 → o medicamento é "só alerta", não pergunta nem registra.
+    if (med.save_history === 0) continue;
 
-export async function getOverdueAlerts(): Promise<OverdueAlertEntry[]> {
-  const database = await getDb();
-  return database.getAllAsync<OverdueAlertEntry>(
-    'SELECT * FROM medication_overdue_log ORDER BY alert_date DESC, alert_time ASC'
-  );
-}
+    const reminders = await database.getAllAsync<{ time: string; days: string; is_active: number }>(
+      'SELECT time, days, is_active FROM medication_reminders WHERE medication_id=?',
+      [med.id]
+    );
+    if (!reminders.length) continue;
 
-export async function pruneOverdueAlerts(keepFromDate: string): Promise<void> {
-  const database = await getDb();
-  await database.runAsync('DELETE FROM medication_overdue_log WHERE alert_date < ?', [keepFromDate]);
+    const createdMs = new Date(med.created_at.replace(' ', 'T') + 'Z').getTime();
+    const endMs = med.end_date ? new Date(med.end_date + 'T23:59:59').getTime() : Infinity;
+    const name = med.commercial_name?.trim() || med.generic_name;
+
+    for (let back = lookbackDays; back >= 0; back--) {
+      const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() - back);
+
+      for (const r of reminders) {
+        if (!r.is_active) continue;
+        const period = r.days || 'day';
+        if (!occursOn(period, day)) continue;
+
+        const [h, m] = r.time.split(':').map(Number);
+        if (isNaN(h) || isNaN(m)) continue;
+        const slot = new Date(day.getFullYear(), day.getMonth(), day.getDate(), h, m, 0, 0);
+        const slotMs = slot.getTime();
+
+        if (slotMs > cutoffMs) continue;        // ainda não venceu (ou acabou de vencer)
+        if (slotMs < createdMs) continue;       // o medicamento nem existia
+        if (slotMs > endMs) continue;           // tratamento já encerrado
+
+        let base = reminderBaseId(med.id, r.time, period);
+        if (!base) continue;
+        base = base.replace('{WD}', String(day.getDay() + 1)).replace('{DOM}', String(day.getDate()));
+        const ymd = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
+        const notifId = `${base}_${ymd}`;
+
+        const res = await database.runAsync(
+          `INSERT OR IGNORE INTO medication_log
+             (medication_id, medication_name, dose, notification_id, scheduled_at)
+           VALUES (?, ?, ?, ?, ?)`,
+          [med.id, name, med.dose ?? '', notifId, slot.toISOString()]
+        );
+        if (res.changes > 0) created++;
+      }
+    }
+  }
+  return created;
 }
 
 export async function getMedicationLog(opts?: { medication_id?: number; since_iso?: string }): Promise<MedicationLogEntry[]> {

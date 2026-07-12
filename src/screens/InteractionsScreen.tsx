@@ -11,6 +11,7 @@ import {
 import { useBulaViewer } from '../utils/useBulaViewer';
 import { DrugInteraction, Medication } from '../types';
 import MedDisclaimer from '../components/MedDisclaimer';
+import InteractionConsentModal, { hasAcceptedInteractionTerms, acceptInteractionTerms } from '../components/InteractionConsentModal';
 
 const RISK_CONFIG = {
   critical: { label: 'Crítico',  color: '#CC3322', bg: '#FEE9E9' },
@@ -109,6 +110,8 @@ export default function InteractionsScreen() {
   const [phytoSearch, setPhytoSearch] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  // Esta aba lista a base inteira de interações, então também passa pelo termo de ciência.
+  const [consentDone, setConsentDone] = useState(hasAcceptedInteractionTerms);
 
   const intFiltered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -194,6 +197,14 @@ export default function InteractionsScreen() {
           ))}
         </View>
       </View>
+
+      {/* A aba de interações lista a base inteira — passa pelo termo antes de exibir.
+          "Voltar" leva para a aba de remédios em vez de deixar a tela vazia. */}
+      <InteractionConsentModal
+        visible={tab === 'interactions' && !consentDone}
+        onCancel={() => switchTab('meds')}
+        onAccept={() => { acceptInteractionTerms(); setConsentDone(true); }}
+      />
 
       <MedDisclaimer />
 

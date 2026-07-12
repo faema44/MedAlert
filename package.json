@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
+    "@noble/ed25519": "3.1.0",
     "@react-native-community/datetimepicker": "9.1.0",
     "@react-navigation/bottom-tabs": "^7.18.2",
     "@react-navigation/native": "^7.3.3",
@@ -32,7 +33,10 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "update-meds": "node scripts/update-medications.js"
+    "update-meds": "node scripts/update-medications.js",
+    "test:dbsync": "node tests/dbsync-guard.js",
+    "sign:data": "node tools/sign-data.js",
+    "test:signature": "node tests/signature-guard.js"
   },
   "private": true
 }
