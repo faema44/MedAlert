@@ -12213,7 +12213,7 @@
     "id": "int_969",
     "drug1": "Atazanavir",
     "drug2": "Nevirapina",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Potencial perda de resposta virológica, desenvolvimento de resistência e risco de reações adversas associadas à nevirapina.",
     "mechanism": "A coadministração de REYATAZ com nevirapina é contraindicada. (Fonte: bula FDA)"
   },
@@ -12773,7 +12773,7 @@
     "id": "int_1045",
     "drug1": "Etravirina",
     "drug2": "Nevirapina",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Pode causar diminuição significativa nas concentrações plasmáticas de etravirina e perda do efeito terapêutico.",
     "mechanism": "Nevirapina induz o metabolismo de etravirina (CYP3A, CYP2C9, CYP2C19). A coadministração de etravirina e outros NNRTIs não é recomendada. (Fonte: bula FDA)"
   },
@@ -12781,7 +12781,7 @@
     "id": "int_1046",
     "drug1": "Etravirina",
     "drug2": "Atazanavir",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Pode causar diminuição nas concentrações plasmáticas de atazanavir.",
     "mechanism": "A coadministração de etravirina e atazanavir sem ritonavir em baixa dose não é recomendada. (Fonte: bula FDA)"
   },
@@ -12789,7 +12789,7 @@
     "id": "int_1047",
     "drug1": "Etravirina",
     "drug2": "Darunavir",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Pode resultar em perda do efeito terapêutico e desenvolvimento de resistência ao darunavir.",
     "mechanism": "A coadministração de etravirina com darunavir/cobicistat não é recomendada. (Fonte: bula FDA)"
   },
@@ -12797,7 +12797,7 @@
     "id": "int_1048",
     "drug1": "Etravirina",
     "drug2": "Amprenavir",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Pode causar alteração significativa na concentração plasmática de amprenavir.",
     "mechanism": "A coadministração de etravirina e fosamprenavir sem ritonavir em baixa dose não é recomendada. (Fonte: bula FDA)"
   },
@@ -12805,7 +12805,7 @@
     "id": "int_1049",
     "drug1": "Etravirina",
     "drug2": "Indinavir",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Pode causar alteração significativa na concentração plasmática de indinavir.",
     "mechanism": "A coadministração de etravirina e indinavir sem ritonavir em baixa dose não é recomendada. (Fonte: bula FDA)"
   },
@@ -12813,7 +12813,7 @@
     "id": "int_1050",
     "drug1": "Etravirina",
     "drug2": "Nelfinavir",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Pode causar alteração significativa na concentração plasmática de nelfinavir.",
     "mechanism": "A coadministração de etravirina e nelfinavir sem ritonavir em baixa dose não é recomendada. (Fonte: bula FDA)"
   },
@@ -12821,7 +12821,7 @@
     "id": "int_1051",
     "drug1": "Etravirina",
     "drug2": "Ritonavir",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Pode causar diminuição significativa na concentração plasmática de etravirina e perda do efeito terapêutico.",
     "mechanism": "Ritonavir 600 mg duas vezes ao dia induz o metabolismo de etravirina. A coadministração de etravirina e ritonavir 600 mg duas vezes ao dia não é recomendada. (Fonte: bula FDA)"
   },
@@ -12837,7 +12837,7 @@
     "id": "int_1053",
     "drug1": "Etravirina",
     "drug2": "Fenobarbital",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Pode causar diminuições significativas nas concentrações plasmáticas de etravirina e perda do efeito terapêutico.",
     "mechanism": "Fenobarbital é um indutor das enzimas CYP450. Etravirina não deve ser coadministrada com fenobarbital. (Fonte: bula FDA)"
   },
@@ -16869,7 +16869,7 @@
     "id": "int_1597",
     "drug1": "Alisquireno",
     "drug2": "Itraconazol",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Evitar o uso concomitante de itraconazol com alisquireno.",
     "mechanism": "Mecanismo não especificado no texto. Conduta: evitar coadministração."
   },
@@ -17013,17 +17013,17 @@
     "id": "int_1617",
     "drug1": "Dronabinol",
     "drug2": "Dissulfiram",
-    "risk_level": "critical",
-    "risk_description": "Pode causar reações do tipo dissulfiram quando coadministrado com SYNDROS, que contém álcool desidratado e propilenoglicol.",
-    "mechanism": "Reação do tipo dissulfiram devido ao teor alcoólico de SYNDROS. Conduta: descontinuar produtos contendo dissulfiram pelo menos 14 dias antes de iniciar SYNDROS e não administrar dentro de 7 dias após completar o tratamento."
+    "risk_level": "moderate",
+    "risk_description": "Reação tipo dissulfiram — apenas com a apresentação em solução oral",
+    "mechanism": "O risco NÃO vem do dronabinol, e sim do EXCIPIENTE: a solução oral contém álcool desidratado, que com dissulfiram pode desencadear reação tipo dissulfiram (rubor, náusea, taquicardia, cefaleia). Apresentações sem álcool na fórmula (ex.: cápsulas) não têm esse risco. Verificar a composição do produto."
   },
   {
     "id": "int_1618",
     "drug1": "Dronabinol",
     "drug2": "Metronidazol",
-    "risk_level": "critical",
-    "risk_description": "Pode causar reações do tipo dissulfiram quando coadministrado com SYNDROS, que contém álcool desidratado e propilenoglicol.",
-    "mechanism": "Reação do tipo dissulfiram devido ao teor alcoólico de SYNDROS. Conduta: descontinuar produtos contendo metronidazol pelo menos 14 dias antes de iniciar SYNDROS e não administrar dentro de 7 dias após completar o tratamento."
+    "risk_level": "moderate",
+    "risk_description": "Reação tipo dissulfiram — apenas com a apresentação em solução oral",
+    "mechanism": "O risco NÃO vem do dronabinol, e sim do EXCIPIENTE: a solução oral contém álcool desidratado, que com metronidazol pode desencadear reação tipo dissulfiram (rubor, náusea, taquicardia, cefaleia). Apresentações sem álcool na fórmula (ex.: cápsulas) não têm esse risco. Verificar a composição do produto."
   },
   {
     "id": "int_1619",
@@ -17205,7 +17205,7 @@
     "id": "int_1641",
     "drug1": "Drospirenona",
     "drug2": "Ritonavir",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Não coadministrar devido ao potencial de elevações de ALT.",
     "mechanism": "Risco de hepatotoxicidade. O uso concomitante é contraindicado."
   },
@@ -17277,7 +17277,7 @@
     "id": "int_1657",
     "drug1": "Elbasvir",
     "drug2": "Efavirenz",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Pode diminuir as concentrações plasmáticas de elbasvir e grazoprevir, reduzindo o efeito terapêutico de ZEPATIER.",
     "mechanism": "Indução do CYP3A. A coadministração é contraindicada."
   },
@@ -21845,7 +21845,7 @@
     "id": "int_2286",
     "drug1": "Artemeter",
     "drug2": "Rifampicina",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Uso concomitante é contraindicado devido à redução significativa da exposição ao arteméter, DHA e lumefantrina, com perda de eficácia antimalárica.",
     "mechanism": "Rifampina é um forte indutor da CYP3A4, reduzindo a exposição ao arteméter, DHA e lumefantrina. Conduta: uso concomitante é contraindicado."
   },
@@ -22725,7 +22725,7 @@
     "id": "int_2441",
     "drug1": "Norelgestromina",
     "drug2": "Ritonavir",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Contraindicado devido ao risco potencial de elevação das enzimas hepáticas (ALT).",
     "mechanism": "Potencial para elevação de ALT. Não coadministrar norelgestromina e etinilestradiol transdérmico com combinações de medicamentos para HCV contendo ombitasvir/paritaprevir/ritonavir, com ou sem dasabuvir."
   },
@@ -23573,7 +23573,7 @@
     "id": "int_2561",
     "drug1": "Pirfenidona",
     "drug2": "Fluvoxamina",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Aumenta significativamente a exposição à pirfenidona, alterando seu perfil de reações adversas.",
     "mechanism": "Inibição forte do CYP1A2, principal via de metabolização da pirfenidona. Deve-se descontinuar o inibidor antes de iniciar a pirfenidona e evitar o uso concomitante. Se o inibidor for a única opção, recomenda-se redução da dose da pirfenidona para 267 mg três vezes ao dia. Monitorar reações adversas e considerar descontinuação da pirfenidona conforme necessário."
   },
@@ -24253,7 +24253,7 @@
     "id": "int_2657",
     "drug1": "Tansulosina",
     "drug2": "Cetoconazol",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Uso contraindicado devido ao aumento significativo da exposição à tansulosina, com risco de efeitos adversos graves.",
     "mechanism": "Inibição potente do CYP3A4 reduz o metabolismo da tansulosina, aumentando Cmax e AUC em 2,2 e 2,8 vezes, respectivamente. Conduta: não usar em combinação com inibidores fortes de CYP3A4."
   },
@@ -25125,7 +25125,7 @@
     "id": "int_2773",
     "drug1": "Ubrogepanto",
     "drug2": "Cetoconazol",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Aumento significativo na exposição ao ubrogepanto, contraindicado.",
     "mechanism": "Inibição do CYP3A4, resultando em aumento da exposição ao ubrogepanto. Uso concomitante é contraindicado."
   },
@@ -26501,7 +26501,7 @@
     "id": "int_2999",
     "drug1": "Sofosbuvir",
     "drug2": "Rifampicina",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Pode diminuir as concentrações de sofosbuvir e velpatasvir e alterar a exposição de voxilaprevir, com risco de perda de eficácia ou toxicidade.",
     "mechanism": "Indução de P-gp e/ou CYP. A coadministração é contraindicada."
   },
