@@ -24,7 +24,8 @@ import {
 } from '../services/notifications';
 import { Medication, MedicationReminder, DrugInteraction } from '../types';
 import MedDisclaimer from '../components/MedDisclaimer';
-import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, checkInteractions, isPhytotherapic, getAllMedGenericNames, alcoholOrBarbiturateKind } from '../utils/drugSearch';
+import InteractionConsentModal, { hasAcceptedInteractionTerms, acceptInteractionTerms } from '../components/InteractionConsentModal';
+import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, checkInteractions, isPhytotherapic, getAllMedGenericNames } from '../utils/drugSearch';
 import { useBulaViewer } from '../utils/useBulaViewer';
 import { reportMissingDrug } from '../services/reportMissing';
 // ──────────────────────────────────────────────────────────────────────────────
@@ -53,7 +54,7 @@ function addDays(days: number): string {
 }
 
 const TIMES_PER_DAY_OPTIONS = [1, 2, 3, 4, 6];
-const DOSE_UNITS = ['mg', 'g', 'mcg', 'UI', 'mL', '%', 'cáps'];
+const DOSE_UNITS = ['mg', 'g', 'mcg', 'UI', 'mL', 'gotas', '%', 'cáps'];
 type ReminderPeriod = 'day' | 'week' | 'month' | 'year';
 type WizardStep = 'type' | 'name' | 'dose' | 'period' | 'times_per_day' | 'weekdays' | 'month_days' | 'n_months' | 'time' | 'deadline' | 'sound' | 'stock' | 'summary';
 
@@ -126,6 +127,8 @@ export default function MedicationsScreen() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [cardInteractions, setCardInteractions] = useState<Map<number, DrugInteraction[]>>(new Map());
   const [interactionModal, setInteractionModal] = useState<DrugInteraction[] | null>(null);
+  // Interações aguardando o aceite do termo. O detalhe só abre depois do consentimento.
+  const [pendingInteractions, setPendingInteractions] = useState<DrugInteraction[] | null>(null);
   const [stockInput, setStockInput] = useState('');
   const [unitsPerDoseInput, setUnitsPerDoseInput] = useState('1');
   const [durationDays, setDurationDays] = useState('');
@@ -652,6 +655,13 @@ export default function MedicationsScreen() {
       const others = medications.filter(m => m.id !== item.id && !m.suspended).map(m => m.generic_name);
       setInteractions(checkInteractions(item.generic_name, others));
     }, 0);
+  }
+
+  // Abre as interações — mas só depois do aceite do termo. Uma vez aceito na sessão,
+  // vai direto (pedir a cada toque geraria habituação e o aviso perderia o efeito).
+  function requestInteractions(list: DrugInteraction[]) {
+    if (hasAcceptedInteractionTerms()) setInteractionModal(list);
+    else setPendingInteractions(list);
   }
 
   function stepNeedsNext(): boolean {
@@ -1461,26 +1471,28 @@ export default function MedicationsScreen() {
               )}
               {!hasAnyInfo && <Text style={styles.medEditHint}>Toque para configurar →</Text>}
             </View>
-            {itemInteractions.length > 0 && (
-              <TouchableOpacity style={styles.cardInteractionRow} activeOpacity={0.7} onPress={() => setInteractionModal(itemInteractions)}>
-                {itemInteractions.slice(0, 3).map(i => {
-                  const color = i.risk_level === 'critical' ? '#CC0000' : i.risk_level === 'high' ? '#e65c00' : '#b58900';
-                  const severityWord = i.risk_level === 'critical' ? 'Crítica' : i.risk_level === 'high' ? 'Alta' : 'Moderada';
-                  const kind = alcoholOrBarbiturateKind(i.drug1) ?? alcoholOrBarbiturateKind(i.drug2);
-                  const label = kind === 'alcohol' ? `Interação com Álcool (${severityWord})`
-                    : kind === 'barbiturate' ? `Interação com Barbitúricos (${severityWord})`
-                    : `Interação ${severityWord}`;
-                  return (
-                    <View key={i.id} style={[styles.cardInteractionBadge, { borderColor: color }]}>
-                      <Text style={[styles.cardInteractionBadgeText, { color }]}>⚠ {label}</Text>
-                    </View>
-                  );
-                })}
-                {itemInteractions.length > 3 && (
-                  <Text style={styles.cardInteractionMore}>+{itemInteractions.length - 3}</Text>
-                )}
-              </TouchableOpacity>
-            )}
+            {itemInteractions.length > 0 && (() => {
+              // Só a contagem, com a cor do risco mais alto. Listar cada interação no cartão
+              // polui a lista e, pior, banaliza o alerta — o detalhe fica no modal.
+              const worst = itemInteractions.some(i => i.risk_level === 'critical') ? 'critical'
+                : itemInteractions.some(i => i.risk_level === 'high') ? 'high' : 'moderate';
+              const color = worst === 'critical' ? '#CC0000' : worst === 'high' ? '#e65c00' : '#b58900';
+              const n = itemInteractions.length;
+              return (
+                <TouchableOpacity
+                  style={[styles.cardInteractionRow, { borderColor: color }]}
+                  activeOpacity={0.7}
+                  onPress={() => requestInteractions(itemInteractions)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Ver ${n} ${n > 1 ? 'interações' : 'interação'}`}
+                >
+                  <Text style={[styles.cardInteractionText, { color }]}>
+                    ⚠ {n} {n > 1 ? 'interações' : 'interação'}
+                  </Text>
+                  <Text style={[styles.cardInteractionChevron, { color }]}>›</Text>
+                </TouchableOpacity>
+              );
+            })()}
           </TouchableOpacity>
           );
         }}
@@ -1634,6 +1646,17 @@ export default function MedicationsScreen() {
       {bulaModal}
 
       {/* Interaction detail modal (from card tap) */}
+      {/* Termo de ciência — precede a exibição das interações */}
+      <InteractionConsentModal
+        visible={!!pendingInteractions}
+        onCancel={() => setPendingInteractions(null)}
+        onAccept={() => {
+          acceptInteractionTerms();
+          setInteractionModal(pendingInteractions);
+          setPendingInteractions(null);
+        }}
+      />
+
       <Modal visible={!!interactionModal} animationType="slide" transparent onRequestClose={() => setInteractionModal(null)}>
         <View style={styles.intModalOverlay}>
           <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
@@ -1743,10 +1766,12 @@ const styles = StyleSheet.create({
   takenBtnText: { fontSize: 12, color: '#fff', fontWeight: '700' },
   endDateText: { fontSize: 12, color: '#888', marginTop: 4 },
   endDateDone: { color: '#CC0000' },
-  cardInteractionRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8, flexWrap: 'wrap' },
-  cardInteractionBadge: { borderWidth: 1, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
-  cardInteractionBadgeText: { fontSize: 10, fontWeight: '600' },
-  cardInteractionMore: { fontSize: 11, color: '#999' },
+  cardInteractionRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    marginTop: 8, borderWidth: 1, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 5,
+  },
+  cardInteractionText: { fontSize: 11.5, fontWeight: '700' },
+  cardInteractionChevron: { fontSize: 15, fontWeight: '700' },
   intModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   intModalBox: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '70%' },
   intModalTitle: { fontSize: 16, fontWeight: '700', color: '#1C3F7A', marginBottom: 16 },
