@@ -705,8 +705,8 @@
     "drug1": "Fluconazol",
     "drug2": "Losartana / Valsartana (BRA)",
     "risk_level": "moderate",
-    "risk_description": "Hipotensão por redução da ativação do losartana",
-    "mechanism": "Fluconazol inibe o CYP2C9, enzima responsável pela conversão do losartana ao seu metabólito ativo (E-3174). Pode reduzir o efeito anti-hipertensivo do BRA. Monitorar a pressão arterial e os efeitos terapêuticos durante o tratamento.",
+    "risk_description": "Redução do efeito anti-hipertensivo — risco de perda de controle da pressão",
+    "mechanism": "O fluconazol inibe o CYP2C9, enzima que converte a losartana no metabólito ativo E-3174. Com menos metabólito ativo, o efeito anti-hipertensivo DIMINUI, podendo elevar a pressão arterial. Monitorar a PA.",
     "drug1_rxcuis": [
       "4450"
     ]
@@ -1315,9 +1315,9 @@
     "id": "int_116",
     "drug1": "Arnica montana",
     "drug2": "Varfarina",
-    "risk_level": "moderate",
-    "risk_description": "Aumento do risco de sangramento",
-    "mechanism": "Arnica oral contém helenalina com propriedades antiagregantes plaquetárias. Combinada com varfarina, pode potencializar a anticoagulação. Suspender arnica oral 7 dias antes de cirurgias.",
+    "risk_level": "high",
+    "risk_description": "Hemorragia grave",
+    "mechanism": "Hemorragia grave. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
       "285208"
     ],
@@ -2530,8 +2530,8 @@
     "drug1": "Alprazolam",
     "drug2": "Citalopram",
     "risk_level": "moderate",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "risk_description": "Sedação excessiva por aumento dos níveis de alprazolam",
+    "mechanism": "O citalopram pode inibir o metabolismo do alprazolam (CYP3A4), elevando seus níveis e aumentando sonolência e prejuízo psicomotor. O alprazolam NÃO é serotoninérgico. Monitorar sedação.",
     "drug1_rxcuis": [
       "596"
     ],
@@ -2544,8 +2544,8 @@
     "drug1": "Alprazolam",
     "drug2": "Fluoxetina",
     "risk_level": "moderate",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "risk_description": "Sedação excessiva por aumento dos níveis de alprazolam",
+    "mechanism": "A fluoxetina inibe o CYP3A4, elevando os níveis de alprazolam e aumentando sonolência e prejuízo psicomotor. O alprazolam NÃO é serotoninérgico. Monitorar sedação.",
     "drug1_rxcuis": [
       "596"
     ],
@@ -2865,9 +2865,9 @@
     "id": "int_242",
     "drug1": "Aripiprazol",
     "drug2": "Citalopram",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de síndrome serotoninérgica",
-    "mechanism": "Aumento do risco de síndrome serotoninérgica. Conduta: Monitorar sinais de síndrome serotoninérgica.",
+    "risk_level": "moderate",
+    "risk_description": "Aumento dos níveis de aripiprazol — pode exigir ajuste de dose",
+    "mechanism": "Associação usada terapeuticamente (potencialização em depressão). O citalopram pode elevar a exposição ao aripiprazol. Monitorar sedação, acatisia e efeitos extrapiramidais.",
     "drug1_rxcuis": [
       "89013"
     ],
@@ -2894,8 +2894,8 @@
     "drug1": "Aripiprazol",
     "drug2": "Fluoxetina",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de síndrome serotoninérgica",
-    "mechanism": "Aumento do risco de síndrome serotoninérgica. Conduta: Monitorar sinais de síndrome serotoninérgica.",
+    "risk_description": "Aumento dos níveis de aripiprazol — reduzir a dose pela metade",
+    "mechanism": "A fluoxetina é inibidora potente do CYP2D6 e aumenta a exposição ao aripiprazol; recomenda-se reduzir a dose do aripiprazol. Associação usada terapeuticamente. Monitorar sedação, acatisia e efeitos extrapiramidais.",
     "drug1_rxcuis": [
       "89013"
     ],
@@ -2907,9 +2907,9 @@
     "id": "int_245",
     "drug1": "Aripiprazol",
     "drug2": "Paroxetina",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de síndrome serotoninérgica",
-    "mechanism": "Aumento do risco de síndrome serotoninérgica. Conduta: Monitorar sinais de síndrome serotoninérgica.",
+    "risk_level": "moderate",
+    "risk_description": "Aumento dos níveis de aripiprazol — reduzir a dose pela metade",
+    "mechanism": "A paroxetina é inibidora potente do CYP2D6 e aumenta a exposição ao aripiprazol; recomenda-se reduzir a dose do aripiprazol. Associação usada terapeuticamente. Monitorar sedação, acatisia e efeitos extrapiramidais.",
     "drug1_rxcuis": [
       "89013"
     ],
@@ -2922,8 +2922,8 @@
     "drug1": "Aripiprazol",
     "drug2": "Sertralina",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de síndrome serotoninérgica",
-    "mechanism": "Aumento do risco de síndrome serotoninérgica. Conduta: Monitorar sinais de síndrome serotoninérgica.",
+    "risk_description": "Aumento discreto dos níveis de aripiprazol",
+    "mechanism": "A sertralina é inibidora fraca/moderada do CYP2D6. Associação usada terapeuticamente (potencialização em depressão). Monitorar sedação, acatisia e efeitos extrapiramidais.",
     "drug1_rxcuis": [
       "89013"
     ],
@@ -3243,9 +3243,9 @@
     "id": "int_270",
     "drug1": "Brexpiprazol",
     "drug2": "Linezolida",
-    "risk_level": "critical",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "risk_level": "moderate",
+    "risk_description": "Cautela ao associar linezolida (inibidor fraco da MAO)",
+    "mechanism": "A linezolida é um inibidor reversível e não seletivo da MAO. O brexpiprazol não é um agente serotoninérgico clássico, mas recomenda-se cautela e monitorização de alterações do estado mental e da pressão arterial.",
     "drug1_rxcuis": [
       "1658314"
     ],
@@ -3286,8 +3286,8 @@
     "drug1": "Buspirona",
     "drug2": "Cetoconazol",
     "risk_level": "high",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "risk_description": "Aumento acentuado dos níveis de buspirona — tontura e sedação",
+    "mechanism": "O cetoconazol é inibidor potente do CYP3A4 e pode elevar várias vezes a exposição à buspirona, causando tontura, sedação e náusea. Reduzir a dose da buspirona. Não é síndrome serotoninérgica.",
     "drug1_rxcuis": [
       "1827"
     ],
@@ -3300,8 +3300,8 @@
     "drug1": "Buspirona",
     "drug2": "Itraconazol",
     "risk_level": "moderate",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "risk_description": "Aumento dos níveis de buspirona — tontura e sedação",
+    "mechanism": "O itraconazol inibe o CYP3A4 e eleva a exposição à buspirona, causando tontura e sedação. Reduzir a dose da buspirona. Não é síndrome serotoninérgica.",
     "drug1_rxcuis": [
       "1827"
     ],
@@ -3314,8 +3314,8 @@
     "drug1": "Buspirona",
     "drug2": "Ritonavir",
     "risk_level": "high",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "risk_description": "Aumento acentuado dos níveis de buspirona — tontura e sedação",
+    "mechanism": "O ritonavir é inibidor potente do CYP3A4 e pode elevar várias vezes a exposição à buspirona, causando tontura e sedação. Reduzir a dose da buspirona. Não é síndrome serotoninérgica.",
     "drug1_rxcuis": [
       "1827"
     ],
@@ -3453,9 +3453,9 @@
     "id": "int_285",
     "drug1": "Celecoxibe",
     "drug2": "Metotrexato",
-    "risk_level": "moderate",
-    "risk_description": "Toxicidade por metotrexato",
-    "mechanism": "Toxicidade por metotrexato. Conduta: Evitar uso concomitante.",
+    "risk_level": "high",
+    "risk_description": "Aumento do risco de toxicidade do metotrexato (neutropenia, trombocitopenia, disfunção renal).",
+    "mechanism": "Monitorar toxicidade do metotrexato.",
     "drug1_rxcuis": [
       "140587"
     ],
@@ -3719,9 +3719,9 @@
     "id": "int_304",
     "drug1": "Citalopram",
     "drug2": "Pimozida",
-    "risk_level": "high",
-    "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "risk_level": "critical",
+    "risk_description": "Prolongamento do intervalo QT — risco de torsades de pointes",
+    "mechanism": "Efeito aditivo de prolongamento do QT; o citalopram também eleva as concentrações de pimozida. Risco de arritmia ventricular fatal. Associação contraindicada.",
     "drug1_rxcuis": [
       "2556"
     ],
@@ -3804,8 +3804,8 @@
     "drug1": "Clobazam",
     "drug2": "Citalopram",
     "risk_level": "moderate",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "risk_description": "Sedação excessiva por aumento do metabólito ativo do clobazam",
+    "mechanism": "ISRS inibidores do CYP2C19 elevam o N-desmetilclobazam (metabólito ativo), aumentando sedação e ataxia. O clobazam NÃO é serotoninérgico. Monitorar sedação.",
     "drug1_rxcuis": [
       "21241"
     ],
@@ -3818,8 +3818,8 @@
     "drug1": "Clobazam",
     "drug2": "Escitalopram",
     "risk_level": "moderate",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "risk_description": "Sedação excessiva por aumento do metabólito ativo do clobazam",
+    "mechanism": "ISRS inibidores do CYP2C19 elevam o N-desmetilclobazam (metabólito ativo), aumentando sedação e ataxia. O clobazam NÃO é serotoninérgico. Monitorar sedação.",
     "drug1_rxcuis": [
       "21241"
     ],
@@ -3832,8 +3832,8 @@
     "drug1": "Clobazam",
     "drug2": "Fluoxetina",
     "risk_level": "moderate",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "risk_description": "Sedação excessiva por aumento do metabólito ativo do clobazam",
+    "mechanism": "A fluoxetina inibe o CYP2C19, elevando o N-desmetilclobazam (metabólito ativo do clobazam) e aumentando sedação e ataxia. O clobazam NÃO é serotoninérgico. Monitorar sedação.",
     "drug1_rxcuis": [
       "21241"
     ],
@@ -3845,9 +3845,9 @@
     "id": "int_313",
     "drug1": "Clobazam",
     "drug2": "Paroxetina",
-    "risk_level": "high",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "risk_level": "moderate",
+    "risk_description": "Sedação excessiva por aumento do metabólito ativo do clobazam",
+    "mechanism": "A paroxetina inibe o CYP2C19, elevando o N-desmetilclobazam (metabólito ativo do clobazam) e aumentando sedação e ataxia. O clobazam NÃO é serotoninérgico. Monitorar sedação.",
     "drug1_rxcuis": [
       "21241"
     ],
@@ -3860,8 +3860,8 @@
     "drug1": "Clobazam",
     "drug2": "Sertralina",
     "risk_level": "moderate",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "risk_description": "Sedação excessiva por aumento do metabólito ativo do clobazam",
+    "mechanism": "A sertralina inibe o CYP2C19, elevando o N-desmetilclobazam (metabólito ativo do clobazam) e aumentando sedação e ataxia. O clobazam NÃO é serotoninérgico. Monitorar sedação.",
     "drug1_rxcuis": [
       "21241"
     ],
@@ -3902,8 +3902,8 @@
     "drug1": "Clomipramina",
     "drug2": "Pimozida",
     "risk_level": "critical",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "risk_description": "Prolongamento do intervalo QT — risco de torsades de pointes",
+    "mechanism": "Efeito aditivo de prolongamento do QT entre a clomipramina e a pimozida, com risco de arritmia ventricular fatal. Associação contraindicada.",
     "drug1_rxcuis": [
       "2597"
     ],
@@ -3916,8 +3916,8 @@
     "drug1": "Clomipramina",
     "drug2": "Tioridazina",
     "risk_level": "critical",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "risk_description": "Prolongamento do intervalo QT — risco de torsades de pointes",
+    "mechanism": "Efeito aditivo de prolongamento do QT; a clomipramina também compete pelo CYP2D6, elevando os níveis de tioridazina. Risco de arritmia ventricular fatal. Associação contraindicada.",
     "drug1_rxcuis": [
       "2597"
     ],
@@ -4027,9 +4027,9 @@
     "id": "int_328",
     "drug1": "Clorpromazina",
     "drug2": "Metoclopramida",
-    "risk_level": "critical",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "risk_level": "high",
+    "risk_description": "Reações extrapiramidais graves, síndrome neuroléptica maligna e prolongamento do QT",
+    "mechanism": "Clorpromazina e metoclopramida são ambas ANTAGONISTAS dopaminérgicos D2. O bloqueio aditivo aumenta o risco de distonia aguda, parkinsonismo, discinesia tardia e síndrome neuroléptica maligna (mecanismo oposto ao serotoninérgico). Há ainda risco somado de prolongamento do QT (clorpromazina: risco conhecido de torsades; metoclopramida: risco condicional). Evitar a associação.",
     "drug1_rxcuis": [
       "2403"
     ],
@@ -4098,8 +4098,8 @@
     "drug1": "Clozapina",
     "drug2": "Fluoxetina",
     "risk_level": "high",
-    "risk_description": "Aumento do risco de síndrome serotoninérgica",
-    "mechanism": "Aumento do risco de síndrome serotoninérgica. Conduta: Monitorar e ajustar doses.",
+    "risk_description": "Aumento dos níveis de clozapina — risco de sedação, convulsão e toxicidade hematológica",
+    "mechanism": "A fluoxetina inibe CYP2D6/CYP3A4 e eleva as concentrações de clozapina, aumentando o risco de sedação intensa, convulsões, hipotensão e mielotoxicidade. Monitorar hemograma e níveis de clozapina.",
     "drug1_rxcuis": [
       "2626"
     ],
@@ -4112,8 +4112,8 @@
     "drug1": "Clozapina",
     "drug2": "Paroxetina",
     "risk_level": "high",
-    "risk_description": "Aumento do risco de síndrome serotoninérgica",
-    "mechanism": "Aumento do risco de síndrome serotoninérgica. Conduta: Monitorar e ajustar doses.",
+    "risk_description": "Aumento dos níveis de clozapina — risco de sedação, convulsão e toxicidade hematológica",
+    "mechanism": "A paroxetina inibe o CYP2D6 e eleva as concentrações de clozapina, aumentando o risco de sedação intensa, convulsões, hipotensão e mielotoxicidade. Monitorar hemograma e níveis de clozapina.",
     "drug1_rxcuis": [
       "2626"
     ],
@@ -4601,9 +4601,9 @@
     "id": "int_372",
     "drug1": "Dissulfiram",
     "drug2": "Metronidazol",
-    "risk_level": "high",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "risk_level": "critical",
+    "risk_description": "Reação psicótica aguda e estado confusional",
+    "mechanism": "A associação de metronidazol com dissulfiram pode provocar psicose aguda e estado confusional. Não é síndrome serotoninérgica. Associação contraindicada; aguardar pelo menos 2 semanas após o dissulfiram.",
     "drug1_rxcuis": [
       "3554"
     ],
@@ -4834,8 +4834,8 @@
     "drug1": "Duloxetina",
     "drug2": "Tioridazina",
     "risk_level": "critical",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "risk_description": "Prolongamento do intervalo QT — risco de torsades de pointes",
+    "mechanism": "A duloxetina inibe o CYP2D6 e eleva as concentrações de tioridazina, que prolonga o intervalo QT de forma dose-dependente. Risco de arritmia ventricular fatal. Associação contraindicada.",
     "drug1_rxcuis": [
       "72625"
     ],
@@ -4848,8 +4848,8 @@
     "drug1": "Duloxetina",
     "drug2": "Pimozida",
     "risk_level": "critical",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "risk_description": "Prolongamento do intervalo QT — risco de torsades de pointes",
+    "mechanism": "Efeito aditivo de prolongamento do QT entre a duloxetina e a pimozida, com risco de arritmia ventricular fatal. Associação contraindicada.",
     "drug1_rxcuis": [
       "72625"
     ],
@@ -5517,8 +5517,8 @@
     "drug1": "Flufenazina",
     "drug2": "Lítio",
     "risk_level": "high",
-    "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Evitar combinação.",
+    "risk_description": "Neurotoxicidade — confusão, rigidez, tremor e discinesia",
+    "mechanism": "A associação de lítio com antipsicóticos pode causar síndrome neurotóxica (confusão, rigidez extrapiramidal, tremor grosseiro, febre), mesmo com litemia na faixa terapêutica. Não é síndrome serotoninérgica. Monitorar litemia e sinais neurológicos.",
     "drug1_rxcuis": [
       "4496"
     ],
@@ -5545,8 +5545,8 @@
     "drug1": "Fluoxetina",
     "drug2": "Pimozida",
     "risk_level": "critical",
-    "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "risk_description": "Prolongamento do intervalo QT — risco de torsades de pointes",
+    "mechanism": "A fluoxetina inibe o CYP2D6 e eleva as concentrações de pimozida, que prolonga o intervalo QT. Risco de arritmia ventricular fatal. Associação contraindicada.",
     "drug1_rxcuis": [
       "4493"
     ],
@@ -5650,20 +5650,6 @@
     ],
     "drug2_rxcuis": [
       "5640"
-    ]
-  },
-  {
-    "id": "int_448",
-    "drug1": "Formoterol",
-    "drug2": "Tramadol",
-    "risk_level": "moderate",
-    "risk_description": "risco de arritmia fatal",
-    "mechanism": "risco de arritmia fatal. Conduta: Evitar combinação.",
-    "drug1_rxcuis": [
-      "25255"
-    ],
-    "drug2_rxcuis": [
-      "10689"
     ]
   },
   {
@@ -6179,7 +6165,7 @@
     "id": "int_486",
     "drug1": "Indacaterol",
     "drug2": "Efedrina",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "crise hipertensiva",
     "mechanism": "crise hipertensiva. Conduta: Evitar.",
     "drug1_rxcuis": [
@@ -6565,20 +6551,6 @@
     ],
     "drug2_rxcuis": [
       "1656328"
-    ]
-  },
-  {
-    "id": "int_514",
-    "drug1": "Lítio",
-    "drug2": "Metformina",
-    "risk_level": "critical",
-    "risk_description": "Risco de acidose láctica",
-    "mechanism": "Risco de acidose láctica. Conduta: Evitar.",
-    "drug1_rxcuis": [
-      "6448"
-    ],
-    "drug2_rxcuis": [
-      "6809"
     ]
   },
   {
@@ -7465,7 +7437,7 @@
     "id": "int_581",
     "drug1": "Nifedipina",
     "drug2": "Rifampicina",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Redução da eficácia da nifedipina",
     "mechanism": "Redução da eficácia da nifedipina. Conduta: Ajustar dose de nifedipina.",
     "drug1_rxcuis": [
@@ -7634,8 +7606,8 @@
     "drug1": "Olanzapina",
     "drug2": "Fluoxetina",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de síndrome serotoninérgica",
-    "mechanism": "Aumento do risco de síndrome serotoninérgica. Conduta: Monitorar sinais de síndrome serotoninérgica.",
+    "risk_description": "Aumento dos níveis de olanzapina — monitorar sedação e efeitos metabólicos",
+    "mechanism": "Olanzapina + fluoxetina é uma associação usada terapeuticamente (existe como combinação fixa para depressão bipolar). A fluoxetina eleva discretamente a exposição à olanzapina. Monitorar sedação, ganho de peso e glicemia.",
     "drug1_rxcuis": [
       "61381"
     ],
@@ -8040,8 +8012,8 @@
     "drug1": "Piper methysticum (Kava Kava)",
     "drug2": "Citalopram",
     "risk_level": "high",
-    "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Evitar.",
+    "risk_description": "Sedação excessiva e risco de hepatotoxicidade",
+    "mechanism": "A kava-kava é sedativa (ação GABAérgica) e hepatotóxica, não serotoninérgica. Associada a antidepressivos aumenta a depressão do SNC e o risco de lesão hepática. Evitar.",
     "drug1_rxcuis": [
       "285228"
     ],
@@ -8054,8 +8026,8 @@
     "drug1": "Piper methysticum (Kava Kava)",
     "drug2": "Fluoxetina",
     "risk_level": "high",
-    "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Evitar.",
+    "risk_description": "Sedação excessiva e risco de hepatotoxicidade",
+    "mechanism": "A kava-kava é sedativa (ação GABAérgica) e hepatotóxica, não serotoninérgica. Associada a antidepressivos aumenta a depressão do SNC e o risco de lesão hepática. Evitar.",
     "drug1_rxcuis": [
       "285228"
     ],
@@ -8067,9 +8039,9 @@
     "id": "int_624",
     "drug1": "Piper methysticum (Kava Kava)",
     "drug2": "Paroxetina",
-    "risk_level": "moderate",
-    "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Evitar.",
+    "risk_level": "high",
+    "risk_description": "Sedação excessiva e risco de hepatotoxicidade",
+    "mechanism": "A kava-kava é sedativa (ação GABAérgica) e hepatotóxica, não serotoninérgica. Associada a antidepressivos aumenta a depressão do SNC e o risco de lesão hepática. Evitar.",
     "drug1_rxcuis": [
       "285228"
     ],
@@ -8081,9 +8053,9 @@
     "id": "int_625",
     "drug1": "Piper methysticum (Kava Kava)",
     "drug2": "Sertralina",
-    "risk_level": "critical",
-    "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Evitar.",
+    "risk_level": "high",
+    "risk_description": "Sedação excessiva e risco de hepatotoxicidade",
+    "mechanism": "A kava-kava é sedativa (ação GABAérgica) e hepatotóxica, não serotoninérgica. Associada a antidepressivos aumenta a depressão do SNC e o risco de lesão hepática. Evitar.",
     "drug1_rxcuis": [
       "285228"
     ],
@@ -8530,8 +8502,8 @@
     "drug1": "Reboxetina",
     "drug2": "Pimozida",
     "risk_level": "critical",
-    "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "risk_description": "Prolongamento do intervalo QT — risco de torsades de pointes",
+    "mechanism": "A reboxetina é um inibidor seletivo da recaptação de NORADRENALINA (não é serotoninérgica). A pimozida tem risco conhecido de torsades de pointes (CredibleMeds, Known Risk) e a associação deve ser evitada por elevar o risco de arritmia ventricular.",
     "drug1_rxcuis": [
       "60842"
     ],
@@ -8543,9 +8515,9 @@
     "id": "int_658",
     "drug1": "Reboxetina",
     "drug2": "Tioridazina",
-    "risk_level": "high",
-    "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "risk_level": "critical",
+    "risk_description": "Prolongamento do intervalo QT — risco de torsades de pointes",
+    "mechanism": "A reboxetina é um inibidor seletivo da recaptação de NORADRENALINA (não é serotoninérgica). A tioridazina tem risco conhecido de torsades de pointes (CredibleMeds, Known Risk) e a associação deve ser evitada por elevar o risco de arritmia ventricular.",
     "drug1_rxcuis": [
       "60842"
     ],
@@ -8722,20 +8694,6 @@
     ]
   },
   {
-    "id": "int_671",
-    "drug1": "Rizatriptano",
-    "drug2": "Pimozida",
-    "risk_level": "critical",
-    "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
-    "drug1_rxcuis": [
-      "88014"
-    ],
-    "drug2_rxcuis": [
-      "8331"
-    ]
-  },
-  {
     "id": "int_672",
     "drug1": "Rizatriptano",
     "drug2": "Linezolida",
@@ -8885,8 +8843,8 @@
     "drug1": "Sertralina",
     "drug2": "Pimozida",
     "risk_level": "critical",
-    "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "risk_description": "Prolongamento do intervalo QT — risco de torsades de pointes",
+    "mechanism": "A sertralina eleva as concentrações de pimozida, que prolonga o intervalo QT. Risco de arritmia ventricular fatal. Associação contraindicada.",
     "drug1_rxcuis": [
       "36437"
     ],
@@ -9589,48 +9547,6 @@
     ]
   },
   {
-    "id": "int_734",
-    "drug1": "Tizanidina",
-    "drug2": "Fluoxetina",
-    "risk_level": "moderate",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
-    "drug1_rxcuis": [
-      "57258"
-    ],
-    "drug2_rxcuis": [
-      "4493"
-    ]
-  },
-  {
-    "id": "int_735",
-    "drug1": "Tizanidina",
-    "drug2": "Paroxetina",
-    "risk_level": "high",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
-    "drug1_rxcuis": [
-      "57258"
-    ],
-    "drug2_rxcuis": [
-      "32937"
-    ]
-  },
-  {
-    "id": "int_736",
-    "drug1": "Tizanidina",
-    "drug2": "Sertralina",
-    "risk_level": "high",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
-    "drug1_rxcuis": [
-      "57258"
-    ],
-    "drug2_rxcuis": [
-      "36437"
-    ]
-  },
-  {
     "id": "int_737",
     "drug1": "Tobramicina",
     "drug2": "Cisplatina",
@@ -10186,8 +10102,8 @@
     "drug1": "Venlafaxina",
     "drug2": "Pimozida",
     "risk_level": "critical",
-    "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "risk_description": "Prolongamento do intervalo QT — risco de torsades de pointes",
+    "mechanism": "Efeito aditivo de prolongamento do QT entre a venlafaxina e a pimozida, com risco de arritmia ventricular fatal. Associação contraindicada.",
     "drug1_rxcuis": [
       "39786"
     ],
@@ -10200,8 +10116,8 @@
     "drug1": "Venlafaxina",
     "drug2": "Tioridazina",
     "risk_level": "critical",
-    "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "risk_description": "Prolongamento do intervalo QT — risco de torsades de pointes",
+    "mechanism": "A venlafaxina eleva as concentrações de tioridazina, que prolonga o intervalo QT de forma dose-dependente. Risco de arritmia ventricular fatal. Associação contraindicada.",
     "drug1_rxcuis": [
       "39786"
     ],
@@ -10263,20 +10179,6 @@
     ],
     "drug2_rxcuis": [
       "190376"
-    ]
-  },
-  {
-    "id": "int_784",
-    "drug1": "Vitamina D",
-    "drug2": "Colecalciferol",
-    "risk_level": "moderate",
-    "risk_description": "Hipercalemia grave",
-    "mechanism": "Hipercalemia grave. Conduta: Evitar.",
-    "drug1_rxcuis": [
-      "11253"
-    ],
-    "drug2_rxcuis": [
-      "11253"
     ]
   },
   {
@@ -10634,10 +10536,10 @@
   {
     "id": "int_812",
     "drug1": "Alfuzosina",
-    "drug2": "Itroconazol",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de hipotensão ortostática",
-    "mechanism": "Aumento do risco de hipotensão ortostática. Conduta: Evitar.",
+    "drug2": "Itraconazol",
+    "risk_level": "critical",
+    "risk_description": "Aumento dos níveis sanguíneos de alfuzosina, com risco de hipotensão sintomática.",
+    "mechanism": "Inibição do CYP3A4, resultando em aumento da exposição à alfuzosina. O uso é contraindicado.",
     "drug1_rxcuis": [
       "17300"
     ]
@@ -10673,7 +10575,7 @@
   {
     "id": "int_815",
     "drug1": "Almotriptano",
-    "drug2": "Tranylcipromina",
+    "drug2": "Tranilcipromina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
     "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
@@ -10807,7 +10709,7 @@
   {
     "id": "int_825",
     "drug1": "Amiodarona",
-    "drug2": "Simvastatina",
+    "drug2": "Sinvastatina",
     "risk_level": "critical",
     "risk_description": "Risco de rabdomiólise",
     "mechanism": "Risco de rabdomiólise. Conduta: Evitar combinação.",
@@ -10816,17 +10718,6 @@
     ],
     "drug2_rxcuis": [
       "36567"
-    ]
-  },
-  {
-    "id": "int_826",
-    "drug1": "Amiodarona",
-    "drug2": "Cerivastatina",
-    "risk_level": "high",
-    "risk_description": "Risco de rabdomiólise",
-    "mechanism": "Risco de rabdomiólise. Conduta: Evitar combinação.",
-    "drug1_rxcuis": [
-      "703"
     ]
   },
   {
@@ -10865,7 +10756,7 @@
   {
     "id": "int_830",
     "drug1": "Apixabana",
-    "drug2": "Ketoconazol",
+    "drug2": "Cetoconazol",
     "risk_level": "critical",
     "risk_description": "Hemorragia grave",
     "mechanism": "Hemorragia grave. Conduta: Contraindicado.",
@@ -10913,20 +10804,6 @@
     "mechanism": "Hemorragia grave. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "1364430"
-    ]
-  },
-  {
-    "id": "int_834",
-    "drug1": "Arnica montana",
-    "drug2": "Warfarina",
-    "risk_level": "high",
-    "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Evitar uso concomitante.",
-    "drug1_rxcuis": [
-      "285208"
-    ],
-    "drug2_rxcuis": [
-      "11289"
     ]
   },
   {
@@ -10982,7 +10859,7 @@
   {
     "id": "int_839",
     "drug1": "Atorvastatina",
-    "drug2": "Gemfibrozil",
+    "drug2": "Genfibrozila",
     "risk_level": "high",
     "risk_description": "Risco de rabdomiólise",
     "mechanism": "Risco de rabdomiólise. Conduta: Contraindicado.",
@@ -11143,17 +11020,6 @@
     ]
   },
   {
-    "id": "int_853",
-    "drug1": "Bupropriona",
-    "drug2": "Álcool/etanol",
-    "risk_level": "high",
-    "risk_description": "convulsão grave",
-    "mechanism": "convulsão grave. Conduta: Contraindicado.",
-    "drug1_rxcuis": [
-      "42347"
-    ]
-  },
-  {
     "id": "int_854",
     "drug1": "Carbamazepina",
     "drug2": "Álcool/etanol",
@@ -11201,9 +11067,9 @@
     "id": "int_858",
     "drug1": "Clomipramina",
     "drug2": "Álcool/etanol",
-    "risk_level": "moderate",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "risk_level": "high",
+    "risk_description": "Depressão do SNC aditiva — sedação intensa e prejuízo psicomotor",
+    "mechanism": "O álcool potencializa a sedação e o efeito anticolinérgico da clomipramina, com risco de queda, confusão e depressão respiratória. Não é síndrome serotoninérgica. Evitar álcool.",
     "drug1_rxcuis": [
       "2597"
     ]
@@ -11330,23 +11196,12 @@
     ]
   },
   {
-    "id": "int_870",
-    "drug1": "Daplagliflozina",
-    "drug2": "Álcool/etanol",
-    "risk_level": "moderate",
-    "risk_description": "Aumento de risco de cetoacidose diabética",
-    "mechanism": "Aumento de risco de cetoacidose diabética. Conduta: Evitar consumo excessivo.",
-    "drug1_rxcuis": [
-      "1488564"
-    ]
-  },
-  {
     "id": "int_871",
     "drug1": "Desvenlafaxina",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "risk_description": "Depressão do SNC aditiva — sedação e prejuízo do julgamento",
+    "mechanism": "O álcool soma-se ao efeito sedativo da desvenlafaxina e aumenta o risco de lesão hepática. Não é síndrome serotoninérgica. Evitar álcool.",
     "drug1_rxcuis": [
       "734064"
     ]
@@ -11425,8 +11280,8 @@
     "drug1": "Duloxetina",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "risk_description": "Risco de lesão hepática e sedação aditiva",
+    "mechanism": "A duloxetina pode causar hepatotoxicidade e o álcool aumenta esse risco; há ainda depressão aditiva do SNC. Não é síndrome serotoninérgica. Evitar álcool.",
     "drug1_rxcuis": [
       "72625"
     ]
@@ -11447,8 +11302,8 @@
     "drug1": "Escitalopram",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "risk_description": "Depressão do SNC aditiva — sedação e prejuízo do julgamento",
+    "mechanism": "O álcool soma-se ao efeito sedativo do escitalopram, com prejuízo psicomotor. Não é síndrome serotoninérgica. Evitar álcool.",
     "drug1_rxcuis": [
       "321988"
     ]
@@ -11483,8 +11338,8 @@
     "drug1": "Fenitoína",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
-    "risk_description": "Síndrome serotoninérgica e convulsão",
-    "mechanism": "Síndrome serotoninérgica e convulsão. Conduta: Evitar.",
+    "risk_description": "Perda do controle das convulsões e sedação aditiva",
+    "mechanism": "A fenitoína NÃO é serotoninérgica. O álcool agudo eleva os níveis de fenitoína (risco de toxicidade: ataxia, nistagmo) e o uso crônico os reduz (risco de convulsão). Há ainda depressão aditiva do SNC. Evitar álcool.",
     "drug1_rxcuis": [
       "8183"
     ]
@@ -11530,8 +11385,8 @@
     "drug1": "Fluvoxamina",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de síndrome serotoninérgica",
-    "mechanism": "Aumento do risco de síndrome serotoninérgica. Conduta: Evitar.",
+    "risk_description": "Depressão do SNC aditiva — sedação e prejuízo do julgamento",
+    "mechanism": "O álcool soma-se ao efeito sedativo da fluvoxamina, com prejuízo psicomotor. Não é síndrome serotoninérgica. Evitar álcool.",
     "drug1_rxcuis": [
       "42355"
     ]
@@ -11993,8 +11848,8 @@
     "drug1": "Sertralina",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
-    "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Evitar.",
+    "risk_description": "Depressão do SNC aditiva — sedação e prejuízo do julgamento",
+    "mechanism": "O álcool soma-se ao efeito sedativo da sertralina, com prejuízo psicomotor. Não é síndrome serotoninérgica. Evitar álcool.",
     "drug1_rxcuis": [
       "36437"
     ]
@@ -12139,8 +11994,8 @@
     "drug1": "Venlafaxina",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
-    "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Evitar.",
+    "risk_description": "Depressão do SNC aditiva — sedação e prejuízo do julgamento",
+    "mechanism": "O álcool soma-se ao efeito sedativo da venlafaxina e pode elevar a pressão arterial. Não é síndrome serotoninérgica. Evitar álcool.",
     "drug1_rxcuis": [
       "39786"
     ]
@@ -12294,7 +12149,7 @@
     "id": "int_961",
     "drug1": "Anastrozol",
     "drug2": "Tamoxifeno",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Não use em combinação com anastrozol, pois não há benefício adicional em relação à monoterapia com tamoxifeno.",
     "mechanism": "A coadministração de anastrozol e tamoxifeno reduziu a concentração plasmática de anastrozol em 27%, sem demonstrar benefício de eficácia em comparação com tamoxifeno isolado. Conduta: não administrar tamoxifeno com anastrozol. (Fonte: bula FDA)"
   },
@@ -12377,14 +12232,6 @@
     "risk_level": "critical",
     "risk_description": "Risco de hiperbilirrubinemia indireta (não conjugada) aumentado, pois ambos os fármacos estão associados a esse efeito.",
     "mechanism": "A coadministração de REYATAZ com indinavir é contraindicada. (Fonte: bula FDA)"
-  },
-  {
-    "id": "int_972",
-    "drug1": "Atazanavir",
-    "drug2": "Ritonavir",
-    "risk_level": "moderate",
-    "risk_description": "Aumento da concentração de atazanavir.",
-    "mechanism": "Se REYATAZ for coadministrado com ritonavir, recomenda-se administrar REYATAZ 300 mg uma vez ao dia com ritonavir 100 mg uma vez ao dia com alimentos em adultos. Consulte a bula completa do ritonavir para informações sobre interações medicamentosas com ritonavir. (Fonte: bula FDA)"
   },
   {
     "id": "int_973",
@@ -12547,28 +12394,12 @@
     "mechanism": "Mecanismo: Não especificado. Conduta: Monitorar sinais e sintomas de doença do enxerto contra hospedeiro em pacientes recebendo ciclosporina. (Fonte: bula FDA)"
   },
   {
-    "id": "int_993",
-    "drug1": "Citrato de Tamoxifeno",
-    "drug2": "Anastrozol",
-    "risk_level": "high",
-    "risk_description": "A combinação de anastrozol e tamoxifeno não demonstrou benefício e deve ser evitada.",
-    "mechanism": "A coadministração de anastrozol e tamoxifeno reduziu a concentração plasmática de anastrozol em 27% em comparação com anastrozol isolado. A combinação não demonstrou benefício em relação ao tamoxifeno isolado e deve ser evitada em todos os pacientes. (Fonte: bula FDA)"
-  },
-  {
     "id": "int_994",
     "drug1": "Citrato de Tamoxifeno",
     "drug2": "Letrozol",
     "risk_level": "high",
     "risk_description": "O uso concomitante de letrozol com tamoxifeno não é recomendado devido à falta de eficácia estabelecida.",
     "mechanism": "O tamoxifeno reduziu a concentração plasmática de letrozol em 38% quando coadministrados. O uso concomitante não é recomendado porque a eficácia da combinação no tratamento adjuvante do câncer de mama não foi estabelecida. (Fonte: bula FDA)"
-  },
-  {
-    "id": "int_995",
-    "drug1": "Citrato de Tamoxifeno",
-    "drug2": "Varfarina",
-    "risk_level": "high",
-    "risk_description": "Pode ocorrer um aumento acentuado no efeito anticoagulante quando o tamoxifeno é usado com varfarina.",
-    "mechanism": "Monitorar de perto os índices de coagulação em pacientes que tomam tamoxifeno para câncer de mama metastático ou como terapia adjuvante e que necessitam de uso concomitante de varfarina. O uso em pacientes com DCIS e para redução da incidência de câncer de mama em mulheres de alto risco é contraindicado. (Fonte: bula FDA)"
   },
   {
     "id": "int_996",
@@ -12673,14 +12504,6 @@
     "risk_level": "high",
     "risk_description": "Aumenta a exposição à dabigatrana, especialmente em pacientes com insuficiência renal moderada (CrCl 30-50 mL/min).",
     "mechanism": "Inibição da P-gp combinada com insuficiência renal, aumentando a exposição. Conduta: reduzir a dose de dabigatrana para 75 mg duas vezes ao dia em pacientes adultos com CrCl 30-50 mL/min. (Fonte: bula FDA)"
-  },
-  {
-    "id": "int_1009",
-    "drug1": "Dabigatrana",
-    "drug2": "Amiodarona",
-    "risk_level": "moderate",
-    "risk_description": "Não requer ajuste de dose de dabigatrana, mas o texto adverte que esses resultados não devem ser extrapolados para outros inibidores da P-gp.",
-    "mechanism": "Inibição da P-gp sem necessidade de ajuste de dose para dabigatrana, conforme dados específicos. Conduta: não requer ajuste de dose, mas monitorar conforme necessário. (Fonte: bula FDA)"
   },
   {
     "id": "int_1010",
@@ -12841,22 +12664,6 @@
     "risk_level": "high",
     "risk_description": "Aumento do risco de hemorragia.",
     "mechanism": "Agentes que podem aumentar o risco de hemorragia devem ser descontinuados antes do início da enoxaparina, se possível. Se a coadministração for essencial, realizar monitoramento clínico e laboratorial rigoroso. (Fonte: bula FDA)"
-  },
-  {
-    "id": "int_1030",
-    "drug1": "Epirrubicina",
-    "drug2": "Paclitaxel",
-    "risk_level": "moderate",
-    "risk_description": "Aumento da exposição sistêmica de epirrubicina, epirrubicinol e 7-deoxydoxorrubicina aglicona.",
-    "mechanism": "Mecanismo: aumento da exposição sistêmica. Conduta: monitorar sinais de toxicidade; considerar ajuste de dose se necessário. (Fonte: bula FDA)"
-  },
-  {
-    "id": "int_1031",
-    "drug1": "Epirrubicina",
-    "drug2": "Docetaxel",
-    "risk_level": "moderate",
-    "risk_description": "Aumento da exposição sistêmica de epirrubicinol e 7-deoxydoxorrubicina aglicona.",
-    "mechanism": "Mecanismo: aumento da exposição sistêmica de metabólitos. Conduta: monitorar sinais de toxicidade; considerar ajuste de dose se necessário. (Fonte: bula FDA)"
   },
   {
     "id": "int_1032",
@@ -13163,14 +12970,6 @@
     "mechanism": "O imatinibe retarda a depuração do metotrexato. Consulte a bula do metotrexato para recomendações de manejo das concentrações. (Fonte: bula FDA)"
   },
   {
-    "id": "int_1070",
-    "drug1": "Lamivudina",
-    "drug2": "Zidovudina",
-    "risk_level": "high",
-    "risk_description": "O uso concomitante deve ser evitado devido à relação antagônica demonstrada in vitro.",
-    "mechanism": "Antagonismo in vitro. Conduta: evitar o uso concomitante. (Fonte: bula FDA)"
-  },
-  {
     "id": "int_1071",
     "drug1": "Lamotrigina",
     "drug2": "Carbamazepina",
@@ -13217,14 +13016,6 @@
     "risk_level": "high",
     "risk_description": "Redução significativa da exposição ao lapatinibe (AUC diminuída em aproximadamente 72%).",
     "mechanism": "Carbamazepina é um indutor forte de CYP3A4, aumentando o metabolismo do lapatinibe. Considerar aumento gradual da dose de lapatinibe se o uso concomitante for inevitável. (Fonte: bula FDA)"
-  },
-  {
-    "id": "int_1077",
-    "drug1": "Letrozol",
-    "drug2": "Tamoxifeno",
-    "risk_level": "moderate",
-    "risk_description": "A coadministração de letrozol e tamoxifeno reduz os níveis plasmáticos de letrozol em média 38%.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: a experiência clínica indica que o efeito terapêutico do letrozol não é prejudicado se administrado imediatamente após tamoxifeno. (Fonte: bula FDA)"
   },
   {
     "id": "int_1078",
@@ -13667,14 +13458,6 @@
     "mechanism": "Rufinamida reduz os níveis de lamotrigina de forma concentração-dependente, com maior efeito em pacientes pediátricos. Monitorar eficácia da lamotrigina. (Fonte: bula FDA)"
   },
   {
-    "id": "int_1133",
-    "drug1": "Rufinamida",
-    "drug2": "Topiramato",
-    "risk_level": "moderate",
-    "risk_description": "Não há efeito significativo de rufinamida sobre topiramato ou vice-versa.",
-    "mechanism": "Nenhuma interação farmacocinética clinicamente relevante foi observada entre rufinamida e topiramato. (Fonte: bula FDA)"
-  },
-  {
     "id": "int_1134",
     "drug1": "Sertralina",
     "drug2": "Varfarina",
@@ -13689,22 +13472,6 @@
     "risk_level": "moderate",
     "risk_description": "Redução de 32% na depuração do diazepam e aumento de 23% no Tmax do desmetildiazepam.",
     "mechanism": "Inibição do metabolismo do diazepam. Significância clínica desconhecida; monitorar efeitos sedativos. (Fonte: bula FDA)"
-  },
-  {
-    "id": "int_1136",
-    "drug1": "Sertralina",
-    "drug2": "Fenitoína",
-    "risk_level": "moderate",
-    "risk_description": "Potencial alteração nos níveis de fenitoína, embora estudo não tenha mostrado inibição clinicamente importante.",
-    "mechanism": "Possível inibição do metabolismo. Recomenda-se monitorar concentrações plasmáticas de fenitoína após início da sertralina e ajustar dose, especialmente em pacientes com múltiplas condições ou medicamentos. (Fonte: bula FDA)"
-  },
-  {
-    "id": "int_1137",
-    "drug1": "Sertralina",
-    "drug2": "Valproato de Sódio",
-    "risk_level": "moderate",
-    "risk_description": "Efeito sobre níveis de valproato não avaliado; risco de alteração nas concentrações.",
-    "mechanism": "Mecanismo desconhecido. Recomenda-se monitorar níveis plasmáticos de valproato após início da sertralina e ajustar dose. (Fonte: bula FDA)"
   },
   {
     "id": "int_1138",
@@ -13947,22 +13714,6 @@
     "mechanism": "A venlafaxina interfere na recaptação de serotonina pelas plaquetas, afetando a hemostasia. Pacientes em uso de varfarina devem ser monitorados cuidadosamente ao iniciar ou descontinuar a venlafaxina. (Fonte: bula FDA)"
   },
   {
-    "id": "int_1168",
-    "drug1": "Venlafaxina",
-    "drug2": "Risperidona",
-    "risk_level": "moderate",
-    "risk_description": "A venlafaxina inibe ligeiramente o metabolismo da risperidona mediado pela CYP2D6, resultando em um aumento de aproximadamente 32% na AUC da risperidona, mas sem alterar significativamente o perfil farmacocinético do total da fração ativa.",
-    "mechanism": "Inibição da CYP2D6 pela venlafaxina. Como a concentração total de risperidona mais 9-hidroxirisperidona não foi significativamente alterada, o significado clínico é limitado. (Fonte: bula FDA)"
-  },
-  {
-    "id": "int_1169",
-    "drug1": "Venlafaxina",
-    "drug2": "Indinavir",
-    "risk_level": "moderate",
-    "risk_description": "A venlafaxina diminui a AUC do indinavir em 28% e o Cmax em 36%, mas o significado clínico é desconhecido.",
-    "mechanism": "Mecanismo não especificado. O indinavir não afetou a farmacocinética da venlafaxina ou ODV. O significado clínico é desconhecido. (Fonte: bula FDA)"
-  },
-  {
     "id": "int_1170",
     "drug1": "Vigabatrina",
     "drug2": "Fenitoína",
@@ -13993,14 +13744,6 @@
     "risk_level": "high",
     "risk_description": "Redução dos níveis sanguíneos do anticonvulsivante e aumento da atividade convulsiva.",
     "mechanism": "Possível redução da absorção de fenitoína ou aumento da taxa de seu metabolismo e eliminação. Ajuste de dose baseado em monitoramento seriado dos níveis sanguíneos. (Fonte: bula FDA)"
-  },
-  {
-    "id": "int_1174",
-    "drug1": "Vincristina",
-    "drug2": "Fenitoína",
-    "risk_level": "high",
-    "risk_description": "Redução dos níveis sanguíneos do anticonvulsivante e aumento da atividade convulsiva.",
-    "mechanism": "Possível redução da absorção de fenitoína e aumento da taxa de seu metabolismo e eliminação. Ajuste de dose baseado em monitoramento seriado dos níveis sanguíneos. (Fonte: bula FDA)"
   },
   {
     "id": "int_1175",
@@ -14097,14 +13840,6 @@
     "risk_level": "high",
     "risk_description": "Redução da concentração de darunavir.",
     "mechanism": "Indução do CYP3A. Co-administração não recomendada. (Fonte: bula FDA)"
-  },
-  {
-    "id": "int_1187",
-    "drug1": "Darunavir",
-    "drug2": "Atazanavir",
-    "risk_level": "high",
-    "risk_description": "Interação não estudada, risco potencial.",
-    "mechanism": "Falta de dados. Co-administração não recomendada. (Fonte: bula FDA)"
   },
   {
     "id": "int_1188",
@@ -14459,14 +14194,6 @@
     "mechanism": "Indução enzimática. Doses não estabelecidas. (Fonte: bula FDA)"
   },
   {
-    "id": "int_1232",
-    "drug1": "Nevirapina",
-    "drug2": "Ritonavir",
-    "risk_level": "high",
-    "risk_description": "Interação não avaliada; doses apropriadas não estabelecidas.",
-    "mechanism": "Não avaliado. Doses não estabelecidas. (Fonte: bula FDA)"
-  },
-  {
     "id": "int_1233",
     "drug1": "Nevirapina",
     "drug2": "Efavirenz",
@@ -14779,22 +14506,6 @@
     "mechanism": "↑ imunossupressores. Monitorização terapêutica recomendada. (Fonte: bula FDA)"
   },
   {
-    "id": "int_1272",
-    "drug1": "Carbamazepina",
-    "drug2": "Clorpromazina",
-    "risk_level": "moderate",
-    "risk_description": "Formação de precipitado laranja borrachento quando administrado simultaneamente como suspensão.",
-    "mechanism": "Incompatibilidade física entre as suspensões. (Fonte: bula FDA)"
-  },
-  {
-    "id": "int_1273",
-    "drug1": "Carbamazepina",
-    "drug2": "Tioridazina",
-    "risk_level": "moderate",
-    "risk_description": "Formação de precipitado quando administrado simultaneamente como suspensão.",
-    "mechanism": "Incompatibilidade física entre as suspensões. (Fonte: bula FDA)"
-  },
-  {
     "id": "int_1274",
     "drug1": "Carbamazepina",
     "drug2": "Trazodona",
@@ -14977,14 +14688,6 @@
     "risk_level": "critical",
     "risk_description": "Contraindicado devido ao potencial de reações graves ou fatais, como arritmias cardíacas.",
     "mechanism": "Aumento das concentrações de pimozida. (Fonte: bula FDA)"
-  },
-  {
-    "id": "int_1297",
-    "drug1": "Fosamprenavir",
-    "drug2": "Ritonavir",
-    "risk_level": "high",
-    "risk_description": "Não recomendado com fosamprenavir/ritonavir; doses apropriadas não estabelecidas.",
-    "mechanism": "Aumento previsto do paritaprevir. (Fonte: bula FDA)"
   },
   {
     "id": "int_1298",
@@ -15299,14 +15002,6 @@
     "mechanism": "Inibição do CYP3A. Não recomendado uso uma vez ao dia com nelfinavir. (Fonte: bula FDA)"
   },
   {
-    "id": "int_1337",
-    "drug1": "Lopinavir",
-    "drug2": "Ritonavir",
-    "risk_level": "moderate",
-    "risk_description": "Aumento da concentração de lopinavir.",
-    "mechanism": "Inibição do CYP3A. Doses adicionais de ritonavir não estabelecidas. (Fonte: bula FDA)"
-  },
-  {
     "id": "int_1338",
     "drug1": "Lopinavir",
     "drug2": "Saquinavir",
@@ -15563,14 +15258,6 @@
     "mechanism": "Mecanismo não especificado. Monitorar a exposição ao paclitaxel durante o tratamento combinado, especialmente após ciclos repetidos. (Fonte: bula FDA)"
   },
   {
-    "id": "int_1370",
-    "drug1": "AAS (Ácido Acetilsalicílico)",
-    "drug2": "Metotrexato (oncológico)",
-    "risk_level": "high",
-    "risk_description": "Risco de toxicidade da medula óssea e discrasias sanguíneas.",
-    "mechanism": "Deslocamento desses fármacos dos sítios de ligação secundários e, no caso do metotrexato, redução de sua excreção. Monitorar hemograma e função renal; ajustar doses conforme necessário."
-  },
-  {
     "id": "int_1371",
     "drug1": "Cefixima",
     "drug2": "Carbamazepina",
@@ -15603,22 +15290,6 @@
     "mechanism": "Cloranfenicol demonstrou ser antagonista a beta-lactâmicos, incluindo ceftazidima, com base em estudos in vitro. Devido à possibilidade de antagonismo in vivo, especialmente quando a atividade bactericida é desejada, esta combinação deve ser evitada."
   },
   {
-    "id": "int_1375",
-    "drug1": "Ceftriaxona",
-    "drug2": "Fluconazol",
-    "risk_level": "high",
-    "risk_description": "Incompatibilidade física em misturas intravenosas, podendo levar à precipitação ou inativação dos fármacos.",
-    "mechanism": "Incompatibilidade física em aditivos intravenosos. Não administrar na mesma linha intravenosa; administrar separadamente."
-  },
-  {
-    "id": "int_1376",
-    "drug1": "Ceftriaxona",
-    "drug2": "Vancomicina",
-    "risk_level": "high",
-    "risk_description": "Incompatibilidade física em misturas intravenosas, podendo levar à precipitação ou inativação dos fármacos.",
-    "mechanism": "Incompatibilidade física em aditivos intravenosos. Não administrar na mesma linha intravenosa; administrar separadamente."
-  },
-  {
     "id": "int_1377",
     "drug1": "Celecoxibe",
     "drug2": "AAS (Ácido Acetilsalicílico)",
@@ -15633,14 +15304,6 @@
     "risk_level": "high",
     "risk_description": "Aumento da concentração sérica e prolongamento da meia-vida da digoxina.",
     "mechanism": "Monitorar níveis séricos de digoxina."
-  },
-  {
-    "id": "int_1379",
-    "drug1": "Celecoxibe",
-    "drug2": "Metotrexato (oncológico)",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de toxicidade do metotrexato (neutropenia, trombocitopenia, disfunção renal).",
-    "mechanism": "Monitorar toxicidade do metotrexato."
   },
   {
     "id": "int_1380",
@@ -15827,14 +15490,6 @@
     "mechanism": "Mecanismo: o ácido acetilsalicílico diminui a ligação proteica do cetoprofeno e aumenta sua depuração plasmática. Conduta: a administração concomitante não é geralmente recomendada devido ao potencial de aumento de efeitos adversos."
   },
   {
-    "id": "int_1403",
-    "drug1": "Cetoprofeno",
-    "drug2": "Metotrexato (oncológico)",
-    "risk_level": "high",
-    "risk_description": "Pode alterar a eliminação do metotrexato, levando a níveis séricos elevados e aumento da toxicidade.",
-    "mechanism": "Mecanismo: possível inibição competitiva do acúmulo de metotrexato nos rins. Conduta: usar cautela quando administrado concomitantemente."
-  },
-  {
     "id": "int_1404",
     "drug1": "Cetoprofeno",
     "drug2": "Varfarina",
@@ -15865,30 +15520,6 @@
     "risk_level": "high",
     "risk_description": "Aumento do risco de sangramento.",
     "mechanism": "O uso concomitante de cetorolaco com pentoxifilina pode aumentar o risco de sangramento. A conduta clínica recomendada é monitorar o paciente quanto a sinais de sangramento."
-  },
-  {
-    "id": "int_1408",
-    "drug1": "Cetorolaco",
-    "drug2": "Metotrexato (oncológico)",
-    "risk_level": "high",
-    "risk_description": "Aumento da toxicidade do metotrexato.",
-    "mechanism": "O cetorolaco pode reduzir a depuração renal do metotrexato, aumentando seus níveis plasmáticos e o risco de toxicidade. A conduta clínica recomendada é monitorar os níveis de metotrexato e ajustar a dose conforme necessário."
-  },
-  {
-    "id": "int_1409",
-    "drug1": "Cianocobalamina",
-    "drug2": "Ácido Fólico",
-    "risk_level": "high",
-    "risk_description": "Altas doses de ácido fólico podem reduzir os níveis séricos de anticonvulsivantes.",
-    "mechanism": "Mecanismo não descrito. Conduta: monitorar níveis séricos de carbamazepina, fosfenitoína, fenitoína, fenobarbital e ácido valproico."
-  },
-  {
-    "id": "int_1410",
-    "drug1": "Cianocobalamina",
-    "drug2": "Metotrexato (oncológico)",
-    "risk_level": "high",
-    "risk_description": "Ácido fólico pode diminuir a resposta do paciente ao metotrexato.",
-    "mechanism": "Mecanismo não descrito. Conduta: monitorar resposta terapêutica ao metotrexato."
   },
   {
     "id": "int_1411",
@@ -15923,36 +15554,12 @@
     "mechanism": "Mecanismo serotoninérgico aditivo. Se o tratamento concomitante for clinicamente necessário, recomenda-se observação cuidadosa, especialmente durante o início do tratamento ou aumentos de dose."
   },
   {
-    "id": "int_1415",
-    "drug1": "Ciclobenzaprina",
-    "drug2": "Verapamil",
-    "risk_level": "high",
-    "risk_description": "Risco de síndrome serotoninérgica quando usado com outros medicamentos serotoninérgicos.",
-    "mechanism": "Mecanismo serotoninérgico aditivo. Se o tratamento concomitante for clinicamente necessário, recomenda-se observação cuidadosa, especialmente durante o início do tratamento ou aumentos de dose."
-  },
-  {
     "id": "int_1416",
     "drug1": "Ciclopentolato",
     "drug2": "Pilocarpina",
     "risk_level": "moderate",
     "risk_description": "Pode interferir na ação anti-hipertensiva ocular desses medicamentos.",
     "mechanism": "Mecanismo: antagonismo farmacológico. Conduta: monitorar a eficácia do tratamento anti-hipertensivo ocular."
-  },
-  {
-    "id": "int_1417",
-    "drug1": "Cilastatina",
-    "drug2": "Ganciclovir",
-    "risk_level": "critical",
-    "risk_description": "Risco de convulsões generalizadas.",
-    "mechanism": "Mecanismo não especificado. Não coadministrar a menos que o benefício supere o risco."
-  },
-  {
-    "id": "int_1418",
-    "drug1": "Cilastatina",
-    "drug2": "Ácido Valpróico",
-    "risk_level": "high",
-    "risk_description": "Redução das concentrações de ácido valproico, aumentando o risco de convulsões de escape.",
-    "mechanism": "Possível inibição da hidrólise do metabólito glucuronídeo do ácido valproico de volta ao ácido valproico. O uso concomitante geralmente não é recomendado; considerar outros antibacterianos."
   },
   {
     "id": "int_1419",
@@ -16214,7 +15821,7 @@
     "id": "int_1451",
     "drug1": "Cloreto de Sódio",
     "drug2": "Lítio",
-    "risk_level": "moderate",
+    "risk_level": "high",
     "risk_description": "Pode diminuir as concentrações séricas de lítio devido ao aumento da depuração renal.",
     "mechanism": "Mecanismo: Aumento da depuração renal de sódio e lítio. Conduta: Evitar uso concomitante. Se inevitável, aumentar a frequência da monitorização das concentrações séricas de lítio."
   },
@@ -16427,14 +16034,6 @@
     "mechanism": "Cetoconazol é um inibidor potente e seletivo da CYP3A4, reduzindo a depuração da ropivacaína. Deve-se ter cautela."
   },
   {
-    "id": "int_1478",
-    "drug1": "Cloridrato de Ropivacaína",
-    "drug2": "Amiodarona",
-    "risk_level": "moderate",
-    "risk_description": "Possível interação, embora não tenham sido realizados estudos específicos.",
-    "mechanism": "Não foram realizados estudos específicos, mas recomenda-se cautela devido ao potencial de interação."
-  },
-  {
     "id": "int_1479",
     "drug1": "Cloridrato de Tetraciclina",
     "drug2": "Zinco",
@@ -16475,22 +16074,6 @@
     "mechanism": "Redução da resposta pressora. A diminuição não impede a eficácia do agente pressor para uso terapêutico."
   },
   {
-    "id": "int_1484",
-    "drug1": "Alendronato de Sódio",
-    "drug2": "AAS (Ácido Acetilsalicílico)",
-    "risk_level": "moderate",
-    "risk_description": "Aumento da incidência de eventos adversos gastrointestinais superiores com doses diárias de alendronato maiores que 10 mg.",
-    "mechanism": "O uso concomitante de aspirina com doses diárias de alendronato sódico maiores que 10 mg aumenta o risco de irritação gastrointestinal. Conduta: usar com cautela."
-  },
-  {
-    "id": "int_1485",
-    "drug1": "Alendronato de Sódio",
-    "drug2": "Levotiroxina",
-    "risk_level": "moderate",
-    "risk_description": "A biodisponibilidade do alendronato foi ligeiramente diminuída quando coadministrado com levotiroxina.",
-    "mechanism": "A coadministração de BINOSTO e levotiroxina resultou em uma ligeira diminuição da biodisponibilidade do alendronato. A conduta clínica específica não é detalhada no texto, mas recomenda-se monitoramento."
-  },
-  {
     "id": "int_1486",
     "drug1": "Colchicina",
     "drug2": "Fluvastatina",
@@ -16515,22 +16098,6 @@
     "mechanism": "Interação farmacocinética e/ou farmacodinâmica. Pesar benefícios e riscos potenciais e monitorar cuidadosamente o paciente para sinais ou sintomas de dor, sensibilidade ou fraqueza muscular, especialmente durante a terapia inicial; a monitorização da CPK não necessariamente previne a ocorrência de miopatia grave."
   },
   {
-    "id": "int_1489",
-    "drug1": "Colchicina",
-    "drug2": "Ciclosporina",
-    "risk_level": "critical",
-    "risk_description": "Aumento das concentrações de colchicina, com risco de toxicidade fatal.",
-    "mechanism": "Inibição de P-gp e/ou CYP3A4, resultando em aumento da exposição à colchicina. Interações fatais foram relatadas. Os médicos devem garantir que os pacientes são candidatos adequados e permanecer alertas para sinais e sintomas de toxicidade; se houver suspeita, a colchicina deve ser descontinuada imediatamente."
-  },
-  {
-    "id": "int_1490",
-    "drug1": "Colchicina",
-    "drug2": "Claritromicina",
-    "risk_level": "critical",
-    "risk_description": "Aumento das concentrações de colchicina, com risco de toxicidade fatal.",
-    "mechanism": "Inibição de P-gp e/ou CYP3A4, resultando em aumento da exposição à colchicina. Interações fatais foram relatadas. Os médicos devem garantir que os pacientes são candidatos adequados e permanecer alertas para sinais e sintomas de toxicidade; se houver suspeita, a colchicina deve ser descontinuada imediatamente."
-  },
-  {
     "id": "int_1491",
     "drug1": "Colchicina",
     "drug2": "Ritonavir",
@@ -16553,30 +16120,6 @@
     "risk_level": "moderate",
     "risk_description": "Aumento das concentrações de colchicina (Cmax +22%, AUC +57%), com risco de toxicidade.",
     "mechanism": "Inibição de P-gp e/ou CYP3A4. A coadministração altera a concentração de colchicina. Monitorar sinais e sintomas de toxicidade; se houver suspeita, descontinuar colchicina imediatamente."
-  },
-  {
-    "id": "int_1494",
-    "drug1": "Colchicina (gota)",
-    "drug2": "Fluvastatina",
-    "risk_level": "high",
-    "risk_description": "A adição de colchicina a um regime estável de estatinas pode resultar em miopatia e rabdomiólise, incluindo um caso fatal.",
-    "mechanism": "Interação farmacocinética e/ou farmacodinâmica. Pesar os potenciais benefícios e riscos e monitorar cuidadosamente o paciente para sinais de dor, sensibilidade ou fraqueza muscular, especialmente durante a terapia inicial; a monitorização da CPK não necessariamente previne a ocorrência de miopatia grave."
-  },
-  {
-    "id": "int_1495",
-    "drug1": "Colchicina (gota)",
-    "drug2": "Lovastatina",
-    "risk_level": "high",
-    "risk_description": "A adição de colchicina a um regime estável de estatinas pode resultar em miopatia e rabdomiólise, incluindo um caso fatal.",
-    "mechanism": "Interação farmacocinética e/ou farmacodinâmica. Pesar os potenciais benefícios e riscos e monitorar cuidadosamente o paciente para sinais de dor, sensibilidade ou fraqueza muscular, especialmente durante a terapia inicial; a monitorização da CPK não necessariamente previne a ocorrência de miopatia grave."
-  },
-  {
-    "id": "int_1496",
-    "drug1": "Colchicina (gota)",
-    "drug2": "Genfibrozila",
-    "risk_level": "high",
-    "risk_description": "A coadministração com fibratos ou gemfibrozil pode resultar em miopatia e rabdomiólise.",
-    "mechanism": "Interação farmacocinética e/ou farmacodinâmica. Pesar os potenciais benefícios e riscos e monitorar cuidadosamente o paciente para sinais de dor, sensibilidade ou fraqueza muscular, especialmente durante a terapia inicial; a monitorização da CPK não necessariamente previne a ocorrência de miopatia grave."
   },
   {
     "id": "int_1497",
@@ -16753,46 +16296,6 @@
     "risk_level": "high",
     "risk_description": "Aumento da exposição ao bussulfano foi observado com uso concomitante de deferasirox.",
     "mechanism": "Aumento da exposição ao bussulfano. Conduta: monitorar concentrações plasmáticas de bussulfano para permitir ajuste de dose conforme necessário."
-  },
-  {
-    "id": "int_1519",
-    "drug1": "Desloratadina",
-    "drug2": "Azitromicina",
-    "risk_level": "moderate",
-    "risk_description": "Aumento das concentrações plasmáticas de desloratadina e 3-hidroxidesloratadina, sem alterações clinicamente relevantes no perfil de segurança.",
-    "mechanism": "Inibidores do citocromo P450 3A4. A conduta clínica recomendada é monitorar, pois não houve alterações clinicamente relevantes no perfil de segurança."
-  },
-  {
-    "id": "int_1520",
-    "drug1": "Desloratadina",
-    "drug2": "Cetoconazol",
-    "risk_level": "moderate",
-    "risk_description": "Aumento das concentrações plasmáticas de desloratadina e 3-hidroxidesloratadina, sem alterações clinicamente relevantes no perfil de segurança.",
-    "mechanism": "Inibidores do citocromo P450 3A4. A conduta clínica recomendada é monitorar, pois não houve alterações clinicamente relevantes no perfil de segurança."
-  },
-  {
-    "id": "int_1521",
-    "drug1": "Desloratadina",
-    "drug2": "Eritromicina",
-    "risk_level": "moderate",
-    "risk_description": "Aumento das concentrações plasmáticas de desloratadina e 3-hidroxidesloratadina, sem alterações clinicamente relevantes no perfil de segurança.",
-    "mechanism": "Inibidores do citocromo P450 3A4. A conduta clínica recomendada é monitorar, pois não houve alterações clinicamente relevantes no perfil de segurança."
-  },
-  {
-    "id": "int_1522",
-    "drug1": "Desloratadina",
-    "drug2": "Fluoxetina",
-    "risk_level": "moderate",
-    "risk_description": "Aumento das concentrações plasmáticas de desloratadina e 3-hidroxidesloratadina, sem alterações clinicamente relevantes no perfil de segurança.",
-    "mechanism": "Inibidor da recaptação de serotonina (ISRS). A conduta clínica recomendada é monitorar, pois não houve alterações clinicamente relevantes no perfil de segurança."
-  },
-  {
-    "id": "int_1523",
-    "drug1": "Desloratadina",
-    "drug2": "Cimetidina",
-    "risk_level": "moderate",
-    "risk_description": "Aumento das concentrações plasmáticas de desloratadina e 3-hidroxidesloratadina, sem alterações clinicamente relevantes no perfil de segurança.",
-    "mechanism": "Antagonista do receptor H2 da histamina. A conduta clínica recomendada é monitorar, pois não houve alterações clinicamente relevantes no perfil de segurança."
   },
   {
     "id": "int_1524",
@@ -17067,14 +16570,6 @@
     "mechanism": "A conduta clínica não é especificada no texto."
   },
   {
-    "id": "int_1558",
-    "drug1": "Alfuzosina",
-    "drug2": "Itraconazol",
-    "risk_level": "critical",
-    "risk_description": "Aumento dos níveis sanguíneos de alfuzosina, com risco de hipotensão sintomática.",
-    "mechanism": "Inibição do CYP3A4, resultando em aumento da exposição à alfuzosina. O uso é contraindicado."
-  },
-  {
     "id": "int_1559",
     "drug1": "Dexlansoprazol",
     "drug2": "Atazanavir",
@@ -17259,14 +16754,6 @@
     "mechanism": "Mecanismo: Aumento da concentração sérica e meia-vida da digoxina. Conduta: Monitorar níveis séricos de digoxina."
   },
   {
-    "id": "int_1582",
-    "drug1": "Diclofenaco",
-    "drug2": "Metotrexato (oncológico)",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de toxicidade do metotrexato, incluindo neutropenia, trombocitopenia e disfunção renal.",
-    "mechanism": "Mecanismo: Aumento do risco de toxicidade do metotrexato. Conduta: Monitorar sinais de toxicidade do metotrexato."
-  },
-  {
     "id": "int_1583",
     "drug1": "Diclofenaco",
     "drug2": "Ciclosporina",
@@ -17446,7 +16933,7 @@
     "id": "int_1605",
     "drug1": "Diltiazem",
     "drug2": "Rifampicina",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Redução dos níveis plasmáticos de diltiazem a níveis indetectáveis.",
     "mechanism": "Indução do CYP3A4 pela rifampicina. Evitar coadministração de diltiazem com rifampicina ou qualquer indutor conhecido do CYP3A4."
   },
@@ -17521,22 +17008,6 @@
     "risk_level": "moderate",
     "risk_description": "Diminuem a meia-vida da doxiciclina.",
     "mechanism": "Mecanismo: indução enzimática. Conduta: monitorar eficácia e ajustar dose se necessário."
-  },
-  {
-    "id": "int_1615",
-    "drug1": "Doxiciclina (acne)",
-    "drug2": "Carbamazepina",
-    "risk_level": "moderate",
-    "risk_description": "Diminui a meia-vida da doxiciclina.",
-    "mechanism": "Mecanismo: redução da meia-vida. Conduta: monitorar eficácia ou ajustar dose."
-  },
-  {
-    "id": "int_1616",
-    "drug1": "Doxiciclina (acne)",
-    "drug2": "Fenitoína",
-    "risk_level": "moderate",
-    "risk_description": "Diminui a meia-vida da doxiciclina.",
-    "mechanism": "Mecanismo: redução da meia-vida. Conduta: monitorar eficácia ou ajustar dose."
   },
   {
     "id": "int_1617",
@@ -17753,62 +17224,6 @@
     "risk_level": "moderate",
     "risk_description": "Potencial para interação medicamentosa com inibidores potentes de CYP3A4.",
     "mechanism": "Dutasterida é extensamente metabolizada por CYP3A4 e CYP3A5. Inibidores potentes de CYP3A4 podem aumentar a exposição à dutasterida. Recomenda-se cautela ao prescrever produtos contendo dutasterida com inibidores potentes e crônicos de CYP3A4."
-  },
-  {
-    "id": "int_1644",
-    "drug1": "Dutasterida",
-    "drug2": "Cetoconazol",
-    "risk_level": "high",
-    "risk_description": "Aumento significativo na exposição à tansulosina, especialmente em metabolizadores lentos de CYP2D6.",
-    "mechanism": "Tansulosina é metabolizada por CYP3A4 e CYP2D6. Inibidores fortes de CYP3A4 aumentam Cmax e AUC da tansulosina. Em metabolizadores lentos de CYP2D6, o aumento da exposição é significativo, contraindicando o uso de tansulosina 0,4 mg com inibidores fortes de CYP3A4."
-  },
-  {
-    "id": "int_1645",
-    "drug1": "Dutasterida",
-    "drug2": "Paroxetina",
-    "risk_level": "moderate",
-    "risk_description": "Aumento moderado na exposição à tansulosina.",
-    "mechanism": "Tansulosina é metabolizada por CYP2D6. Inibidores fortes de CYP2D6 aumentam Cmax e AUC da tansulosina. Ajuste de dose pode ser necessário, mas não foi especificamente recomendado no texto."
-  },
-  {
-    "id": "int_1646",
-    "drug1": "Dutasterida",
-    "drug2": "Cimetidina",
-    "risk_level": "moderate",
-    "risk_description": "Aumento moderado na AUC da tansulosina.",
-    "mechanism": "O tratamento com cimetidina resultou em aumento moderado (44%) na AUC da tansulosina. Monitoramento ou ajuste de dose podem ser necessários."
-  },
-  {
-    "id": "int_1647",
-    "drug1": "Dutasterida",
-    "drug2": "Varfarina",
-    "risk_level": "moderate",
-    "risk_description": "Potencial para interação com varfarina, embora os dados sejam inconclusivos.",
-    "mechanism": "Não houve alteração na farmacocinética da varfarina com dutasterida, mas para tansulosina os estudos são inconclusivos. Deve-se ter cautela com a administração concomitante de varfarina e produtos contendo tansulosina."
-  },
-  {
-    "id": "int_1648",
-    "drug1": "Alogliptina",
-    "drug2": "Cimetidina",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição sistêmica à metformina e risco de acidose láctica.",
-    "mechanism": "Drogas que interferem nos sistemas de transporte tubular renal envolvidos na eliminação da metformina (ex.: inibidores de OCT2/MATE) podem aumentar a exposição sistêmica à metformina. Conduta: considerar os benefícios e riscos do uso concomitante."
-  },
-  {
-    "id": "int_1649",
-    "drug1": "Alogliptina",
-    "drug2": "Dolutegravir",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição sistêmica à metformina e risco de acidose láctica.",
-    "mechanism": "Drogas que interferem nos sistemas de transporte tubular renal envolvidos na eliminação da metformina (ex.: inibidores de OCT2/MATE) podem aumentar a exposição sistêmica à metformina. Conduta: considerar os benefícios e riscos do uso concomitante."
-  },
-  {
-    "id": "int_1650",
-    "drug1": "Alogliptina",
-    "drug2": "Vandetanibe",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição sistêmica à metformina e risco de acidose láctica.",
-    "mechanism": "Drogas que interferem nos sistemas de transporte tubular renal envolvidos na eliminação da metformina (ex.: inibidores de OCT2/MATE) podem aumentar a exposição sistêmica à metformina. Conduta: considerar os benefícios e riscos do uso concomitante."
   },
   {
     "id": "int_1651",
@@ -18307,14 +17722,6 @@
     "mechanism": "A nicotina pode provocar vasoconstrição em alguns pacientes, predispondo a uma maior resposta isquêmica à terapia com ergotamina."
   },
   {
-    "id": "int_1713",
-    "drug1": "Eritromicina",
-    "drug2": "Colchicina",
-    "risk_level": "critical",
-    "risk_description": "Risco de toxicidade por colchicina, potencialmente fatal, mesmo com doses recomendadas.",
-    "mechanism": "A eritromicina inibe o CYP3A4 e a P-gp, aumentando a concentração plasmática de colchicina. Se a coadministração for necessária, a dose inicial de colchicina deve ser reduzida e a dose máxima diminuída, com monitoramento de sintomas de toxicidade."
-  },
-  {
     "id": "int_1714",
     "drug1": "Eritromicina",
     "drug2": "Amlodipino",
@@ -18475,22 +17882,6 @@
     "mechanism": "O esomeprazol pode aumentar a exposição a digoxina. Conduta: monitorar concentrações de digoxina e ajustar a dose, se necessário."
   },
   {
-    "id": "int_1734",
-    "drug1": "Esomeprazol",
-    "drug2": "Claritromicina",
-    "risk_level": "critical",
-    "risk_description": "Uso concomitante com claritromicina pode levar a reações adversas graves, incluindo arritmias fatais, e é contraindicado.",
-    "mechanism": "A administração concomitante de claritromicina com outros fármacos pode causar reações adversas graves, incluindo arritmias fatais. Conduta: verificar contraindicações e advertências na bula de claritromicina."
-  },
-  {
-    "id": "int_1735",
-    "drug1": "Esomeprazol",
-    "drug2": "Amoxicilina",
-    "risk_level": "moderate",
-    "risk_description": "Amoxicilina possui interações medicamentosas próprias que devem ser consideradas.",
-    "mechanism": "Amoxicilina tem interações medicamentosas. Conduta: consultar a seção de interações medicamentosas na bula de amoxicilina."
-  },
-  {
     "id": "int_1736",
     "drug1": "Esomeprazol",
     "drug2": "Micofenolato de Mofetila",
@@ -18539,14 +17930,6 @@
     "mechanism": "Mecanismo: redução da depuração renal de lítio. Conduta: monitorar os níveis de lítio periodicamente durante o uso concomitante."
   },
   {
-    "id": "int_1742",
-    "drug1": "Espironolactona",
-    "drug2": "Digoxina",
-    "risk_level": "moderate",
-    "risk_description": "A espironolactona interfere nos ensaios radioimunológicos de digoxina, aumentando a exposição aparente.",
-    "mechanism": "Mecanismo: interferência nos radioimunoensaios para digoxina. Conduta: usar um ensaio que não interaja com a espironolactona em pacientes que tomam digoxina concomitantemente."
-  },
-  {
     "id": "int_1743",
     "drug1": "Espironolactona",
     "drug2": "Colestiramina",
@@ -18560,38 +17943,6 @@
     "drug2": "Abiraterona",
     "risk_level": "high",
     "risk_description": "Pode aumentar os níveis de antígeno prostático específico (PSA) em pacientes com câncer de próstata tratados com abiraterona.",
-    "mechanism": "Mecanismo: ligação da espironolactona ao receptor de andrógeno. Conduta: o uso concomitante não é recomendado."
-  },
-  {
-    "id": "int_1745",
-    "drug1": "Espironolactona (acne)",
-    "drug2": "Lítio",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de toxicidade por lítio.",
-    "mechanism": "Mecanismo: redução da depuração renal de lítio. Conduta: monitorar os níveis de lítio periodicamente durante o uso concomitante."
-  },
-  {
-    "id": "int_1746",
-    "drug1": "Espironolactona (acne)",
-    "drug2": "Digoxina",
-    "risk_level": "moderate",
-    "risk_description": "Interferência nos radioimunoensaios para digoxina, aumentando a exposição aparente à digoxina.",
-    "mechanism": "Mecanismo: interferência nos radioimunoensaios. Conduta: usar um ensaio que não interaja com a espironolactona em pacientes que tomam digoxina concomitantemente."
-  },
-  {
-    "id": "int_1747",
-    "drug1": "Espironolactona (acne)",
-    "drug2": "Colestiramina",
-    "risk_level": "high",
-    "risk_description": "Foi relatada acidose metabólica hipercalêmica com o uso concomitante.",
-    "mechanism": "Mecanismo: não especificado no texto. Conduta: não especificada no texto."
-  },
-  {
-    "id": "int_1748",
-    "drug1": "Espironolactona (acne)",
-    "drug2": "Abiraterona",
-    "risk_level": "high",
-    "risk_description": "Pode aumentar os níveis do antígeno prostático específico (PSA) em pacientes com câncer de próstata tratados com abiraterona.",
     "mechanism": "Mecanismo: ligação da espironolactona ao receptor de andrógeno. Conduta: o uso concomitante não é recomendado."
   },
   {
@@ -19083,116 +18434,12 @@
     "mechanism": "Mecanismo: os efeitos na hemorragia gastrointestinal são sinérgicos; redução da ligação proteica da varfarina, mas sem alteração na depuração da varfarina livre. Conduta: não é necessário ajuste de dose, mas recomenda-se monitoramento próximo dos pacientes."
   },
   {
-    "id": "int_1810",
-    "drug1": "Ezetimiba",
-    "drug2": "Cetoconazol",
-    "risk_level": "critical",
-    "risk_description": "Aumenta o risco de miopatia e rabdomiólise devido à redução da eliminação do componente sinvastatina.",
-    "mechanism": "Inibidores fortes do CYP3A4 reduzem a eliminação da sinvastatina, elevando seus níveis plasmáticos e aumentando o risco de miopatia e rabdomiólise. O uso concomitante é contraindicado; se o tratamento com esses inibidores for inevitável, a terapia com ezetimiba e sinvastatina deve ser suspensa durante o curso do tratamento."
-  },
-  {
-    "id": "int_1811",
-    "drug1": "Ezetimiba",
-    "drug2": "Claritromicina",
-    "risk_level": "critical",
-    "risk_description": "Aumenta o risco de miopatia e rabdomiólise devido à redução da eliminação do componente sinvastatina.",
-    "mechanism": "Inibidores fortes do CYP3A4 reduzem a eliminação da sinvastatina, elevando seus níveis plasmáticos e aumentando o risco de miopatia e rabdomiólise. O uso concomitante é contraindicado; se o tratamento com esses inibidores for inevitável, a terapia com ezetimiba e sinvastatina deve ser suspensa durante o curso do tratamento."
-  },
-  {
-    "id": "int_1812",
-    "drug1": "Ezetimiba",
-    "drug2": "Eritromicina",
-    "risk_level": "critical",
-    "risk_description": "Aumenta o risco de miopatia e rabdomiólise devido à redução da eliminação do componente sinvastatina.",
-    "mechanism": "Inibidores fortes do CYP3A4 reduzem a eliminação da sinvastatina, elevando seus níveis plasmáticos e aumentando o risco de miopatia e rabdomiólise. O uso concomitante é contraindicado; se o tratamento com esses inibidores for inevitável, a terapia com ezetimiba e sinvastatina deve ser suspensa durante o curso do tratamento."
-  },
-  {
-    "id": "int_1813",
-    "drug1": "Ezetimiba",
-    "drug2": "Itraconazol",
-    "risk_level": "critical",
-    "risk_description": "Aumenta o risco de miopatia e rabdomiólise devido à redução da eliminação do componente sinvastatina.",
-    "mechanism": "Inibidores fortes do CYP3A4 reduzem a eliminação da sinvastatina, elevando seus níveis plasmáticos e aumentando o risco de miopatia e rabdomiólise. O uso concomitante é contraindicado; se o tratamento com esses inibidores for inevitável, a terapia com ezetimiba e sinvastatina deve ser suspensa durante o curso do tratamento."
-  },
-  {
-    "id": "int_1814",
-    "drug1": "Ezetimiba",
-    "drug2": "Telitromicina",
-    "risk_level": "critical",
-    "risk_description": "Aumenta o risco de miopatia e rabdomiólise devido à redução da eliminação do componente sinvastatina.",
-    "mechanism": "Inibidores fortes do CYP3A4 reduzem a eliminação da sinvastatina, elevando seus níveis plasmáticos e aumentando o risco de miopatia e rabdomiólise. O uso concomitante é contraindicado; se o tratamento com esses inibidores for inevitável, a terapia com ezetimiba e sinvastatina deve ser suspensa durante o curso do tratamento."
-  },
-  {
-    "id": "int_1815",
-    "drug1": "Ezetimiba",
-    "drug2": "Voriconazol",
-    "risk_level": "critical",
-    "risk_description": "Aumenta o risco de miopatia e rabdomiólise devido à redução da eliminação do componente sinvastatina.",
-    "mechanism": "Inibidores fortes do CYP3A4 reduzem a eliminação da sinvastatina, elevando seus níveis plasmáticos e aumentando o risco de miopatia e rabdomiólise. O uso concomitante é contraindicado; se o tratamento com esses inibidores for inevitável, a terapia com ezetimiba e sinvastatina deve ser suspensa durante o curso do tratamento."
-  },
-  {
-    "id": "int_1816",
-    "drug1": "Ezetimiba",
-    "drug2": "Genfibrozila",
-    "risk_level": "critical",
-    "risk_description": "Aumenta o risco de miopatia, incluindo rabdomiólise.",
-    "mechanism": "O uso concomitante de gemfibrozil com ezetimiba e sinvastatina é contraindicado devido ao aumento do risco de miopatia e rabdomiólise."
-  },
-  {
     "id": "int_1817",
     "drug1": "Ezetimiba",
     "drug2": "Ciclosporina",
-    "risk_level": "critical",
-    "risk_description": "Aumenta o risco de miopatia, incluindo rabdomiólise.",
-    "mechanism": "O uso concomitante de ciclosporina com ezetimiba e sinvastatina é contraindicado devido ao aumento do risco de miopatia e rabdomiólise."
-  },
-  {
-    "id": "int_1818",
-    "drug1": "Ezetimiba",
-    "drug2": "Verapamil",
-    "risk_level": "high",
-    "risk_description": "Aumenta o risco de miopatia, incluindo rabdomiólise.",
-    "mechanism": "O risco de miopatia é aumentado pela administração concomitante de verapamil. A dose de ezetimiba e sinvastatina não deve exceder 10 mg/10 mg diários."
-  },
-  {
-    "id": "int_1819",
-    "drug1": "Ezetimiba",
-    "drug2": "Diltiazem",
-    "risk_level": "high",
-    "risk_description": "Aumenta o risco de miopatia, incluindo rabdomiólise.",
-    "mechanism": "O risco de miopatia é aumentado pela administração concomitante de diltiazem. A dose de ezetimiba e sinvastatina não deve exceder 10 mg/10 mg diários."
-  },
-  {
-    "id": "int_1820",
-    "drug1": "Ezetimiba",
-    "drug2": "Dronedarona",
-    "risk_level": "high",
-    "risk_description": "Aumenta o risco de miopatia, incluindo rabdomiólise.",
-    "mechanism": "O risco de miopatia é aumentado pela administração concomitante de dronedarona. A dose de ezetimiba e sinvastatina não deve exceder 10 mg/10 mg diários."
-  },
-  {
-    "id": "int_1821",
-    "drug1": "Ezetimiba",
-    "drug2": "Amiodarona",
-    "risk_level": "high",
-    "risk_description": "Aumenta o risco de miopatia, incluindo rabdomiólise.",
-    "mechanism": "O risco de miopatia é aumentado pela administração concomitante de amiodarona. A dose de ezetimiba e sinvastatina não deve exceder 10 mg/20 mg diários."
-  },
-  {
-    "id": "int_1822",
-    "drug1": "Ezetimiba",
-    "drug2": "Amlodipino",
-    "risk_level": "high",
-    "risk_description": "Aumenta o risco de miopatia, incluindo rabdomiólise.",
-    "mechanism": "O risco de miopatia é aumentado pela administração concomitante de anlodipino. A dose de ezetimiba e sinvastatina não deve exceder 10 mg/20 mg diários."
-  },
-  {
-    "id": "int_1823",
-    "drug1": "Ezetimiba",
-    "drug2": "Daptomicina",
-    "risk_level": "high",
-    "risk_description": "Aumenta o risco de miopatia e rabdomiólise.",
-    "mechanism": "Ambos podem causar miopatia e rabdomiólise isoladamente, e o risco é aumentado pela coadministração. A ezetimiba e sinvastatina devem ser temporariamente suspensas em pacientes tomando daptomicina."
+    "risk_level": "moderate",
+    "risk_description": "Aumento da exposição à ezetimiba e possível elevação da ciclosporina",
+    "mechanism": "A ciclosporina aumenta a exposição à ezetimiba (a AUC pode subir várias vezes) e a ezetimiba pode elevar discretamente os níveis de ciclosporina. Monitorar os níveis de ciclosporina."
   },
   {
     "id": "int_1824",
@@ -19209,22 +18456,6 @@
     "risk_level": "moderate",
     "risk_description": "Aumenta o risco de efeitos adversos no músculo esquelético e pode aumentar a excreção de colesterol na bile, levando a colelitíase.",
     "mechanism": "O risco de miopatia durante o tratamento com inibidores da HMG-CoA redutase é aumentado com a administração concomitante de fenofibratos. Além disso, os fenofibratos podem aumentar a excreção de colesterol na bile. Se houver suspeita de colelitíase, são indicados estudos da vesícula biliar e deve-se considerar terapia alternativa."
-  },
-  {
-    "id": "int_1826",
-    "drug1": "Ezetimiba",
-    "drug2": "Digoxina",
-    "risk_level": "moderate",
-    "risk_description": "Pode elevar ligeiramente as concentrações plasmáticas de digoxina.",
-    "mechanism": "A administração concomitante de digoxina com sinvastatina resultou em ligeira elevação nas concentrações plasmáticas de digoxina. Pacientes em uso de digoxina devem ser monitorados adequadamente quando ezetimiba e sinvastatina forem iniciadas."
-  },
-  {
-    "id": "int_1827",
-    "drug1": "Ezetimiba",
-    "drug2": "Colchicina",
-    "risk_level": "moderate",
-    "risk_description": "Aumenta o risco de miopatia, incluindo rabdomiólise.",
-    "mechanism": "Casos de miopatia, incluindo rabdomiólise, foram relatados com sinvastatina coadministrada com colchicina. Deve-se ter cautela ao prescrever ezetimiba e sinvastatina com colchicina."
   },
   {
     "id": "int_1828",
@@ -19361,30 +18592,6 @@
     "risk_level": "high",
     "risk_description": "Risco de miopatia, incluindo rabdomiólise, quando coadministrado com fenofibrato.",
     "mechanism": "Foram relatados casos de miopatia, incluindo rabdomiólise, com a coadministração de fenofibratos e colchicina. Deve-se ter cautela ao prescrever fenofibrato com colchicina."
-  },
-  {
-    "id": "int_1845",
-    "drug1": "Ferro",
-    "drug2": "AAS (Ácido Acetilsalicílico)",
-    "risk_level": "high",
-    "risk_description": "Possibilidade de aumento de sangramento devido à interação da piridoxina com anticoagulantes.",
-    "mechanism": "A piridoxina interage com anticoagulantes, aumentando o risco de sangramento. Conduta: monitorar sinais de sangramento."
-  },
-  {
-    "id": "int_1846",
-    "drug1": "Ferro",
-    "drug2": "Clopidogrel",
-    "risk_level": "high",
-    "risk_description": "Possibilidade de aumento de sangramento devido à interação da piridoxina com anticoagulantes.",
-    "mechanism": "A piridoxina interage com anticoagulantes, aumentando o risco de sangramento. Conduta: monitorar sinais de sangramento."
-  },
-  {
-    "id": "int_1847",
-    "drug1": "Ferro",
-    "drug2": "Heparina",
-    "risk_level": "high",
-    "risk_description": "Possibilidade de aumento de sangramento devido à interação da piridoxina com anticoagulantes.",
-    "mechanism": "A piridoxina interage com anticoagulantes, aumentando o risco de sangramento. Conduta: monitorar sinais de sangramento."
   },
   {
     "id": "int_1848",
@@ -20179,22 +19386,6 @@
     "mechanism": "O uso concomitante com outros produtos biológicos, incluindo abatacept ou anakinra, não é recomendado devido ao aumento do risco de infecções graves observado em estudos clínicos com outros bloqueadores de TNF, sem benefício adicional."
   },
   {
-    "id": "int_1947",
-    "drug1": "Granisetrona",
-    "drug2": "Cetoconazol",
-    "risk_level": "moderate",
-    "risk_description": "O cetoconazol inibiu a oxidação do anel da granisetrona em estudos in vitro, mas o significado clínico in vivo é desconhecido.",
-    "mechanism": "Em estudos in vitro com microssomas humanos, o cetoconazol inibiu a oxidação do anel da granisetrona. A conduta clínica recomendada é considerar o potencial de interação, embora o significado clínico in vivo não seja conhecido."
-  },
-  {
-    "id": "int_1948",
-    "drug1": "Granisetrona",
-    "drug2": "Fenobarbital",
-    "risk_level": "moderate",
-    "risk_description": "O fenobarbital aumentou a depuração plasmática total da granisetrona intravenosa em 25%, mas o significado clínico é desconhecido.",
-    "mechanism": "Em um estudo farmacocinético humano, a indução enzimática hepática com fenobarbital resultou em um aumento de 25% na depuração plasmática total da granisetrona intravenosa. A conduta clínica recomendada é monitorar a eficácia, pois o significado clínico dessa alteração não é conhecido."
-  },
-  {
     "id": "int_1949",
     "drug1": "Grazoprevir",
     "drug2": "Efavirenz",
@@ -20297,30 +19488,6 @@
     "risk_level": "high",
     "risk_description": "Diminuição significativa da exposição à guanfacina, podendo reduzir a eficácia.",
     "mechanism": "Indutores do CYP3A4 aumentam o metabolismo da guanfacina, reduzindo sua concentração plasmática. Com base na resposta do paciente, considerar titular a dose de guanfacina até o dobro da dose alvo em 1 a 2 semanas."
-  },
-  {
-    "id": "int_1962",
-    "drug1": "Hesperidina",
-    "drug2": "AAS (Ácido Acetilsalicílico)",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de sangramento quando combinado com Bromelain.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar sinais de sangramento e ajustar a dose do anticoagulante se necessário."
-  },
-  {
-    "id": "int_1963",
-    "drug1": "Hesperidina",
-    "drug2": "Varfarina",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de sangramento quando combinado com Bromelain.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar sinais de sangramento e ajustar a dose do anticoagulante se necessário."
-  },
-  {
-    "id": "int_1964",
-    "drug1": "Hesperidina",
-    "drug2": "Zinco",
-    "risk_level": "moderate",
-    "risk_description": "Altas doses de zinco podem interferir na absorção de ferro quando tomado junto com suplementos de ferro.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: administrar zinco e ferro em horários diferentes para evitar interferência na absorção."
   },
   {
     "id": "int_1965",
@@ -20579,14 +19746,6 @@
     "mechanism": "Aumento da concentração sérica e meia-vida da digoxina. Monitorar níveis séricos de digoxina."
   },
   {
-    "id": "int_1997",
-    "drug1": "Indometacina",
-    "drug2": "Metotrexato (oncológico)",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de toxicidade do metotrexato, incluindo neutropenia, trombocitopenia e disfunção renal.",
-    "mechanism": "Uso concomitante de AINEs e metotrexato pode aumentar o risco de toxicidade do metotrexato. Monitorar sinais de toxicidade."
-  },
-  {
     "id": "int_1998",
     "drug1": "Indometacina",
     "drug2": "Ciclosporina",
@@ -20609,22 +19768,6 @@
     "risk_level": "critical",
     "risk_description": "A combinação com anakinra ou abatacept aumenta o risco de infecções graves, sem benefício clínico adicional.",
     "mechanism": "Mecanismo: risco aumentado de infecções graves observado em estudos com outros bloqueadores de TNF. Conduta: a combinação de INFLECTRA com anakinra ou abatacept não é recomendada."
-  },
-  {
-    "id": "int_2001",
-    "drug1": "Infliximabe (Crohn)",
-    "drug2": "Abatacepte",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de infecções graves, sem benefício clínico adicional.",
-    "mechanism": "Combinação não recomendada devido ao risco aumentado de infecções graves observado em estudos com outros bloqueadores de TNF. Conduta: evitar o uso concomitante."
-  },
-  {
-    "id": "int_2002",
-    "drug1": "Infliximabe (Crohn)",
-    "drug2": "Tocilizumabe",
-    "risk_level": "high",
-    "risk_description": "Possibilidade de aumento da imunossupressão e risco de infecção.",
-    "mechanism": "O uso concomitante com DMARDs biológicos, como antagonistas de TNF, deve ser evitado devido ao risco aumentado de imunossupressão e infecção. Conduta: evitar o uso concomitante."
   },
   {
     "id": "int_2003",
@@ -21427,22 +20570,6 @@
     "mechanism": "Mecanismo não especificado no texto. Conduta clínica: monitorar o INR durante a coadministração."
   },
   {
-    "id": "int_2103",
-    "drug1": "Lactato de Sódio",
-    "drug2": "Lítio",
-    "risk_level": "high",
-    "risk_description": "Pode diminuir as concentrações séricas de lítio devido ao aumento da depuração renal.",
-    "mechanism": "Mecanismo: Aumento da depuração renal de sódio e lítio. Conduta: Evitar uso concomitante. Se inevitável, aumentar a frequência da monitorização das concentrações séricas de lítio."
-  },
-  {
-    "id": "int_2104",
-    "drug1": "Lactato de Sódio",
-    "drug2": "Digoxina",
-    "risk_level": "high",
-    "risk_description": "Aumenta o risco de toxicidade por digoxina, incluindo arritmias cardíacas graves ou fatais.",
-    "mechanism": "Mecanismo: O cálcio presente na solução pode aumentar os efeitos da digoxina. Conduta: Considerar reduzir o volume e/ou a taxa de administração da solução."
-  },
-  {
     "id": "int_2105",
     "drug1": "Lactulose",
     "drug2": "Neomicina",
@@ -21513,22 +20640,6 @@
     "risk_level": "moderate",
     "risk_description": "Redução da exposição ao metabólito ativo, ácido micofenólico, possivelmente devido à diminuição da solubilidade do MMF em pH gástrico elevado.",
     "mechanism": "Redução da absorção devido ao aumento do pH gástrico. Intervenção: usar lansoprazol com cautela em pacientes transplantados recebendo MMF."
-  },
-  {
-    "id": "int_2114",
-    "drug1": "Lansoprazol",
-    "drug2": "Claritromicina",
-    "risk_level": "high",
-    "risk_description": "Administração concomitante pode levar a reações adversas graves, incluindo arritmias potencialmente fatais.",
-    "mechanism": "Mecanismo não especificado. Intervenção: consultar contraindicações e advertências na bula da claritromicina."
-  },
-  {
-    "id": "int_2115",
-    "drug1": "Lansoprazol",
-    "drug2": "Amoxicilina",
-    "risk_level": "moderate",
-    "risk_description": "Amoxicilina tem interações medicamentosas documentadas.",
-    "mechanism": "Mecanismo não especificado. Intervenção: consultar a seção de interações medicamentosas na bula da amoxicilina."
   },
   {
     "id": "int_2116",
@@ -21790,14 +20901,6 @@
     "id": "int_2148",
     "drug1": "Leflunomida",
     "drug2": "Furosemida",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição a substratos do OAT3, podendo elevar o risco de toxicidade.",
-    "mechanism": "Teriflunomida inibe a atividade do OAT3 in vivo. Monitorar pacientes e ajustar a dose do medicamento concomitante conforme necessário."
-  },
-  {
-    "id": "int_2149",
-    "drug1": "Leflunomida",
-    "drug2": "Metotrexato (oncológico)",
     "risk_level": "high",
     "risk_description": "Aumento da exposição a substratos do OAT3, podendo elevar o risco de toxicidade.",
     "mechanism": "Teriflunomida inibe a atividade do OAT3 in vivo. Monitorar pacientes e ajustar a dose do medicamento concomitante conforme necessário."
@@ -22491,142 +21594,6 @@
     "mechanism": "Inibição moderada dupla do CYP3A4 e CYP2C9, elevando os níveis do macitentan. Conduta: evitar coadministração com OPSUMIT. Também evitar o uso concomitante de um inibidor moderado do CYP3A4 e um inibidor moderado do CYP2C9 com OPSUMIT."
   },
   {
-    "id": "int_2236",
-    "drug1": "Magnésio",
-    "drug2": "Atazanavir",
-    "risk_level": "high",
-    "risk_description": "Exposição diminuída do atazanavir, podendo reduzir o efeito antiviral e promover resistência.",
-    "mechanism": "Consultar a bula do atazanavir para informações de dosagem."
-  },
-  {
-    "id": "int_2237",
-    "drug1": "Magnésio",
-    "drug2": "Nelfinavir",
-    "risk_level": "high",
-    "risk_description": "Exposição diminuída do nelfinavir, podendo reduzir o efeito antiviral e promover resistência.",
-    "mechanism": "Evitar o uso concomitante com esomeprazol. Consultar a bula do nelfinavir."
-  },
-  {
-    "id": "int_2238",
-    "drug1": "Magnésio",
-    "drug2": "Saquinavir",
-    "risk_level": "high",
-    "risk_description": "Exposição aumentada do saquinavir, podendo aumentar a toxicidade.",
-    "mechanism": "Consultar a bula do saquinavir para monitoramento de possíveis toxicidades relacionadas ao saquinavir."
-  },
-  {
-    "id": "int_2239",
-    "drug1": "Magnésio",
-    "drug2": "Varfarina",
-    "risk_level": "high",
-    "risk_description": "Aumento do INR e tempo de protrombina, podendo levar a sangramento anormal e até morte.",
-    "mechanism": "Monitorar INR e tempo de protrombina e ajustar a dose de varfarina, se necessário, para manter a faixa alvo de INR."
-  },
-  {
-    "id": "int_2240",
-    "drug1": "Magnésio",
-    "drug2": "Metotrexato (oncológico)",
-    "risk_level": "high",
-    "risk_description": "Pode elevar e prolongar as concentrações séricas de metotrexato, levando a toxicidades.",
-    "mechanism": "Pode ser considerada uma suspensão temporária do esomeprazol em pacientes recebendo altas doses de metotrexato."
-  },
-  {
-    "id": "int_2241",
-    "drug1": "Magnésio",
-    "drug2": "Clopidogrel",
-    "risk_level": "high",
-    "risk_description": "Redução da concentração plasmática do metabólito ativo do clopidogrel e da inibição plaquetária.",
-    "mechanism": "Evitar o uso concomitante com esomeprazol. Considerar o uso de terapia antiplaquetária alternativa."
-  },
-  {
-    "id": "int_2242",
-    "drug1": "Magnésio",
-    "drug2": "Citalopram",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição ao citalopram, elevando o risco de prolongamento do QT.",
-    "mechanism": "Limitar a dose de citalopram a no máximo 20 mg por dia. Consultar a bula do citalopram."
-  },
-  {
-    "id": "int_2243",
-    "drug1": "Magnésio",
-    "drug2": "Cilostazol",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição ao cilostazol e a um de seus metabólitos ativos.",
-    "mechanism": "Considerar reduzir a dose de cilostazol para 50 mg duas vezes ao dia. Consultar a bula do cilostazol."
-  },
-  {
-    "id": "int_2244",
-    "drug1": "Magnésio",
-    "drug2": "Digoxina",
-    "risk_level": "moderate",
-    "risk_description": "Potencial aumento da exposição à digoxina.",
-    "mechanism": "Monitorar as concentrações de digoxina e ajustar a dose, se necessário, para manter concentrações terapêuticas. Consultar a bula da digoxina."
-  },
-  {
-    "id": "int_2245",
-    "drug1": "Magnésio",
-    "drug2": "Claritromicina",
-    "risk_level": "critical",
-    "risk_description": "Administração concomitante com claritromicina pode levar a reações adversas graves, incluindo arritmias potencialmente fatais.",
-    "mechanism": "Ver Contraindicações, Advertências e Precauções na bula da claritromicina."
-  },
-  {
-    "id": "int_2246",
-    "drug1": "Magnésio",
-    "drug2": "Amoxicilina",
-    "risk_level": "moderate",
-    "risk_description": "A amoxicilina possui interações medicamentosas.",
-    "mechanism": "Ver Interações Medicamentosas na bula da amoxicilina."
-  },
-  {
-    "id": "int_2247",
-    "drug1": "Magnésio",
-    "drug2": "Micofenolato de Mofetila",
-    "risk_level": "moderate",
-    "risk_description": "Redução da exposição ao metabólito ativo, ácido micofenólico, possivelmente devido à diminuição da solubilidade do MMF com o aumento do pH gástrico.",
-    "mechanism": "Usar esomeprazol com cautela em pacientes transplantados recebendo MMF."
-  },
-  {
-    "id": "int_2248",
-    "drug1": "Magnésio",
-    "drug2": "Tacrolimo",
-    "risk_level": "high",
-    "risk_description": "Potencial aumento da exposição ao tacrolimo, especialmente em transplantados metabolizadores intermediários ou lentos de CYP2C19.",
-    "mechanism": "Monitorar as concentrações sanguíneas de tacrolimo e considerar reduzir a dose, se necessário, para manter concentrações terapêuticas. Consultar a bula do tacrolimo."
-  },
-  {
-    "id": "int_2249",
-    "drug1": "Magnésio",
-    "drug2": "Hypericum perforatum (Erva de São João)",
-    "risk_level": "high",
-    "risk_description": "Diminuição da exposição ao esomeprazol.",
-    "mechanism": "Evitar o uso concomitante com esomeprazol."
-  },
-  {
-    "id": "int_2250",
-    "drug1": "Magnésio",
-    "drug2": "Rifampicina",
-    "risk_level": "high",
-    "risk_description": "Diminuição da exposição ao esomeprazol.",
-    "mechanism": "Evitar o uso concomitante com esomeprazol."
-  },
-  {
-    "id": "int_2251",
-    "drug1": "Magnésio",
-    "drug2": "Voriconazol",
-    "risk_level": "moderate",
-    "risk_description": "Aumento da exposição ao esomeprazol.",
-    "mechanism": "O ajuste de dose do esomeprazol normalmente não é necessário. No entanto, em pacientes com síndrome de Zollinger-Ellison que podem necessitar de doses mais altas, o ajuste de dose pode ser considerado. Consultar a bula do voriconazol."
-  },
-  {
-    "id": "int_2252",
-    "drug1": "Manganês",
-    "drug2": "Ácido Fólico",
-    "risk_level": "moderate",
-    "risk_description": "Altas doses de ácido fólico podem reduzir os níveis séricos de anticonvulsivantes.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar níveis séricos de anticonvulsivantes se altas doses de ácido fólico forem administradas."
-  },
-  {
     "id": "int_2253",
     "drug1": "Mebendazol",
     "drug2": "Metronidazol",
@@ -22715,14 +21682,6 @@
     "mechanism": "Efeito sinérgico na hemostasia. Monitorar sinais de sangramento."
   },
   {
-    "id": "int_2264",
-    "drug1": "Meloxicam",
-    "drug2": "Metotrexato (oncológico)",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de toxicidade do metotrexato, incluindo neutropenia, trombocitopenia e disfunção renal.",
-    "mechanism": "Uso concomitante pode aumentar o risco de toxicidade do metotrexato. Monitorar sinais de toxicidade."
-  },
-  {
     "id": "int_2265",
     "drug1": "Meloxicam",
     "drug2": "Ciclosporina",
@@ -22737,14 +21696,6 @@
     "risk_level": "high",
     "risk_description": "Aumento do risco de mielossupressão, toxicidade renal e gastrointestinal associada ao pemetrexede.",
     "mechanism": "Em pacientes com depuração de creatinina entre 45 e 79 mL/min, monitorar toxicidade. Interromper meloxicam por pelo menos cinco dias antes, no dia e dois dias após a administração de pemetrexede. Não recomendado se depuração de creatinina abaixo de 45 mL/min."
-  },
-  {
-    "id": "int_2267",
-    "drug1": "Memantina",
-    "drug2": "Cetamina",
-    "risk_level": "moderate",
-    "risk_description": "O uso combinado com outros antagonistas NMDA não foi sistematicamente avaliado e pode aumentar o risco de efeitos adversos.",
-    "mechanism": "Mecanismo não especificado no texto. A conduta clínica recomendada é abordar o uso com cautela."
   },
   {
     "id": "int_2268",
@@ -23019,54 +21970,6 @@
     "mechanism": "Esses fármacos diminuem a condução atrioventricular e a frequência cardíaca; o uso concomitante com betabloqueadores pode aumentar o risco de bradicardia."
   },
   {
-    "id": "int_2302",
-    "drug1": "Metoprolol Succinato",
-    "drug2": "Fluoxetina",
-    "risk_level": "high",
-    "risk_description": "Aumento da concentração plasmática de metoprolol, reduzindo sua cardioseletividade.",
-    "mechanism": "Inibidores fortes da CYP2D6 dobram a concentração de metoprolol; inibidores moderados ou fracos também provavelmente aumentam. Monitorar o paciente de perto quando a combinação não puder ser evitada."
-  },
-  {
-    "id": "int_2303",
-    "drug1": "Metoprolol Succinato",
-    "drug2": "Paroxetina",
-    "risk_level": "high",
-    "risk_description": "Aumento da concentração plasmática de metoprolol, reduzindo sua cardioseletividade.",
-    "mechanism": "Inibidores fortes da CYP2D6 dobram a concentração de metoprolol; inibidores moderados ou fracos também provavelmente aumentam. Monitorar o paciente de perto quando a combinação não puder ser evitada."
-  },
-  {
-    "id": "int_2304",
-    "drug1": "Metoprolol Succinato",
-    "drug2": "Propafenona",
-    "risk_level": "high",
-    "risk_description": "Aumento da concentração plasmática de metoprolol, reduzindo sua cardioseletividade.",
-    "mechanism": "Inibidores fortes da CYP2D6 dobram a concentração de metoprolol; inibidores moderados ou fracos também provavelmente aumentam. Monitorar o paciente de perto quando a combinação não puder ser evitada."
-  },
-  {
-    "id": "int_2305",
-    "drug1": "Metoprolol Succinato",
-    "drug2": "Clonidina",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de bradicardia devido à condução atrioventricular lenta e redução da frequência cardíaca.",
-    "mechanism": "Uso concomitante com betabloqueadores pode aumentar o risco de bradicardia. Se coadministrado com clonidina, retirar o betabloqueador vários dias antes da retirada gradual da clonidina para evitar exacerbação da hipertensão de rebote. Se substituir clonidina por betabloqueador, atrasar a introdução do betabloqueador por vários dias após a interrupção da clonidina."
-  },
-  {
-    "id": "int_2306",
-    "drug1": "Metoprolol Succinato",
-    "drug2": "Diltiazem",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de bradicardia devido à condução atrioventricular lenta e redução da frequência cardíaca.",
-    "mechanism": "Uso concomitante com betabloqueadores pode aumentar o risco de bradicardia. Se coadministrado com clonidina, retirar o betabloqueador vários dias antes da retirada gradual da clonidina para evitar exacerbação da hipertensão de rebote. Se substituir clonidina por betabloqueador, atrasar a introdução do betabloqueador por vários dias após a interrupção da clonidina."
-  },
-  {
-    "id": "int_2307",
-    "drug1": "Metoprolol Succinato",
-    "drug2": "Verapamil",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de bradicardia devido à condução atrioventricular lenta e redução da frequência cardíaca.",
-    "mechanism": "Uso concomitante com betabloqueadores pode aumentar o risco de bradicardia. Se coadministrado com clonidina, retirar o betabloqueador vários dias antes da retirada gradual da clonidina para evitar exacerbação da hipertensão de rebote. Se substituir clonidina por betabloqueador, atrasar a introdução do betabloqueador por vários dias após a interrupção da clonidina."
-  },
-  {
     "id": "int_2308",
     "drug1": "Metotrexato (oncológico)",
     "drug2": "Neomicina",
@@ -23078,30 +21981,6 @@
     "id": "int_2309",
     "drug1": "Metotrexato (oncológico)",
     "drug2": "Dapsona",
-    "risk_level": "high",
-    "risk_description": "Pode aumentar as concentrações plasmáticas de metotrexato, elevando o risco de reações adversas graves.",
-    "mechanism": "Aumento da exposição ao metotrexato. Se a coadministração não puder ser evitada, monitore atentamente as reações adversas ao metotrexato."
-  },
-  {
-    "id": "int_2310",
-    "drug1": "Metotrexato (oncológico)",
-    "drug2": "Pemetrexede",
-    "risk_level": "high",
-    "risk_description": "Pode aumentar as concentrações plasmáticas de metotrexato, elevando o risco de reações adversas graves.",
-    "mechanism": "Aumento da exposição ao metotrexato. Se a coadministração não puder ser evitada, monitore atentamente as reações adversas ao metotrexato."
-  },
-  {
-    "id": "int_2311",
-    "drug1": "Metotrexato (oncológico)",
-    "drug2": "Pirimetamina",
-    "risk_level": "high",
-    "risk_description": "Pode aumentar as concentrações plasmáticas de metotrexato, elevando o risco de reações adversas graves.",
-    "mechanism": "Aumento da exposição ao metotrexato. Se a coadministração não puder ser evitada, monitore atentamente as reações adversas ao metotrexato."
-  },
-  {
-    "id": "int_2312",
-    "drug1": "Metotrexato (oncológico)",
-    "drug2": "Fenitoína",
     "risk_level": "high",
     "risk_description": "Pode aumentar as concentrações plasmáticas de metotrexato, elevando o risco de reações adversas graves.",
     "mechanism": "Aumento da exposição ao metotrexato. Se a coadministração não puder ser evitada, monitore atentamente as reações adversas ao metotrexato."
@@ -23123,44 +22002,12 @@
     "mechanism": "Potencialização do efeito anticoagulante; o tempo de protrombina e INR devem ser monitorados cuidadosamente quando metronidazol é prescrito para pacientes em terapia anticoagulante."
   },
   {
-    "id": "int_2315",
-    "drug1": "Metronidazol",
-    "drug2": "Lítio",
-    "risk_level": "high",
-    "risk_description": "Em pacientes estabilizados com doses relativamente altas de lítio, a terapia de curta duração com metronidazol foi associada à elevação do lítio sérico e, em alguns casos, sinais de toxicidade por lítio.",
-    "mechanism": "Elevação dos níveis séricos de lítio; os níveis séricos de lítio e creatinina devem ser obtidos vários dias após o início do metronidazol para detectar qualquer aumento que possa preceder os sintomas clínicos de intoxicação por lítio."
-  },
-  {
     "id": "int_2316",
     "drug1": "Metronidazol",
     "drug2": "Bussulfano",
     "risk_level": "high",
     "risk_description": "Metronidazol pode aumentar as concentrações plasmáticas de bussulfano, resultando em risco aumentado de toxicidade grave por bussulfano.",
     "mechanism": "Aumento das concentrações plasmáticas de bussulfano; metronidazol não deve ser administrado concomitantemente com bussulfano, a menos que o benefício supere o risco. Se não houver alternativas terapêuticas e a administração concomitante for necessária, a concentração plasmática de bussulfano deve ser monitorada frequentemente e a dose de bussulfano ajustada."
-  },
-  {
-    "id": "int_2317",
-    "drug1": "Metronidazol (antiparasitário)",
-    "drug2": "Dissulfiram",
-    "risk_level": "critical",
-    "risk_description": "Reações psicóticas foram relatadas em pacientes alcoólatras que usam metronidazol e dissulfiram concomitantemente.",
-    "mechanism": "Metronidazol não deve ser administrado a pacientes que tomaram dissulfiram nas últimas duas semanas, conforme contraindicação."
-  },
-  {
-    "id": "int_2318",
-    "drug1": "Metronidazol (antiparasitário)",
-    "drug2": "Varfarina",
-    "risk_level": "high",
-    "risk_description": "Metronidazol pode potencializar o efeito anticoagulante da varfarina e outros anticoagulantes orais cumarínicos, prolongando o tempo de protrombina.",
-    "mechanism": "Potencialização do efeito anticoagulante; o tempo de protrombina e o INR devem ser monitorados cuidadosamente quando metronidazol é prescrito para pacientes em terapia anticoagulante."
-  },
-  {
-    "id": "int_2319",
-    "drug1": "Metronidazol (antiparasitário)",
-    "drug2": "Bussulfano",
-    "risk_level": "high",
-    "risk_description": "Metronidazol pode aumentar as concentrações plasmáticas de bussulfano, resultando em risco aumentado de toxicidade grave por bussulfano.",
-    "mechanism": "Aumento das concentrações plasmáticas de bussulfano; metronidazol não deve ser administrado concomitantemente com bussulfano, a menos que o benefício supere o risco. Se não houver alternativas terapêuticas, monitorar frequentemente a concentração plasmática de bussulfano e ajustar a dose conforme necessário."
   },
   {
     "id": "int_2320",
@@ -23217,86 +22064,6 @@
     "risk_level": "moderate",
     "risk_description": "Aumento da concentração sérica de digoxina (Cmax e AUC) quando coadministrada com mirabegrona.",
     "mechanism": "Mirabegrona 100 mg aumentou a Cmax média da digoxina em 29% e a AUC em 27%. Para pacientes iniciando a combinação, deve-se considerar a menor dose de digoxina, monitorar as concentrações séricas e titular a dose conforme o efeito clínico desejado."
-  },
-  {
-    "id": "int_2327",
-    "drug1": "Mirabegrona",
-    "drug2": "Varfarina",
-    "risk_level": "moderate",
-    "risk_description": "Aumento discreto na Cmax e AUC da varfarina, sem alteração significativa nos parâmetros farmacodinâmicos (INR e tempo de protrombina) após dose única.",
-    "mechanism": "Mirabegrona 100 mg aumentou a Cmax média da S- e R-varfarina em aproximadamente 4% e a AUC em aproximadamente 9% após dose única de varfarina 25 mg. O efeito de mirabegrona sobre doses múltiplas de varfarina e sobre parâmetros farmacodinâmicos como INR e tempo de protrombina não foi totalmente investigado."
-  },
-  {
-    "id": "int_2328",
-    "drug1": "Misoprostol",
-    "drug2": "Varfarina",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de sangramento grave devido ao efeito sinérgico na hemostasia.",
-    "mechanism": "Efeito sinérgico no sangramento. Monitorar sinais de sangramento."
-  },
-  {
-    "id": "int_2329",
-    "drug1": "Misoprostol",
-    "drug2": "AAS (Ácido Acetilsalicílico)",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de sangramento grave devido ao efeito sinérgico na hemostasia.",
-    "mechanism": "Efeito sinérgico no sangramento. Monitorar sinais de sangramento."
-  },
-  {
-    "id": "int_2330",
-    "drug1": "Misoprostol",
-    "drug2": "Digoxina",
-    "risk_level": "high",
-    "risk_description": "Aumento da concentração sérica e prolongamento da meia-vida da digoxina.",
-    "mechanism": "Aumento da concentração sérica e meia-vida da digoxina. Monitorar níveis séricos de digoxina."
-  },
-  {
-    "id": "int_2331",
-    "drug1": "Misoprostol",
-    "drug2": "Lítio",
-    "risk_level": "high",
-    "risk_description": "Elevação dos níveis plasmáticos de lítio e redução da depuração renal, aumentando risco de toxicidade.",
-    "mechanism": "Inibição da síntese de prostaglandinas renais pelos AINEs. Monitorar sinais de toxicidade por lítio."
-  },
-  {
-    "id": "int_2332",
-    "drug1": "Misoprostol",
-    "drug2": "Metotrexato (oncológico)",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de toxicidade do metotrexato, incluindo neutropenia, trombocitopenia e disfunção renal.",
-    "mechanism": "Uso concomitante de AINEs e metotrexato pode aumentar o risco de toxicidade do metotrexato. Monitorar toxicidade do metotrexato."
-  },
-  {
-    "id": "int_2333",
-    "drug1": "Misoprostol",
-    "drug2": "Ciclosporina",
-    "risk_level": "high",
-    "risk_description": "Aumento da nefrotoxicidade da ciclosporina.",
-    "mechanism": "Uso concomitante de diclofenaco e ciclosporina pode aumentar a nefrotoxicidade da ciclosporina. Monitorar sinais de piora da função renal."
-  },
-  {
-    "id": "int_2334",
-    "drug1": "Misoprostol",
-    "drug2": "Pemetrexede",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de mielossupressão, toxicidade renal e gastrointestinal associadas ao pemetrexede.",
-    "mechanism": "Uso concomitante pode aumentar a toxicidade do pemetrexede. Em pacientes com depuração de creatinina entre 45 e 79 mL/min, monitorar mielossupressão, toxicidade renal e GI. Evitar o uso por dois dias antes, no dia e dois dias após a administração de pemetrexede."
-  },
-  {
-    "id": "int_2335",
-    "drug1": "Misoprostol",
-    "drug2": "Voriconazol",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição e toxicidade do diclofenaco.",
-    "mechanism": "Inibição do CYP2C9. Quando o uso concomitante for necessário, a dose diária total de diclofenaco não deve exceder a menor dose recomendada (50 mg/200 mcg duas vezes ao dia)."
-  },
-  {
-    "id": "int_2336",
-    "drug1": "Misoprostol",
-    "drug2": "Rifampicina",
-    "risk_level": "moderate",
-    "risk_description": "Possível comprometimento da eficácia do diclofenaco.",
-    "mechanism": "Indução do CYP2C9. Pode ser necessário ajuste de dose; administrar produtos separados de misoprostol e diclofenaco se uma dose maior de diclofenaco for necessária."
   },
   {
     "id": "int_2337",
@@ -23393,14 +22160,6 @@
     "risk_level": "high",
     "risk_description": "Aumento da concentração sérica e prolongamento da meia-vida da digoxina.",
     "mechanism": "Aumento da concentração sérica e prolongamento da meia-vida da digoxina. Monitorar os níveis séricos de digoxina."
-  },
-  {
-    "id": "int_2349",
-    "drug1": "Naproxeno",
-    "drug2": "Metotrexato (oncológico)",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de toxicidade do metotrexato, incluindo neutropenia, trombocitopenia e disfunção renal.",
-    "mechanism": "Aumento do risco de toxicidade do metotrexato. Monitorar pacientes quanto a sinais de toxicidade do metotrexato."
   },
   {
     "id": "int_2350",
@@ -23537,14 +22296,6 @@
     "risk_level": "moderate",
     "risk_description": "Inibe a absorção gastrointestinal de digoxina.",
     "mechanism": "Mecanismo: inibição da absorção gastrointestinal. Conduta: monitorar níveis séricos de digoxina."
-  },
-  {
-    "id": "int_2367",
-    "drug1": "Neostigmina",
-    "drug2": "Estreptomicina",
-    "risk_level": "moderate",
-    "risk_description": "Antibióticos como neomicina, estreptomicina e canamicina têm ação bloqueadora neuromuscular não despolarizante, podendo exigir ajuste de dose da neostigmina.",
-    "mechanism": "Esses antibióticos possuem ação bloqueadora neuromuscular não despolarizante. Conduta: pode ser necessário ajuste de dose da neostigmina para reverter o bloqueio neuromuscular em pacientes que usaram esses medicamentos."
   },
   {
     "id": "int_2368",
@@ -23718,7 +22469,7 @@
     "id": "int_2389",
     "drug1": "Nifedipina",
     "drug2": "Carbamazepina",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Redução da biodisponibilidade e eficácia da nifedipina.",
     "mechanism": "Indução do CYP3A, aumentando o metabolismo da nifedipina. Nifedipina não deve ser usada em combinação com indutores fortes de CYP3A, como rifampicina (ver CONTRAINDICAÇÕES)."
   },
@@ -23726,7 +22477,7 @@
     "id": "int_2390",
     "drug1": "Nifedipina",
     "drug2": "Fenitoína",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Redução da biodisponibilidade e eficácia da nifedipina.",
     "mechanism": "Indução do CYP3A, aumentando o metabolismo da nifedipina. Nifedipina não deve ser usada em combinação com indutores fortes de CYP3A, como rifampicina (ver CONTRAINDICAÇÕES)."
   },
@@ -23734,17 +22485,9 @@
     "id": "int_2391",
     "drug1": "Nifedipina",
     "drug2": "Fenobarbital",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Redução da biodisponibilidade e eficácia da nifedipina.",
     "mechanism": "Indução do CYP3A, aumentando o metabolismo da nifedipina. Nifedipina não deve ser usada em combinação com indutores fortes de CYP3A, como rifampicina (ver CONTRAINDICAÇÕES)."
-  },
-  {
-    "id": "int_2392",
-    "drug1": "Nifedipina",
-    "drug2": "Flecainida",
-    "risk_level": "moderate",
-    "risk_description": "Experiência insuficiente para recomendar o uso concomitante.",
-    "mechanism": "Falta de dados clínicos suficientes. Não é recomendado o uso concomitante."
   },
   {
     "id": "int_2393",
@@ -23787,164 +22530,12 @@
     "mechanism": "Redução da depuração da digoxina. Recomenda-se monitorar os níveis de digoxina ao iniciar, ajustar e descontinuar nifedipina de liberação prolongada para evitar super ou subdigitalização."
   },
   {
-    "id": "int_2398",
-    "drug1": "Nifedipino",
-    "drug2": "Claritromicina",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição à nifedipina, podendo levar a efeitos adversos.",
-    "mechanism": "Inibição do CYP3A, reduzindo o metabolismo da nifedipina. Recomenda-se monitoramento cuidadoso e ajuste de dose; considerar iniciar nifedipina na menor dose disponível se administrada concomitantemente com esses medicamentos."
-  },
-  {
-    "id": "int_2399",
-    "drug1": "Nifedipino",
-    "drug2": "Eritromicina",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição à nifedipina, podendo levar a efeitos adversos.",
-    "mechanism": "Inibição do CYP3A, reduzindo o metabolismo da nifedipina. Recomenda-se monitoramento cuidadoso e ajuste de dose; considerar iniciar nifedipina na menor dose disponível se administrada concomitantemente com esses medicamentos."
-  },
-  {
-    "id": "int_2400",
-    "drug1": "Nifedipino",
-    "drug2": "Fluconazol",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição à nifedipina, podendo levar a efeitos adversos.",
-    "mechanism": "Inibição do CYP3A, reduzindo o metabolismo da nifedipina. Recomenda-se monitoramento cuidadoso e ajuste de dose; considerar iniciar nifedipina na menor dose disponível se administrada concomitantemente com esses medicamentos."
-  },
-  {
-    "id": "int_2401",
-    "drug1": "Nifedipino",
-    "drug2": "Fluoxetina",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição à nifedipina, podendo levar a efeitos adversos.",
-    "mechanism": "Inibição do CYP3A, reduzindo o metabolismo da nifedipina. Recomenda-se monitoramento cuidadoso e ajuste de dose; considerar iniciar nifedipina na menor dose disponível se administrada concomitantemente com esses medicamentos."
-  },
-  {
-    "id": "int_2402",
-    "drug1": "Nifedipino",
-    "drug2": "Indinavir",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição à nifedipina, podendo levar a efeitos adversos.",
-    "mechanism": "Inibição do CYP3A, reduzindo o metabolismo da nifedipina. Recomenda-se monitoramento cuidadoso e ajuste de dose; considerar iniciar nifedipina na menor dose disponível se administrada concomitantemente com esses medicamentos."
-  },
-  {
-    "id": "int_2403",
-    "drug1": "Nifedipino",
-    "drug2": "Itraconazol",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição à nifedipina, podendo levar a efeitos adversos.",
-    "mechanism": "Inibição do CYP3A, reduzindo o metabolismo da nifedipina. Recomenda-se monitoramento cuidadoso e ajuste de dose; considerar iniciar nifedipina na menor dose disponível se administrada concomitantemente com esses medicamentos."
-  },
-  {
-    "id": "int_2404",
-    "drug1": "Nifedipino",
-    "drug2": "Nelfinavir",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição à nifedipina, podendo levar a efeitos adversos.",
-    "mechanism": "Inibição do CYP3A, reduzindo o metabolismo da nifedipina. Recomenda-se monitoramento cuidadoso e ajuste de dose; considerar iniciar nifedipina na menor dose disponível se administrada concomitantemente com esses medicamentos."
-  },
-  {
-    "id": "int_2405",
-    "drug1": "Nifedipino",
-    "drug2": "Ritonavir",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição à nifedipina, podendo levar a efeitos adversos.",
-    "mechanism": "Inibição do CYP3A, reduzindo o metabolismo da nifedipina. Recomenda-se monitoramento cuidadoso e ajuste de dose; considerar iniciar nifedipina na menor dose disponível se administrada concomitantemente com esses medicamentos."
-  },
-  {
-    "id": "int_2406",
-    "drug1": "Nifedipino",
-    "drug2": "Saquinavir",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição à nifedipina, podendo levar a efeitos adversos.",
-    "mechanism": "Inibição do CYP3A, reduzindo o metabolismo da nifedipina. Recomenda-se monitoramento cuidadoso e ajuste de dose; considerar iniciar nifedipina na menor dose disponível se administrada concomitantemente com esses medicamentos."
-  },
-  {
-    "id": "int_2407",
-    "drug1": "Nifedipino",
-    "drug2": "Carbamazepina",
-    "risk_level": "critical",
-    "risk_description": "Redução da biodisponibilidade e eficácia da nifedipina.",
-    "mechanism": "Indução do CYP3A, aumentando o metabolismo da nifedipina. Nifedipina não deve ser usada em combinação com indutores fortes de CYP3A, como rifampicina (ver CONTRAINDICAÇÕES)."
-  },
-  {
-    "id": "int_2408",
-    "drug1": "Nifedipino",
-    "drug2": "Fenitoína",
-    "risk_level": "critical",
-    "risk_description": "Redução da biodisponibilidade e eficácia da nifedipina.",
-    "mechanism": "Indução do CYP3A, aumentando o metabolismo da nifedipina. Nifedipina não deve ser usada em combinação com indutores fortes de CYP3A, como rifampicina (ver CONTRAINDICAÇÕES)."
-  },
-  {
-    "id": "int_2409",
-    "drug1": "Nifedipino",
-    "drug2": "Fenobarbital",
-    "risk_level": "critical",
-    "risk_description": "Redução da biodisponibilidade e eficácia da nifedipina.",
-    "mechanism": "Indução do CYP3A, aumentando o metabolismo da nifedipina. Nifedipina não deve ser usada em combinação com indutores fortes de CYP3A, como rifampicina (ver CONTRAINDICAÇÕES)."
-  },
-  {
     "id": "int_2410",
     "drug1": "Nifedipino",
     "drug2": "Hypericum perforatum (Erva de São João)",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Redução da biodisponibilidade e eficácia da nifedipina.",
     "mechanism": "Indução do CYP3A, aumentando o metabolismo da nifedipina. Nifedipina não deve ser usada em combinação com indutores fortes de CYP3A, como rifampicina (ver CONTRAINDICAÇÕES)."
-  },
-  {
-    "id": "int_2411",
-    "drug1": "Nifedipino",
-    "drug2": "Rifampicina",
-    "risk_level": "critical",
-    "risk_description": "Redução da biodisponibilidade e eficácia da nifedipina.",
-    "mechanism": "Indução do CYP3A, aumentando o metabolismo da nifedipina. Nifedipina não deve ser usada em combinação com indutores fortes de CYP3A, como rifampicina (ver CONTRAINDICAÇÕES)."
-  },
-  {
-    "id": "int_2412",
-    "drug1": "Nifedipino",
-    "drug2": "Flecainida",
-    "risk_level": "moderate",
-    "risk_description": "Experiência insuficiente para recomendar o uso concomitante.",
-    "mechanism": "Falta de dados clínicos suficientes. Não é recomendado o uso concomitante."
-  },
-  {
-    "id": "int_2413",
-    "drug1": "Nifedipino",
-    "drug2": "Diltiazem",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição à nifedipina.",
-    "mechanism": "Diltiazem inibe o CYP3A, aumentando a AUC da nifedipina. Deve-se ter cautela e considerar redução da dose de nifedipina."
-  },
-  {
-    "id": "int_2414",
-    "drug1": "Nifedipino",
-    "drug2": "Verapamil",
-    "risk_level": "high",
-    "risk_description": "Aumento da exposição à nifedipina.",
-    "mechanism": "Verapamil, um inibidor do CYP3A, pode inibir o metabolismo da nifedipina. A pressão arterial deve ser monitorada e a redução da dose de nifedipina deve ser considerada."
-  },
-  {
-    "id": "int_2415",
-    "drug1": "Nifedipino",
-    "drug2": "Timolol",
-    "risk_level": "high",
-    "risk_description": "Maior probabilidade de hipotensão.",
-    "mechanism": "Farmacodinâmica: coadministração com antagonistas de cálcio diidropiridínicos como nifedipina aumenta o risco de hipotensão."
-  },
-  {
-    "id": "int_2416",
-    "drug1": "Nifedipino",
-    "drug2": "Doxazosina",
-    "risk_level": "moderate",
-    "risk_description": "Redução da exposição à doxazosina e aumento da exposição à nifedipina, com maior efeito hipotensor.",
-    "mechanism": "Farmacocinética e farmacodinâmica: nifedipina diminui AUC e Cmax de doxazosina; doxazosina aumenta AUC e Cmax de nifedipina. A pressão arterial deve ser monitorada e a redução da dose de nifedipina considerada."
-  },
-  {
-    "id": "int_2417",
-    "drug1": "Nifedipino",
-    "drug2": "Digoxina",
-    "risk_level": "high",
-    "risk_description": "Aumento das concentrações plasmáticas de digoxina.",
-    "mechanism": "Redução da depuração de digoxina. Recomenda-se monitorar os níveis de digoxina ao iniciar, ajustar e descontinuar nifedipina para evitar super ou subdigitalização."
   },
   {
     "id": "int_2418",
@@ -24137,14 +22728,6 @@
     "risk_level": "critical",
     "risk_description": "Contraindicado devido ao risco potencial de elevação das enzimas hepáticas (ALT).",
     "mechanism": "Potencial para elevação de ALT. Não coadministrar norelgestromina e etinilestradiol transdérmico com combinações de medicamentos para HCV contendo ombitasvir/paritaprevir/ritonavir, com ou sem dasabuvir."
-  },
-  {
-    "id": "int_2442",
-    "drug1": "Atorvastatina",
-    "drug2": "Genfibrozila",
-    "risk_level": "high",
-    "risk_description": "Aumento significativo dos níveis plasmáticos de atorvastatina e risco aumentado de miopatia e rabdomiólise.",
-    "mechanism": "Inibição de CYP3A4 e OATP1B1 pela ciclosporina; gemfibrozila pode causar miopatia isoladamente. O uso concomitante não é recomendado."
   },
   {
     "id": "int_2443",
@@ -24347,22 +22930,6 @@
     "mechanism": "Mecanismo: Interação com diuréticos tiazídicos. Conduta: Espaçar a dosagem de hidroclorotiazida e resinas de troca iônica (ex.: colestiramina, colestipol) administrando hidroclorotiazida pelo menos 4 horas antes ou 4-6 horas após a administração das resinas para minimizar a interação."
   },
   {
-    "id": "int_2468",
-    "drug1": "Olmesartana medoxomila",
-    "drug2": "Lítio",
-    "risk_level": "high",
-    "risk_description": "Aumento das concentrações séricas de lítio e risco de toxicidade por lítio.",
-    "mechanism": "Mecanismo: Aumento das concentrações séricas de lítio relatado durante administração concomitante com antagonistas do receptor de angiotensina II ou hidroclorotiazida. Conduta: Monitorar os níveis séricos de lítio durante o uso concomitante."
-  },
-  {
-    "id": "int_2469",
-    "drug1": "Olmesartana medoxomila",
-    "drug2": "Colestiramina",
-    "risk_level": "moderate",
-    "risk_description": "Redução da absorção de tiazídicos.",
-    "mechanism": "Mecanismo: Interação com resinas de troca iônica. Conduta: Espaçar a dosagem de hidroclorotiazida e resinas de troca iônica (ex.: colestiramina, colestipol) de modo que a hidroclorotiazida seja administrada pelo menos 4 horas antes ou 4 a 6 horas após a administração das resinas para minimizar a interação."
-  },
-  {
     "id": "int_2470",
     "drug1": "Atracúrio",
     "drug2": "Enflurano",
@@ -24483,22 +23050,6 @@
     "mechanism": "Mecanismo: redução da absorção devido ao aumento do pH gástrico. Conduta: usar omeprazol com cautela em pacientes transplantados recebendo micofenolato de mofetila."
   },
   {
-    "id": "int_2485",
-    "drug1": "Omeprazol",
-    "drug2": "Amoxicilina",
-    "risk_level": "high",
-    "risk_description": "A administração concomitante de claritromicina com outros medicamentos pode levar a reações adversas graves, incluindo arritmias fatais.",
-    "mechanism": "Mecanismo: interações medicamentosas com claritromicina e amoxicilina. Conduta: consultar contraindicações, advertências e precauções na bula da claritromicina e interações medicamentosas na bula da amoxicilina."
-  },
-  {
-    "id": "int_2486",
-    "drug1": "Omeprazol",
-    "drug2": "Claritromicina",
-    "risk_level": "high",
-    "risk_description": "A administração concomitante de claritromicina com outros medicamentos pode levar a reações adversas graves, incluindo arritmias fatais.",
-    "mechanism": "Mecanismo: interações medicamentosas com claritromicina e amoxicilina. Conduta: consultar contraindicações, advertências e precauções na bula da claritromicina e interações medicamentosas na bula da amoxicilina."
-  },
-  {
     "id": "int_2487",
     "drug1": "Omeprazol",
     "drug2": "Tacrolimo",
@@ -24579,44 +23130,12 @@
     "mechanism": "Mecanismo não especificado. Conduta: possível redução do efeito terapêutico; o efeito de iniciar orlistat em pacientes em terapia estável com amiodarona não foi estudado."
   },
   {
-    "id": "int_2497",
-    "drug1": "Orlistate",
-    "drug2": "Ciclosporina",
-    "risk_level": "high",
-    "risk_description": "Redução nos níveis plasmáticos de ciclosporina quando coadministrado com orlistate.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: não administrar simultaneamente; administrar ciclosporina 3 horas após o orlistate."
-  },
-  {
-    "id": "int_2498",
-    "drug1": "Orlistate",
-    "drug2": "Levotiroxina",
-    "risk_level": "high",
-    "risk_description": "Hipotireoidismo relatado em pacientes tratados concomitantemente com orlistate e levotiroxina.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar função tireoidiana; administrar levotiroxina e orlistate com pelo menos 4 horas de intervalo."
-  },
-  {
-    "id": "int_2499",
-    "drug1": "Orlistate",
-    "drug2": "Amiodarona",
-    "risk_level": "moderate",
-    "risk_description": "Redução na exposição à amiodarona e seu metabólito desetilamiodarona.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: possível redução do efeito terapêutico da amiodarona; o efeito de iniciar orlistate em pacientes em terapia estável com amiodarona não foi estudado."
-  },
-  {
     "id": "int_2500",
     "drug1": "Oxacilina",
     "drug2": "Tetraciclina",
     "risk_level": "high",
     "risk_description": "Pode antagonizar o efeito bactericida da penicilina.",
     "mechanism": "Antagonismo do efeito bactericida. O uso concomitante deve ser evitado."
-  },
-  {
-    "id": "int_2501",
-    "drug1": "Oxacilina Sódica",
-    "drug2": "Tetraciclina",
-    "risk_level": "high",
-    "risk_description": "Pode antagonizar o efeito bactericida da penicilina.",
-    "mechanism": "Antagonismo farmacodinâmico: tetraciclina, um antibiótico bacteriostático, pode antagonizar o efeito bactericida da penicilina. O uso concomitante deve ser evitado."
   },
   {
     "id": "int_2502",
@@ -24819,14 +23338,6 @@
     "mechanism": "Competição pela secreção tubular renal, prolongando a meia-vida sérica da penicilina."
   },
   {
-    "id": "int_2527",
-    "drug1": "Penicilina G Procaína",
-    "drug2": "Tetraciclina",
-    "risk_level": "high",
-    "risk_description": "Tetraciclina pode antagonizar o efeito bactericida da penicilina.",
-    "mechanism": "Antagonismo farmacodinâmico: tetraciclina, um antibiótico bacteriostático, pode antagonizar o efeito bactericida da penicilina. O uso concomitante deve ser evitado."
-  },
-  {
     "id": "int_2528",
     "drug1": "Pentoxifilina",
     "drug2": "Nifedipina",
@@ -25003,14 +23514,6 @@
     "mechanism": "Administrar ferro, digoxina, clorpromazina e penicilamina pelo menos 2 horas antes e não menos que 6 horas após a administração de CLENPIQ para evitar quelação com magnésio."
   },
   {
-    "id": "int_2550",
-    "drug1": "Picossulfato de Sódio",
-    "drug2": "Digoxina",
-    "risk_level": "high",
-    "risk_description": "Pode reduzir a absorção de ferro, digoxina, clorpromazina e penicilamina devido à quelação com magnésio.",
-    "mechanism": "Administrar ferro, digoxina, clorpromazina e penicilamina pelo menos 2 horas antes e não menos que 6 horas após a administração de CLENPIQ para evitar quelação com magnésio."
-  },
-  {
     "id": "int_2551",
     "drug1": "Picossulfato de Sódio",
     "drug2": "Ferro",
@@ -25033,30 +23536,6 @@
     "risk_level": "high",
     "risk_description": "Aumento dos níveis séricos de tioridazina e possivelmente de pindolol.",
     "mechanism": "Pindolol aumenta os níveis séricos de tioridazina quando ambos são coadministrados; os níveis de pindolol também podem aumentar. Conduta: monitorar níveis e ajustar doses conforme necessário."
-  },
-  {
-    "id": "int_2554",
-    "drug1": "Pioglitazona",
-    "drug2": "Genfibrozila",
-    "risk_level": "high",
-    "risk_description": "Aumento significativo da exposição e meia-vida da pioglitazona, exigindo limitação da dose.",
-    "mechanism": "Inibidor forte de CYP2C8 (gemfibrozil) aumenta a exposição (AUC) e meia-vida da pioglitazona. Conduta: limitar a dose máxima de pioglitazona a 15 mg diários."
-  },
-  {
-    "id": "int_2555",
-    "drug1": "Pioglitazona",
-    "drug2": "Rifampicina",
-    "risk_level": "moderate",
-    "risk_description": "Pode diminuir significativamente a exposição da pioglitazona, podendo exigir ajuste no tratamento do diabetes.",
-    "mechanism": "Indutor de CYP2C8 (rifampina) pode diminuir a exposição (AUC) da pioglitazona. Conduta: se um indutor de CYP2C8 for iniciado ou interrompido durante o tratamento com pioglitazona, podem ser necessárias alterações no tratamento do diabetes com base na resposta clínica, sem exceder a dose máxima diária recomendada de 45 mg de pioglitazona."
-  },
-  {
-    "id": "int_2556",
-    "drug1": "Pioglitazona",
-    "drug2": "Topiramato",
-    "risk_level": "moderate",
-    "risk_description": "Pode diminuir a exposição da pioglitazona e seus metabólitos ativos, com relevância clínica desconhecida.",
-    "mechanism": "Foi observada diminuição na exposição da pioglitazona e seus metabólitos ativos com o uso concomitante de topiramato. Conduta: monitorar os pacientes quanto ao controle glicêmico adequado."
   },
   {
     "id": "int_2557",
@@ -25145,14 +23624,6 @@
     "risk_level": "high",
     "risk_description": "Aumento da concentração sérica e prolongamento da meia-vida da digoxina.",
     "mechanism": "Monitorar níveis séricos de digoxina."
-  },
-  {
-    "id": "int_2568",
-    "drug1": "Piroxicam",
-    "drug2": "Metotrexato (oncológico)",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de toxicidade do metotrexato, incluindo neutropenia, trombocitopenia e disfunção renal.",
-    "mechanism": "Monitorar sinais de toxicidade do metotrexato."
   },
   {
     "id": "int_2569",
@@ -25302,7 +23773,7 @@
     "id": "int_2587",
     "drug1": "Riociguate",
     "drug2": "Teofilina",
-    "risk_level": "critical",
+    "risk_level": "moderate",
     "risk_description": "Risco de hipotensão.",
     "mechanism": "Interação farmacodinâmica. Conduta: coadministração é contraindicada."
   },
@@ -25313,14 +23784,6 @@
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de reações adversas gastrointestinais superiores.",
     "mechanism": "Em estudos, 18% dos usuários de AINEs que tomaram risedronato desenvolveram reações adversas gastrointestinais superiores, comparado a 13% em não usuários. Monitorar sinais de irritação gastrointestinal."
-  },
-  {
-    "id": "int_2589",
-    "drug1": "Risedronato sódico",
-    "drug2": "AAS (Ácido Acetilsalicílico)",
-    "risk_level": "moderate",
-    "risk_description": "Aumento da incidência de reações adversas gastrointestinais superiores.",
-    "mechanism": "Em estudo de fase 3, 18% dos usuários de AINEs em ambos os grupos desenvolveram reações adversas gastrointestinais superiores, comparado a 12-13% entre não usuários. Monitorar sinais de toxicidade gastrointestinal."
   },
   {
     "id": "int_2590",
@@ -25345,14 +23808,6 @@
     "risk_level": "high",
     "risk_description": "Aumenta a AUC plasmática da rizatriptana em 70%, exigindo ajuste de dose.",
     "mechanism": "O propranolol aumenta a exposição sistêmica da rizatriptana. A conduta clínica recomendada é ajustar a dose de MAXALT em pacientes tratados com propranolol."
-  },
-  {
-    "id": "int_2593",
-    "drug1": "Rizatriptano",
-    "drug2": "Propranolol",
-    "risk_level": "high",
-    "risk_description": "O propranolol aumenta a AUC plasmática do rizatriptano em 70%, exigindo ajuste de dose.",
-    "mechanism": "O propranolol aumenta a exposição sistêmica do rizatriptano. A conduta clínica recomendada é ajustar a dose de MAXALT em pacientes tratados com propranolol."
   },
   {
     "id": "int_2594",
@@ -25425,38 +23880,6 @@
     "risk_level": "moderate",
     "risk_description": "Antagonistas dopaminérgicos podem reduzir a eficácia do ropinirol.",
     "mechanism": "Como o ropinirol é um agonista dopaminérgico, antagonistas da dopamina, como neurolépticos (fenotiazinas, butirofenonas, tioxantenos) ou metoclopramida, podem reduzir sua eficácia."
-  },
-  {
-    "id": "int_2603",
-    "drug1": "Ropivacaína",
-    "drug2": "Fluvoxamina",
-    "risk_level": "high",
-    "risk_description": "Aumento significativo dos níveis plasmáticos de ropivacaína (depuração reduzida em 70%).",
-    "mechanism": "Inibição potente do CYP1A2 pelo fluvoxamina, reduzindo a depuração plasmática da ropivacaína. Deve-se ter cautela na coadministração com inibidores do CYP1A2."
-  },
-  {
-    "id": "int_2604",
-    "drug1": "Ropivacaína",
-    "drug2": "Teofilina",
-    "risk_level": "moderate",
-    "risk_description": "Possível interação por inibição competitiva do CYP1A2, podendo aumentar os níveis de ropivacaína.",
-    "mechanism": "Inibição competitiva do CYP1A2. Cautela é recomendada na coadministração."
-  },
-  {
-    "id": "int_2605",
-    "drug1": "Ropivacaína",
-    "drug2": "Imipramina",
-    "risk_level": "moderate",
-    "risk_description": "Possível interação por inibição competitiva do CYP1A2, podendo aumentar os níveis de ropivacaína.",
-    "mechanism": "Inibição competitiva do CYP1A2. Cautela é recomendada na coadministração."
-  },
-  {
-    "id": "int_2606",
-    "drug1": "Ropivacaína",
-    "drug2": "Cetoconazol",
-    "risk_level": "moderate",
-    "risk_description": "Redução de 15% na depuração plasmática de ropivacaína, com possível aumento dos níveis.",
-    "mechanism": "Inibição do CYP3A4 pelo cetoconazol, reduzindo a depuração da ropivacaína. Cautela é recomendada."
   },
   {
     "id": "int_2607",
@@ -25611,22 +24034,6 @@
     "mechanism": "Mecanismo não especificado no texto. A conduta clínica recomendada é monitorar o paciente para sinais de hipotensão e dispneia durante o uso concomitante."
   },
   {
-    "id": "int_2626",
-    "drug1": "Salmeterol",
-    "drug2": "Cetoconazol",
-    "risk_level": "high",
-    "risk_description": "Aumenta o risco de efeitos adversos sistêmicos de corticosteroides e cardiovasculares.",
-    "mechanism": "Fluticasona e salmeterol são substratos do CYP3A4. Inibidores fortes do CYP3A4 aumentam a exposição sistêmica a ambos os componentes, elevando o risco de efeitos adversos. O uso não é recomendado."
-  },
-  {
-    "id": "int_2627",
-    "drug1": "Salmeterol",
-    "drug2": "Ritonavir",
-    "risk_level": "high",
-    "risk_description": "Aumenta o risco de efeitos adversos sistêmicos de corticosteroides e cardiovasculares.",
-    "mechanism": "Fluticasona e salmeterol são substratos do CYP3A4. Inibidores fortes do CYP3A4 aumentam a exposição sistêmica a ambos os componentes, elevando o risco de efeitos adversos. O uso não é recomendado."
-  },
-  {
     "id": "int_2628",
     "drug1": "Sulfassalazina",
     "drug2": "Ácido Fólico",
@@ -25649,22 +24056,6 @@
     "risk_level": "moderate",
     "risk_description": "Aumento da incidência de eventos adversos gastrointestinais, especialmente náusea, quando combinado com sulfassalazina.",
     "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar sintomas gastrointestinais e considerar ajuste de dose ou manejo sintomático."
-  },
-  {
-    "id": "int_2631",
-    "drug1": "Sulfato de Neomicina",
-    "drug2": "Metotrexato (oncológico)",
-    "risk_level": "moderate",
-    "risk_description": "A neomicina oral inibe a absorção gastrointestinal de metotrexato.",
-    "mechanism": "Mecanismo: inibição da absorção. Conduta: monitorar eficácia do metotrexato; considerar ajuste de dose ou via alternativa."
-  },
-  {
-    "id": "int_2632",
-    "drug1": "Sulfato de Neomicina",
-    "drug2": "Digoxina",
-    "risk_level": "moderate",
-    "risk_description": "A neomicina oral parece inibir a absorção gastrointestinal de digoxina.",
-    "mechanism": "Mecanismo: inibição da absorção. Conduta: monitorar níveis séricos de digoxina."
   },
   {
     "id": "int_2633",
@@ -25907,38 +24298,6 @@
     "mechanism": "Estudos in vitro e in vivo inconclusivos. Conduta: usar com cautela e monitorar o paciente."
   },
   {
-    "id": "int_2663",
-    "drug1": "Tazobactam",
-    "drug2": "Tobramicina",
-    "risk_level": "high",
-    "risk_description": "A administração de piperacilina e tazobactam pode reduzir significativamente as concentrações de tobramicina em pacientes em hemodiálise.",
-    "mechanism": "A piperacilina pode inativar aminoglicosídeos convertendo-os em amidas microbiologicamente inertes. Em pacientes com doença renal terminal em hemodiálise, as concentrações de tobramicina podem ser significativamente reduzidas e devem ser monitoradas. Em pacientes com função renal normal ou insuficiência renal leve a moderada, a diminuição é modesta e não requer ajuste de dose. Devido à inativação in vitro, recomenda-se administração separada de piperacilina e tazobactam e aminoglicosídeos."
-  },
-  {
-    "id": "int_2664",
-    "drug1": "Tazobactam",
-    "drug2": "Vancomicina",
-    "risk_level": "high",
-    "risk_description": "A coadministração de piperacilina e tazobactam com vancomicina pode aumentar a incidência de lesão renal aguda.",
-    "mechanism": "Estudos detectaram aumento da incidência de lesão renal aguda em pacientes que recebem piperacilina e tazobactam concomitantemente com vancomicina em comparação com vancomicina isolada. A função renal deve ser monitorada nesses pacientes. Não foram observadas interações farmacocinéticas entre os fármacos."
-  },
-  {
-    "id": "int_2665",
-    "drug1": "Tazobactam",
-    "drug2": "Heparina",
-    "risk_level": "moderate",
-    "risk_description": "A coadministração com heparina ou anticoagulantes orais pode afetar o sistema de coagulação sanguínea ou a função plaquetária.",
-    "mechanism": "Os parâmetros de coagulação devem ser testados com mais frequência e monitorados regularmente durante a administração simultânea de altas doses de heparina, anticoagulantes orais ou outros medicamentos que possam afetar o sistema de coagulação sanguínea ou a função plaquetária."
-  },
-  {
-    "id": "int_2666",
-    "drug1": "Tazobactam",
-    "drug2": "Metotrexato (oncológico)",
-    "risk_level": "moderate",
-    "risk_description": "A coadministração de metotrexato e piperacilina pode reduzir a depuração de metotrexato devido à competição pela secreção renal.",
-    "mechanism": "Dados limitados sugerem que a coadministração de metotrexato e piperacilina pode reduzir a depuração de metotrexato devido à competição pela secreção renal. O impacto do tazobactam na eliminação do metotrexato não foi avaliado. Se a terapia concomitante for necessária, as concentrações séricas de metotrexato e os sinais e sintomas de toxicidade devem ser monitorados com frequência."
-  },
-  {
     "id": "int_2667",
     "drug1": "Telmisartana",
     "drug2": "Alisquireno",
@@ -26163,14 +24522,6 @@
     "mechanism": "Mecanismo: Exposição concomitante a agentes oxidantes pode aumentar o risco de metemoglobinemia. Conduta: Monitorar sinais de metemoglobinemia."
   },
   {
-    "id": "int_2695",
-    "drug1": "Tetraciclina",
-    "drug2": "Zinco",
-    "risk_level": "moderate",
-    "risk_description": "Preparações contendo ferro, zinco ou bicarbonato de sódio prejudicam a absorção da tetraciclina.",
-    "mechanism": "Mecanismo: quelação ou alteração do pH, reduzindo a absorção. Conduta: evitar uso concomitante ou administrar com intervalo adequado (não especificado no texto)."
-  },
-  {
     "id": "int_2696",
     "drug1": "Tigeciclina",
     "drug2": "Varfarina",
@@ -26377,22 +24728,6 @@
     "risk_level": "moderate",
     "risk_description": "Pode alterar a farmacocinética de fármacos metabolizados pela COMT.",
     "mechanism": "A tolcapona inibe a COMT, podendo aumentar a exposição a esses fármacos. Recomenda-se considerar redução da dose desses compostos quando coadministrados com tolcapona."
-  },
-  {
-    "id": "int_2722",
-    "drug1": "Tolcapona",
-    "drug2": "Varfarina",
-    "risk_level": "moderate",
-    "risk_description": "Pode interferir na coagulação, embora a interação clínica pareça improvável.",
-    "mechanism": "A tolcapona tem afinidade in vitro pela CYP2C9, via de metabolismo da varfarina. Como a informação clínica é limitada, recomenda-se monitorar os parâmetros de coagulação quando esses dois fármacos são coadministrados."
-  },
-  {
-    "id": "int_2723",
-    "drug1": "Benazepril",
-    "drug2": "Lítio",
-    "risk_level": "high",
-    "risk_description": "Sintomas de toxicidade por lítio, geralmente reversíveis com a descontinuação.",
-    "mechanism": "Toxicidade por lítio relatada. Monitorar níveis séricos de lítio durante o uso concomitante."
   },
   {
     "id": "int_2724",
@@ -26875,14 +25210,6 @@
     "mechanism": "Inibição dos transportadores BCRP e/ou P-gp, resultando em aumento da exposição ao ubrogepanto. Ajuste de dose é recomendado."
   },
   {
-    "id": "int_2784",
-    "drug1": "Umeclidínio",
-    "drug2": "Cetoconazol",
-    "risk_level": "high",
-    "risk_description": "Pode causar efeitos cardiovasculares devido ao aumento da exposição sistêmica ao vilanterol.",
-    "mechanism": "Vilanterol é substrato da CYP3A4; inibidores fortes aumentam sua exposição sistêmica. Usar com cautela."
-  },
-  {
     "id": "int_2785",
     "drug1": "Valganciclovir",
     "drug2": "Anfotericina B",
@@ -27363,126 +25690,6 @@
     "mechanism": "Vilanterol é substrato da CYP3A4. Inibidores fortes da CYP3A4 aumentam a exposição sistêmica ao vilanterol. Recomenda-se cautela na coadministração."
   },
   {
-    "id": "int_2845",
-    "drug1": "Vitamina A",
-    "drug2": "Doxiciclina",
-    "risk_level": "moderate",
-    "risk_description": "Vitaminas do complexo B e ácido ascórbico podem reduzir a atividade desses antibióticos.",
-    "mechanism": "Mecanismo não especificado. A conduta clínica recomendada é monitorar a eficácia dos antibióticos."
-  },
-  {
-    "id": "int_2846",
-    "drug1": "Vitamina A",
-    "drug2": "Eritromicina",
-    "risk_level": "moderate",
-    "risk_description": "Vitaminas do complexo B e ácido ascórbico podem reduzir a atividade desses antibióticos.",
-    "mechanism": "Mecanismo não especificado. A conduta clínica recomendada é monitorar a eficácia dos antibióticos."
-  },
-  {
-    "id": "int_2847",
-    "drug1": "Vitamina A",
-    "drug2": "Estreptomicina",
-    "risk_level": "moderate",
-    "risk_description": "Vitaminas do complexo B e ácido ascórbico podem reduzir a atividade desses antibióticos.",
-    "mechanism": "Mecanismo não especificado. A conduta clínica recomendada é monitorar a eficácia dos antibióticos."
-  },
-  {
-    "id": "int_2848",
-    "drug1": "Vitamina A",
-    "drug2": "Lincomicina",
-    "risk_level": "moderate",
-    "risk_description": "Vitaminas do complexo B e ácido ascórbico podem reduzir a atividade desses antibióticos.",
-    "mechanism": "Mecanismo não especificado. A conduta clínica recomendada é monitorar a eficácia dos antibióticos."
-  },
-  {
-    "id": "int_2849",
-    "drug1": "Vitamina A",
-    "drug2": "Bleomicina",
-    "risk_level": "moderate",
-    "risk_description": "Ácido ascórbico e riboflavina podem reduzir a atividade da bleomicina.",
-    "mechanism": "Mecanismo: inativação in vitro. A conduta clínica recomendada é monitorar a eficácia da bleomicina."
-  },
-  {
-    "id": "int_2850",
-    "drug1": "Vitamina A",
-    "drug2": "Fenitoína",
-    "risk_level": "high",
-    "risk_description": "Ácido fólico pode diminuir os níveis sanguíneos de fenitoína e aumentar o risco de convulsões.",
-    "mechanism": "Mecanismo: aumento do metabolismo da fenitoína. A conduta clínica recomendada é monitorar os níveis séricos de fenitoína e a atividade convulsiva."
-  },
-  {
-    "id": "int_2851",
-    "drug1": "Vitamina A",
-    "drug2": "Metotrexato (oncológico)",
-    "risk_level": "high",
-    "risk_description": "Ácido fólico pode diminuir a resposta do paciente à terapia com metotrexato.",
-    "mechanism": "Mecanismo não especificado. A conduta clínica recomendada é monitorar a resposta ao metotrexato."
-  },
-  {
-    "id": "int_2852",
-    "drug1": "Vitamina A",
-    "drug2": "Varfarina",
-    "risk_level": "high",
-    "risk_description": "Vitamina K antagoniza a ação anticoagulante da varfarina.",
-    "mechanism": "Mecanismo: antagonismo da ação anticoagulante. A conduta clínica recomendada é monitorar os níveis de protrombina/INR para ajuste da dose de varfarina."
-  },
-  {
-    "id": "int_2853",
-    "drug1": "Vitamina A",
-    "drug2": "Hidralazina",
-    "risk_level": "moderate",
-    "risk_description": "Hidralazina ou isoniazida podem aumentar as necessidades de piridoxina.",
-    "mechanism": "Mecanismo não especificado. A conduta clínica recomendada é monitorar a necessidade de suplementação de piridoxina."
-  },
-  {
-    "id": "int_2854",
-    "drug1": "Vitamina A",
-    "drug2": "Isoniazida",
-    "risk_level": "moderate",
-    "risk_description": "Hidralazina ou isoniazida podem aumentar as necessidades de piridoxina.",
-    "mechanism": "Mecanismo não especificado. A conduta clínica recomendada é monitorar a necessidade de suplementação de piridoxina."
-  },
-  {
-    "id": "int_2855",
-    "drug1": "Vitamina C (Ácido Ascórbico)",
-    "drug2": "AAS (Ácido Acetilsalicílico)",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de sangramento quando combinado com Bromelain.",
-    "mechanism": "Mecanismo não descrito. Conduta: monitorar sinais de sangramento e ajustar a dose do anticoagulante conforme necessário."
-  },
-  {
-    "id": "int_2856",
-    "drug1": "Vitamina C (Ácido Ascórbico)",
-    "drug2": "Varfarina",
-    "risk_level": "high",
-    "risk_description": "Aumento do risco de sangramento quando combinado com Bromelain.",
-    "mechanism": "Mecanismo não descrito. Conduta: monitorar sinais de sangramento e ajustar a dose do anticoagulante conforme necessário."
-  },
-  {
-    "id": "int_2857",
-    "drug1": "Vitamina C (Ácido Ascórbico)",
-    "drug2": "Zinco",
-    "risk_level": "moderate",
-    "risk_description": "Altas doses de zinco podem interferir na absorção de ferro quando tomados junto com suplementos de ferro.",
-    "mechanism": "Mecanismo não descrito. Conduta: administrar zinco e ferro em horários diferentes para evitar interferência na absorção."
-  },
-  {
-    "id": "int_2858",
-    "drug1": "Vitamina D",
-    "drug2": "Ácido Fólico",
-    "risk_level": "moderate",
-    "risk_description": "Altas doses de ácido fólico podem reduzir os níveis séricos de anticonvulsivantes.",
-    "mechanism": "O ácido fólico em altas doses pode diminuir os níveis séricos de anticonvulsivantes. A conduta clínica recomendada é monitorar os níveis dos anticonvulsivantes e ajustar a dose conforme necessário."
-  },
-  {
-    "id": "int_2859",
-    "drug1": "Vitamina D",
-    "drug2": "Zinco",
-    "risk_level": "moderate",
-    "risk_description": "O zinco pode inibir a absorção de certos antibióticos.",
-    "mechanism": "O zinco inibe a absorção de certos antibióticos. A conduta clínica recomendada é administrar os medicamentos com pelo menos 2 horas de intervalo para minimizar a interação."
-  },
-  {
     "id": "int_2860",
     "drug1": "Benzocaína",
     "drug2": "Nitroglicerina",
@@ -27667,262 +25874,6 @@
     "mechanism": "Anticonvulsivantes, cimetidina e tiazidas podem aumentar o catabolismo da vitamina D. Conduta: considerar suplementação adicional de vitamina D."
   },
   {
-    "id": "int_2883",
-    "drug1": "Vitaminas do Complexo B",
-    "drug2": "Doxiciclina",
-    "risk_level": "moderate",
-    "risk_description": "Vitaminas podem diminuir a atividade de certos antibióticos.",
-    "mechanism": "Tiamina, riboflavina, piridoxina, niacinamida e ácido ascórbico diminuem a atividade de eritromicina, canamicina, estreptomicina, doxiciclina e lincomicina. A conduta clínica recomendada é monitorar a eficácia dos antibióticos."
-  },
-  {
-    "id": "int_2884",
-    "drug1": "Vitaminas do Complexo B",
-    "drug2": "Eritromicina",
-    "risk_level": "moderate",
-    "risk_description": "Vitaminas podem diminuir a atividade de certos antibióticos.",
-    "mechanism": "Tiamina, riboflavina, piridoxina, niacinamida e ácido ascórbico diminuem a atividade de eritromicina, canamicina, estreptomicina, doxiciclina e lincomicina. A conduta clínica recomendada é monitorar a eficácia dos antibióticos."
-  },
-  {
-    "id": "int_2885",
-    "drug1": "Vitaminas do Complexo B",
-    "drug2": "Estreptomicina",
-    "risk_level": "moderate",
-    "risk_description": "Vitaminas podem diminuir a atividade de certos antibióticos.",
-    "mechanism": "Tiamina, riboflavina, piridoxina, niacinamida e ácido ascórbico diminuem a atividade de eritromicina, canamicina, estreptomicina, doxiciclina e lincomicina. A conduta clínica recomendada é monitorar a eficácia dos antibióticos."
-  },
-  {
-    "id": "int_2886",
-    "drug1": "Vitaminas do Complexo B",
-    "drug2": "Lincomicina",
-    "risk_level": "moderate",
-    "risk_description": "Vitaminas podem diminuir a atividade de certos antibióticos.",
-    "mechanism": "Tiamina, riboflavina, piridoxina, niacinamida e ácido ascórbico diminuem a atividade de eritromicina, canamicina, estreptomicina, doxiciclina e lincomicina. A conduta clínica recomendada é monitorar a eficácia dos antibióticos."
-  },
-  {
-    "id": "int_2887",
-    "drug1": "Vitaminas do Complexo B",
-    "drug2": "Bleomicina",
-    "risk_level": "moderate",
-    "risk_description": "Ácido ascórbico e riboflavina podem reduzir a atividade da bleomicina.",
-    "mechanism": "Ácido ascórbico e riboflavina inativam a bleomicina in vitro, podendo reduzir sua atividade. A conduta clínica recomendada é monitorar a eficácia do tratamento."
-  },
-  {
-    "id": "int_2888",
-    "drug1": "Vitaminas do Complexo B",
-    "drug2": "Fenitoína",
-    "risk_level": "high",
-    "risk_description": "Ácido fólico pode diminuir os níveis sanguíneos de fenitoína e aumentar o risco de convulsões.",
-    "mechanism": "Ácido fólico pode aumentar o metabolismo da fenitoína e reduzir sua concentração sérica, resultando em aumento da atividade convulsiva. A conduta clínica recomendada é monitorar os níveis de fenitoína e ajustar a dose conforme necessário."
-  },
-  {
-    "id": "int_2889",
-    "drug1": "Vitaminas do Complexo B",
-    "drug2": "Metotrexato (oncológico)",
-    "risk_level": "high",
-    "risk_description": "Ácido fólico pode diminuir a resposta ao metotrexato.",
-    "mechanism": "Ácido fólico pode diminuir a resposta do paciente à terapia com metotrexato. A conduta clínica recomendada é monitorar a eficácia do metotrexato."
-  },
-  {
-    "id": "int_2890",
-    "drug1": "Vitaminas do Complexo B",
-    "drug2": "Varfarina",
-    "risk_level": "high",
-    "risk_description": "Vitamina K antagoniza a ação anticoagulante da varfarina.",
-    "mechanism": "Vitamina K, um componente do INFUVITE ADULT, antagoniza a ação anticoagulante da varfarina. Em pacientes que recebem varfarina e INFUVITE ADULT concomitantemente, os níveis sanguíneos de protrombina/INR devem ser monitorados para determinar se a dose de varfarina precisa ser ajustada."
-  },
-  {
-    "id": "int_2891",
-    "drug1": "Vitaminas do Complexo B",
-    "drug2": "Hidralazina",
-    "risk_level": "moderate",
-    "risk_description": "Hidralazina pode aumentar as necessidades de piridoxina.",
-    "mechanism": "A administração concomitante de hidralazina pode aumentar as necessidades de piridoxina. A conduta clínica recomendada é monitorar os níveis de piridoxina e ajustar a suplementação conforme necessário."
-  },
-  {
-    "id": "int_2892",
-    "drug1": "Vitaminas do Complexo B",
-    "drug2": "Isoniazida",
-    "risk_level": "moderate",
-    "risk_description": "Isoniazida pode aumentar as necessidades de piridoxina.",
-    "mechanism": "A administração concomitante de isoniazida pode aumentar as necessidades de piridoxina. A conduta clínica recomendada é monitorar os níveis de piridoxina e ajustar a suplementação conforme necessário."
-  },
-  {
-    "id": "int_2893",
-    "drug1": "Vitaminas do Complexo B",
-    "drug2": "Cloranfenicol",
-    "risk_level": "moderate",
-    "risk_description": "Cloranfenicol pode inibir a resposta hematológica à vitamina B12 em pacientes com anemia perniciosa.",
-    "mechanism": "Em pacientes com anemia perniciosa, a resposta hematológica à terapia com vitamina B12 pode ser inibida pelo cloranfenicol. A conduta clínica recomendada é monitorar a resposta hematológica."
-  },
-  {
-    "id": "int_2894",
-    "drug1": "Vonoprazana",
-    "drug2": "Alopurinol",
-    "risk_level": "moderate",
-    "risk_description": "Aumento na incidência de erupções cutâneas relatado quando usado com amoxicilina.",
-    "mechanism": "Mecanismo não totalmente conhecido, podendo ser devido ao alopurinol ou à hiperuricemia. Conduta: descontinuar o alopurinol ao primeiro aparecimento de erupção cutânea."
-  },
-  {
-    "id": "int_2895",
-    "drug1": "Vonoprazana",
-    "drug2": "Omeprazol",
-    "risk_level": "high",
-    "risk_description": "Aumento das concentrações de claritromicina no tecido gástrico e muco.",
-    "mechanism": "Administração concomitante de omeprazol aumenta as concentrações de claritromicina. Conduta: evitar o uso concomitante."
-  },
-  {
-    "id": "int_2896",
-    "drug1": "Vonoprazana",
-    "drug2": "Itraconazol",
-    "risk_level": "moderate",
-    "risk_description": "Pode levar a aumentos na exposição de claritromicina, aumentando o risco de reações adversas.",
-    "mechanism": "Claritromicina e itraconazol são substratos e inibidores do CYP3A, podendo causar interação bidirecional. Conduta: monitorar de perto sinais ou sintomas de reações adversas aumentadas ou prolongadas associadas a itraconazol e claritromicina."
-  },
-  {
-    "id": "int_2897",
-    "drug1": "Vonoprazana",
-    "drug2": "Saquinavir",
-    "risk_level": "moderate",
-    "risk_description": "Potencial para interações bidirecionais alterando a exposição de claritromicina e/ou substratos do CYP3A.",
-    "mechanism": "Claritromicina é substrato e inibidor do CYP3A4. Saquinavir é substrato e inibidor do CYP3A. Conduta: usar com cautela e consultar a bula do saquinavir para instruções quando coadministrado com claritromicina."
-  },
-  {
-    "id": "int_2898",
-    "drug1": "Vonoprazana",
-    "drug2": "Ritonavir",
-    "risk_level": "high",
-    "risk_description": "Uso não recomendado em pacientes com função renal diminuída devido a potenciais interações.",
-    "mechanism": "Ritonavir é inibidor do CYP3A. Conduta: não é recomendado o uso com VOQUEZNA TRIPLE PAK em pacientes com função renal diminuída."
-  },
-  {
-    "id": "int_2899",
-    "drug1": "Vonoprazana",
-    "drug2": "Etravirina",
-    "risk_level": "high",
-    "risk_description": "Pode reduzir a eficácia do tratamento ao diminuir a exposição de vonoprazana e claritromicina.",
-    "mechanism": "Etravirina é indutor do CYP3A. Conduta: evitar o uso concomitante."
-  },
-  {
-    "id": "int_2900",
-    "drug1": "Vonoprazana",
-    "drug2": "Atazanavir",
-    "risk_level": "high",
-    "risk_description": "Pode alterar a absorção de atazanavir, afetando sua segurança e eficácia.",
-    "mechanism": "Vonoprazana reduz a acidez intragástrica, alterando a absorção de antirretrovirais dependentes do pH. Conduta: evitar o uso concomitante."
-  },
-  {
-    "id": "int_2901",
-    "drug1": "Vonoprazana",
-    "drug2": "Nelfinavir",
-    "risk_level": "moderate",
-    "risk_description": "Pode alterar a absorção de nelfinavir, afetando sua segurança e eficácia.",
-    "mechanism": "Vonoprazana reduz a acidez intragástrica, alterando a absorção de antirretrovirais dependentes do pH. Conduta: consultar a bula de outros antirretrovirais dependentes do pH gástrico para absorção antes do uso concomitante."
-  },
-  {
-    "id": "int_2902",
-    "drug1": "Vonoprazana",
-    "drug2": "Cetoconazol",
-    "risk_level": "moderate",
-    "risk_description": "Pode diminuir a absorção desses fármacos, reduzindo sua eficácia.",
-    "mechanism": "Vonoprazana reduz a acidez intragástrica, diminuindo a absorção de fármacos dependentes do pH. Conduta: consultar a bula de outros fármacos dependentes do pH gástrico para absorção."
-  },
-  {
-    "id": "int_2903",
-    "drug1": "Vonoprazana",
-    "drug2": "Dasatinibe",
-    "risk_level": "moderate",
-    "risk_description": "Pode diminuir a absorção desses fármacos, reduzindo sua eficácia.",
-    "mechanism": "Vonoprazana reduz a acidez intragástrica, diminuindo a absorção de fármacos dependentes do pH. Conduta: consultar a bula de outros fármacos dependentes do pH gástrico para absorção."
-  },
-  {
-    "id": "int_2904",
-    "drug1": "Vonoprazana",
-    "drug2": "Erlotinibe",
-    "risk_level": "moderate",
-    "risk_description": "Pode diminuir a absorção desses fármacos, reduzindo sua eficácia.",
-    "mechanism": "Vonoprazana reduz a acidez intragástrica, diminuindo a absorção de fármacos dependentes do pH. Conduta: consultar a bula de outros fármacos dependentes do pH gástrico para absorção."
-  },
-  {
-    "id": "int_2905",
-    "drug1": "Vonoprazana",
-    "drug2": "Micofenolato de Mofetila",
-    "risk_level": "moderate",
-    "risk_description": "Pode diminuir a absorção desses fármacos, reduzindo sua eficácia.",
-    "mechanism": "Vonoprazana reduz a acidez intragástrica, diminuindo a absorção de fármacos dependentes do pH. Conduta: consultar a bula de outros fármacos dependentes do pH gástrico para absorção."
-  },
-  {
-    "id": "int_2906",
-    "drug1": "Vonoprazana",
-    "drug2": "Nilotinibe",
-    "risk_level": "moderate",
-    "risk_description": "Pode diminuir a absorção desses fármacos, reduzindo sua eficácia.",
-    "mechanism": "Vonoprazana reduz a acidez intragástrica, diminuindo a absorção de fármacos dependentes do pH. Conduta: consultar a bula de outros fármacos dependentes do pH gástrico para absorção."
-  },
-  {
-    "id": "int_2907",
-    "drug1": "Vonoprazana",
-    "drug2": "Tacrolimo",
-    "risk_level": "high",
-    "risk_description": "Pode aumentar a exposição a tacrolimo, elevando o risco de reações adversas.",
-    "mechanism": "Claritromicina é um forte inibidor do CYP3A e vonoprazana é um inibidor fraco do CYP3A, podendo aumentar a exposição de substratos do CYP3A4. Conduta: monitorar frequentemente as concentrações e/ou reações adversas relacionadas ao tacrolimo; pode ser necessária redução da dose."
-  },
-  {
-    "id": "int_2908",
-    "drug1": "Vonoprazana",
-    "drug2": "Ciclosporina",
-    "risk_level": "high",
-    "risk_description": "Pode aumentar a exposição a ciclosporina, elevando o risco de reações adversas.",
-    "mechanism": "Claritromicina é um forte inibidor do CYP3A e vonoprazana é um inibidor fraco do CYP3A, podendo aumentar a exposição de substratos do CYP3A4. Conduta: monitorar frequentemente as concentrações e/ou reações adversas relacionadas à ciclosporina; pode ser necessária redução da dose."
-  },
-  {
-    "id": "int_2909",
-    "drug1": "Vonoprazana",
-    "drug2": "Clopidogrel",
-    "risk_level": "high",
-    "risk_description": "Pode reduzir as concentrações plasmáticas do metabólito ativo de clopidogrel e causar redução na inibição plaquetária.",
-    "mechanism": "Vonoprazana é um inibidor do CYP2C19. Conduta: monitorar cuidadosamente a eficácia de clopidogrel e considerar terapia antiplaquetária alternativa."
-  },
-  {
-    "id": "int_2910",
-    "drug1": "Vonoprazana",
-    "drug2": "Citalopram",
-    "risk_level": "moderate",
-    "risk_description": "Pode aumentar a exposição a citalopram, elevando o risco de reações adversas.",
-    "mechanism": "Vonoprazana é um inibidor do CYP2C19. Conduta: monitorar cuidadosamente os pacientes quanto a reações adversas associadas a citalopram e consultar a bula para ajustes de dose."
-  },
-  {
-    "id": "int_2911",
-    "drug1": "Vonoprazana",
-    "drug2": "Cilostazol",
-    "risk_level": "moderate",
-    "risk_description": "Pode aumentar a exposição a cilostazol, elevando o risco de reações adversas.",
-    "mechanism": "Vonoprazana é um inibidor do CYP2C19. Conduta: monitorar cuidadosamente os pacientes quanto a reações adversas associadas a cilostazol e consultar a bula para ajustes de dose."
-  },
-  {
-    "id": "int_2912",
-    "drug1": "Vonoprazana",
-    "drug2": "Amiodarona",
-    "risk_level": "high",
-    "risk_description": "Pode aumentar a exposição a amiodarona, elevando o risco de arritmias cardíacas.",
-    "mechanism": "Claritromicina é um forte inibidor do CYP3A, podendo aumentar a exposição de antiarrítmicos substratos do CYP3A. Conduta: evitar o uso concomitante; se inevitável, monitorar prolongamento do QTc."
-  },
-  {
-    "id": "int_2913",
-    "drug1": "Vonoprazana",
-    "drug2": "Sotalol",
-    "risk_level": "high",
-    "risk_description": "Pode aumentar a exposição a sotalol, elevando o risco de arritmias cardíacas.",
-    "mechanism": "Claritromicina é um forte inibidor do CYP3A, podendo aumentar a exposição de antiarrítmicos substratos do CYP3A. Conduta: evitar o uso concomitante."
-  },
-  {
-    "id": "int_2914",
-    "drug1": "Vonoprazana",
-    "drug2": "Colchicina",
-    "risk_level": "critical",
-    "risk_description": "Pode aumentar a exposição a colchicina, elevando o risco de toxicidade, sendo contraindicado em pacientes com insuficiência renal ou hepática.",
-    "mechanism": "Claritromicina é inibidor do CYP3A e da glicoproteína P (P-gp); colchicina é substrato de ambos. Conduta: contraindicado em pacientes com insuficiência renal ou hepática. Se necessário em pacientes com função normal, monitorar cuidadosamente sintomas de toxicidade e consultar a bula da colchicina para redução de dose."
-  },
-  {
     "id": "int_2915",
     "drug1": "Voriconazol",
     "drug2": "Rifampicina",
@@ -28075,22 +26026,6 @@
     "mechanism": "Inibição da aldeído oxidase e CYP3A4. A administração concomitante de zaleplon 10 mg e cimetidina 800 mg resultou em aumento de 85% no Cmax e AUC do zaleplon. A dose inicial de zaleplon deve ser de 5 mg em pacientes em uso de cimetidina."
   },
   {
-    "id": "int_2934",
-    "drug1": "Zinco",
-    "drug2": "AAS (Ácido Acetilsalicílico)",
-    "risk_level": "high",
-    "risk_description": "A combinação com anticoagulantes pode aumentar o risco de sangramento.",
-    "mechanism": "Mecanismo não descrito no texto. Conduta: monitorar sinais de sangramento."
-  },
-  {
-    "id": "int_2935",
-    "drug1": "Zinco",
-    "drug2": "Varfarina",
-    "risk_level": "high",
-    "risk_description": "A combinação com anticoagulantes pode aumentar o risco de sangramento.",
-    "mechanism": "Mecanismo não descrito no texto. Conduta: monitorar sinais de sangramento."
-  },
-  {
     "id": "int_2936",
     "drug1": "Zoledronato",
     "drug2": "Calcitonina",
@@ -28105,38 +26040,6 @@
     "risk_level": "high",
     "risk_description": "A meia-vida e a AUC do zolmitriptano e seus metabólitos ativos são aproximadamente duplicadas.",
     "mechanism": "A cimetidina aumenta a exposição ao zolmitriptano. Se usados concomitantemente, limitar a dose única máxima de zolmitriptano a 2,5 mg, não excedendo 5 mg em qualquer período de 24 horas."
-  },
-  {
-    "id": "int_2938",
-    "drug1": "Besilato de Atracúrio",
-    "drug2": "Enflurano",
-    "risk_level": "high",
-    "risk_description": "Pode aumentar o bloqueio neuromuscular do atracúrio.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar o bloqueio neuromuscular e ajustar a dose conforme necessário."
-  },
-  {
-    "id": "int_2939",
-    "drug1": "Besilato de Atracúrio",
-    "drug2": "Isoflurano",
-    "risk_level": "high",
-    "risk_description": "Pode aumentar o bloqueio neuromuscular do atracúrio.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar o bloqueio neuromuscular e ajustar a dose conforme necessário."
-  },
-  {
-    "id": "int_2940",
-    "drug1": "Besilato de Atracúrio",
-    "drug2": "Halotano",
-    "risk_level": "high",
-    "risk_description": "Pode aumentar o bloqueio neuromuscular do atracúrio.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar o bloqueio neuromuscular e ajustar a dose conforme necessário."
-  },
-  {
-    "id": "int_2941",
-    "drug1": "Besilato de Atracúrio",
-    "drug2": "Lítio",
-    "risk_level": "high",
-    "risk_description": "Pode aumentar o bloqueio neuromuscular do atracúrio.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar o bloqueio neuromuscular e ajustar a dose conforme necessário."
   },
   {
     "id": "int_2942",
@@ -28667,22 +26570,6 @@
     "mechanism": "O mecanismo não é conhecido, podendo ser devido ao alopurinol ou à hiperuricemia presente. Não há dados com ampicilina e sulbactam para injeção e alopurinol administrados concomitantemente. A conduta clínica recomendada é estar ciente do aumento do risco de erupções cutâneas."
   },
   {
-    "id": "int_3008",
-    "drug1": "Betacaroteno",
-    "drug2": "Ácido Fólico",
-    "risk_level": "high",
-    "risk_description": "Altas doses de ácido fólico podem reduzir os níveis séricos de anticonvulsivantes.",
-    "mechanism": "Mecanismo não descrito. Conduta: monitorar níveis séricos de carbamazepina, fosfenitoína, fenitoína, fenobarbital e ácido valproico."
-  },
-  {
-    "id": "int_3009",
-    "drug1": "Betacaroteno",
-    "drug2": "Metotrexato (oncológico)",
-    "risk_level": "high",
-    "risk_description": "Ácido fólico pode diminuir a resposta do paciente ao metotrexato.",
-    "mechanism": "Mecanismo não descrito. Conduta: monitorar resposta terapêutica."
-  },
-  {
     "id": "int_3010",
     "drug1": "Acetazolamida",
     "drug2": "AAS (Ácido Acetilsalicílico)",
@@ -28755,36 +26642,12 @@
     "mechanism": "Houve casos relatados em que o uso concomitante de anfotericina B e hidrocortisona foi seguido de aumento cardíaco e insuficiência cardíaca congestiva. A conduta clínica recomendada é monitorar o paciente."
   },
   {
-    "id": "int_3019",
-    "drug1": "Betametasona",
-    "drug2": "Hidrocortisona",
-    "risk_level": "high",
-    "risk_description": "Houve relatos de aumento cardíaco e insuficiência cardíaca congestiva com o uso concomitante de anfotericina B e hidrocortisona.",
-    "mechanism": "Houve casos relatados em que o uso concomitante de anfotericina B e hidrocortisona foi seguido de aumento cardíaco e insuficiência cardíaca congestiva. A conduta clínica recomendada é monitorar o paciente."
-  },
-  {
     "id": "int_3020",
     "drug1": "Betametasona",
     "drug2": "Varfarina",
     "risk_level": "high",
     "risk_description": "A coadministração de corticosteroides e varfarina geralmente resulta em inibição da resposta à varfarina.",
     "mechanism": "A coadministração de corticosteroides e varfarina geralmente resulta em inibição da resposta à varfarina, embora haja relatos conflitantes. Portanto, os índices de coagulação devem ser monitorados frequentemente para manter o efeito anticoagulante desejado."
-  },
-  {
-    "id": "int_3021",
-    "drug1": "Bicarbonato de Sódio",
-    "drug2": "Norepinefrina",
-    "risk_level": "high",
-    "risk_description": "Norepinefrina é incompatível com solução de bicarbonato de sódio.",
-    "mechanism": "Incompatibilidade química. Não administrar juntos; evitar mistura na mesma solução intravenosa."
-  },
-  {
-    "id": "int_3022",
-    "drug1": "Bicarbonato de Sódio",
-    "drug2": "Dobutamina",
-    "risk_level": "high",
-    "risk_description": "Dobutamina é incompatível com solução de bicarbonato de sódio.",
-    "mechanism": "Incompatibilidade química. Não administrar juntos; evitar mistura na mesma solução intravenosa."
   },
   {
     "id": "int_3023",
@@ -28881,14 +26744,6 @@
     "risk_level": "high",
     "risk_description": "Podem intensificar ou produzir bloqueio neuromuscular, com possível prolongamento inesperado.",
     "mechanism": "A administração parenteral/intraperitoneal de altas doses de certos antibióticos pode intensificar ou produzir bloqueio neuromuscular. Se usados com vecurônio, deve-se considerar a possibilidade de prolongamento inesperado do bloqueio neuromuscular."
-  },
-  {
-    "id": "int_3035",
-    "drug1": "Brometo de vecurônio",
-    "drug2": "Tiopental",
-    "risk_level": "high",
-    "risk_description": "Não deve ser misturado com soluções alcalinas como tiopental na mesma seringa ou linha intravenosa.",
-    "mechanism": "O vecurônio reconstituído tem pH ácido e não deve ser misturado com soluções alcalinas (ex.: soluções barbitúricas como tiopental) na mesma seringa ou administrado simultaneamente durante infusão intravenosa pela mesma agulha ou linha intravenosa."
   },
   {
     "id": "int_3036",
