@@ -163,20 +163,13 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
       'CREATE UNIQUE INDEX IF NOT EXISTS idx_medlog_notif ON medication_log(notification_id) WHERE notification_id IS NOT NULL'
     );
   } catch {}
-  // Track overdue alerts that have fired (so "não informados" only shows real alerts, not historical guesses)
+  // medication_overdue_log: tabela criada para a feature de "não informados", que nunca foi
+  // ligada — logOverdueAlert() jamais foi chamado, então a tabela sempre esteve VAZIA em
+  // qualquer instalação. A necessidade que a motivou (saber quais doses ficaram sem
+  // resposta) é atendida por reconcileMissedDoses(), que grava direto no medication_log.
+  // Drop é seguro: não há dado a perder.
   try {
-    await database.execAsync(`
-      CREATE TABLE IF NOT EXISTS medication_overdue_log (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        medication_id INTEGER NOT NULL,
-        alert_date TEXT NOT NULL,
-        alert_time TEXT NOT NULL,
-        created_at TEXT DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    await database.execAsync(
-      'CREATE UNIQUE INDEX IF NOT EXISTS idx_overdue_slot ON medication_overdue_log(medication_id, alert_date, alert_time)'
-    );
+    await database.execAsync('DROP TABLE IF EXISTS medication_overdue_log');
   } catch {}
   try {
     await database.execAsync('ALTER TABLE medication_log ADD COLUMN taken_at TEXT');
@@ -735,33 +728,6 @@ export async function updateMedicationLogEntry(
   );
 }
 
-export async function logOverdueAlert(medicationId: number, alertDate: string, alertTime: string): Promise<void> {
-  const database = await getDb();
-  await database.runAsync(
-    'INSERT OR IGNORE INTO medication_overdue_log (medication_id, alert_date, alert_time) VALUES (?, ?, ?)',
-    [medicationId, alertDate, alertTime]
-  );
-}
-
-export interface OverdueAlertEntry {
-  id: number;
-  medication_id: number;
-  alert_date: string;
-  alert_time: string;
-  created_at: string;
-}
-
-export async function getOverdueAlerts(): Promise<OverdueAlertEntry[]> {
-  const database = await getDb();
-  return database.getAllAsync<OverdueAlertEntry>(
-    'SELECT * FROM medication_overdue_log ORDER BY alert_date DESC, alert_time ASC'
-  );
-}
-
-export async function pruneOverdueAlerts(keepFromDate: string): Promise<void> {
-  const database = await getDb();
-  await database.runAsync('DELETE FROM medication_overdue_log WHERE alert_date < ?', [keepFromDate]);
-}
 
 // ---------------------------------------------------------------------------
 // "Sem resposta" no histórico.
