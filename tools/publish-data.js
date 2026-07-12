@@ -32,8 +32,7 @@ const ROOT = path.join(__dirname, '..');
 const MANIFEST = path.join(ROOT, 'src/data/manifest.json');
 
 const git = (...args) => execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' }).trim();
-const run = (cmd, ...args) =>
-  execFileSync(cmd, args, { cwd: ROOT, stdio: 'inherit', shell: process.platform === 'win32' });
+const run = (cmd, ...args) => execFileSync(cmd, args, { cwd: ROOT, stdio: 'inherit' });
 
 // 1 ─ Assina e confere. O test:signature existe para pegar o esquecimento clássico:
 //     publicar o .json sem reassinar, e o app rejeitar tudo calado.
