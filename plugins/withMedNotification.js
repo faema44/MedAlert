@@ -269,7 +269,9 @@ class NotifRefreshReceiver : BroadcastReceiver() {
     companion object {
         private const val INTERVAL_MS = 15 * 60 * 1000L
 
-        private fun pendingIntent(context: Context, flag: Int): PendingIntent =
+        // Nulável: com FLAG_NO_CREATE o Android devolve null quando não há PendingIntent
+        // (e ele não sobrevive a reboot). Declarado não-nulo, o Kotlin lançava NPE.
+        private fun pendingIntent(context: Context, flag: Int): PendingIntent? =
             PendingIntent.getBroadcast(
                 context, 9001,
                 Intent(context, NotifRefreshReceiver::class.java),
@@ -279,7 +281,7 @@ class NotifRefreshReceiver : BroadcastReceiver() {
         fun scheduleNext(context: Context) {
             val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val trigger = SystemClock.elapsedRealtime() + INTERVAL_MS
-            val pi = pendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT)
+            val pi = pendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT) ?: return
             try {
                 am.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pi)
             } catch (e: SecurityException) {
@@ -368,7 +370,12 @@ class NextMedReceiver : BroadcastReceiver() {
             cancelAlarm(context)
         }
 
-        private fun pendingIntent(context: Context, flag: Int): PendingIntent =
+        // Nulável: com FLAG_NO_CREATE o Android devolve null quando não há PendingIntent
+        // (e ele não sobrevive a reboot). Declarado não-nulo, o Kotlin lançava NPE em
+        // cancelAlarm() — o que MATAVA o BootReceiver antes de ele restaurar a ficha de
+        // emergência. Como cancelAlarm() só é chamado quando não há dose futura na agenda
+        // do dia, a falha acontecia justamente nos reboots à noite e depois da meia-noite.
+        private fun pendingIntent(context: Context, flag: Int): PendingIntent? =
             PendingIntent.getBroadcast(
                 context, 9002,
                 Intent(context, NextMedReceiver::class.java),
@@ -377,7 +384,7 @@ class NextMedReceiver : BroadcastReceiver() {
 
         private fun scheduleAt(context: Context, triggerMs: Long) {
             val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val pi = pendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT)
+            val pi = pendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT) ?: return
             try {
                 am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMs, pi)
             } catch (e: SecurityException) {
