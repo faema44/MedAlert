@@ -11,18 +11,19 @@ name: 🔄 Atualizar Banco de Medicamentos
 # terceiros sequestrada, um push indevido) permitiria assinar dados maliciosos — e a
 # assinatura perderia todo o sentido.
 #
-# Por isso o bot agora publica numa BRANCH SEPARADA. O jsDelivr serve a `main`, então nada
-# do que sair daqui chega ao aparelho de ninguém até um humano:
+# Por isso o bot publica numa BRANCH SEPARADA. Nada do que sair daqui chega ao aparelho de
+# ninguém até um humano:
 #
 #   1. revisar o diff da branch `data/auto-update`
 #   2. mesclar na main localmente
-#   3. rodar `npm run sign:data`   (assina com a chave offline)
-#   4. `npm run test:signature`    (confirma que .json e .sig batem)
-#   5. commitar os .json E os .sig juntos, e dar push
+#   3. `npm run publish:data`   (assina, confere e commita os dados + o manifesto)
+#   4. `git push origin main`
+#   5. `npm run test:ota`       (percorre o caminho do app contra o CDN de verdade)
 #
-# Se o .json for publicado sem o .sig correspondente, o app REJEITA os dados remotos e segue
-# com a base embarcada — falha segura, mas o canal de atualização para de funcionar em
-# silêncio. Por isso o passo 4 existe.
+# O passo 5 não é enfeite. O app FALHA FECHADA: se a publicação sair quebrada, ele rejeita os
+# dados remotos e segue com a base embarcada — em silêncio. Sem esse teste, o canal de
+# atualização cai e ninguém fica sabendo. Já aconteceu duas vezes (cache de branch do jsDelivr
+# e CRLF do core.autocrlf).
 
 on:
   schedule:
@@ -71,4 +72,4 @@ jobs:
           git commit -m "$(printf 'chore(data): atualização automática do banco de medicamentos [skip ci]\n\nMedicamentos adicionados/atualizados: %s linhas\nFonte: ANVISA Dados Abertos\n\nNÃO vai para a main automaticamente: os dados precisam ser ASSINADOS com a\nchave offline antes de chegarem aos aparelhos. Ver o cabeçalho do workflow.' "${ADDED:-?}")"
           git push --force origin HEAD:data/auto-update
           echo "✅ Publicado em data/auto-update — aguardando revisão + assinatura manual."
-          echo "   Para liberar:  git merge data/auto-update && npm run sign:data && npm run test:signature"
+          echo "   Para liberar:  git merge data/auto-update && npm run publish:data && git push && npm run test:ota"
