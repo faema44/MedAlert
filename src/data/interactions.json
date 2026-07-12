@@ -1315,7 +1315,7 @@
     "id": "int_116",
     "drug1": "Arnica montana",
     "drug2": "Varfarina",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Hemorragia grave",
     "mechanism": "Hemorragia grave. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
@@ -8013,7 +8013,7 @@
     "drug2": "Citalopram",
     "risk_level": "high",
     "risk_description": "Sedação excessiva e risco de hepatotoxicidade",
-    "mechanism": "A kava-kava é sedativa (ação GABAérgica) e hepatotóxica, não serotoninérgica. Associada a antidepressivos aumenta a depressão do SNC e o risco de lesão hepática. Evitar.",
+    "mechanism": "A kava-kava é sedativa (ação GABAérgica) e hepatotóxica — não é serotoninérgica. A associação com citalopram soma depressão do SNC e risco de lesão hepática. A kava também inibe enzimas do citocromo P450 (CYP2D6/2C19/3A4) e pode elevar a concentração do antidepressivo, potencializando seus efeitos adversos. Evitar.",
     "drug1_rxcuis": [
       "285228"
     ],
@@ -8027,7 +8027,7 @@
     "drug2": "Fluoxetina",
     "risk_level": "high",
     "risk_description": "Sedação excessiva e risco de hepatotoxicidade",
-    "mechanism": "A kava-kava é sedativa (ação GABAérgica) e hepatotóxica, não serotoninérgica. Associada a antidepressivos aumenta a depressão do SNC e o risco de lesão hepática. Evitar.",
+    "mechanism": "A kava-kava é sedativa (ação GABAérgica) e hepatotóxica — não é serotoninérgica. A associação com fluoxetina soma depressão do SNC e risco de lesão hepática. A kava também inibe enzimas do citocromo P450 (CYP2D6/2C19/3A4) e pode elevar a concentração do antidepressivo, potencializando seus efeitos adversos. Evitar.",
     "drug1_rxcuis": [
       "285228"
     ],
@@ -8041,7 +8041,7 @@
     "drug2": "Paroxetina",
     "risk_level": "high",
     "risk_description": "Sedação excessiva e risco de hepatotoxicidade",
-    "mechanism": "A kava-kava é sedativa (ação GABAérgica) e hepatotóxica, não serotoninérgica. Associada a antidepressivos aumenta a depressão do SNC e o risco de lesão hepática. Evitar.",
+    "mechanism": "A kava-kava é sedativa (ação GABAérgica) e hepatotóxica — não é serotoninérgica. A associação com paroxetina soma depressão do SNC e risco de lesão hepática. A kava também inibe enzimas do citocromo P450 (CYP2D6/2C19/3A4) e pode elevar a concentração do antidepressivo, potencializando seus efeitos adversos. Evitar.",
     "drug1_rxcuis": [
       "285228"
     ],
@@ -8055,7 +8055,7 @@
     "drug2": "Sertralina",
     "risk_level": "high",
     "risk_description": "Sedação excessiva e risco de hepatotoxicidade",
-    "mechanism": "A kava-kava é sedativa (ação GABAérgica) e hepatotóxica, não serotoninérgica. Associada a antidepressivos aumenta a depressão do SNC e o risco de lesão hepática. Evitar.",
+    "mechanism": "A kava-kava é sedativa (ação GABAérgica) e hepatotóxica — não é serotoninérgica. A associação com sertralina soma depressão do SNC e risco de lesão hepática. A kava também inibe enzimas do citocromo P450 (CYP2D6/2C19/3A4) e pode elevar a concentração do antidepressivo, potencializando seus efeitos adversos. Evitar.",
     "drug1_rxcuis": [
       "285228"
     ],
@@ -27080,5 +27080,37 @@
     "risk_level": "moderate",
     "risk_description": "Houve relatos raros de aumento do tempo de protrombina com ou sem sangramento clínico em pacientes recebendo cefaclor e varfarina concomitantemente.",
     "mechanism": "O mecanismo não é totalmente conhecido, mas há relatos raros de aumento do tempo de protrombina. Recomenda-se monitorar o tempo de protrombina em pacientes que usam varfarina concomitantemente com cefaclor."
+  },
+  {
+    "id": "int_3078",
+    "drug1": "Espironolactona",
+    "drug2": "Digoxina",
+    "risk_level": "high",
+    "risk_description": "Aumento dos níveis de digoxina — risco de toxicidade digitálica",
+    "mechanism": "A espironolactona reduz a secreção tubular renal da digoxina e inibe a glicoproteína-P, elevando as concentrações séricas de digoxina e o risco de toxicidade (náusea, visão amarelada, bradiarritmias). Atenção: a espironolactona também interfere em alguns ensaios de dosagem da digoxina, o que pode mascarar o nível real. Monitorar digoxinemia, potássio e ECG."
+  },
+  {
+    "id": "int_3079",
+    "drug1": "Carbamazepina",
+    "drug2": "Clorpromazina",
+    "risk_level": "moderate",
+    "risk_description": "Redução do efeito da clorpromazina",
+    "mechanism": "A carbamazepina induz enzimas hepáticas (CYP3A4/CYP1A2) e acelera o metabolismo da clorpromazina, reduzindo sua concentração plasmática e a eficácia antipsicótica. Monitorar controle dos sintomas; pode ser necessário ajuste de dose."
+  },
+  {
+    "id": "int_3080",
+    "drug1": "Carbamazepina",
+    "drug2": "Tioridazina",
+    "risk_level": "high",
+    "risk_description": "Redução do efeito da tioridazina e risco somado de arritmia",
+    "mechanism": "A carbamazepina induz o CYP3A4 e reduz as concentrações plasmáticas da tioridazina, comprometendo a eficácia antipsicótica. A tioridazina tem risco conhecido de torsades de pointes, o que exige cautela adicional. Monitorar sintomas e ECG."
+  },
+  {
+    "id": "int_3081",
+    "drug1": "Darunavir",
+    "drug2": "Atazanavir",
+    "risk_level": "high",
+    "risk_description": "Associação de dois inibidores de protease não recomendada",
+    "mechanism": "A coadministração de darunavir com atazanavir não é recomendada: as interações farmacocinéticas entre os dois inibidores de protease não estão estabelecidas, com risco de exposição inadequada, perda de resposta virológica e toxicidade sobreposta (hiperbilirrubinemia). Evitar a associação."
   }
 ]
