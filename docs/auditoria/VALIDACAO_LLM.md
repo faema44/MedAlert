@@ -183,3 +183,148 @@ Casos como *gabapentina + oxicodona* (a bula do FDA diz literalmente "às vezes 
 **`interactions.json`: 2.806 entradas** — 388 critical / 1.624 high / 794 moderate.
 
 O tier `critical` caiu de 408 para 388, e os 20 removidos dele eram, sem exceção, perda de eficácia ou ajuste de dose — alertas que fariam o paciente parar um remédio de que precisa.
+
+---
+
+# Rodada 3 — as 1.624 entradas `high`
+
+Régua definida pelo usuário e codificada no prompt: **`critical` = risco de morte**; **`high` = exige muita
+atenção, bem acima de moderado, mas não tipicamente fatal**.
+
+Calibração deste lote: **8/8 nos dois modelos** — incluindo controles *anti-inflação* (levotiroxina+ferro e
+cipro+antiácido, que existem mas **não** são critical; ambos os modelos disseram `moderate`). Quando esses
+modelos dizem "critical", significa alguma coisa.
+
+## O achado: a base era internamente inconsistente
+
+Os modelos marcaram **143 entradas `high` como `critical`**. À primeira vista parecia inflação — mas os
+casos se agrupavam em classes farmacológicas coerentes demais. A verificação revelou o problema real:
+**pares com mecanismo idêntico estavam em severidades diferentes**, resíduo de os dados terem vindo de
+lotes distintos sem normalização.
+
+| Classe | Antes | O absurdo |
+|---|---|---|
+| **Pimozida** + qualquer coisa | 34 `critical`, 5 `high` | mesma droga, mesmo mecanismo de QT |
+| **Estatina + inibidor CYP3A4** | 10 `critical`, 9 `high`, 1 `moderate` | classe #25 da ONCHigh |
+| **Opioide + benzodiazepínico** | 8 `critical`, 2 `high` | os 2 `high` eram **Fentanila+Midazolam** e **Metadona+Midazolam** — os mais letais do conjunto, enquanto Fentanila+Alprazolam estava `critical` |
+
+Ou seja: os modelos não queriam inflar. Detectaram que a base **sorteava** severidade dentro da mesma classe.
+
+## Como corrigi (não foi "confiar no LLM")
+
+Subi para `critical` apenas onde havia **duas evidências independentes**:
+1. os dois modelos disseram `critical` + risco de morte + confiança alta; **e**
+2. a **própria base** já tratava a maioria daquela classe como `critical` (precedente interno).
+
+Para o QT, troquei minha lista ad-hoc de fármacos pela lista **Known Risk of Torsades de Pointes** da
+**CredibleMeds** (evidência publicada) — foi ela que trouxe *Azitromicina + Pimozida*, que meu palpite perdia.
+
+Para as **estatinas** a regra de maioria não servia (10×10), e a resposta estava na bula, não na votação:
+sinvastatina e lovastatina são **contraindicadas** com inibidores fortes de CYP3A4; atorvastatina é apenas
+**dose-limitada**. Normalizei por estatina — e isso *rebaixou* Atorvastatina+Itraconazol de `critical` para `high`.
+
+> **Bug meu, pego no meio do caminho:** meu primeiro predicado colocava `pimozida` e `tioridazina` na
+> própria lista de drogas de QT, então elas casavam **consigo mesmas** e a classe virava "qualquer par com
+> pimozida". Isso arrastou *Carbamazepina + Tioridazina* para `critical` — contradizendo o mecanismo que eu
+> mesmo havia escrito (carbamazepina é **indutor**: a interação é perda de eficácia). Revertido e refeito
+> com exclusão do fármaco-âncora e blindagem contra indutores.
+
+## Subalertas corrigidos — o erro que mata
+
+**16 entradas subiram para `critical`.** As mais graves:
+
+| Par | Estava | Por quê |
+|---|---|---|
+| **Tranilcipromina + Tramadol** | `moderate` (!) | IMAO + opioide serotoninérgico. Classe #16 da ONCHigh. **Potencialmente fatal.** O mecanismo dizia apenas *"não especificado no texto, usar com cautela"*. |
+| **Tranilcipromina + Metadona** | `moderate` (!) | idem |
+| **Fentanila + Midazolam** | `high` | depressão respiratória — combinação classicamente letal |
+| **Metadona + Midazolam** | `high` | idem |
+| **Fluoxetina / Sertralina / Venlafaxina / Mirtazapina + Linezolida** | `high` | síndrome serotoninérgica |
+| **Azitromicina / Fluconazol / Sulpirida + Pimozida** | `high` | torsades |
+| **Sinvastatina / Lovastatina + inibidor CYP3A4** (5) | `high`/`moderate` | rabdomiólise; contraindicadas em bula |
+
+## Alarmes falsos removidos
+
+**5 removidas — erro de VIA DE ADMINISTRAÇÃO** (o mesmo bug de contaminação de antes, em outra roupagem):
+
+- `Ciprofloxacino Ocular + Varfarina` e `Moxifloxacino Ocular + Varfarina` — o texto da bula diz
+  *"a administração **SISTÊMICA** de algumas quinolonas..."*. **Colírio não anticoagula.**
+- `Nepafenaco` (AINE oftálmico) `+ Metotrexato` — absorção sistêmica desprezível.
+- `Cloreto de Sódio + Digoxina` — soro fisiológico não causa toxicidade digitálica.
+- `AAS + Clordiazepóxido` "aumento da depressão do SNC" — AAS não deprime o SNC.
+
+**30 rebaixadas de `high` para `moderate`:**
+
+- **16 de metemoglobinemia** — benzocaína/tetracaína/lidocaína **tópicas** + paracetamol, fenitoína,
+  metoclopramida… É cautela de *classe* na bula, mas o par individual é fraco e a absorção sistêmica é
+  pequena. Em `high`, isso alarmava combinações banais. Mantidas com o mecanismo reescrito (quando o risco
+  é real: dose alta, mucosa extensa, lactente, deficiência de G6PD).
+- **13 de evidência fraca/teórica** — substrato de transportador (OATP1B1, OAT3, BCRP), fitoterápico com
+  hepatotoxicidade teórica, lixisenatida.
+- **Hidroclorotiazida + Amilorida** — é **associação intencional** (existe em produto combinado: a tiazida
+  elimina potássio, o amilorida o poupa). Reescrita como cautela em disfunção renal, não como alerta.
+
+## ⚠️ Pendências para revisão humana
+
+**125 candidatos a `critical` NÃO alterados.** Os dois modelos disseram critical + risco de morte, mas
+**a base não tem precedente de classe** para eles — e subir o alerta máximo só com voto de LLM é
+exatamente o que não se deve automatizar.
+
+| ID | Par | Descrição atual |
+|---|---|---|
+| `int_025` | Estatinas (Sinvastatina, Atorvastatina, Rosuvastatina) + Fibratos (Gemfibrozila, Fenofibrato) | Risco elevado de miopatia e rabdomiólise |
+| `int_038` | Amiodarona + Azitromicina / Claritromicina (Macrolídeos) | Prolongamento do intervalo QT — risco de arritmias card |
+| `int_071` | Hidroclorotiazida + Amiodarona | Hipopotassemia induzida pelo diurético aumenta toxicida |
+| `int_212` | Almotriptano + Ergotamina | Crise hipertensiva grave |
+| `int_222` | Amiodarona + Lovastatina | Risco de rabdomiólise |
+| `int_223` | Amiodarona + Flecainida | Aumento do risco de arritmias |
+| `int_239` | Aprepitanto + Pimozida | Aumento do risco de arritmias graves |
+| `int_253` | Atorvastatina + Ciclosporina | Risco de rabdomiólise |
+| `int_259` | Avanafila + Ritonavir | Aumento do risco de toxicidade |
+| `int_260` | Azatioprina + Febuxostate | Aumento do risco de toxicidade hematológica |
+| `int_332` | Clozapina + Eritromicina | Aumento do risco de arritmias graves |
+| `int_351` | Dabigatrana + Posaconazol | Hemorragia grave |
+| `int_366` | Dihidroergotamina + Ergotamina | Crise hipertensiva grave |
+| `int_367` | Dihidroergotamina + Sibutramina | Crise hipertensiva grave |
+| `int_369` | Dinitrato de Isossorbida + Tadalafila | Hipotensão grave |
+| `int_370` | Dinitrato de Isossorbida + Vardenafila | Hipotensão grave |
+| `int_394` | Eletriptano + Ergotamina | Crise hipertensiva grave |
+| `int_409` | Espironolactona (acne) + Amilorida | Hiperpotassemia grave |
+| `int_450` | Gabapentina + Morfina | Risco de depressão respiratória |
+| `int_461` | Granisetrona + Pimozida | Aumento do risco de arritmias graves |
+| `int_505` | Levomepromazina + Haloperidol | Aumento do risco de arritmias graves |
+| `int_521` | Lovastatina + Ciclosporina | Risco de rabdomiólise |
+| `int_536` | Metadona + Citalopram | Síndrome serotoninérgica |
+| `int_537` | Metadona + Clorpromazina | Sedação respiratória grave |
+| `int_539` | Metadona + Fluoxetina | Síndrome serotoninérgica |
+| `int_540` | Metadona + Haloperidol | Sedação respiratória grave |
+| `int_544` | Metadona + Sertralina | Síndrome serotoninérgica |
+| `int_560` | Mirtazapina + Tramadol | Síndrome serotoninérgica |
+| `int_591` | Nortriptilina + Tramadol | Síndrome serotoninérgica grave |
+| `int_648` | Quetiapina + Clorpromazina | Aumento do risco de arritmias cardíacas |
+| `int_659` | Rifampicina + Ritonavir | Redução da eficácia do Ritonavir |
+| `int_666` | Rivaroxabana + Voriconazol | Hemorragia grave |
+| `int_667` | Rivaroxabana + Ritonavir | Hemorragia grave |
+| `int_780` | Verapamil + Colchicina | Insuficiência renal aguda |
+| `int_782` | Verapamil + Lovastatina | Rabdomiólise grave |
+| `int_793` | Ziprasidona + Clorpromazina | Aumento do risco de arritmias graves |
+| `int_794` | Ziprasidona + Eritromicina | Aumento do risco de arritmias graves |
+| `int_811` | Adalimumabe + Anakinra | Imunossupressão grave |
+| `int_813` | Almotriptano + Metisergida | Crise hipertensiva grave |
+| `int_837` | Atenolol + Epinefrina | crise hipertensiva |
+
+_(mostrando 40 de 125 — lista completa em `validacao_llm_high_raw.json`)_
+
+**165 entradas `high` que ambos os modelos chamam de `moderate`.** Não rebaixei: seriam 165 mudanças
+apoiadas só em consenso de LLM, e rebaixar reduz atenção sobre elas. Como o usuário definiu que `high` já
+significa "muita atenção", o custo de deixá-las ali é baixo; o de rebaixá-las por engano, não.
+
+## Saldo das três rodadas
+
+| | |
+|---|---|
+| Pares avaliados às cegas | 98 + 408 + 1.624 = **2.130** |
+| Erros encontrados e corrigidos | 4 + 20 + 51 = **75** |
+| Pendentes de revisão humana | 18 + 125 + 165 |
+
+**`interactions.json`: 2.801 entradas** — 408 critical / 1.572 high / 821 moderate.

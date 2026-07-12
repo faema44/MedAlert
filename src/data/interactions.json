@@ -134,7 +134,7 @@
     "id": "int_012",
     "drug1": "Claritromicina",
     "drug2": "Estatinas (Sinvastatina, Atorvastatina)",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "Risco de miopatia e rabdomiólise",
     "mechanism": "Claritromicina inibe o CYP3A4, elevando os níveis de estatinas até 10x. Pode causar dor muscular grave e rabdomiólise com insuficiência renal aguda.",
     "drug1_rxcuis": [
@@ -585,7 +585,7 @@
     "id": "int_053",
     "drug1": "Fluconazol",
     "drug2": "Estatinas (Sinvastatina, Atorvastatina)",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Aumento do risco de rabdomiólise",
     "mechanism": "Fluconazol inibe o CYP3A4 e CYP2C9, elevando os níveis plasmáticos das estatinas. O risco de miopatia e rabdomiólise aumenta. Observar sinais e sintomas de rabdomiólise (dores musculares, fraqueza). Monitorar CK sérica e considerar substituição da estatina.",
     "drug1_rxcuis": [
@@ -1543,7 +1543,7 @@
     "id": "int_136",
     "drug1": "Echinacea purpurea (Equinácea)",
     "drug2": "Paracetamol",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Uso prolongado de equinácea com paracetamol aumenta risco de dano hepático",
     "mechanism": "Equinácea pode ser hepatotóxica em uso prolongado (mais de 8 semanas). A combinação com paracetamol em doses habituais ou altas pode aumentar o risco de danos hepáticos, especialmente em pacientes com hepatite ou cirrose.",
     "drug2_rxcuis": [
@@ -1620,7 +1620,7 @@
     "id": "int_143",
     "drug1": "Hypericum perforatum (Erva de São João)",
     "drug2": "Tranilcipromina",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "Combinação pode causar síndrome serotoninérgica potencialmente fatal",
     "mechanism": "O hipérico potencializa o efeito de inibidores da monoamino oxidase (IMAOs) como a tranilcipromina. A síndrome serotoninérgica pode se instalar com tremores, hipertermia, agitação e, nos casos graves, risco de vida.",
     "drug2_rxcuis": [
@@ -1954,7 +1954,7 @@
     "id": "int_170",
     "drug1": "Salix alba (Salgueiro)",
     "drug2": "Paracetamol",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Combinação de salgueiro e paracetamol aumenta risco de nefrotoxicidade",
     "mechanism": "A associação de nefrotoxicidade do paracetamol quando utilizado concomitantemente com o ácido acetilsalicílico (presente no salgueiro na forma de salicilatos) é descrita na literatura. Ervas contendo salicilatos podem potencializar a toxicidade renal.",
     "drug2_rxcuis": [
@@ -3061,7 +3061,7 @@
     "id": "int_256",
     "drug1": "Atorvastatina",
     "drug2": "Itraconazol",
-    "risk_level": "critical",
+    "risk_level": "high",
     "risk_description": "Risco de rabdomiólise",
     "mechanism": "Risco de rabdomiólise. Conduta: Contraindicado.",
     "drug1_rxcuis": [
@@ -3131,7 +3131,7 @@
     "id": "int_261",
     "drug1": "Azitromicina",
     "drug2": "Pimozida",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
     "mechanism": "Aumento do risco de arritmias graves. Conduta: Contraindicado.",
     "drug1_rxcuis": [
@@ -3495,7 +3495,7 @@
     "id": "int_288",
     "drug1": "Cetoconazol",
     "drug2": "Lovastatina",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "miopatia grave",
     "mechanism": "miopatia grave. Conduta: Contraindicado.",
     "drug1_rxcuis": [
@@ -3887,7 +3887,7 @@
     "id": "int_316",
     "drug1": "Clomipramina",
     "drug2": "Rasagilina",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
     "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
     "drug1_rxcuis": [
@@ -4973,7 +4973,7 @@
     "id": "int_399",
     "drug1": "Ergotamina",
     "drug2": "Eritromicina",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "Crise hipertensiva grave",
     "mechanism": "Crise hipertensiva grave. Conduta: Contraindicado.",
     "drug1_rxcuis": [
@@ -5418,7 +5418,7 @@
     "id": "int_431",
     "drug1": "Fentanila",
     "drug2": "Midazolam",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "depressão respiratória grave",
     "mechanism": "depressão respiratória grave. Conduta: Evitar.",
     "drug1_rxcuis": [
@@ -5502,7 +5502,7 @@
     "id": "int_437",
     "drug1": "Fluconazol",
     "drug2": "Pimozida",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmia fatal (torsades de pointes)",
     "mechanism": "Aumento do risco de arritmia fatal (torsades de pointes). Conduta: Contraindicado.",
     "drug1_rxcuis": [
@@ -5572,7 +5572,7 @@
     "id": "int_442",
     "drug1": "Fluoxetina",
     "drug2": "Linezolida",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
     "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
     "drug1_rxcuis": [
@@ -6529,7 +6529,7 @@
     "id": "int_512",
     "drug1": "Linezolida",
     "drug2": "Bupropiona",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "convulsão",
     "mechanism": "convulsão. Conduta: Evitar.",
     "drug1_rxcuis": [
@@ -6655,7 +6655,7 @@
     "id": "int_522",
     "drug1": "Lovastatina",
     "drug2": "Eritromicina",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "Risco de rabdomiólise",
     "mechanism": "Risco de rabdomiólise. Conduta: Contraindicado.",
     "drug1_rxcuis": [
@@ -6711,7 +6711,7 @@
     "id": "int_526",
     "drug1": "Lovastatina",
     "drug2": "Voriconazol",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "Risco de rabdomiólise",
     "mechanism": "Risco de rabdomiólise. Conduta: Contraindicado.",
     "drug1_rxcuis": [
@@ -6935,7 +6935,7 @@
     "id": "int_542",
     "drug1": "Metadona",
     "drug2": "Midazolam",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "Sedação respiratória grave",
     "mechanism": "Sedação respiratória grave. Conduta: Evitar.",
     "drug1_rxcuis": [
@@ -7157,7 +7157,7 @@
     "id": "int_559",
     "drug1": "Mirtazapina",
     "drug2": "Linezolida",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
     "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
     "drug1_rxcuis": [
@@ -7367,7 +7367,7 @@
     "id": "int_576",
     "drug1": "Naratriptano",
     "drug2": "Rasagilina",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
     "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
     "drug1_rxcuis": [
@@ -7389,20 +7389,6 @@
     ],
     "drug2_rxcuis": [
       "6448"
-    ]
-  },
-  {
-    "id": "int_578",
-    "drug1": "Nepafenaco",
-    "drug2": "Metotrexato",
-    "risk_level": "high",
-    "risk_description": "Toxicidade por metotrexato",
-    "mechanism": "Toxicidade por metotrexato. Conduta: Evitar.",
-    "drug1_rxcuis": [
-      "298665"
-    ],
-    "drug2_rxcuis": [
-      "6851"
     ]
   },
   {
@@ -8856,7 +8842,7 @@
     "id": "int_684",
     "drug1": "Sertralina",
     "drug2": "Linezolida",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
     "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
     "drug1_rxcuis": [
@@ -9172,7 +9158,7 @@
     "id": "int_707",
     "drug1": "Sulpirida",
     "drug2": "Pimozida",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias cardíacas",
     "mechanism": "Aumento do risco de arritmias cardíacas. Conduta: Contraindicado.",
     "drug1_rxcuis": [
@@ -10087,7 +10073,7 @@
     "id": "int_777",
     "drug1": "Venlafaxina",
     "drug2": "Linezolida",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
     "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
     "drug1_rxcuis": [
@@ -14733,7 +14719,7 @@
     "id": "int_1303",
     "drug1": "Fosamprenavir",
     "drug2": "Raltegravir",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Redução de ambas as concentrações; doses apropriadas não estabelecidas.",
     "mechanism": "Redução das concentrações de amprenavir e raltegravir. (Fonte: bula FDA)"
   },
@@ -14744,14 +14730,6 @@
     "risk_level": "high",
     "risk_description": "Redução do dolutegravir; recomenda-se 50 mg duas vezes ao dia com fosamprenavir/ritonavir.",
     "mechanism": "Redução das concentrações de dolutegravir. (Fonte: bula FDA)"
-  },
-  {
-    "id": "int_1305",
-    "drug1": "AAS (Ácido Acetilsalicílico)",
-    "drug2": "Clordiazepóxido",
-    "risk_level": "high",
-    "risk_description": "Aumento da depressão do SNC.",
-    "mechanism": "Mecanismo: efeito aditivo de depressão do SNC. Conduta: evitar o uso concomitante ou monitorar rigorosamente o paciente quanto a sedação excessiva e depressão respiratória. (Fonte: bula FDA)"
   },
   {
     "id": "int_1306",
@@ -15261,7 +15239,7 @@
     "id": "int_1371",
     "drug1": "Cefixima",
     "drug2": "Carbamazepina",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento dos níveis de carbamazepina, com risco de toxicidade.",
     "mechanism": "Mecanismo não especificado no texto. Recomenda-se monitoramento dos níveis plasmáticos de carbamazepina."
   },
@@ -15626,14 +15604,6 @@
     "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar níveis de teofilina se houver exposição sistêmica significativa."
   },
   {
-    "id": "int_1427",
-    "drug1": "Ciprofloxacino Ocular",
-    "drug2": "Varfarina",
-    "risk_level": "high",
-    "risk_description": "A administração sistêmica de algumas quinolonas pode potencializar os efeitos do anticoagulante oral varfarina e seus derivados.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar tempo de protrombina/INR se houver exposição sistêmica significativa."
-  },
-  {
     "id": "int_1428",
     "drug1": "Ciprofloxacino Ocular",
     "drug2": "Ciclosporina",
@@ -15824,14 +15794,6 @@
     "risk_level": "high",
     "risk_description": "Pode diminuir as concentrações séricas de lítio devido ao aumento da depuração renal.",
     "mechanism": "Mecanismo: Aumento da depuração renal de sódio e lítio. Conduta: Evitar uso concomitante. Se inevitável, aumentar a frequência da monitorização das concentrações séricas de lítio."
-  },
-  {
-    "id": "int_1452",
-    "drug1": "Cloreto de Sódio",
-    "drug2": "Digoxina",
-    "risk_level": "high",
-    "risk_description": "Aumenta os efeitos da digoxina e pode levar à toxicidade, incluindo arritmias cardíacas graves ou fatais.",
-    "mechanism": "Mecanismo: Administração de cálcio (presente na solução) pode aumentar os efeitos da digoxina. Conduta: Considerar reduzir o volume e/ou a taxa de administração da solução em pacientes tratados com digoxina."
   },
   {
     "id": "int_1453",
@@ -16309,7 +16271,7 @@
     "id": "int_1525",
     "drug1": "Desmopressina",
     "drug2": "Lamotrigina",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento do risco de intoxicação hídrica com hiponatremia.",
     "mechanism": "Medicamentos que aumentam o risco de intoxicação hídrica com hiponatremia devem ser administrados com cautela."
   },
@@ -17029,7 +16991,7 @@
     "id": "int_1619",
     "drug1": "Dronabinol",
     "drug2": "Anfotericina B",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Dronabinol pode deslocar e aumentar a fração livre de outras drogas altamente ligadas a proteínas, elevando o risco de reações adversas.",
     "mechanism": "Deslocamento de drogas altamente ligadas a proteínas plasmáticas. Conduta: monitorar pacientes para aumento de reações adversas a drogas de índice terapêutico estreito (ex.: varfarina, ciclosporina, anfotericina B) ao iniciar ou aumentar a dose de SYNDROS."
   },
@@ -17389,7 +17351,7 @@
     "id": "int_1671",
     "drug1": "Eltrombopague",
     "drug2": "Ezetimiba",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento da exposição a substratos de OATP1B1, com risco de toxicidade.",
     "mechanism": "Mecanismo: inibição do transportador OATP1B1. Conduta: monitorar sinais e sintomas de exposição excessiva e considerar redução da dose desses fármacos, se apropriado. Em ensaios clínicos, foi recomendada redução de 50% da dose de rosuvastatina."
   },
@@ -18797,7 +18759,7 @@
     "id": "int_1873",
     "drug1": "Amicacina",
     "drug2": "Ureia",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Diuréticos podem aumentar a toxicidade dos aminoglicosídeos.",
     "mechanism": "Mecanismo: alteração das concentrações de aminoglicosídeos no soro e tecidos. Conduta: evitar uso concomitante."
   },
@@ -19509,9 +19471,9 @@
     "id": "int_1967",
     "drug1": "Hidroclorotiazida",
     "drug2": "Amilorida",
-    "risk_level": "high",
-    "risk_description": "Uso concomitante pode levar a aumentos significativos do potássio sérico.",
-    "mechanism": "Mecanismo: lisinopril atenua a perda de potássio causada por diuréticos tiazídicos, e o uso com agentes poupadores de potássio ou suplementos pode aumentar o potássio. Conduta: usar com cautela e monitorar frequentemente o potássio sérico, apenas se indicado por hipocalemia demonstrada."
+    "risk_level": "moderate",
+    "risk_description": "Associação intencional — monitorar potássio se houver disfunção renal",
+    "mechanism": "Hidroclorotiazida e amilorida são co-prescritas de propósito (existem inclusive em produto combinado): a tiazida elimina potássio e o amilorida o poupa, de modo que uma compensa a outra. Não é uma interação a ser evitada. Ainda assim, em insuficiência renal ou uso de outros medicamentos que retêm potássio, pode haver hipercalemia — monitorar o potássio."
   },
   {
     "id": "int_1968",
@@ -20869,7 +20831,7 @@
     "id": "int_2144",
     "drug1": "Leflunomida",
     "drug2": "Cefaclor",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento da exposição a substratos do OAT3, podendo elevar o risco de toxicidade.",
     "mechanism": "Teriflunomida inibe a atividade do OAT3 in vivo. Monitorar pacientes e ajustar a dose do medicamento concomitante conforme necessário."
   },
@@ -21141,9 +21103,9 @@
     "id": "int_2179",
     "drug1": "Lidocaína",
     "drug2": "Hidroxiureia",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento do risco de metemoglobinemia quando administrado concomitantemente com agentes antineoplásicos.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar sinais de metemoglobinemia."
+    "mechanism": "Cautela de CLASSE: anestésicos locais podem causar metemoglobinemia, e a bula recomenda atenção ao associá-los a outros agentes oxidantes. O risco do par específico é baixo — anestésicos tópicos/oftálmicos têm absorção sistêmica pequena. Relevante sobretudo em doses altas, uso em mucosas extensas, lactentes ou deficiência de G6PD. Sinal de alerta: pele/lábios azulados com oximetria que não melhora com oxigênio."
   },
   {
     "id": "int_2180",
@@ -21165,9 +21127,9 @@
     "id": "int_2182",
     "drug1": "Lidocaína",
     "drug2": "Nitrofurantoína",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento do risco de metemoglobinemia quando administrado concomitantemente com antibióticos.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar sinais de metemoglobinemia."
+    "mechanism": "Cautela de CLASSE: anestésicos locais podem causar metemoglobinemia, e a bula recomenda atenção ao associá-los a outros agentes oxidantes. O risco do par específico é baixo — anestésicos tópicos/oftálmicos têm absorção sistêmica pequena. Relevante sobretudo em doses altas, uso em mucosas extensas, lactentes ou deficiência de G6PD. Sinal de alerta: pele/lábios azulados com oximetria que não melhora com oxigênio."
   },
   {
     "id": "int_2183",
@@ -21213,9 +21175,9 @@
     "id": "int_2188",
     "drug1": "Lidocaína",
     "drug2": "Paracetamol",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento do risco de metemoglobinemia quando administrado concomitantemente com outros fármacos.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar sinais de metemoglobinemia."
+    "mechanism": "Cautela de CLASSE: anestésicos locais podem causar metemoglobinemia, e a bula recomenda atenção ao associá-los a outros agentes oxidantes. O risco do par específico é baixo — anestésicos tópicos/oftálmicos têm absorção sistêmica pequena. Relevante sobretudo em doses altas, uso em mucosas extensas, lactentes ou deficiência de G6PD. Sinal de alerta: pele/lábios azulados com oximetria que não melhora com oxigênio."
   },
   {
     "id": "int_2189",
@@ -21333,7 +21295,7 @@
     "id": "int_2203",
     "drug1": "Lixisenatida",
     "drug2": "Pentoxifilina",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumentam o risco de hipoglicemia quando coadministrados com SOLIQUA 100/33.",
     "mechanism": "Esses medicamentos afetam o metabolismo da glicose, aumentando o risco de hipoglicemia. A conduta clínica recomendada é reduzir a dose de SOLIQUA 100/33 e aumentar a frequência da monitorização da glicose."
   },
@@ -21365,7 +21327,7 @@
     "id": "int_2207",
     "drug1": "Lixisenatida",
     "drug2": "Isoniazida",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Podem diminuir o efeito hipoglicemiante de SOLIQUA 100/33.",
     "mechanism": "Esses medicamentos afetam o metabolismo da glicose, reduzindo o efeito hipoglicemiante. A conduta clínica recomendada é aumentar a dose de SOLIQUA 100/33 e aumentar a frequência da monitorização da glicose."
   },
@@ -21405,7 +21367,7 @@
     "id": "int_2212",
     "drug1": "Lixisenatida",
     "drug2": "Paracetamol",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "O retardo no esvaziamento gástrico pode atrasar o efeito ou reduzir a eficácia desses medicamentos.",
     "mechanism": "A lixisenatida retarda o esvaziamento gástrico, afetando a absorção. A conduta clínica recomendada é administrar esses medicamentos pelo menos 1 hora antes da injeção de SOLIQUA 100/33."
   },
@@ -22087,14 +22049,6 @@
     "drug2": "Varfarina",
     "risk_level": "high",
     "risk_description": "Pode aumentar o efeito anticoagulante, elevando o risco de sangramento.",
-    "mechanism": "Potencialização do efeito anticoagulante. Monitorar tempo de protrombina/INR e sinais de sangramento."
-  },
-  {
-    "id": "int_2340",
-    "drug1": "Moxifloxacino Ocular",
-    "drug2": "Varfarina",
-    "risk_level": "high",
-    "risk_description": "O efeito anticoagulante da varfarina pode ser potencializado, aumentando o risco de sangramento.",
     "mechanism": "Potencialização do efeito anticoagulante. Monitorar tempo de protrombina/INR e sinais de sangramento."
   },
   {
@@ -24429,25 +24383,25 @@
     "id": "int_2683",
     "drug1": "Tetracaína",
     "drug2": "Flutamida",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento do risco de metemoglobinemia quando usado com agentes antineoplásicos.",
-    "mechanism": "Mecanismo: Exposição concomitante a agentes oxidantes pode aumentar o risco de metemoglobinemia. Conduta: Monitorar sinais de metemoglobinemia."
+    "mechanism": "Cautela de CLASSE: anestésicos locais podem causar metemoglobinemia, e a bula recomenda atenção ao associá-los a outros agentes oxidantes. O risco do par específico é baixo — anestésicos tópicos/oftálmicos têm absorção sistêmica pequena. Relevante sobretudo em doses altas, uso em mucosas extensas, lactentes ou deficiência de G6PD. Sinal de alerta: pele/lábios azulados com oximetria que não melhora com oxigênio."
   },
   {
     "id": "int_2684",
     "drug1": "Tetracaína",
     "drug2": "Hidroxiureia",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento do risco de metemoglobinemia quando usado com agentes antineoplásicos.",
-    "mechanism": "Mecanismo: Exposição concomitante a agentes oxidantes pode aumentar o risco de metemoglobinemia. Conduta: Monitorar sinais de metemoglobinemia."
+    "mechanism": "Cautela de CLASSE: anestésicos locais podem causar metemoglobinemia, e a bula recomenda atenção ao associá-los a outros agentes oxidantes. O risco do par específico é baixo — anestésicos tópicos/oftálmicos têm absorção sistêmica pequena. Relevante sobretudo em doses altas, uso em mucosas extensas, lactentes ou deficiência de G6PD. Sinal de alerta: pele/lábios azulados com oximetria que não melhora com oxigênio."
   },
   {
     "id": "int_2685",
     "drug1": "Tetracaína",
     "drug2": "Ifosfamida",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento do risco de metemoglobinemia quando usado com agentes antineoplásicos.",
-    "mechanism": "Mecanismo: Exposição concomitante a agentes oxidantes pode aumentar o risco de metemoglobinemia. Conduta: Monitorar sinais de metemoglobinemia."
+    "mechanism": "Cautela de CLASSE: anestésicos locais podem causar metemoglobinemia, e a bula recomenda atenção ao associá-los a outros agentes oxidantes. O risco do par específico é baixo — anestésicos tópicos/oftálmicos têm absorção sistêmica pequena. Relevante sobretudo em doses altas, uso em mucosas extensas, lactentes ou deficiência de G6PD. Sinal de alerta: pele/lábios azulados com oximetria que não melhora com oxigênio."
   },
   {
     "id": "int_2686",
@@ -24461,9 +24415,9 @@
     "id": "int_2687",
     "drug1": "Tetracaína",
     "drug2": "Nitrofurantoína",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento do risco de metemoglobinemia quando usado com antibióticos.",
-    "mechanism": "Mecanismo: Exposição concomitante a agentes oxidantes pode aumentar o risco de metemoglobinemia. Conduta: Monitorar sinais de metemoglobinemia."
+    "mechanism": "Cautela de CLASSE: anestésicos locais podem causar metemoglobinemia, e a bula recomenda atenção ao associá-los a outros agentes oxidantes. O risco do par específico é baixo — anestésicos tópicos/oftálmicos têm absorção sistêmica pequena. Relevante sobretudo em doses altas, uso em mucosas extensas, lactentes ou deficiência de G6PD. Sinal de alerta: pele/lábios azulados com oximetria que não melhora com oxigênio."
   },
   {
     "id": "int_2688",
@@ -24493,9 +24447,9 @@
     "id": "int_2691",
     "drug1": "Tetracaína",
     "drug2": "Valproato de Sódio",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento do risco de metemoglobinemia quando usado com anticonvulsivantes.",
-    "mechanism": "Mecanismo: Exposição concomitante a agentes oxidantes pode aumentar o risco de metemoglobinemia. Conduta: Monitorar sinais de metemoglobinemia."
+    "mechanism": "Cautela de CLASSE: anestésicos locais podem causar metemoglobinemia, e a bula recomenda atenção ao associá-los a outros agentes oxidantes. O risco do par específico é baixo — anestésicos tópicos/oftálmicos têm absorção sistêmica pequena. Relevante sobretudo em doses altas, uso em mucosas extensas, lactentes ou deficiência de G6PD. Sinal de alerta: pele/lábios azulados com oximetria que não melhora com oxigênio."
   },
   {
     "id": "int_2692",
@@ -24509,9 +24463,9 @@
     "id": "int_2693",
     "drug1": "Tetracaína",
     "drug2": "Paracetamol",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento do risco de metemoglobinemia quando usado com outros fármacos.",
-    "mechanism": "Mecanismo: Exposição concomitante a agentes oxidantes pode aumentar o risco de metemoglobinemia. Conduta: Monitorar sinais de metemoglobinemia."
+    "mechanism": "Cautela de CLASSE: anestésicos locais podem causar metemoglobinemia, e a bula recomenda atenção ao associá-los a outros agentes oxidantes. O risco do par específico é baixo — anestésicos tópicos/oftálmicos têm absorção sistêmica pequena. Relevante sobretudo em doses altas, uso em mucosas extensas, lactentes ou deficiência de G6PD. Sinal de alerta: pele/lábios azulados com oximetria que não melhora com oxigênio."
   },
   {
     "id": "int_2694",
@@ -24917,9 +24871,9 @@
     "id": "int_2747",
     "drug1": "Tranilcipromina",
     "drug2": "Metadona",
-    "risk_level": "moderate",
-    "risk_description": "Risco de síndrome serotoninérgica.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: usar com cautela."
+    "risk_level": "critical",
+    "risk_description": "Síndrome serotoninérgica — risco de vida",
+    "mechanism": "A associação de um inibidor da MAO com um agente serotoninérgico pode causar síndrome serotoninérgica potencialmente fatal (agitação, hipertermia, rigidez, taquicardia, convulsões). Combinação CONTRAINDICADA. Respeitar o intervalo de washout entre os dois medicamentos."
   },
   {
     "id": "int_2748",
@@ -24981,9 +24935,9 @@
     "id": "int_2755",
     "drug1": "Tranilcipromina",
     "drug2": "Tramadol",
-    "risk_level": "moderate",
-    "risk_description": "Risco de síndrome serotoninérgica e aumento do risco de convulsões.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: usar com cautela."
+    "risk_level": "critical",
+    "risk_description": "Síndrome serotoninérgica — risco de vida",
+    "mechanism": "A associação de um inibidor da MAO com um agente serotoninérgico pode causar síndrome serotoninérgica potencialmente fatal (agitação, hipertermia, rigidez, taquicardia, convulsões). Combinação CONTRAINDICADA. Respeitar o intervalo de washout entre os dois medicamentos."
   },
   {
     "id": "int_2756",
@@ -25757,17 +25711,17 @@
     "id": "int_2868",
     "drug1": "Benzocaína",
     "drug2": "Hidroxiureia",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento do risco de desenvolver metemoglobinemia.",
-    "mechanism": "Mecanismo: exposição concomitante a agentes antineoplásicos. Conduta: monitorar sinais de metemoglobinemia."
+    "mechanism": "Cautela de CLASSE: anestésicos locais podem causar metemoglobinemia, e a bula recomenda atenção ao associá-los a outros agentes oxidantes. O risco do par específico é baixo — anestésicos tópicos/oftálmicos têm absorção sistêmica pequena. Relevante sobretudo em doses altas, uso em mucosas extensas, lactentes ou deficiência de G6PD. Sinal de alerta: pele/lábios azulados com oximetria que não melhora com oxigênio."
   },
   {
     "id": "int_2869",
     "drug1": "Benzocaína",
     "drug2": "Ifosfamida",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento do risco de desenvolver metemoglobinemia.",
-    "mechanism": "Mecanismo: exposição concomitante a agentes antineoplásicos. Conduta: monitorar sinais de metemoglobinemia."
+    "mechanism": "Cautela de CLASSE: anestésicos locais podem causar metemoglobinemia, e a bula recomenda atenção ao associá-los a outros agentes oxidantes. O risco do par específico é baixo — anestésicos tópicos/oftálmicos têm absorção sistêmica pequena. Relevante sobretudo em doses altas, uso em mucosas extensas, lactentes ou deficiência de G6PD. Sinal de alerta: pele/lábios azulados com oximetria que não melhora com oxigênio."
   },
   {
     "id": "int_2870",
@@ -25797,41 +25751,41 @@
     "id": "int_2873",
     "drug1": "Benzocaína",
     "drug2": "Fenitoína",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento do risco de desenvolver metemoglobinemia.",
-    "mechanism": "Mecanismo: exposição concomitante a anticonvulsivantes. Conduta: monitorar sinais de metemoglobinemia."
+    "mechanism": "Cautela de CLASSE: anestésicos locais podem causar metemoglobinemia, e a bula recomenda atenção ao associá-los a outros agentes oxidantes. O risco do par específico é baixo — anestésicos tópicos/oftálmicos têm absorção sistêmica pequena. Relevante sobretudo em doses altas, uso em mucosas extensas, lactentes ou deficiência de G6PD. Sinal de alerta: pele/lábios azulados com oximetria que não melhora com oxigênio."
   },
   {
     "id": "int_2874",
     "drug1": "Benzocaína",
     "drug2": "Fenobarbital",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento do risco de desenvolver metemoglobinemia.",
-    "mechanism": "Mecanismo: exposição concomitante a anticonvulsivantes. Conduta: monitorar sinais de metemoglobinemia."
+    "mechanism": "Cautela de CLASSE: anestésicos locais podem causar metemoglobinemia, e a bula recomenda atenção ao associá-los a outros agentes oxidantes. O risco do par específico é baixo — anestésicos tópicos/oftálmicos têm absorção sistêmica pequena. Relevante sobretudo em doses altas, uso em mucosas extensas, lactentes ou deficiência de G6PD. Sinal de alerta: pele/lábios azulados com oximetria que não melhora com oxigênio."
   },
   {
     "id": "int_2875",
     "drug1": "Benzocaína",
     "drug2": "Valproato de Sódio",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento do risco de desenvolver metemoglobinemia.",
-    "mechanism": "Mecanismo: exposição concomitante a anticonvulsivantes. Conduta: monitorar sinais de metemoglobinemia."
+    "mechanism": "Cautela de CLASSE: anestésicos locais podem causar metemoglobinemia, e a bula recomenda atenção ao associá-los a outros agentes oxidantes. O risco do par específico é baixo — anestésicos tópicos/oftálmicos têm absorção sistêmica pequena. Relevante sobretudo em doses altas, uso em mucosas extensas, lactentes ou deficiência de G6PD. Sinal de alerta: pele/lábios azulados com oximetria que não melhora com oxigênio."
   },
   {
     "id": "int_2876",
     "drug1": "Benzocaína",
     "drug2": "Metoclopramida",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento do risco de desenvolver metemoglobinemia.",
-    "mechanism": "Mecanismo: exposição concomitante a outros fármacos. Conduta: monitorar sinais de metemoglobinemia."
+    "mechanism": "Cautela de CLASSE: anestésicos locais podem causar metemoglobinemia, e a bula recomenda atenção ao associá-los a outros agentes oxidantes. O risco do par específico é baixo — anestésicos tópicos/oftálmicos têm absorção sistêmica pequena. Relevante sobretudo em doses altas, uso em mucosas extensas, lactentes ou deficiência de G6PD. Sinal de alerta: pele/lábios azulados com oximetria que não melhora com oxigênio."
   },
   {
     "id": "int_2877",
     "drug1": "Benzocaína",
     "drug2": "Paracetamol",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Aumento do risco de desenvolver metemoglobinemia.",
-    "mechanism": "Mecanismo: exposição concomitante a outros fármacos. Conduta: monitorar sinais de metemoglobinemia."
+    "mechanism": "Cautela de CLASSE: anestésicos locais podem causar metemoglobinemia, e a bula recomenda atenção ao associá-los a outros agentes oxidantes. O risco do par específico é baixo — anestésicos tópicos/oftálmicos têm absorção sistêmica pequena. Relevante sobretudo em doses altas, uso em mucosas extensas, lactentes ou deficiência de G6PD. Sinal de alerta: pele/lábios azulados com oximetria que não melhora com oxigênio."
   },
   {
     "id": "int_2878",
@@ -26461,7 +26415,7 @@
     "id": "int_2994",
     "drug1": "Sofosbuvir",
     "drug2": "Sulfassalazina",
-    "risk_level": "high",
+    "risk_level": "moderate",
     "risk_description": "Pode alterar a exposição desses substratos, aumentando o risco de toxicidade.",
     "mechanism": "Inibição de BCRP por velpatasvir e voxilaprevir. A coadministração não é recomendada."
   },
