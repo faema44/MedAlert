@@ -11,9 +11,26 @@ export default function MedDisclaimer() {
   return (
     <TouchableOpacity style={styles.wrap} onPress={toggle} activeOpacity={0.7}>
       <View style={styles.row}>
-        <Text style={styles.text} numberOfLines={collapsed ? 1 : undefined}>
-          ⚕️ <Text style={styles.bold}>Atenção:</Text> Informações geradas por IA são apenas orientativas e podem conter erros. Confirme com a bula e sempre consulte seu médico ou farmacêutico.
-        </Text>
+        <View style={styles.textCol}>
+          {/* Fica sempre visível, mesmo recolhido: é o aviso que impede o paciente de
+              interromper um tratamento necessário por causa de um alerta incorreto. */}
+          <Text style={styles.headline}>
+            ⚕️ <Text style={styles.bold}>Não altere seu tratamento por conta própria.</Text>
+          </Text>
+          {!collapsed && (
+            <Text style={styles.text}>
+              Este alerta é gerado por <Text style={styles.bold}>inteligência artificial</Text> e pode conter
+              erros, imprecisões ou informações inventadas. Ele é apenas orientativo e{' '}
+              <Text style={styles.bold}>não substitui a avaliação de um profissional</Text>.
+              {'\n\n'}
+              Nunca comece, suspenda ou mude a dose de um medicamento sem falar com seu{' '}
+              <Text style={styles.bold}>médico ou farmacêutico</Text> — só eles conhecem o seu quadro
+              clínico completo e podem julgar se a combinação é um problema para você.
+              {'\n\n'}
+              Na dúvida, confirme também com a bula.
+            </Text>
+          )}
+        </View>
         <Text style={styles.chevron}>{collapsed ? '▼' : '▲'}</Text>
       </View>
     </TouchableOpacity>
@@ -36,11 +53,17 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 8,
   },
+  textCol: { flex: 1 },
+  headline: {
+    fontSize: 12.5,
+    color: '#3730A3',
+    lineHeight: 18,
+  },
   text: {
-    flex: 1,
     fontSize: 12,
     color: '#3730A3',
     lineHeight: 17,
+    marginTop: 6,
   },
   bold: { fontWeight: '700' },
   chevron: {

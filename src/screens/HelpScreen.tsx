@@ -141,8 +141,20 @@ export default function HelpScreen() {
             <Text style={styles.riskDesc}>Atenção recomendada. Converse com seu médico ou farmacêutico.</Text>
           </View>
         </View>
+        <View style={styles.aiWarnBox}>
+          <Text style={styles.aiWarnTitle}>⚕️ Não altere seu tratamento por conta própria</Text>
+          <Text style={styles.aiWarnText}>
+            Estes alertas são gerados por inteligência artificial a partir de bulas e podem conter
+            erros, imprecisões ou informações inventadas. Eles servem para você{' '}
+            <Text style={styles.aiWarnBold}>levar a dúvida ao profissional</Text> — nunca para decidir sozinho.
+            {'\n\n'}
+            Nunca comece, suspenda ou mude a dose de um medicamento sem falar com seu médico ou
+            farmacêutico. Só eles conhecem o seu quadro clínico completo e podem julgar se a
+            combinação é realmente um problema no seu caso.
+          </Text>
+        </View>
         <Text style={styles.tip}>
-          💡 Toque em Configurações → Tabelas para ver todas as interações da base (mais de 900), com busca e filtros por risco, além das listas completas de medicamentos e fitoterápicos.
+          💡 Toque em Configurações → Tabelas para ver todas as interações da base (mais de 2.800), com busca e filtros por risco, além das listas completas de medicamentos e fitoterápicos.
         </Text>
       </Section>
 
@@ -376,6 +388,14 @@ const styles = StyleSheet.create({
     fontSize: 13, color: '#1a6b3a', backgroundColor: '#f0faf4',
     borderRadius: 8, padding: 10, marginTop: 10, lineHeight: 19,
   },
+
+  aiWarnBox: {
+    backgroundColor: '#EEF2FF', borderRadius: 8, borderWidth: 0.5, borderColor: '#C7D2FE',
+    padding: 12, marginTop: 12,
+  },
+  aiWarnTitle: { fontSize: 13, fontWeight: '700', color: '#3730A3', marginBottom: 6 },
+  aiWarnText: { fontSize: 12.5, color: '#3730A3', lineHeight: 18 },
+  aiWarnBold: { fontWeight: '700' },
 
   riskRow: { marginBottom: 8 },
   riskBadge: { borderLeftWidth: 4, borderRadius: 6, padding: 10 },
