@@ -50,11 +50,11 @@ import {
   setupNotificationChannels, requestPermissions, setupReminderCategory,
   initReminderListeners, initActivityListeners, initResponseListeners, dismissNotification,
   ActivityAlertPayload,
-  cancelRepeatAlarm, rescheduleAllActiveNotifications, dismissPresentedForMedication,
+  cancelRepeatAlarm, rescheduleAllActiveNotifications, dismissPresentedForMedication, dismissDuplicateReminders,
   snoozeActivityReminder, getLastResponse, notifyTreatmentEnded, notifyLowStock, cancelAllRemindersForMedication,
   resetEmergencySignature, updateEmergencyNotification,
 } from './src/services/notifications';
-import { getDb, getMedications, getMedicationById, updateMedicationStock, addActivityLog, getKV, setKV, addMedicationLog, addMedicationTreatmentEndedLog, upsertMedicationLogTaken, archiveMedication, getExpiredUnarchivedMedications, getRemindersForMedication, getMedicationLog, getProfile } from './src/database/db';
+import { getDb, getMedications, getMedicationById, updateMedicationStock, addActivityLog, getKV, setKV, addMedicationLog, addMedicationTreatmentEndedLog, upsertMedicationLogTaken, archiveMedication, getExpiredUnarchivedMedications, getRemindersForMedication, getMedicationLog, getProfile, reconcileMissedDoses } from './src/database/db';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
 
 const Tab = createBottomTabNavigator();
@@ -263,6 +263,10 @@ function AppNavigator() {
       syncMedicationsDb().catch(() => {});
       syncInteractionsDb().catch(() => {});
       rescheduleAllActiveNotifications().catch(() => {});
+      dismissDuplicateReminders().catch(() => {});
+      // Doses que dispararam com o app morto não geraram linha no log (o listener JS não
+      // rodou). Cria as faltantes como "Sem resposta" — sem isso a dose some do histórico.
+      reconcileMissedDoses().catch(() => {});
     }
     init();
 
@@ -289,6 +293,9 @@ function AppNavigator() {
           return;
         }
       }
+      // Limpa qualquer card antigo remanescente (ex: repetição de ontem que não foi
+      // dispensada porque o app estava morto) antes de apresentar o lembrete de hoje
+      dismissPresentedForMedication(data.medicationId, data.notificationId).catch(() => {});
       addMedicationLog({
         medication_id: data.medicationId,
         medication_name: data.name,
@@ -365,6 +372,8 @@ function AppNavigator() {
   useEffect(() => {
     const sub = AppState.addEventListener('change', async (state) => {
       if (state !== 'active') return;
+      dismissDuplicateReminders().catch(() => {});
+      reconcileMissedDoses().catch(() => {});
       if (!navRef.isReady()) return;
       if (navRef.getCurrentRoute()?.name === 'Home') return;
       try {
