@@ -1,15 +1,12 @@
-import React, { useState, useRef } from 'react';
-import {
-  View, Text, StyleSheet, Modal, ScrollView, TouchableOpacity,
-  NativeSyntheticEvent, NativeScrollEvent,
-} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Modal, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Aceite válido por sessão. Pedir a cada toque geraria habituação — o usuário passaria a
-// tocar em "aceito" sem ler, que é exatamente o que este aviso existe para evitar.
-// Reinicia quando o app é fechado.
+// marcar tudo sem ler, que é exatamente o que este aviso existe para evitar.
 let sessionAccepted = false;
 export function hasAcceptedInteractionTerms() { return sessionAccepted; }
+export function acceptInteractionTerms() { sessionAccepted = true; }
 export function resetInteractionConsent() { sessionAccepted = false; }
 
 type Props = {
@@ -18,94 +15,102 @@ type Props = {
   onCancel: () => void;
 };
 
-const ITEMS: { icon: string; title: string; body: string }[] = [
+// Uma linha por aviso. Texto longo não é lido — e aviso não lido não protege ninguém.
+const ITEMS: { icon: string; title: string; sub: string }[] = [
   {
     icon: '🛑',
-    title: 'Não altere nem interrompa seu tratamento',
-    body: 'Não pare, não troque e não mude a dose de nenhum medicamento por causa do que você ler aqui. Interromper um remédio de repente pode ser MAIS PERIGOSO que a própria interação — é o caso de anticoagulantes, anticonvulsivantes, corticoides e remédios para o coração.',
+    title: 'Não pare nem mude nenhum remédio por causa deste alerta.',
+    sub: 'Parar de repente pode ser mais perigoso que a própria interação.',
   },
   {
     icon: '🧑‍⚕️',
-    title: 'Só o médico ou farmacêutico pode decidir',
-    body: 'Leve esta informação a eles. O app não conhece a sua dose, sua função dos rins e do fígado, sua idade, se você está grávida, nem as suas outras doenças — e é justamente isso que define se a interação importa no seu caso. Só o profissional tem o contexto completo.',
-  },
-  {
-    icon: '🤖',
-    title: 'Conteúdo gerado e traduzido por IA',
-    body: 'As interações foram extraídas das bulas do FDA (a agência reguladora dos Estados Unidos, equivalente à nossa Anvisa) e traduzidas por inteligência artificial. Apesar dos nossos melhores esforços, podem conter erros de conceito, de medicamento e de tradução.',
+    title: 'Só o médico ou farmacêutico decide.',
+    sub: 'O app não sabe sua dose, seus exames, nem suas outras doenças.',
   },
   {
     icon: '📄',
-    title: 'Consulte sempre a bula — esta lista não é completa',
-    body: 'Existem outras interações além das listadas aqui. Por isso, NÃO APARECER ALERTA NÃO SIGNIFICA QUE A COMBINAÇÃO É SEGURA: a ausência de aviso nunca deve ser lida como permissão. Leia a bula de cada medicamento que você usa e, na dúvida, pergunte ao profissional.',
+    title: 'O app é só um alerta. Sempre confirme com a bula.',
+    sub: 'Ela é a fonte oficial do seu medicamento.',
+  },
+  {
+    icon: '🔍',
+    title: 'Não aparecer alerta não quer dizer que é seguro.',
+    sub: 'A lista não é completa. Existem outras interações.',
+  },
+  {
+    icon: '🤖',
+    title: 'Feito por IA a partir das bulas do FDA.',
+    sub: 'Pode conter erros de medicamento e de tradução.',
   },
   {
     icon: '🚑',
-    title: 'Em caso de sintoma grave, procure emergência',
-    body: 'Se sentir falta de ar, dor no peito, sangramento, batimentos irregulares, confusão ou desmaio, ligue 192 ou vá ao pronto-socorro. Não use o app para decidir o que fazer numa emergência.',
+    title: 'Sintoma grave? Ligue 192.',
+    sub: 'Não use o app para decidir numa emergência.',
   },
 ];
 
 export default function InteractionConsentModal({ visible, onAccept, onCancel }: Props) {
   const insets = useSafeAreaInsets();
-  // O aceite só libera depois de rolar até o fim. Sem isso, dá para tocar em
-  // "li e aceito" sem nunca ver os últimos avisos — e o consentimento vira ficção.
-  const [reachedEnd, setReachedEnd] = useState(false);
+  const [checked, setChecked] = useState<boolean[]>(() => ITEMS.map(() => false));
 
-  // Se o conteúdo couber na tela sem rolagem, não há o que rolar: libera.
-  function onContentSizeChange(_w: number, h: number) {
-    if (viewportH.current > 0 && h <= viewportH.current + 4) setReachedEnd(true);
+  const total = ITEMS.length;
+  const done = checked.filter(Boolean).length;
+  const allChecked = done === total;
+
+  function toggle(i: number) {
+    setChecked(prev => prev.map((v, k) => (k === i ? !v : v)));
   }
-  const viewportH = useRef(0);
 
-  function onScroll(e: NativeSyntheticEvent<NativeScrollEvent>) {
-    const { layoutMeasurement, contentOffset, contentSize } = e.nativeEvent;
-    if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 24) setReachedEnd(true);
+  function handleCancel() {
+    setChecked(ITEMS.map(() => false));
+    onCancel();
   }
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onCancel}>
+    <Modal visible={visible} animationType="slide" onRequestClose={handleCancel}>
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Antes de ver as interações</Text>
-          <Text style={styles.headerSub}>Leia com atenção. É importante.</Text>
+          <Text style={styles.headerSub}>Marque cada item para continuar.</Text>
         </View>
 
-        <ScrollView
-          style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
-          onScroll={onScroll}
-          scrollEventThrottle={64}
-          onContentSizeChange={onContentSizeChange}
-          onLayout={e => {
-            viewportH.current = e.nativeEvent.layout.height;
-          }}
-        >
-          {ITEMS.map(item => (
-            <View key={item.title} style={styles.card}>
-              <Text style={styles.cardIcon}>{item.icon}</Text>
-              <View style={styles.cardBody}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <Text style={styles.cardText}>{item.body}</Text>
+        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+          {ITEMS.map((item, i) => (
+            <TouchableOpacity
+              key={item.title}
+              style={[styles.row, checked[i] && styles.rowChecked]}
+              onPress={() => toggle(i)}
+              activeOpacity={0.7}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: checked[i] }}
+              accessibilityLabel={item.title}
+            >
+              <View style={[styles.box, checked[i] && styles.boxChecked]}>
+                {checked[i] && <Text style={styles.check}>✓</Text>}
               </View>
-            </View>
+              <Text style={styles.icon}>{item.icon}</Text>
+              <View style={styles.texts}>
+                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.sub}>{item.sub}</Text>
+              </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
 
         <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
-          {!reachedEnd && (
-            <Text style={styles.scrollHint}>Role até o final para liberar o botão ↓</Text>
+          {!allChecked && (
+            <Text style={styles.counter}>{done} de {total} marcados</Text>
           )}
-          <TouchableOpacity style={styles.btnBack} onPress={onCancel} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.btnBack} onPress={handleCancel} activeOpacity={0.7}>
             <Text style={styles.btnBackText}>Voltar</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.btnOk, !reachedEnd && styles.btnOkDisabled]}
+            style={[styles.btnOk, !allChecked && styles.btnOkDisabled]}
             onPress={onAccept}
             activeOpacity={0.8}
-            disabled={!reachedEnd}
+            disabled={!allChecked}
           >
-            <Text style={[styles.btnOkText, !reachedEnd && styles.btnOkTextDisabled]}>
+            <Text style={[styles.btnOkText, !allChecked && styles.btnOkTextDisabled]}>
               Ok, li e aceito os itens acima
             </Text>
           </TouchableOpacity>
@@ -127,19 +132,30 @@ const styles = StyleSheet.create({
   headerSub: { fontSize: 13, color: '#6B7280', marginTop: 3 },
 
   scroll: { flex: 1 },
-  scrollContent: { padding: 14, gap: 10 },
+  scrollContent: { padding: 14, gap: 8 },
 
-  card: {
+  row: {
     backgroundColor: '#fff',
     borderRadius: 12,
     borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
-    padding: 14,
-    flexDirection: 'row', gap: 12,
+    paddingVertical: 12, paddingHorizontal: 12,
+    flexDirection: 'row', alignItems: 'center', gap: 10,
   },
-  cardIcon: { fontSize: 22, lineHeight: 28 },
-  cardBody: { flex: 1 },
-  cardTitle: { fontSize: 14.5, fontWeight: '700', color: '#1A1F2E', marginBottom: 5, lineHeight: 20 },
-  cardText: { fontSize: 13.5, color: '#4B5563', lineHeight: 20 },
+  rowChecked: { borderColor: '#1C3F7A', backgroundColor: '#F7F9FF' },
+
+  box: {
+    width: 24, height: 24, borderRadius: 6,
+    borderWidth: 1.5, borderColor: '#C0C5D0',
+    alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
+  },
+  boxChecked: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
+  check: { color: '#fff', fontSize: 14, fontWeight: '900', lineHeight: 18 },
+
+  icon: { fontSize: 20, flexShrink: 0 },
+  texts: { flex: 1 },
+  title: { fontSize: 13.5, fontWeight: '700', color: '#1A1F2E', lineHeight: 18 },
+  sub: { fontSize: 12.5, color: '#6B7280', lineHeight: 17, marginTop: 2 },
 
   footer: {
     backgroundColor: '#fff',
@@ -147,7 +163,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14, paddingTop: 12,
     gap: 8,
   },
-  scrollHint: { fontSize: 12, color: '#9CA3AF', textAlign: 'center', marginBottom: 2 },
+  counter: { fontSize: 12, color: '#9CA3AF', textAlign: 'center', marginBottom: 2 },
+  btnBack: {
+    backgroundColor: '#F2F4F8',
+    borderRadius: 12, paddingVertical: 13,
+    alignItems: 'center',
+    borderWidth: 0.5, borderColor: '#D0D5E8',
+  },
+  btnBackText: { color: '#6B7280', fontSize: 14.5, fontWeight: '600' },
   btnOk: {
     backgroundColor: '#E07B4F',
     borderRadius: 12, paddingVertical: 15,
@@ -156,14 +179,4 @@ const styles = StyleSheet.create({
   btnOkDisabled: { backgroundColor: '#E5E7EB' },
   btnOkText: { color: '#fff', fontSize: 15, fontWeight: '700' },
   btnOkTextDisabled: { color: '#9CA3AF' },
-  btnBack: {
-    backgroundColor: '#F2F4F8',
-    borderRadius: 12, paddingVertical: 13,
-    alignItems: 'center',
-    borderWidth: 0.5, borderColor: '#D0D5E8',
-  },
-  btnBackText: { color: '#6B7280', fontSize: 14.5, fontWeight: '600' },
 });
-
-// Marca o aceite. Exportado à parte para a tela decidir quando gravar.
-export function acceptInteractionTerms() { sessionAccepted = true; }

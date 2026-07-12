@@ -19,15 +19,9 @@ export default function MedDisclaimer() {
           </Text>
           {!collapsed && (
             <Text style={styles.text}>
-              Este alerta é gerado por <Text style={styles.bold}>inteligência artificial</Text> e pode conter
-              erros, imprecisões ou informações inventadas. Ele é apenas orientativo e{' '}
-              <Text style={styles.bold}>não substitui a avaliação de um profissional</Text>.
-              {'\n\n'}
-              Nunca comece, suspenda ou mude a dose de um medicamento sem falar com seu{' '}
-              <Text style={styles.bold}>médico ou farmacêutico</Text> — só eles conhecem o seu quadro
-              clínico completo e podem julgar se a combinação é um problema para você.
-              {'\n\n'}
-              Na dúvida, confirme também com a bula.
+              O app é <Text style={styles.bold}>só um alerta</Text>, feito por IA e sujeito a erros.
+              Sempre confirme com a <Text style={styles.bold}>bula</Text> e com seu{' '}
+              <Text style={styles.bold}>médico ou farmacêutico</Text>.
             </Text>
           )}
         </View>
