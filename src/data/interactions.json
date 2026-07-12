@@ -3257,7 +3257,7 @@
     "id": "int_271",
     "drug1": "Bromoprida",
     "drug2": "Eritromicina",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Aumento risco de arritmia grave",
     "mechanism": "Aumento risco de arritmia grave. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
@@ -4699,7 +4699,7 @@
     "id": "int_379",
     "drug1": "Doxepina",
     "drug2": "Clorpromazina",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
     "mechanism": "Aumento do risco de arritmias graves. Conduta: Evitar.",
     "drug1_rxcuis": [
@@ -6249,7 +6249,7 @@
     "id": "int_492",
     "drug1": "Isavuconazol",
     "drug2": "Ergotamina",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Risco de ergotismo grave",
     "mechanism": "Risco de ergotismo grave. Conduta: Contraindicado.",
     "drug1_rxcuis": [
@@ -10115,7 +10115,7 @@
     "id": "int_780",
     "drug1": "Verapamil",
     "drug2": "Colchicina",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "Insuficiência renal aguda",
     "mechanism": "Insuficiência renal aguda. Conduta: Contraindicado.",
     "drug1_rxcuis": [
@@ -11229,9 +11229,9 @@
     "id": "int_875",
     "drug1": "Dissulfiram",
     "drug2": "Álcool/etanol",
-    "risk_level": "moderate",
-    "risk_description": "Reação de dissulfiram",
-    "mechanism": "Reação de dissulfiram. Conduta: Evitar.",
+    "risk_level": "critical",
+    "risk_description": "Reação dissulfiram-álcool — potencialmente fatal",
+    "mechanism": "O dissulfiram bloqueia a aldeído desidrogenase; com álcool, o acetaldeído se acumula e causa rubor intenso, náusea, vômito, taquicardia, dor torácica e queda acentuada da pressão — em casos graves, arritmia, colapso cardiovascular e MORTE. A reação é o efeito terapêutico esperado do dissulfiram, mas pode ser desproporcional. Evitar álcool por completo, inclusive o oculto em enxaguantes bucais, xaropes e alimentos, até 14 dias após a última dose.",
     "drug1_rxcuis": [
       "3554"
     ]
@@ -12207,7 +12207,7 @@
     "id": "int_970",
     "drug1": "Atazanavir",
     "drug2": "Saquinavir",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Aumento da concentração de saquinavir, sem recomendações de dose estabelecidas para eficácia e segurança.",
     "mechanism": "Não foram estabelecidas recomendações de dose apropriadas para esta combinação, com ou sem ritonavir, em relação à eficácia e segurança. Em um estudo clínico, saquinavir 1200 mg coadministrado com REYATAZ 400 mg e tenofovir DF 300 mg não forneceu eficácia adequada. (Fonte: bula FDA)"
   },
@@ -12479,7 +12479,7 @@
     "id": "int_1007",
     "drug1": "Clozapina",
     "drug2": "Amiodarona",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Aumento do risco de prolongamento do intervalo QT.",
     "mechanism": "Efeito aditivo no prolongamento do intervalo QT. Usar cautela ao administrar concomitantemente. (Fonte: bula FDA)"
   },
@@ -13047,7 +13047,7 @@
     "id": "int_1083",
     "drug1": "Midazolam",
     "drug2": "Saquinavir",
-    "risk_level": "moderate",
+    "risk_level": "high",
     "risk_description": "Redução de 56% na depuração do midazolam, com meia-vida aproximadamente duplicada.",
     "mechanism": "Inibição do sistema enzimático P450-3A4. Conduta: cautela ao administrar concomitantemente. (Fonte: bula FDA)"
   },
@@ -13303,7 +13303,7 @@
     "id": "int_1115",
     "drug1": "Propafenona",
     "drug2": "Fluoxetina",
-    "risk_level": "moderate",
+    "risk_level": "high",
     "risk_description": "Aumento significativo da exposição aos enantiômeros S e R da propafenona.",
     "mechanism": "Inibição do CYP2D6 pela fluoxetina, reduzindo o metabolismo da propafenona. Monitorar sinais de toxicidade. (Fonte: bula FDA)"
   },
@@ -13943,7 +13943,7 @@
     "id": "int_1202",
     "drug1": "Darunavir",
     "drug2": "Nilotinibe",
-    "risk_level": "moderate",
+    "risk_level": "high",
     "risk_description": "Aumento da concentração de nilotinibe.",
     "mechanism": "Inibição do CYP3A. Ajustar dose conforme bula do nilotinibe. (Fonte: bula FDA)"
   },
@@ -14007,7 +14007,7 @@
     "id": "int_1210",
     "drug1": "Darunavir",
     "drug2": "Tioridazina",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Aumento da concentração de tioridazina.",
     "mechanism": "Inibição do CYP3A/CYP2D6. Reduzir dose do antipsicótico. (Fonte: bula FDA)"
   },
@@ -14023,7 +14023,7 @@
     "id": "int_1212",
     "drug1": "Darunavir",
     "drug2": "Amiodarona",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Aumento da concentração de amiodarona.",
     "mechanism": "Inibição do CYP3A. Monitorar concentração terapêutica. (Fonte: bula FDA)"
   },
@@ -14031,7 +14031,7 @@
     "id": "int_1213",
     "drug1": "Darunavir",
     "drug2": "Flecainida",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Aumento da concentração de flecainida.",
     "mechanism": "Inibição do CYP2D6. Monitorar concentração terapêutica. (Fonte: bula FDA)"
   },
@@ -14039,7 +14039,7 @@
     "id": "int_1214",
     "drug1": "Darunavir",
     "drug2": "Propafenona",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Aumento da concentração de propafenona.",
     "mechanism": "Inibição do CYP2D6. Monitorar concentração terapêutica. (Fonte: bula FDA)"
   },
@@ -15596,22 +15596,6 @@
     "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar função renal e níveis de creatinina sérica durante o uso concomitante."
   },
   {
-    "id": "int_1426",
-    "drug1": "Ciprofloxacino Ocular",
-    "drug2": "Teofilina",
-    "risk_level": "high",
-    "risk_description": "A administração sistêmica de algumas quinolonas pode elevar as concentrações plasmáticas de teofilina.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar níveis de teofilina se houver exposição sistêmica significativa."
-  },
-  {
-    "id": "int_1428",
-    "drug1": "Ciprofloxacino Ocular",
-    "drug2": "Ciclosporina",
-    "risk_level": "moderate",
-    "risk_description": "A administração sistêmica de algumas quinolonas tem sido associada a elevações transitórias da creatinina sérica em pacientes recebendo ciclosporina concomitantemente.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar função renal se houver exposição sistêmica significativa."
-  },
-  {
     "id": "int_1429",
     "drug1": "Clavulanato",
     "drug2": "Alopurinol",
@@ -16063,7 +16047,7 @@
     "id": "int_1491",
     "drug1": "Colchicina",
     "drug2": "Ritonavir",
-    "risk_level": "high",
+    "risk_level": "critical",
     "risk_description": "Aumento das concentrações de colchicina (Cmax +184%, AUC +296%), com risco de toxicidade.",
     "mechanism": "Inibição de P-gp e/ou CYP3A4. A coadministração altera a concentração de colchicina. Monitorar sinais e sintomas de toxicidade; se houver suspeita, descontinuar colchicina imediatamente."
   },
@@ -16071,7 +16055,7 @@
     "id": "int_1492",
     "drug1": "Colchicina",
     "drug2": "Diltiazem",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Aumento das concentrações de colchicina (Cmax +44%, AUC +93%), com risco de toxicidade.",
     "mechanism": "Inibição de P-gp e/ou CYP3A4. A coadministração altera a concentração de colchicina. Monitorar sinais e sintomas de toxicidade; se houver suspeita, descontinuar colchicina imediatamente."
   },
@@ -16079,17 +16063,9 @@
     "id": "int_1493",
     "drug1": "Colchicina",
     "drug2": "Azitromicina",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Aumento das concentrações de colchicina (Cmax +22%, AUC +57%), com risco de toxicidade.",
     "mechanism": "Inibição de P-gp e/ou CYP3A4. A coadministração altera a concentração de colchicina. Monitorar sinais e sintomas de toxicidade; se houver suspeita, descontinuar colchicina imediatamente."
-  },
-  {
-    "id": "int_1497",
-    "drug1": "Colecalciferol",
-    "drug2": "AAS (Ácido Acetilsalicílico)",
-    "risk_level": "moderate",
-    "risk_description": "Aumento da incidência de eventos adversos gastrointestinais superiores.",
-    "mechanism": "Irritação gastrointestinal aditiva. A incidência de eventos adversos gastrointestinais superiores aumentou em pacientes recebendo doses diárias de FOSAMAX maiores que 10 mg com produtos contendo aspirina."
   },
   {
     "id": "int_1498",
@@ -16106,14 +16082,6 @@
     "risk_level": "moderate",
     "risk_description": "Podem prejudicar a absorção de vitamina D.",
     "mechanism": "Prejuízo na absorção de vitamina D. Deve-se considerar suplementação adicional de vitamina D."
-  },
-  {
-    "id": "int_1500",
-    "drug1": "Colecalciferol",
-    "drug2": "Cimetidina",
-    "risk_level": "moderate",
-    "risk_description": "Podem aumentar o catabolismo de vitamina D.",
-    "mechanism": "Aumento do catabolismo de vitamina D. Deve-se considerar suplementação adicional de vitamina D."
   },
   {
     "id": "int_1501",
@@ -16346,38 +16314,6 @@
     "risk_level": "high",
     "risk_description": "Podem diminuir a eficácia contraceptiva e aumentar o sangramento de escape.",
     "mechanism": "Indução de enzimas como CYP3A4, reduzindo as concentrações plasmáticas dos contraceptivos. Conduta: usar método contraceptivo alternativo ou de reserva durante o uso e continuar por 28 dias após a descontinuação do indutor enzimático."
-  },
-  {
-    "id": "int_1535",
-    "drug1": "Desogestrel",
-    "drug2": "Atorvastatina",
-    "risk_level": "moderate",
-    "risk_description": "Aumentam a AUC do etinilestradiol em aproximadamente 20 a 25%.",
-    "mechanism": "Aumento das concentrações plasmáticas do estrogênio. Monitorar efeitos adversos."
-  },
-  {
-    "id": "int_1536",
-    "drug1": "Desogestrel",
-    "drug2": "Rosuvastatina",
-    "risk_level": "moderate",
-    "risk_description": "Aumentam a AUC do etinilestradiol em aproximadamente 20 a 25%.",
-    "mechanism": "Aumento das concentrações plasmáticas do estrogênio. Monitorar efeitos adversos."
-  },
-  {
-    "id": "int_1537",
-    "drug1": "Desogestrel",
-    "drug2": "Paracetamol",
-    "risk_level": "moderate",
-    "risk_description": "Podem aumentar as concentrações plasmáticas de etinilestradiol.",
-    "mechanism": "Possível inibição da conjugação do etinilestradiol. Monitorar sinais de superdosagem estrogênica."
-  },
-  {
-    "id": "int_1538",
-    "drug1": "Desogestrel",
-    "drug2": "Ácido Ascórbico",
-    "risk_level": "moderate",
-    "risk_description": "Podem aumentar as concentrações plasmáticas de etinilestradiol.",
-    "mechanism": "Possível inibição da conjugação do etinilestradiol. Monitorar sinais de superdosagem estrogênica."
   },
   {
     "id": "int_1539",
@@ -17066,30 +17002,6 @@
     "risk_level": "high",
     "risk_description": "Podem diminuir a eficácia dos contraceptivos orais combinados ou aumentar o sangramento de escape.",
     "mechanism": "Indução de enzimas como CYP3A4. Recomenda-se o uso de método contraceptivo alternativo ou de reserva durante o uso e por 28 dias após a descontinuação do indutor enzimático."
-  },
-  {
-    "id": "int_1629",
-    "drug1": "Drospirenona",
-    "drug2": "Atorvastatina",
-    "risk_level": "moderate",
-    "risk_description": "Aumenta a AUC do etinilestradiol em aproximadamente 20%.",
-    "mechanism": "Aumento das concentrações plasmáticas do etinilestradiol. Monitorar quanto a efeitos adversos relacionados ao estrogênio."
-  },
-  {
-    "id": "int_1630",
-    "drug1": "Drospirenona",
-    "drug2": "Paracetamol",
-    "risk_level": "moderate",
-    "risk_description": "Podem aumentar as concentrações plasmáticas de etinilestradiol.",
-    "mechanism": "Possível inibição da conjugação. Monitorar quanto a efeitos adversos relacionados ao estrogênio."
-  },
-  {
-    "id": "int_1631",
-    "drug1": "Drospirenona",
-    "drug2": "Ácido Ascórbico",
-    "risk_level": "moderate",
-    "risk_description": "Podem aumentar as concentrações plasmáticas de etinilestradiol.",
-    "mechanism": "Possível inibição da conjugação. Monitorar quanto a efeitos adversos relacionados ao estrogênio."
   },
   {
     "id": "int_1632",
@@ -17988,38 +17900,6 @@
     "mechanism": "Indutores de enzimas metabólicas diminuem as concentrações plasmáticas dos componentes estrogênico e/ou progestogênico dos COCs. Conduta: usar método contraceptivo alternativo ou de backup durante o uso do indutor e continuar por 28 dias após a descontinuação."
   },
   {
-    "id": "int_1759",
-    "drug1": "Estradiol",
-    "drug2": "Atorvastatina",
-    "risk_level": "moderate",
-    "risk_description": "Podem aumentar a exposição sistêmica ao etinilestradiol em aproximadamente 20 a 25%.",
-    "mechanism": "Co-administração de atorvastatina ou rosuvastatina com COCs contendo etinilestradiol aumenta a AUC do etinilestradiol. Não há conduta específica mencionada no texto."
-  },
-  {
-    "id": "int_1760",
-    "drug1": "Estradiol",
-    "drug2": "Rosuvastatina",
-    "risk_level": "moderate",
-    "risk_description": "Podem aumentar a exposição sistêmica ao etinilestradiol em aproximadamente 20 a 25%.",
-    "mechanism": "Co-administração de atorvastatina ou rosuvastatina com COCs contendo etinilestradiol aumenta a AUC do etinilestradiol. Não há conduta específica mencionada no texto."
-  },
-  {
-    "id": "int_1761",
-    "drug1": "Estradiol",
-    "drug2": "Paracetamol",
-    "risk_level": "moderate",
-    "risk_description": "Podem aumentar a exposição sistêmica ao etinilestradiol, possivelmente por inibição da conjugação.",
-    "mechanism": "Ácido ascórbico e acetaminofeno podem aumentar a exposição sistêmica do etinilestradiol. Não há conduta específica mencionada no texto."
-  },
-  {
-    "id": "int_1762",
-    "drug1": "Estradiol",
-    "drug2": "Ácido Ascórbico",
-    "risk_level": "moderate",
-    "risk_description": "Podem aumentar a exposição sistêmica ao etinilestradiol, possivelmente por inibição da conjugação.",
-    "mechanism": "Ácido ascórbico e acetaminofeno podem aumentar a exposição sistêmica do etinilestradiol. Não há conduta específica mencionada no texto."
-  },
-  {
     "id": "int_1763",
     "drug1": "Estradiol",
     "drug2": "Cetoconazol",
@@ -18250,38 +18130,6 @@
     "risk_level": "high",
     "risk_description": "Uso concomitante não recomendado devido a riscos não especificados.",
     "mechanism": "Mecanismo não especificado. Conduta: não é recomendado o uso com Enbrel."
-  },
-  {
-    "id": "int_1792",
-    "drug1": "Etinilestradiol",
-    "drug2": "Atorvastatina",
-    "risk_level": "moderate",
-    "risk_description": "Aumenta a exposição sistêmica ao etinilestradiol em aproximadamente 20 a 25%.",
-    "mechanism": "Aumento da AUC do etinilestradiol. Conduta: monitorar quanto a possíveis efeitos adversos relacionados ao estrogênio."
-  },
-  {
-    "id": "int_1793",
-    "drug1": "Etinilestradiol",
-    "drug2": "Rosuvastatina",
-    "risk_level": "moderate",
-    "risk_description": "Aumenta a exposição sistêmica ao etinilestradiol em aproximadamente 20 a 25%.",
-    "mechanism": "Aumento da AUC do etinilestradiol. Conduta: monitorar quanto a possíveis efeitos adversos relacionados ao estrogênio."
-  },
-  {
-    "id": "int_1794",
-    "drug1": "Etinilestradiol",
-    "drug2": "Ácido Ascórbico",
-    "risk_level": "moderate",
-    "risk_description": "Pode aumentar a exposição sistêmica ao etinilestradiol, possivelmente por inibição da conjugação.",
-    "mechanism": "Inibição da conjugação do etinilestradiol. Conduta: monitorar quanto a possíveis efeitos adversos relacionados ao estrogênio."
-  },
-  {
-    "id": "int_1795",
-    "drug1": "Etinilestradiol",
-    "drug2": "Paracetamol",
-    "risk_level": "moderate",
-    "risk_description": "Pode aumentar a exposição sistêmica ao etinilestradiol, possivelmente por inibição da conjugação.",
-    "mechanism": "Inibição da conjugação do etinilestradiol. Conduta: monitorar quanto a possíveis efeitos adversos relacionados ao estrogênio."
   },
   {
     "id": "int_1796",
@@ -18823,7 +18671,7 @@
     "id": "int_1881",
     "drug1": "Furosemida",
     "drug2": "Metotrexato (oncológico)",
-    "risk_level": "moderate",
+    "risk_level": "high",
     "risk_description": "Pode reduzir o efeito da furosemida e, inversamente, a furosemida pode diminuir a eliminação renal de metotrexato, elevando seus níveis séricos e potencializando toxicidade.",
     "mechanism": "Secreção tubular renal competitiva; tratamento com altas doses pode resultar em níveis séricos elevados e toxicidade."
   },
@@ -20420,38 +20268,6 @@
     "mechanism": "Mecanismo: possível efeito aditivo na perda óssea, pois fenitoína é conhecida por causar osteomalácia. Conduta: cautela ao usar esses medicamentos juntos."
   },
   {
-    "id": "int_2089",
-    "drug1": "Anfotericina B",
-    "drug2": "Cetoconazol",
-    "risk_level": "moderate",
-    "risk_description": "Pode induzir resistência fúngica à anfotericina B.",
-    "mechanism": "Mecanismo: estudos in vitro e in vivo sugerem que imidazóis podem induzir resistência fúngica. Conduta: administrar combinação com cautela, especialmente em pacientes imunocomprometidos."
-  },
-  {
-    "id": "int_2090",
-    "drug1": "Anfotericina B",
-    "drug2": "Clotrimazol",
-    "risk_level": "moderate",
-    "risk_description": "Pode induzir resistência fúngica à anfotericina B.",
-    "mechanism": "Mecanismo: estudos in vitro e in vivo sugerem que imidazóis podem induzir resistência fúngica. Conduta: administrar combinação com cautela, especialmente em pacientes imunocomprometidos."
-  },
-  {
-    "id": "int_2091",
-    "drug1": "Anfotericina B",
-    "drug2": "Fluconazol",
-    "risk_level": "moderate",
-    "risk_description": "Pode induzir resistência fúngica à anfotericina B.",
-    "mechanism": "Mecanismo: estudos in vitro e in vivo sugerem que imidazóis podem induzir resistência fúngica. Conduta: administrar combinação com cautela, especialmente em pacientes imunocomprometidos."
-  },
-  {
-    "id": "int_2092",
-    "drug1": "Anfotericina B",
-    "drug2": "Miconazol",
-    "risk_level": "moderate",
-    "risk_description": "Pode induzir resistência fúngica à anfotericina B.",
-    "mechanism": "Mecanismo: estudos in vitro e in vivo sugerem que imidazóis podem induzir resistência fúngica. Conduta: administrar combinação com cautela, especialmente em pacientes imunocomprometidos."
-  },
-  {
     "id": "int_2093",
     "drug1": "Ivacaftor",
     "drug2": "Cetoconazol",
@@ -20946,38 +20762,6 @@
     "risk_level": "high",
     "risk_description": "A absorção do levofloxacino é diminuída quando os comprimidos são tomados dentro de 2 horas desses produtos.",
     "mechanism": "Quelação por cátions divalentes interfere na absorção gastrointestinal do levofloxacino, resultando em níveis sistêmicos consideravelmente menores que o desejado. Esses agentes devem ser tomados pelo menos duas horas antes ou duas horas após a administração oral de levofloxacino."
-  },
-  {
-    "id": "int_2160",
-    "drug1": "Levonorgestrel",
-    "drug2": "Atorvastatina",
-    "risk_level": "moderate",
-    "risk_description": "Aumenta a exposição sistêmica do etinilestradiol em aproximadamente 20 a 25%.",
-    "mechanism": "Aumento da AUC do etinilestradiol. Monitorar quanto a efeitos adversos relacionados ao estrogênio."
-  },
-  {
-    "id": "int_2161",
-    "drug1": "Levonorgestrel",
-    "drug2": "Rosuvastatina",
-    "risk_level": "moderate",
-    "risk_description": "Aumenta a exposição sistêmica do etinilestradiol em aproximadamente 20 a 25%.",
-    "mechanism": "Aumento da AUC do etinilestradiol. Monitorar quanto a efeitos adversos relacionados ao estrogênio."
-  },
-  {
-    "id": "int_2162",
-    "drug1": "Levonorgestrel",
-    "drug2": "Ácido Ascórbico",
-    "risk_level": "moderate",
-    "risk_description": "Pode aumentar a exposição sistêmica do etinilestradiol, possivelmente por inibição da conjugação.",
-    "mechanism": "Inibição da conjugação do etinilestradiol. Monitorar quanto a efeitos adversos relacionados ao estrogênio."
-  },
-  {
-    "id": "int_2163",
-    "drug1": "Levonorgestrel",
-    "drug2": "Paracetamol",
-    "risk_level": "moderate",
-    "risk_description": "Pode aumentar a exposição sistêmica do etinilestradiol, possivelmente por inibição da conjugação.",
-    "mechanism": "Inibição da conjugação do etinilestradiol. Monitorar quanto a efeitos adversos relacionados ao estrogênio."
   },
   {
     "id": "int_2164",
@@ -21660,14 +21444,6 @@
     "mechanism": "Em pacientes com depuração de creatinina entre 45 e 79 mL/min, monitorar toxicidade. Interromper meloxicam por pelo menos cinco dias antes, no dia e dois dias após a administração de pemetrexede. Não recomendado se depuração de creatinina abaixo de 45 mL/min."
   },
   {
-    "id": "int_2268",
-    "drug1": "Arginina",
-    "drug2": "Tetraciclina",
-    "risk_level": "moderate",
-    "risk_description": "A administração concomitante de tetraciclina pode reduzir os efeitos potenciais dos aminoácidos infundidos com dextrose.",
-    "mechanism": "A tetraciclina possui atividade antianabólica, o que pode reduzir os efeitos dos aminoácidos. A conduta clínica recomendada é monitorar a eficácia da nutrição parenteral."
-  },
-  {
     "id": "int_2269",
     "drug1": "Meperidina",
     "drug2": "Aciclovir",
@@ -21826,14 +21602,6 @@
     "risk_level": "moderate",
     "risk_description": "Antibióticos como neomicina, estreptomicina e canamicina têm ação bloqueadora neuromuscular não despolarizante, podendo interferir na reversão do bloqueio neuromuscular.",
     "mechanism": "Esses antibióticos possuem ação bloqueadora neuromuscular não despolarizante. Conduta: pode ser necessário ajuste de dose da neostigmina para reverter o bloqueio neuromuscular em pacientes que usaram esses medicamentos."
-  },
-  {
-    "id": "int_2289",
-    "drug1": "Metionina",
-    "drug2": "Tetraciclina",
-    "risk_level": "moderate",
-    "risk_description": "A administração concomitante de tetraciclina pode reduzir os efeitos potenciais dos aminoácidos infundidos com dextrose como parte de um regime de alimentação parenteral.",
-    "mechanism": "A tetraciclina possui atividade antianabólica, o que pode reduzir os efeitos dos aminoácidos. A conduta clínica recomendada é monitorar a eficácia da nutrição parenteral e ajustar conforme necessário."
   },
   {
     "id": "int_2290",
@@ -22604,38 +22372,6 @@
     "mechanism": "Indução de enzimas como CYP3A4, diminuindo as concentrações plasmáticas do contraceptivo. Recomenda-se o uso de método contraceptivo de reserva ou alternativo durante o uso e por 28 dias após a descontinuação do indutor enzimático."
   },
   {
-    "id": "int_2432",
-    "drug1": "Norelgestromina",
-    "drug2": "Atorvastatina",
-    "risk_level": "moderate",
-    "risk_description": "Pode aumentar as concentrações plasmáticas do etinilestradiol, potencializando efeitos adversos.",
-    "mechanism": "Aumento da AUC do etinilestradiol em aproximadamente 20% a 25%. Monitorar quanto a efeitos adversos relacionados ao estrogênio."
-  },
-  {
-    "id": "int_2433",
-    "drug1": "Norelgestromina",
-    "drug2": "Rosuvastatina",
-    "risk_level": "moderate",
-    "risk_description": "Pode aumentar as concentrações plasmáticas do etinilestradiol, potencializando efeitos adversos.",
-    "mechanism": "Aumento da AUC do etinilestradiol em aproximadamente 20% a 25%. Monitorar quanto a efeitos adversos relacionados ao estrogênio."
-  },
-  {
-    "id": "int_2434",
-    "drug1": "Norelgestromina",
-    "drug2": "Ácido Ascórbico",
-    "risk_level": "moderate",
-    "risk_description": "Pode aumentar as concentrações plasmáticas de etinilestradiol, potencializando efeitos adversos.",
-    "mechanism": "Possível inibição da conjugação do etinilestradiol. Monitorar quanto a efeitos adversos relacionados ao estrogênio."
-  },
-  {
-    "id": "int_2435",
-    "drug1": "Norelgestromina",
-    "drug2": "Paracetamol",
-    "risk_level": "moderate",
-    "risk_description": "Pode aumentar as concentrações plasmáticas de etinilestradiol, potencializando efeitos adversos.",
-    "mechanism": "Possível inibição da conjugação do etinilestradiol. Monitorar quanto a efeitos adversos relacionados ao estrogênio."
-  },
-  {
     "id": "int_2436",
     "drug1": "Norelgestromina",
     "drug2": "Ciclosporina",
@@ -22687,7 +22423,7 @@
     "id": "int_2443",
     "drug1": "Atorvastatina",
     "drug2": "Colchicina",
-    "risk_level": "moderate",
+    "risk_level": "high",
     "risk_description": "Casos de miopatia e rabdomiólise relatados com uso concomitante de colchicina e atorvastatina.",
     "mechanism": "Mecanismo não especificado. Considerar risco/benefício; se usado, monitorar sinais de miopatia."
   },
@@ -22778,14 +22514,6 @@
     "risk_level": "high",
     "risk_description": "Aumento da exposição plasmática de digoxina, com risco de toxicidade.",
     "mechanism": "Inibição da glicoproteína-P (P-gp) pelo elagolix. Recomenda-se aumentar a monitorização das concentrações de digoxina e de sinais/sintomas de toxicidade clínica ao iniciar ORIAHNN em pacientes em uso de digoxina. Se ORIAHNN for descontinuado, aumentar a monitorização das concentrações de digoxina."
-  },
-  {
-    "id": "int_2455",
-    "drug1": "Noretisterona",
-    "drug2": "Rosuvastatina",
-    "risk_level": "moderate",
-    "risk_description": "Diminuição da exposição plasmática de rosuvastatina, podendo reduzir seu efeito.",
-    "mechanism": "Indução de CYP3A ou outro mecanismo não especificado. Monitorar níveis lipídicos e ajustar a dose de rosuvastatina, se necessário."
   },
   {
     "id": "int_2456",
@@ -23519,7 +23247,7 @@
     "id": "int_2560",
     "drug1": "Piperacilina",
     "drug2": "Metotrexato (oncológico)",
-    "risk_level": "moderate",
+    "risk_level": "high",
     "risk_description": "A coadministração de metotrexato e piperacilina pode reduzir a depuração de metotrexato devido à competição pela secreção renal.",
     "mechanism": "Dados limitados sugerem que a coadministração de metotrexato e piperacilina pode reduzir a depuração de metotrexato devido à competição pela secreção renal. O impacto do tazobactam na eliminação do metotrexato não foi avaliado. Se a terapia concomitante for necessária, as concentrações séricas de metotrexato e os sinais e sintomas de toxicidade do metotrexato devem ser monitorados com frequência."
   },
@@ -23615,7 +23343,7 @@
     "id": "int_2573",
     "drug1": "Pitavastatina",
     "drug2": "Colchicina",
-    "risk_level": "moderate",
+    "risk_level": "high",
     "risk_description": "Casos de miopatia e rabdomiólise foram relatados com o uso concomitante de colchicina e estatinas, incluindo pitavastatina.",
     "mechanism": "Foram relatados casos de miopatia e rabdomiólise com o uso concomitante de colchicina e estatinas. Considerar o risco/benefício do uso concomitante."
   },
@@ -23879,7 +23607,7 @@
     "id": "int_2612",
     "drug1": "Rosuvastatina",
     "drug2": "Colchicina",
-    "risk_level": "moderate",
+    "risk_level": "high",
     "risk_description": "Aumenta o risco de miopatia e rabdomiólise com uso concomitante.",
     "mechanism": "Mecanismo não especificado. Conduta: considerar se o benefício supera o risco; se usado, monitorar sinais e sintomas de miopatia, especialmente no início e durante ajustes de dose."
   },
@@ -24548,14 +24276,6 @@
     "mechanism": "Colestiramina reduziu a biodisponibilidade oral do metronidazol em 21%. Recomenda-se separar a administração de colestiramina e tinidazol para minimizar qualquer efeito potencial na biodisponibilidade oral do tinidazol."
   },
   {
-    "id": "int_2705",
-    "drug1": "Tinidazol",
-    "drug2": "Oxitetraciclina",
-    "risk_level": "moderate",
-    "risk_description": "Pode antagonizar o efeito terapêutico do tinidazol.",
-    "mechanism": "Oxitetraciclina foi relatada como antagonista do efeito terapêutico do metronidazol. Embora não especificamente estudado com tinidazol, pode ocorrer interação semelhante."
-  },
-  {
     "id": "int_2706",
     "drug1": "Tirzepatida",
     "drug2": "Varfarina",
@@ -24839,7 +24559,7 @@
     "id": "int_2743",
     "drug1": "Tranilcipromina",
     "drug2": "Entacapona",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Risco de reação hipertensiva.",
     "mechanism": "Mecanismo não especificado no texto. Conduta: usar com cautela."
   },
@@ -24847,7 +24567,7 @@
     "id": "int_2744",
     "drug1": "Tranilcipromina",
     "drug2": "Fentanila",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Risco de síndrome serotoninérgica.",
     "mechanism": "Mecanismo não especificado no texto. Conduta: usar com cautela."
   },
@@ -24887,7 +24607,7 @@
     "id": "int_2749",
     "drug1": "Tranilcipromina",
     "drug2": "Metoclopramida",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Risco de reação hipertensiva e síndrome serotoninérgica.",
     "mechanism": "Mecanismo não especificado no texto. Conduta: usar com cautela."
   },
@@ -24903,7 +24623,7 @@
     "id": "int_2751",
     "drug1": "Tranilcipromina",
     "drug2": "Oxcarbazepina",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Risco de síndrome serotoninérgica devido à estreita relação estrutural com antidepressivos tricíclicos.",
     "mechanism": "Mecanismo não especificado no texto. Conduta: usar com cautela."
   },
@@ -24927,7 +24647,7 @@
     "id": "int_2754",
     "drug1": "Tranilcipromina",
     "drug2": "Tolcapona",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Risco de reação hipertensiva.",
     "mechanism": "Mecanismo não especificado no texto. Conduta: usar com cautela."
   },
@@ -25527,7 +25247,7 @@
     "id": "int_2830",
     "drug1": "Velpatasvir",
     "drug2": "Lovastatina",
-    "risk_level": "moderate",
+    "risk_level": "critical",
     "risk_description": "Pode aumentar a concentração de lovastatina, com risco aumentado de miopatia, incluindo rabdomiólise.",
     "mechanism": "Inibição de transportadores. Usar a menor dose aprovada de estatina; se doses mais altas forem necessárias, usar a menor dose necessária com base em avaliação de risco/benefício."
   },
@@ -25796,14 +25516,6 @@
     "mechanism": "Mecanismo: exposição concomitante a outros fármacos. Conduta: monitorar sinais de metemoglobinemia."
   },
   {
-    "id": "int_2879",
-    "drug1": "Vitamina D3 (Colecalciferol)",
-    "drug2": "AAS (Ácido Acetilsalicílico)",
-    "risk_level": "moderate",
-    "risk_description": "Aumento da incidência de eventos adversos gastrointestinais superiores.",
-    "mechanism": "Em estudos clínicos, a incidência de eventos adversos gastrointestinais superiores aumentou em pacientes recebendo terapia concomitante com doses diárias de FOSAMAX maiores que 10 mg e produtos contendo aspirina. Conduta: usar com cautela."
-  },
-  {
     "id": "int_2880",
     "drug1": "Vitamina D3 (Colecalciferol)",
     "drug2": "Colestiramina",
@@ -25818,14 +25530,6 @@
     "risk_level": "moderate",
     "risk_description": "Podem prejudicar a absorção de vitamina D.",
     "mechanism": "Essas substâncias podem prejudicar a absorção de vitamina D. Conduta: considerar suplementação adicional de vitamina D."
-  },
-  {
-    "id": "int_2882",
-    "drug1": "Vitamina D3 (Colecalciferol)",
-    "drug2": "Cimetidina",
-    "risk_level": "moderate",
-    "risk_description": "Podem aumentar o catabolismo da vitamina D.",
-    "mechanism": "Anticonvulsivantes, cimetidina e tiazidas podem aumentar o catabolismo da vitamina D. Conduta: considerar suplementação adicional de vitamina D."
   },
   {
     "id": "int_2915",
@@ -26028,46 +25732,6 @@
     "mechanism": "Indução do CYP3A4 reduz a exposição ao zolpidem. Conduta: uso não recomendado."
   },
   {
-    "id": "int_2946",
-    "drug1": "Ácido Ascórbico",
-    "drug2": "Eritromicina",
-    "risk_level": "moderate",
-    "risk_description": "O ácido ascórbico pode diminuir a atividade da eritromicina.",
-    "mechanism": "Mecanismo não especificado. Se houver suspeita de diminuição da eficácia do antibiótico, descontinuar a administração de ácido ascórbico."
-  },
-  {
-    "id": "int_2947",
-    "drug1": "Ácido Ascórbico",
-    "drug2": "Estreptomicina",
-    "risk_level": "moderate",
-    "risk_description": "O ácido ascórbico pode diminuir a atividade da estreptomicina.",
-    "mechanism": "Mecanismo não especificado. Se houver suspeita de diminuição da eficácia do antibiótico, descontinuar a administração de ácido ascórbico."
-  },
-  {
-    "id": "int_2948",
-    "drug1": "Ácido Ascórbico",
-    "drug2": "Doxiciclina",
-    "risk_level": "moderate",
-    "risk_description": "O ácido ascórbico pode diminuir a atividade da doxiciclina.",
-    "mechanism": "Mecanismo não especificado. Se houver suspeita de diminuição da eficácia do antibiótico, descontinuar a administração de ácido ascórbico."
-  },
-  {
-    "id": "int_2949",
-    "drug1": "Ácido Ascórbico",
-    "drug2": "Lincomicina",
-    "risk_level": "moderate",
-    "risk_description": "O ácido ascórbico pode diminuir a atividade da lincomicina.",
-    "mechanism": "Mecanismo não especificado. Se houver suspeita de diminuição da eficácia do antibiótico, descontinuar a administração de ácido ascórbico."
-  },
-  {
-    "id": "int_2950",
-    "drug1": "Ácido Ascórbico",
-    "drug2": "Bleomicina",
-    "risk_level": "moderate",
-    "risk_description": "O ácido ascórbico inativa a bleomicina in vitro.",
-    "mechanism": "Inativação in vitro. Se houver suspeita de diminuição da eficácia do antibiótico, descontinuar a administração de ácido ascórbico."
-  },
-  {
     "id": "int_2951",
     "drug1": "Ácido Ascórbico",
     "drug2": "Flufenazina",
@@ -26113,14 +25777,6 @@
     "drug2": "Pirimetamina",
     "risk_level": "moderate",
     "risk_description": "A administração de pirimetamina pode resultar em deficiência de folato.",
-    "mechanism": "Aumento da perda de folato e/ou interferência no metabolismo. A conduta clínica recomendada é monitorar os níveis de folato e considerar suplementação."
-  },
-  {
-    "id": "int_2957",
-    "drug1": "Ácido Fólico",
-    "drug2": "Nitrofurantoína",
-    "risk_level": "moderate",
-    "risk_description": "A administração de nitrofurantoína pode resultar em deficiência de folato.",
     "mechanism": "Aumento da perda de folato e/ou interferência no metabolismo. A conduta clínica recomendada é monitorar os níveis de folato e considerar suplementação."
   },
   {
@@ -26514,14 +26170,6 @@
     "risk_level": "moderate",
     "risk_description": "Pode aumentar a concentração de lovastatina, com risco aumentado de miopatia, incluindo rabdomiólise.",
     "mechanism": "Inibição de transportadores. Usar a menor dose aprovada de estatina; se necessário, usar a menor dose com base em avaliação risco/benefício."
-  },
-  {
-    "id": "int_3007",
-    "drug1": "Sulbactam",
-    "drug2": "Alopurinol",
-    "risk_level": "moderate",
-    "risk_description": "A administração concomitante de alopurinol e ampicilina aumenta substancialmente a incidência de erupções cutâneas.",
-    "mechanism": "O mecanismo não é conhecido, podendo ser devido ao alopurinol ou à hiperuricemia presente. Não há dados com ampicilina e sulbactam para injeção e alopurinol administrados concomitantemente. A conduta clínica recomendada é estar ciente do aumento do risco de erupções cutâneas."
   },
   {
     "id": "int_3010",

@@ -328,3 +328,96 @@ significa "muita atenção", o custo de deixá-las ali é baixo; o de rebaixá-l
 | Pendentes de revisão humana | 18 + 125 + 165 |
 
 **`interactions.json`: 2.801 entradas** — 408 critical / 1.572 high / 821 moderate.
+
+---
+
+# Rodada 4 — as 821 entradas `moderate`
+
+Calibração: **8/8 nos dois modelos**. Verificação integral: cada entrada foi às cegas aos dois modelos,
+com as duas perguntas (a interação existe? qual a severidade?).
+
+| | Nº | % |
+|---|---|---|
+| Pelo menos um modelo confirma `moderate` | 499 | 61% |
+| **Ambos dizem `critical` + risco de morte** | **24** | 3% ← subalerta grave |
+| Ambos dizem `high` | 164 | 20% |
+| Ambos dizem que **não interage** | 68 | 8% |
+
+## Subalertas — combinações letais escondidas em "atenção moderada"
+
+**Todas as 24 eram legítimas.** Nenhuma era invenção do modelo: cada uma pertence a uma classe que a
+**própria base já trata como crítica** em outros pares. As mais graves:
+
+| Par | Estava | Por quê |
+|---|---|---|
+| **Dissulfiram + Álcool** | `moderate` | É *a* reação dissulfiram-etanol. Pode ser **fatal** (hipotensão, arritmia, colapso). O texto dizia apenas "Reação de dissulfiram" — reescrito para explicar o risco real e o álcool oculto (enxaguante, xarope). |
+| **Tranilcipromina + Fentanila** | `moderate` | IMAO + opioide. Escapou da varredura anterior porque eu não havia posto fentanila na lista de serotoninérgicos. |
+| **Tranilcipromina + Entacapona / Tolcapona** | `moderate` | IMAO + inibidor de COMT → acúmulo de catecolaminas → crise hipertensiva. |
+| **Darunavir + Tioridazina** | `moderate` | **Outlier gritante**: a classe "pimozida/tioridazina + inibidor de CYP" tinha **24 `critical` e esta 1 `moderate`**. Darunavir + *Pimozida* já era `critical`. Mesmo inibidor, mesmo mecanismo de QT. |
+| **Colchicina + Diltiazem / Azitromicina** | `moderate` | Toxicidade por colchicina é **fatal** (falência multiorgânica). A base já marcava Colchicina+Claritromicina como `critical`. |
+| **Darunavir + Amiodarona / Flecainida / Propafenona** | `moderate` | Inibidor de protease + antiarrítmico é contraindicado. A base já tinha Fosamprenavir+Flecainida como `critical`. |
+| **Isavuconazol + Ergotamina** | `moderate` | Ergotismo, isquemia de extremidades. |
+| **Bromoprida + Eritromicina**, **Doxepina + Clorpromazina**, **Clozapina + Amiodarona** | `moderate` | QT aditivo (lista CredibleMeds). |
+
+### A colchicina expôs um erro de modelagem
+
+A base misturava **dois mecanismos** sob o mesmo fármaco:
+- **Colchicina + inibidor de CYP3A4/P-gp** → *toxicidade por colchicina*, potencialmente **fatal**. Normalizado para `critical`.
+- **Colchicina + estatina/fibrato** → *miopatia*. Grave, mas outro desfecho. Normalizado para `high`.
+
+Estavam embaralhados (4 `critical`, 6 `high`, 5 `moderate`), sem que a distinção fosse o critério.
+
+### Onde segui o precedente da base, e não os modelos
+
+Os modelos pediram `critical` para **Furosemida + Metotrexato** e **Piperacilina + Metotrexato**. Mas a base
+já trata a classe "MTX + competidor da secreção tubular renal" (IBPs, trimetoprima) como `high` — e esse é
+o precedente interno. Subi para `high`, não `critical`. Mesma lógica para Propafenona+Fluoxetina,
+Midazolam+Saquinavir e Darunavir+Nilotinibe.
+
+## Alarmes falsos removidos (44)
+
+**24 — contraceptivo + paracetamol / vitamina C / estatina.** O texto diz "aumenta a exposição ao
+etinilestradiol em ~20-25%" — sem consequência clínica, e a própria bula afirma que **não há conduta
+específica**. Alertar toda mulher que toma anticoncepcional e um paracetamol é ruído puro. **E ruído em app
+médico custa: ensina o usuário a ignorar alertas** — inclusive os que importam.
+
+**12 — resquícios da contaminação de vitaminas/minerais** (ácido ascórbico "reduzindo a atividade" de
+antibióticos, colecalciferol + AAS, arginina/metionina + tetraciclina): mesmo bug já corrigido na rodada 1,
+em pares que haviam escapado.
+
+**2 — erro de via**: `Ciprofloxacino Ocular + Teofilina/Ciclosporina` — o texto diz "administração
+**SISTÊMICA** de quinolonas". Terceira vez que esse bug aparece.
+
+**1 — componente errado do combo**: `Sulbactam + Alopurinol` — o rash é da **ampicilina**; sulbactam é só o
+inibidor de beta-lactamase. Mesmo bug de Tazobactam e Cilastatina.
+
+**5 — antagonismo *in vitro*** (anfotericina + azóis, tinidazol + oxitetraciclina): não é dano ao paciente.
+
+## Pendência
+
+**164 entradas que ambos os modelos elevam para `high`.** Não alteradas: seriam 164 mudanças apoiadas só em
+consenso de LLM, sem precedente de classe que as corrobore. Como `moderate` já sinaliza atenção e o
+desfecho não é letal, o custo de deixá-las é baixo. Listadas em `validacao_llm_moderate_raw.json`.
+
+## Saldo final — a base inteira passou pelo teste cego
+
+| | |
+|---|---|
+| Pares avaliados às cegas | 98 + 408 + 1.624 + 821 = **2.951** |
+| Erros encontrados e corrigidos | 4 + 20 + 51 + 68 = **143** |
+
+**`interactions.json`: 2.757 entradas** — 428 critical / 1.577 high / 752 moderate.
+Cobertura ONCHigh: **13/13**. Schema íntegro, 0 duplicatas.
+
+### O padrão que atravessa as 4 rodadas
+
+Os erros quase nunca foram aleatórios. Foram **sistemáticos**, e sempre da mesma família:
+
+1. **Texto da fonte descolado do fármaco** — bula de combo atribuída a um ingrediente (Vytorin→ezetimiba),
+   componente errado do combo (sulbactam, tazobactam, cilastatina), via errada (colírio "anticoagulando"),
+   excipiente confundido com princípio ativo (dronabinol/álcool).
+2. **Severidade sorteada dentro da mesma classe** — pimozida ora `critical`, ora `high`; fentanila+midazolam
+   em `high` enquanto fentanila+alprazolam em `critical`; tranilcipromina+tramadol em `moderate`.
+
+Nenhum dos dois se corrige entrada por entrada. Ambos se previnem com **invariantes**: *nenhum `mechanism`
+pode citar fármaco ausente do par*, e *pares da mesma classe farmacológica devem ter a mesma severidade*.
