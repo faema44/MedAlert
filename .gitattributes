@@ -1,0 +1,9 @@
+# Os arquivos de dados médicos são ASSINADOS (Ed25519) e o app baixa do jsDelivr os bytes
+# que o GIT armazena. Com core.autocrlf=true (padrão no Windows), o git guarda LF mas escreve
+# CRLF na cópia de trabalho — e assinaríamos bytes DIFERENTES dos que o CDN serve. A
+# assinatura passaria localmente e o app rejeitaria os dados, em silêncio.
+#
+# `-text` = nunca converter quebra de linha. Cópia de trabalho e blob ficam byte a byte
+# idênticos, que é a única forma de a assinatura ser reproduzível.
+src/data/*.json -text
+src/data/*.json.sig -text

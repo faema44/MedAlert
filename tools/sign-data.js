@@ -84,6 +84,19 @@ async function assinar() {
     // Assina os BYTES CRUS do arquivo — é exatamente o que o app baixa do jsDelivr.
     // Nada de re-serializar: qualquer diferença de formatação invalidaria a assinatura.
     const bytes = fs.readFileSync(p);
+
+    // O app baixa do CDN os bytes que o GIT ARMAZENA, não os do disco. Com core.autocrlf=true
+    // (padrão no Windows) o git guarda LF e escreve CRLF na cópia de trabalho: assinaríamos
+    // bytes que o CDN nunca vai servir. A assinatura ficaria "válida" aqui e o app rejeitaria
+    // os dados calado. O .gitattributes fixa `-text` nesses arquivos para impedir isso; este
+    // guarda existe para o caso de alguém clonar sem ele ou reintroduzir a conversão.
+    if (bytes.includes(0x0d)) {
+      console.error(`✗ ${json} tem CRLF. O git armazena LF — a assinatura NÃO bateria no CDN.`);
+      console.error('  Converta para LF e reassine:');
+      console.error(`     git add --renormalize ${json} && git checkout -- ${json}`);
+      process.exit(1);
+    }
+
     const assinatura = await ed.signAsync(bytes, priv);
     fs.writeFileSync(path.join(ROOT, sig), hex(assinatura) + '\n');
     console.log(`✓ ${json}  (${bytes.length} bytes)  →  ${sig}`);
