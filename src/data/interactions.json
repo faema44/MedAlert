@@ -26714,5 +26714,77 @@
     "risk_level": "high",
     "risk_description": "Associação de dois inibidores de protease não recomendada",
     "mechanism": "A coadministração de darunavir com atazanavir não é recomendada: as interações farmacocinéticas entre os dois inibidores de protease não estão estabelecidas, com risco de exposição inadequada, perda de resposta virológica e toxicidade sobreposta (hiperbilirrubinemia). Evitar a associação."
+  },
+  {
+    "id": "int_3082",
+    "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+    "drug2": "Espironolactona / Eplerenona (Poupadores de K+)",
+    "risk_level": "critical",
+    "risk_description": "Hipercalemia grave, com risco de arritmia e parada cardíaca",
+    "mechanism": "O suplemento acrescenta potássio e o diurético poupador impede o rim de excretá-lo. O potássio sobe sem freio. A associação é desaconselhada; se for inevitável, exige dosagem frequente de potássio sérico. Procure atendimento se sentir fraqueza muscular, formigamento ou batimentos irregulares."
+  },
+  {
+    "id": "int_3083",
+    "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+    "drug2": "Captopril / Enalapril / Lisinopril / Ramipril / Benazepril / Fosinopril / Quinapril / Perindopril / Trandolapril (IECA)",
+    "risk_level": "high",
+    "risk_description": "Hipercalemia — o IECA reduz a excreção renal de potássio",
+    "mechanism": "O IECA bloqueia a aldosterona, hormônio que faz o rim eliminar potássio. Somado ao suplemento, o potássio se acumula. Não tome suplemento de potássio por conta própria durante o uso de IECA, e faça o controle laboratorial pedido pelo médico."
+  },
+  {
+    "id": "int_3084",
+    "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+    "drug2": "Losartana / Valsartana / Candesartana / Irbesartana / Olmesartana / Telmisartana (BRA)",
+    "risk_level": "high",
+    "risk_description": "Hipercalemia — o BRA reduz a excreção renal de potássio",
+    "mechanism": "Mesmo mecanismo do IECA: o bloqueio da angiotensina derruba a aldosterona e o rim para de eliminar potássio. Vale também para as combinações com sacubitril, que carregam valsartana."
+  },
+  {
+    "id": "int_3085",
+    "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+    "drug2": "Trimetoprima / Sulfametoxazol-trimetoprima",
+    "risk_level": "high",
+    "risk_description": "Hipercalemia — a trimetoprima retém potássio no rim",
+    "mechanism": "A trimetoprima bloqueia o canal de sódio no túbulo renal, com efeito parecido ao da amilorida, e segura o potássio. O risco é maior em idosos, em doença renal e em tratamento prolongado."
+  },
+  {
+    "id": "int_3086",
+    "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+    "drug2": "Ibuprofeno / Diclofenaco / Naproxeno / Cetoprofeno / Piroxicam / Meloxicam / Indometacina / Cetorolaco / Nimesulida (AINEs)",
+    "risk_level": "moderate",
+    "risk_description": "Hipercalemia — o anti-inflamatório reduz o fluxo renal",
+    "mechanism": "O AINE reduz as prostaglandinas que mantêm o fluxo de sangue no rim, e a queda da filtração dificulta a eliminação do potássio. Efeito maior em idosos, desidratados e em quem já tem doença renal."
+  },
+  {
+    "id": "int_3087",
+    "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+    "drug2": "Alisquireno",
+    "risk_level": "moderate",
+    "risk_description": "Hipercalemia — o alisquireno reduz a aldosterona",
+    "mechanism": "O bloqueio da renina derruba a aldosterona e o rim retém potássio, do mesmo jeito que com IECA e BRA. Exige controle do potássio sérico."
+  },
+  {
+    "id": "int_3088",
+    "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+    "drug2": "Drospirenona",
+    "risk_level": "moderate",
+    "risk_description": "Hipercalemia — a drospirenona tem efeito antimineralocorticoide",
+    "mechanism": "A drospirenona (presente em vários anticoncepcionais) age parecido com a espironolactona e segura potássio. O risco cresce em doença renal, hepática ou adrenal."
+  },
+  {
+    "id": "int_3089",
+    "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+    "drug2": "Tolvaptana",
+    "risk_level": "moderate",
+    "risk_description": "Hipercalemia — a tolvaptana eleva o potássio sérico",
+    "mechanism": "A tolvaptana aumenta a excreção de água livre e concentra o potássio no sangue. Exige dosagem de potássio no início do tratamento e após aumento de dose."
+  },
+  {
+    "id": "int_3090",
+    "drug1": "Cloreto de Potássio (comprimido)",
+    "drug2": "Amitriptilina / Imipramina / Nortriptilina / Clomipramina / Difenidramina / Prometazina / Hidroxizina / Clorfeniramina / Clorpromazina / Olanzapina / Clozapina / Ciclobenzaprina / Oxibutinina / Solifenacina / Tolterodina / Escopolamina / Biperideno (Anticolinérgicos)",
+    "risk_level": "high",
+    "risk_description": "Lesão do trato digestivo — NÃO é hipercalemia",
+    "mechanism": "O anticolinérgico retarda o esvaziamento gástrico e o trânsito intestinal. O comprimido de potássio fica parado em contato com a mucosa e concentra sal ali, podendo causar úlcera, sangramento e até perfuração. Vale para as formas SÓLIDAS de potássio; a solução oral não tem esse risco. Avise o médico se sentir dor abdominal, náusea, vômito ou notar sangue nas fezes."
   }
 ]
