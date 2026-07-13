@@ -20,6 +20,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const crypto = require('crypto');
 const { spawnSync } = require('child_process');
 const { Module } = require('module');
 const ts = require('typescript');
@@ -201,9 +202,30 @@ for (const [slug, meds] of porSlug) {
   }
 }
 
+// ─── PDFs IDÊNTICOS em slugs diferentes ───────────────────────────────────────
+// A validação de conteúdo acima só procura intruso nas 3 PRIMEIRAS linhas da bula, para
+// não afogar em falso positivo. Isso a deixa CEGA para a capa que só traz o nome comercial:
+// umeclidinio.pdf era o Trelegy ("Trelegy® / 100mcg + 62,5 mcg + 25 mcg"), uma TRIPLA, e
+// passava — nenhum princípio ativo escrito na capa para delatar o intruso.
+// O hash não depende de texto nenhum: se dois slugs têm o MESMO arquivo, um dos dois está
+// errado, salvo alias legítimo (pravastatina / pravastatina-sodica).
+const porHash = new Map();
+for (const slug of existentes) {
+  const h = crypto.createHash('sha256').update(fs.readFileSync(path.join(BULAS_DIR, `${slug}.pdf`))).digest('hex');
+  if (!porHash.has(h)) porHash.set(h, []);
+  porHash.get(h).push(slug);
+}
+const duplicados = [...porHash.values()]
+  .filter(g => g.length > 1)
+  .map(g => g.sort())
+  .sort((a, b) => a[0].localeCompare(b[0]));
+
 const linha = '─'.repeat(78);
 console.log(`\n${linha}\nAUDITORIA DE CONTEÚDO DAS BULAS`);
 console.log(`${existentes.size} PDFs publicados · ${porSlug.size} slugs referenciados pelo app\n${linha}`);
+
+console.log(`\n🟣 MESMO PDF EM SLUGS DIFERENTES (${duplicados.length}) — um dos dois está errado`);
+for (const g of duplicados) console.log(`   ${g.join('  ==  ')}`);
 
 console.log(`\n🔴 BULA DE OUTRO MEDICAMENTO (${erradas.length}) — o PDF não confere com o princípio ativo`);
 for (const e of erradas) console.log(`   ${e.slug}.pdf  ←  "${e.generico}"  (${e.motivo})\n      bula: ${e.ident}`);
@@ -233,15 +255,25 @@ if (process.argv.includes('--gate')) {
   );
   const novas = [...erradas, ...combos].filter(e => !conhecidos.has(e.slug));
 
-  if (novas.length === 0) {
-    console.log(`✅ GATE OK — nenhuma bula errada nova (${conhecidos.size} já revisadas em bulas-revisadas.json)\n`);
+  // Duplicata de PDF tem a sua própria linha de base: alias de sal é legítimo
+  // (pravastatina == pravastatina-sodica), combo em slug puro não é.
+  const dupOk = new Set(Object.keys(revisadas.pdf_duplicado_ok ?? {}).filter(k => !k.startsWith('_')));
+  const dupNovas = duplicados.filter(g => !dupOk.has(g.join('+')));
+
+  if (novas.length === 0 && dupNovas.length === 0) {
+    console.log(`✅ GATE OK — nenhuma bula errada nova (${conhecidos.size} revisadas, ${dupOk.size} duplicatas aceitas)\n`);
     process.exit(0);
   }
-  console.error(`❌ GATE FALHOU — ${novas.length} bula(s) com conteúdo errado que ninguém revisou:\n`);
+  console.error(`❌ GATE FALHOU\n`);
   for (const e of novas) {
     console.error(`   ${e.slug}.pdf  ←  "${e.generico}"`);
     console.error(`      ${e.motivo || `bula de composto (traz também: ${(e.intrusos || []).join(', ')})`}`);
   }
-  console.error(`\nConserte a bula, ou — se for alarme falso — registre o motivo em site/bulas/bulas-revisadas.json\n`);
+  for (const g of dupNovas) {
+    console.error(`   MESMO PDF: ${g.join('  ==  ')}`);
+    console.error(`      um dos slugs está com a bula do outro`);
+  }
+  console.error(`\nConserte a bula, ou — se for alarme falso — registre o motivo em site/bulas/bulas-revisadas.json`);
+  console.error(`(duplicata aceita entra em "pdf_duplicado_ok" com a chave "slug-a+slug-b")\n`);
   process.exit(1);
 }
