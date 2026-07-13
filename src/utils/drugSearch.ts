@@ -126,13 +126,36 @@ function buildInteractionTokens() {
   }));
 }
 
-export function loadExternalInteractions(data: DrugInteraction[]): void {
+// `substituir` existe porque o app deixou de guardar a base inteira: ele guarda só o RECORTE
+// dos medicamentos que o usuário cadastrou (2 KB em vez de 980 KB). Um recorte é legitimamente
+// MENOR que o anterior — quando o usuário remove um remédio, o conjunto encolhe — e a regra
+// "só cresce" o rejeitaria, deixando o app com dados velhos.
+//
+// A proteção contra ESVAZIAMENTO não some: ela subiu para onde de fato pertence, o dbSync, que
+// valida o payload REMOTO contra o piso de IDs embarcado antes de recortar. Aqui em baixo já
+// não há o que proteger — o dado chegou validado.
+export function loadExternalInteractions(data: DrugInteraction[], substituir = false): void {
   if (!data?.length) return;
-  if (data.length > ALL_INTERACTIONS.length) {
+  if (substituir || data.length > ALL_INTERACTIONS.length) {
     ALL_INTERACTIONS = data;
     resolveCache.clear();
     buildInteractionTokens();
   }
+}
+
+// Quais entradas da base envolvem algum destes medicamentos, em QUALQUER um dos dois lados.
+// É o recorte que fica no celular. Pega os dois lados de propósito: uma interação só dispara
+// quando os dois casam, mas há a regra de álcool/barbitúrico (ver checkInteractions), que
+// alerta com o parceiro ausente da lista do usuário — filtrar só pelos pares completos a
+// perderia.
+export function interactionsInvolving(all: DrugInteraction[], medNames: string[]): DrugInteraction[] {
+  if (!all?.length || !medNames?.length) return [];
+  return all.filter(i => {
+    const t1 = identityTokens(i.drug1);
+    const t2 = identityTokens(i.drug2);
+    return medNames.some(m =>
+      matchesSide(t1, i.drug1_rxcuis, m) || matchesSide(t2, i.drug2_rxcuis, m));
+  });
 }
 
 export interface DrugSuggestion {

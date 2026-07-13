@@ -34,6 +34,13 @@ const MANIFEST = path.join(ROOT, 'src/data/manifest.json');
 const git = (...args) => execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' }).trim();
 const run = (cmd, ...args) => execFileSync(cmd, args, { cwd: ROOT, stdio: 'inherit' });
 
+// 0 ─ Regera o PISO. Ele é a lista de IDs embarcada no APK, e é o que impede um payload
+//     adulterado de APAGAR alertas de todos os celulares. Publicar dados novos sem regerar o
+//     piso deixaria os alertas novos sem proteção — e ninguém perceberia. Por isso é passo do
+//     publish, não uma lembrança.
+console.log('\n── piso de segurança (IDs embarcados) ───────────────────────');
+run('node', 'tools/gerar-piso.js');
+
 // 1 ─ Assina e confere. O test:signature existe para pegar o esquecimento clássico:
 //     publicar o .json sem reassinar, e o app rejeitar tudo calado.
 console.log('\n── assinando ────────────────────────────────────────────────');
@@ -42,8 +49,10 @@ console.log('\n── conferindo a assinatura ───────────�
 run('node', 'tests/signature-guard.js');
 
 // 2 ─ Commita os dados e as assinaturas JUNTOS. Nunca um sem o outro.
+//     O piso vai junto: ele descreve exatamente este lote.
 console.log('\n── commitando os dados ──────────────────────────────────────');
 git('add', 'src/data/interactions.json', 'src/data/interactions.json.sig',
+    'src/data/interactions-floor.json',
     'src/data/medications-db.json', 'src/data/medications-db.json.sig');
 
 if (git('diff', '--staged', '--name-only')) {
