@@ -4411,8 +4411,8 @@
   {
     "id": "int_309",
     "source": "ANVISA",
-    "source_ref": "Clindamicina",
-    "source_bula": "clindamicina",
+    "source_ref": "Eritromicina",
+    "source_bula": "eritromicina",
     "drug1": "Clindamicina",
     "drug2": "Eritromicina",
     "risk_level": "moderate",
@@ -5326,8 +5326,8 @@
   {
     "id": "int_370",
     "source": "ANVISA",
-    "source_ref": "Dinitrato de Isossorbida",
-    "source_bula": "dinitrato-de-isossorbida",
+    "source_ref": "Isossorbida",
+    "source_bula": "isossorbida",
     "drug1": "Dinitrato de Isossorbida",
     "drug2": "Vardenafila",
     "risk_level": "high",
@@ -8387,8 +8387,8 @@
   {
     "id": "int_562",
     "source": "ANVISA",
-    "source_ref": "Dinitrato de Isossorbida",
-    "source_bula": "dinitrato-de-isossorbida",
+    "source_ref": "Isossorbida",
+    "source_bula": "isossorbida",
     "drug1": "Mononitrato de Isossorbida",
     "drug2": "Vardenafila",
     "risk_level": "critical",
