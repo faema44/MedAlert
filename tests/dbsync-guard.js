@@ -19,13 +19,15 @@ const mod = { exports: {} };
 new Function('module', 'exports', js)(mod, mod.exports);
 const { acceptInteractions, acceptMeds } = mod.exports;
 
-// O PISO é a lista de IDs embarcada no APK (revisada pela Play Store). O interactions.json
-// não é mais embarcado: 980 KB de peso morto para quem toma 8 remédios.
-const PISO = require(path.join(ROOT, 'src/data/interactions-floor.json')).ids;
-const N = PISO.length;
+// O PISO são os IDs do interactions.json EMBARCADO — o lote que passou pela revisão da Play
+// Store. Comparar só a QUANTIDADE era frouxo (ver o caso "IDs TROCADOS" abaixo).
+const bundled = require(path.join(ROOT, 'src/data/interactions.json'));
+const PISO = new Set(bundled.map(i => i.id));
+const IDS = [...PISO];
+const N = IDS.length;
 
 const ok = id => ({ id, drug1: 'A', drug2: 'B', risk_description: 'x', risk_level: 'high' });
-const baseCompleta = () => PISO.map(ok);
+const baseCompleta = () => IDS.map(ok);
 const semUm = () => baseCompleta().slice(0, -1);
 
 // Mesma QUANTIDADE do piso, mas IDs trocados. Este é o ataque que o guard ANTIGO deixava
@@ -35,7 +37,7 @@ const trocado = () => Array.from({ length: N }, (_, i) => ok('fake_' + i));
 
 const casos = [
   ['ATAQUE: array vazio (apaga tudo)',                     [],                                  false],
-  [`ATAQUE: 1 entrada (zera as ${N})`,                     [ok(PISO[0])],                       false],
+  [`ATAQUE: 1 entrada (zera as ${N})`,                     [ok(IDS[0])],                       false],
   ['ATAQUE: metade do lote (some alerta crítico)',         baseCompleta().slice(0, N >> 1),     false],
   ['ATAQUE: remove UM alerta que a loja revisou',          semUm(),                             false],
   [`ATAQUE: MESMA quantidade (${N}), IDs TROCADOS`,        trocado(),                           false],

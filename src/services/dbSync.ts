@@ -13,25 +13,16 @@
  * ⚙️  CONFIGURAÇÃO: defina GITHUB_USER com seu usuário do GitHub.
  */
 
-import { getDb, getKV, setKV, getKVAge, getMedications } from '../database/db';
-import { loadExternalDb, loadExternalInteractions, interactionsInvolving } from '../utils/drugSearch';
+import { getDb, getKV, setKV, getKVAge } from '../database/db';
+import { loadExternalDb, loadExternalInteractions } from '../utils/drugSearch';
 import { DrugInteraction } from '../types';
 import { verifyDataSignature } from './dataSignature';
 
 // Seed local — sempre disponível, não depende de rede
 const bundledMeds = require('../data/medications-db.json');
-
-// O interactions.json (980 KB) NÃO é mais embarcado. Ele era peso morto: o usuário toma 8
-// remédios, e as interações DELE cabem em 2 KB — as outras 2.760 nunca são usadas.
-//
-// Mas o embarcado não era só comodidade: era o PISO do guard. A base vem de um repositório
-// PÚBLICO em runtime, e sem piso um payload com 1 entrada zeraria os alertas de todo aparelho
-// instalado, sem update e sem revisão da Play Store.
-//
-// O piso agora é a lista de IDs (29 KB, gerada por tools/gerar-piso.js) — e ficou MAIS FORTE:
-// antes o guard só comparava QUANTIDADE, então trocar 2.768 entradas por outras 2.768 passava.
-// Agora exige que TODOS os IDs revisados pela loja estejam presentes.
-const PISO_IDS: string[] = require('../data/interactions-floor.json').ids;
+const bundledInts: DrugInteraction[] = require('../data/interactions.json');
+// O PISO do guard: os IDs que passaram pela revisão da Play Store. Ver acceptInteractions.
+const PISO_IDS: Set<string> = new Set(bundledInts.map(i => i.id));
 
 // ─── Configure aqui ──────────────────────────────────────────────────────────
 const GITHUB_USER = 'faema44';
@@ -73,7 +64,7 @@ const MANIFEST_PATH = 'src/data/manifest.json';
 //
 // Um atacante com push pode apontar o manifesto para outro commit, mas não consegue assinar
 // dados novos. O máximo que consegue é servir uma versão ANTERIOR já assinada por nós — e o
-// piso de quantidade (acceptInteractions) barra qualquer commit com menos entradas que o
+// piso de IDs (acceptInteractions) barra qualquer commit em que falte um alerta que já veio
 // embarcado. Por isso o manifesto não precisa de assinatura própria: assiná-lo criaria uma
 // segunda entrada de cache e traria o problema de volta.
 
@@ -158,10 +149,15 @@ async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Respons
 // revisão da Play Store. O paciente deixaria de receber alertas reais e não teria como
 // saber.
 //
-// Regra adotada: **o remoto só pode CRESCER em relação ao que veio embarcado no app.**
+// Regra adotada: **todo alerta EMBARCADO precisa continuar presente no remoto.**
 // O bundled passou pela revisão da loja — é a linha de base confiável. Assim, a Play Store
 // vira o portão para qualquer REMOÇÃO de alerta; o canal remoto só serve para ACRESCENTAR.
 // Se uma auditoria futura precisar remover entradas, isso sai numa versão nova do app.
+//
+// A regra ANTIGA comparava só a QUANTIDADE (`data.length < baselineCount`), e tinha um furo:
+// um payload que trocasse as 2.768 entradas por outras 2.768 FALSAS tinha o mesmo tamanho e
+// PASSAVA — todo alerta real sumia e o app não via diferença. Por isso o piso virou o conjunto
+// de IDs.
 //
 // ⚠️ Isto NÃO impede a injeção de uma entrada falsa plausível — para isso seria preciso
 // assinar o JSON e verificar com chave pública embarcada. O que estas checagens fecham é o
@@ -181,16 +177,16 @@ function isValidInteraction(e: any): boolean {
 // Aceita o lote inteiro ou nenhum: um payload com QUALQUER item malformado é descartado.
 // Filtrar os ruins e ficar com o resto seria pior — aceitaria silenciosamente uma base
 // adulterada pela metade.
-//
-// O piso deixou de ser uma CONTAGEM e passou a ser o conjunto de IDs embarcado no APK (revisado
-// pela Play Store). Comparar quantidade era frouxo: um payload que trocasse as 2.768 entradas
-// por outras 2.768 tinha o mesmo tamanho e passava. Agora, cada alerta que passou pela loja
-// precisa continuar lá — remover um exige uma versão nova do app.
-function acceptInteractions(data: unknown, pisoIds: string[]): DrugInteraction[] | null {
+// O piso deixou de ser uma CONTAGEM e passou a ser o conjunto de IDs embarcado (revisado pela
+// Play Store). Comparar quantidade era frouxo: um payload que trocasse as 2.768 entradas por
+// outras 2.768 FALSAS tinha o mesmo `length` e PASSAVA — todo alerta real sumia e o app não via
+// diferença. Agora, cada alerta que passou pela loja precisa continuar presente; remover um
+// exige uma versão nova do app.
+function acceptInteractions(data: unknown, pisoIds: Set<string>): DrugInteraction[] | null {
   if (!Array.isArray(data)) return null;
-  if (!data.every(isValidInteraction)) return null;      // schema íntegro em todos
+  if (!data.every(isValidInteraction)) return null;          // schema íntegro em todos
   const presentes = new Set(data.map((e: any) => e.id));
-  if (!pisoIds.every(id => presentes.has(id))) return null;  // faltou alerta que a loja revisou
+  for (const id of pisoIds) if (!presentes.has(id)) return null;   // sumiu alerta que a loja revisou
   return data as DrugInteraction[];
 }
 
@@ -261,97 +257,49 @@ async function fetchAndUpdate(): Promise<void> {
 
 // ─── Interactions DB sync ─────────────────────────────────────────────────────
 
-// ─── Interações: o celular guarda só o RECORTE do usuário ────────────────────
-//
-// O app BAIXA a base inteira (uma assinatura só, como sempre), VERIFICA, RECORTA para os
-// medicamentos que o usuário cadastrou e DESCARTA o resto. Ficam ~2 KB no aparelho em vez de
-// 980 KB — e as 2.760 interações de remédios que ele não toma nunca são gravadas.
-//
-// Consequência aceita (decisão do Fabio): sem internet, um medicamento RECÉM-CADASTRADO não
-// tem como ser checado. Os já cadastrados continuam alertando offline, com mecanismo e tudo —
-// é por isso que o recorte guarda o texto: ele custa 1 KB.
-//
-// Quem chama precisa saber se a checagem aconteceu: interacoesDoUsuarioAtualizadas() devolve
-// false quando não deu, e a tela TEM que avisar. App de medicamento que fica em silêncio sem
-// dizer que está em silêncio é a pior falha possível.
-
-const PREF_OFFLINE_FULL = 'interactions_offline_full';   // '1' = usuário pediu tudo (Configurações)
-
-async function medNamesDoUsuario(): Promise<string[]> {
-  const meds = await getMedications().catch(() => []);
-  return meds.flatMap(m => [m.generic_name, m.commercial_name ?? ''])
-    .map(s => (s ?? '').trim())
-    .filter(s => s.length >= 3);
-}
-
-// Guarda tudo, ou só o recorte? Quem decide é o usuário, nas Configurações.
-async function recortar(todas: DrugInteraction[]): Promise<DrugInteraction[]> {
-  const tudo = (await getKV(PREF_OFFLINE_FULL).catch(() => null)) === '1';
-  if (tudo) return todas;
-  return interactionsInvolving(todas, await medNamesDoUsuario());
-}
-
 export async function syncInteractionsDb(): Promise<void> {
   await getDb();
 
-  // Cache local: é o recorte da última vez que houve internet. Sem rede, é ele que mantém os
-  // alertas do usuário funcionando. Passa pela validação de schema — um cache adulterado por
-  // uma versão antiga do app (que aceitava qualquer coisa) seria carregado sem checagem.
+  // Step 0 — seed from bundled JSON
+  loadExternalInteractions(bundledInts);
+
+  // Mesma validação do fetch — ver comentário em syncMedicationsDb.
   try {
     const cached = await getKV(INT_CACHE_KEY);
     if (cached) {
-      const lote = JSON.parse(cached);
-      if (Array.isArray(lote) && lote.every(isValidInteraction)) loadExternalInteractions(lote, true);
-      else await setKV(INT_CACHE_KEY, '').catch(() => {});
+      const accepted = acceptInteractions(JSON.parse(cached), PISO_IDS);
+      if (accepted) loadExternalInteractions(accepted);
+      else await setKV(INT_CACHE_KEY, '').catch(() => {}); // cache suspeito: descarta
     }
   } catch {}
 
   fetchAndUpdateInteractions().catch(() => {});
 }
 
-// Devolve TRUE se a base foi baixada e o recorte gravado — ou seja, se os medicamentos do
-// usuário foram de fato checados contra a base atual.
-export async function fetchAndUpdateInteractions(forcar = false): Promise<boolean> {
-  if (!forcar) {
-    try {
-      const age = await getKVAge(INT_CACHE_KEY);
-      if (age < CACHE_TTL_DAYS && (await getKV(INT_CACHE_KEY))) return true;
-    } catch {}
-  }
+async function fetchAndUpdateInteractions(): Promise<void> {
+  try {
+    const age = await getKVAge(INT_CACHE_KEY);
+    if (age < CACHE_TTL_DAYS) {
+      const cached = await getKV(INT_CACHE_KEY);
+      if (cached) {
+        const parsed: DrugInteraction[] = JSON.parse(cached);
+        if (parsed.length >= 80) return;
+      }
+    }
+  } catch {}
 
   try {
     const commit = await resolveDataCommit(8000);
-    if (!commit) return false;                       // sem manifesto → segue com o cache
+    if (!commit) return; // sem manifesto → não atualiza (segue com cache/bundled)
 
     const url = dataUrl(commit, INT_PATH);
     const raw = await fetchSigned(url, `${url}.sig`, 8000);
-    if (!raw) return false;                          // assinatura ausente ou inválida → descarta
+    if (!raw) return; // assinatura ausente ou inválida → descarta
 
-    const aceitas = acceptInteractions(JSON.parse(raw), PISO_IDS);
-    if (!aceitas) return false;                      // faltou alerta do piso, ou schema inválido
+    const accepted = acceptInteractions(JSON.parse(raw), PISO_IDS);
+    if (!accepted) return; // menor que o embarcado ou schema inválido → descarta o lote
 
-    const recorte = await recortar(aceitas);
-    await setKV(INT_CACHE_KEY, JSON.stringify(recorte));
-    loadExternalInteractions(recorte, true);         // substitui: o recorte pode ser MENOR
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// Chamar sempre que o usuário CADASTRAR ou EDITAR um medicamento: o recorte guardado não
-// conhece o remédio novo. Devolve false quando não deu (sem internet) — e aí a tela avisa,
-// em vez de deixar o usuário achar que foi checado.
-export async function interacoesDoUsuarioAtualizadas(): Promise<boolean> {
-  return fetchAndUpdateInteractions(true);
-}
-
-// ─── Configurações: baixar tudo para uso offline ─────────────────────────────
-export async function getInteracoesOfflineCompleto(): Promise<boolean> {
-  return (await getKV(PREF_OFFLINE_FULL).catch(() => null)) === '1';
-}
-
-export async function setInteracoesOfflineCompleto(ligado: boolean): Promise<boolean> {
-  await setKV(PREF_OFFLINE_FULL, ligado ? '1' : '0').catch(() => {});
-  return fetchAndUpdateInteractions(true);   // re-baixa e re-grava conforme a nova preferência
+    await setKV(INT_CACHE_KEY, JSON.stringify(accepted));
+    loadExternalInteractions(accepted);
+  } catch {}
 }
