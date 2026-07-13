@@ -19,12 +19,16 @@ import ReportarErroModal from './ReportarErroModal';
  *   é o mesmo que "errado": Metformina × Contraste Iodado está entre elas e é clássica — é que
  *   não temos o que citar, e aí quem confere é o usuário.
  *
- *   AVISO DE IA — colado na afirmação, não no topo da tela. O MedDisclaimer é recolhível e some
- *   da vista justamente quando o usuário está lendo o alerta e decidindo o que fazer.
- *
  *   INFORMAR ERRO — o usuário é a última linha de defesa e a mais valiosa. As auditorias pegam
  *   bula de composto no slug do puro e alarme falso por token de sal; não pegam "esta interação
  *   está exagerada". Foi ele quem achou o fenobarbital.
+ *
+ * O QUE ELE NÃO REPETE
+ * O rodapé chegou a trazer o aviso de IA por extenso ("feito por IA, confirme com a bula e com
+ * seu médico") — três centímetros abaixo do MedDisclaimer, que diz exatamente isso. O usuário
+ * lia a mesma frase duas vezes e ficava procurando a diferença, gastando a atenção que o alerta
+ * precisa. O que faltava era uma ÂNCORA no ponto da decisão, não um segundo parágrafo: sobrou
+ * uma linha curta com a FONTE (que o disclaimer não dá) e o botão de erro.
  */
 
 const RISCO = {
@@ -40,6 +44,21 @@ type Props = {
   onToggle?: () => void;
 };
 
+// O mecanismo de várias entradas REPETE o resumo: risk_description = "Hemorragia grave" e
+// mechanism = "Hemorragia grave. Conduta: Evitar." Mostrar os dois inteiros faz o usuário ler
+// a mesma frase duas vezes e procurar a diferença — o que gasta a atenção que o alerta precisa.
+// Aqui o prefixo repetido é cortado e sobra só o que ACRESCENTA ("Conduta: Evitar").
+const enxuto = (s?: string) => (s ?? '').toLowerCase().replace(/[\s.;:,·-]+$/, '').trim();
+
+function mecanismoUtil(resumo: string, mecanismo?: string): string | null {
+  const m = (mecanismo ?? '').trim();
+  if (!m) return null;
+  const r = enxuto(resumo);
+  let sobra = m;
+  if (r && enxuto(m).startsWith(r)) sobra = m.slice(resumo.trim().length).replace(/^[\s.;:,·-]+/, '');
+  return sobra.length >= 12 ? sobra : null;   // abaixo disso é só pontuação: não vale uma seção
+}
+
 export default function CartaoInteracao({ item, aberto, onToggle }: Props) {
   const [reportar, setReportar] = useState(false);
   const risco = RISCO[item.risk_level] ?? RISCO.moderate;
@@ -47,6 +66,7 @@ export default function CartaoInteracao({ item, aberto, onToggle }: Props) {
   const cor = fito ? '#1a6b3a' : risco.cor;
   const fundo = fito ? '#EAF4EC' : risco.fundo;
   const temFonte = !!item.source && item.source !== 'desconhecida';
+  const mecanismo = mecanismoUtil(item.risk_description, item.mechanism);
 
   const Wrapper: any = onToggle ? TouchableOpacity : View;
 
@@ -75,28 +95,26 @@ export default function CartaoInteracao({ item, aberto, onToggle }: Props) {
 
       {aberto && (
         <View style={[styles.caixa, { backgroundColor: fundo }]}>
-          {!!item.mechanism && (
+          {!!mecanismo && (
             <>
               <Text style={styles.caixaTitulo}>Como ocorre:</Text>
-              <Text style={styles.caixaTexto}>{item.mechanism}</Text>
+              <Text style={styles.caixaTexto}>{mecanismo}</Text>
             </>
           )}
 
-          <Text style={temFonte ? styles.fonteOk : styles.fonteNenhuma}>
-            {temFonte
-              ? `Fonte: ${item.source}`
-              : 'Sem fonte verificada — não conseguimos rastrear este texto até uma bula ou publicação.'}
-          </Text>
-
-          <Text style={styles.aviso}>
-            🤖 Interação apontada por <Text style={styles.bold}>IA</Text> e sujeita a erro.
-            Confira na <Text style={styles.bold}>bula impressa</Text> do seu medicamento e fale
-            com seu <Text style={styles.bold}>médico ou farmacêutico</Text>.
-          </Text>
-
-          <TouchableOpacity style={styles.btnErro} onPress={() => setReportar(true)} activeOpacity={0.7}>
-            <Text style={styles.btnErroText}>⚑ Informar erro nesta interação</Text>
-          </TouchableOpacity>
+          {/* O rodapé diz o que o MedDisclaimer do topo NÃO diz: DE ONDE veio este alerta.
+              Antes ele repetia o disclaimer inteiro ("feito por IA, confirme com a bula e com
+              seu médico") três centímetros abaixo do próprio disclaimer — o usuário lia a
+              mesma frase duas vezes. O que faltava era uma ÂNCORA no ponto da decisão, não um
+              segundo parágrafo. */}
+          <View style={styles.rodape}>
+            <Text style={temFonte ? styles.fonteOk : styles.fonteNenhuma}>
+              {temFonte ? `Fonte: ${item.source} · apontado por IA` : 'Sem fonte verificada · apontado por IA'}
+            </Text>
+            <TouchableOpacity style={styles.btnErro} onPress={() => setReportar(true)} activeOpacity={0.7}>
+              <Text style={styles.btnErroText}>⚑ Informar erro</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
 
@@ -136,21 +154,19 @@ const styles = StyleSheet.create({
   caixaTitulo: { fontSize: 11, fontWeight: '700', color: '#444', marginBottom: 4 },
   caixaTexto: { fontSize: 12, color: '#333', lineHeight: 18 },
 
-  fonteOk:      { fontSize: 11, color: '#5A6472', marginTop: 8, fontStyle: 'italic' },
-  fonteNenhuma: { fontSize: 11, color: '#8A5A00', marginTop: 8, fontStyle: 'italic', fontWeight: '600' },
-
-  aviso: {
-    fontSize: 11, color: '#3730A3', lineHeight: 16,
+  rodape: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8,
     marginTop: 8, paddingTop: 8,
     borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.10)',
   },
+  fonteOk:      { flex: 1, fontSize: 11, color: '#5A6472', fontStyle: 'italic' },
+  fonteNenhuma: { flex: 1, fontSize: 11, color: '#8A5A00', fontStyle: 'italic', fontWeight: '600' },
   bold: { fontWeight: '700' },
 
   btnErro: {
-    marginTop: 8, alignSelf: 'flex-start',
-    paddingVertical: 6, paddingHorizontal: 10,
+    paddingVertical: 5, paddingHorizontal: 9,
     borderRadius: 8, borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.12)',
     backgroundColor: 'rgba(255,255,255,0.6)',
   },
-  btnErroText: { fontSize: 11.5, color: '#6B7280', fontWeight: '600' },
+  btnErroText: { fontSize: 11, color: '#6B7280', fontWeight: '600' },
 });
