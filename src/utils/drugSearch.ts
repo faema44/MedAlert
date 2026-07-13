@@ -542,24 +542,28 @@ export function checkSubstanceInteractions(drugName: string, userMedNames: strin
   return results.sort((a, b) => (order[a.risk_level] ?? 3) - (order[b.risk_level] ?? 3));
 }
 
-// Álcool e barbitúricos nunca aparecem na lista de medicamentos do próprio usuário
-// (ninguém cadastra "Álcool" como remédio que toma), então essas interações precisam
-// ser sinalizadas de forma independente de existingMedNames — um aviso permanente por
-// medicamento, não condicionado a outro cadastro do usuário.
+// O ÁLCOOL nunca aparece na lista de medicamentos do usuário — ninguém cadastra "Álcool" como
+// remédio que toma. Por isso a interação com álcool precisa ser sinalizada de forma INDEPENDENTE
+// de existingMedNames: é um aviso permanente por medicamento, não condicionado a outro cadastro.
+//
+// OS BARBITÚRICOS ESTAVAM AQUI JUNTO, E ERA UM ERRO. A premissa ("ninguém cadastra isso") vale
+// para o álcool e é FALSA para eles: o fenobarbital é o GARDENAL — antiepiléptico comum, que
+// está no nosso banco com marcas (Gardenal, Carbital, Eucalmina) e que as pessoas cadastram.
+// O tiopental idem (Thiopentax).
+//
+// O estrago: 46 interações disparavam SEM o usuário ter o parceiro, 31 delas de risco alto.
+// Quem cadastrava Varfarina recebia "Fenobarbital × Varfarina" sem tomar fenobarbital. Quem
+// cadastrava camomila, valeriana ou maracujá também. Era o mesmo alarme falso que matamos no
+// casamento de tokens — só que por um ATALHO que ignora o casamento, e por isso o gate não via.
+// Achado pelo Fabio testando o app, não pela auditoria.
+//
+// Agora barbitúrico é medicamento como qualquer outro: o alerta só sai se o usuário tiver os
+// DOIS lados cadastrados.
 const ALCOHOL_TERMS = ['alcool', 'etanol', 'alcohol'];
-const BARBITURATE_TERMS = ['barbiturico', 'barbiturate', 'fenobarbital', 'pentobarbital', 'secobarbital', 'amobarbital', 'tiopental'];
 
-// null quando `name` não é álcool nem barbitúrico — usado tanto para achar essas
-// interações "de padrão" (ver checkInteractions) quanto para rotular o aviso na UI.
-export function alcoholOrBarbiturateKind(name: string): 'alcohol' | 'barbiturate' | null {
+function isAlcoholName(name: string): boolean {
   const n = normalize(name);
-  if (ALCOHOL_TERMS.some(t => n.includes(t))) return 'alcohol';
-  if (BARBITURATE_TERMS.some(t => n.includes(t))) return 'barbiturate';
-  return null;
-}
-
-function isAlcoholOrBarbiturateName(name: string): boolean {
-  return alcoholOrBarbiturateKind(name) !== null;
+  return ALCOHOL_TERMS.some(t => n.includes(t));
 }
 
 export function checkInteractions(newDrug: string, existingMedNames: string[]): DrugInteraction[] {
@@ -574,9 +578,9 @@ export function checkInteractions(newDrug: string, existingMedNames: string[]): 
     const { tokens1, tokens2 } = INTERACTION_TOKENS[i] ?? { tokens1: [], tokens2: [] };
     const m1 = matchesSide(tokens1, interaction.drug1_rxcuis, newDrug);
     const m2 = m1 ? false : matchesSide(tokens2, interaction.drug2_rxcuis, newDrug);
-    if (m1 && (isAlcoholOrBarbiturateName(interaction.drug2) || existingMedNames.some(m => matchesSide(tokens2, interaction.drug2_rxcuis, m)))) {
+    if (m1 && (isAlcoholName(interaction.drug2) || existingMedNames.some(m => matchesSide(tokens2, interaction.drug2_rxcuis, m)))) {
       seen.add(interaction.id); results.push(interaction);
-    } else if (m2 && (isAlcoholOrBarbiturateName(interaction.drug1) || existingMedNames.some(m => matchesSide(tokens1, interaction.drug1_rxcuis, m)))) {
+    } else if (m2 && (isAlcoholName(interaction.drug1) || existingMedNames.some(m => matchesSide(tokens1, interaction.drug1_rxcuis, m)))) {
       seen.add(interaction.id); results.push(interaction);
     }
   }

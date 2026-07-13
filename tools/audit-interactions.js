@@ -123,6 +123,28 @@ for (const it of INTER) {
 // ── 2. alerta morto ──────────────────────────────────────────────────────────
 const mortos = INTER.filter(i => !checkInteractions(i.drug1, [i.drug2]).some(r => r.id === i.id));
 
+// ── 3. alerta PERMANENTE indevido ────────────────────────────────────────────
+// checkInteractions tem um ATALHO: a interação com ÁLCOOL dispara sem o parceiro estar
+// cadastrado, porque ninguém cadastra "Álcool" como remédio que toma. O atalho ignora o
+// casamento de tokens — e por isso a checagem 1 acima é CEGA para ele.
+//
+// Os BARBITÚRICOS estavam nesse atalho, e era um erro: o fenobarbital é o GARDENAL, está no
+// nosso banco com marcas, e as pessoas o cadastram. 46 interações disparavam sem o usuário ter
+// o parceiro (31 de risco alto): quem cadastrava Varfarina recebia "Fenobarbital × Varfarina"
+// sem tomar fenobarbital; quem cadastrava camomila ou valeriana, também. Achado pelo Fabio
+// testando o app — não pela auditoria, que não olhava aqui.
+//
+// A regra: cadastrar UM único medicamento só pode disparar interação de ÁLCOOL. Qualquer outra
+// coisa que apareça com a lista de parceiros VAZIA é alerta permanente indevido.
+const ehAlcool = s => /alcool|etanol|alcohol/i.test(norm(s));
+const permanentes = [];
+for (const g of DB.map(e => e.genericName)) {
+  for (const r of checkInteractions(g, [])) {
+    if (ehAlcool(r.drug1) || ehAlcool(r.drug2)) continue;   // álcool: permanente de propósito
+    permanentes.push({ generico: g, id: r.id, inter: `${r.drug1} × ${r.drug2}`, risco: r.risk_level });
+  }
+}
+
 // ── relatório ────────────────────────────────────────────────────────────────
 console.log(`${DB.length} medicamentos · ${INTER.length} interações\n`);
 
@@ -145,7 +167,19 @@ if (mortos.length) {
   console.log('✓ toda interação dispara para os seus próprios dois fármacos');
 }
 
-if (GATE && (falsos.length || mortos.length)) {
-  console.error(`\nGATE: ${falsos.length} alarme(s) falso(s) e ${mortos.length} alerta(s) morto(s).`);
+if (permanentes.length) {
+  console.log(`
+🟡 ALERTA PERMANENTE INDEVIDO (${permanentes.length}) — dispara sem o usuário ter o parceiro`);
+  for (const p of permanentes.slice(0, 20)) {
+    console.log(`   cadastrar "${p.generico}" já dispara: ${p.inter}  [${p.id} ${p.risco}]`);
+  }
+  if (permanentes.length > 20) console.log(`   … +${permanentes.length - 20}`);
+} else {
+  console.log('✓ só o ÁLCOOL dispara sem o parceiro cadastrado');
+}
+
+if (GATE && (falsos.length || mortos.length || permanentes.length)) {
+  console.error(`\nGATE: ${falsos.length} alarme(s) falso(s), ${mortos.length} alerta(s) morto(s), `
+    + `${permanentes.length} alerta(s) permanente(s) indevido(s).`);
   process.exit(1);
 }
