@@ -30,6 +30,7 @@ function InteractionCard({ item, expanded, onToggle }: {
   const isPhyto = isPhytotherapicInteraction(item);
   const accentColor = isPhyto ? '#1a6b3a' : risk.color;
   const typeLabel = isPhyto ? '🌿 Fito.' : '💊';
+  const temFonte = !!item.source && item.source !== 'desconhecida';
 
   return (
     <TouchableOpacity
@@ -63,6 +64,26 @@ function InteractionCard({ item, expanded, onToggle }: {
         <View style={[styles.mechanismBox, { backgroundColor: isPhyto ? '#EAF4EC' : risk.bg }]}>
           <Text style={styles.mechanismTitle}>Como ocorre:</Text>
           <Text style={styles.mechanismText}>{item.mechanism}</Text>
+
+          {/* De onde veio. 31% da base não tem procedência (847 entradas, e elas carregam 281
+              dos 429 alertas críticos) — o app precisa DIZER isso em vez de apresentar tudo
+              com a mesma autoridade. "Sem fonte" não é o mesmo que "errado": a interação
+              Metformina × Contraste Iodado está entre elas e é clássica. É que não temos o
+              que citar — então o usuário é quem confere. */}
+          <Text style={temFonte ? styles.sourceOk : styles.sourceNone}>
+            {temFonte
+              ? `Fonte: ${item.source}`
+              : 'Sem fonte verificada — não conseguimos rastrear este texto até uma bula ou publicação.'}
+          </Text>
+
+          {/* O aviso fica NO CARTÃO, junto da afirmação. O MedDisclaimer do topo da tela é
+              recolhível e some da vista justamente na hora em que o usuário está lendo o
+              alerta e decidindo o que fazer. */}
+          <Text style={styles.aiNotice}>
+            🤖 Interação apontada por <Text style={styles.bold}>IA</Text> e sujeita a erro.
+            Confira na <Text style={styles.bold}>bula impressa</Text> do seu medicamento e
+            fale com seu <Text style={styles.bold}>médico ou farmacêutico</Text>.
+          </Text>
         </View>
       )}
     </TouchableOpacity>
@@ -424,6 +445,13 @@ const styles = StyleSheet.create({
   mechanismBox: { borderRadius: 8, padding: 10, marginTop: 10 },
   mechanismTitle: { fontSize: 11, fontWeight: '700', color: '#444', marginBottom: 4 },
   mechanismText: { fontSize: 12, color: '#333', lineHeight: 18 },
+  sourceOk:   { fontSize: 11, color: '#5A6472', marginTop: 8, fontStyle: 'italic' },
+  sourceNone: { fontSize: 11, color: '#8A5A00', marginTop: 8, fontStyle: 'italic', fontWeight: '600' },
+  aiNotice: {
+    fontSize: 11, color: '#3730A3', lineHeight: 16, marginTop: 8,
+    paddingTop: 8, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.10)',
+  },
+  bold: { fontWeight: '700' },
 
   // Med / phyto card
   medCard: {
