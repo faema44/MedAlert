@@ -2954,7 +2954,8 @@
   },
   {
     "id": "int_226",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "amisulprida",
     "drug1": "Amisulprida",
     "drug2": "Levodopa",
     "risk_level": "high",
@@ -7275,7 +7276,8 @@
   },
   {
     "id": "int_513",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sacubitril-valsartana",
     "drug1": "Lisinopril",
     "drug2": "Sacubitril",
     "risk_level": "critical",
@@ -10139,7 +10141,8 @@
   },
   {
     "id": "int_705",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sulpirida",
     "drug1": "Sulpirida",
     "drug2": "Levodopa",
     "risk_level": "critical",
@@ -12375,7 +12378,8 @@
   },
   {
     "id": "int_867",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cloxazolam",
     "drug1": "Cloxazolam",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -12831,7 +12835,8 @@
   },
   {
     "id": "int_903",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "maprotilina",
     "drug1": "Maprotilina",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",

@@ -5,14 +5,14 @@ nem pela CLASSE. **Não quer dizer que sejam falsas**: quer dizer que o app não
 CITAR. Elas continuam sinalizando o par (`source: "desconhecida"`), mas sem afirmar mecanismo
 nem gravidade como fato apurado — e o cartão avisa que a interação foi apontada por IA.
 
-**215** de 2768 (8%) — 56 críticas, 93 altas, 66 moderadas.
+**210** de 2768 (8%) — 52 críticas, 92 altas, 66 moderadas.
 
 | etapa | sem fonte |
 |---|---|
 | início | 847 (31%) · 281 críticas |
 | bulas da ANVISA | 415 (15%) · 146 críticas |
 | openFDA, pelo nome | 305 (11%) · 110 críticas |
-| openFDA, pela classe | **215 (8%) · 56 críticas** |
+| openFDA, pela classe | **210 (8%) · 52 críticas** |
 
 ## Como fechar cada uma
 
@@ -21,7 +21,7 @@ nem gravidade como fato apurado — e o cartão avisa que a interação foi apon
 2. **Ou concluir que a entrada não se sustenta e REMOVÊ-LA** — o que exige release na Play
    Store, porque o guard do dbSync não deixa a base encolher por OTA.
 
-## CRÍTICAS (56)
+## CRÍTICAS (52)
 
 | id | fármaco 1 | fármaco 2 |
 |---|---|---|
@@ -44,7 +44,6 @@ nem gravidade como fato apurado — e o cartão avisa que a interação foi apon
 | int_492 | Isavuconazol | Ergotamina |
 | int_494 | Isavuconazol | Pimozida |
 | int_511 | Linezolida | Sibutramina |
-| int_513 | Lisinopril | Sacubitril |
 | int_532 | Mequitazina | Eritromicina |
 | int_608 | Paliperidona | Pimozida |
 | int_609 | Paliperidona | Tioridazina |
@@ -59,7 +58,6 @@ nem gravidade como fato apurado — e o cartão avisa que a interação foi apon
 | int_686 | Sibutramina | Selegilina |
 | int_687 | Sibutramina | Fenelzina |
 | int_688 | Sibutramina | Tramadol |
-| int_705 | Sulpirida | Levodopa |
 | int_707 | Sulpirida | Pimozida |
 | int_753 | Tranilcipromina | Sibutramina |
 | int_761 | Upadacitinibe | Tofacitinibe |
@@ -77,12 +75,10 @@ nem gravidade como fato apurado — e o cartão avisa que a interação foi apon
 | int_835 | Asenapina | Cisaprida |
 | int_836 | Asenapina | Inibidores da MAO |
 | int_844 | Baclofeno | Opioides |
-| int_867 | Cloxazolam | Álcool/etanol |
 | int_899 | Levomepromazina | Etanol |
-| int_903 | Maprotilina | Álcool/etanol |
 | int_926 | Prometazina | Opioides |
 
-## ALTAS (93)
+## ALTAS (92)
 
 | id | fármaco 1 | fármaco 2 |
 |---|---|---|
@@ -99,7 +95,6 @@ nem gravidade como fato apurado — e o cartão avisa que a interação foi apon
 | int_113 | Echinacea purpurea (Equinácea) | Ciclosporina |
 | int_114 | Echinacea purpurea (Equinácea) | Tacrolimus |
 | int_208 | Adalimumabe | Tacrolimo |
-| int_226 | Amisulprida | Levodopa |
 | int_248 | Asenapina | Eritromicina |
 | int_250 | Asenapina | Haloperidol |
 | int_265 | Bisoprolol | Efedrina |
