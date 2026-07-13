@@ -1,46 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Modal, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getKV, setKV } from '../database/db';
 
-// Aceite válido por sessão. Pedir a cada toque geraria habituação — o usuário passaria a
-// marcar tudo sem ler, que é exatamente o que este aviso existe para evitar.
+// Aceite mostrado uma vez por SESSÃO (não a cada toque: pedir toda hora gera habituação, e
+// aviso marcado no automático não protege ninguém).
 let sessionAccepted = false;
 export function hasAcceptedInteractionTerms() { return sessionAccepted; }
 export function acceptInteractionTerms() { sessionAccepted = true; }
 export function resetInteractionConsent() { sessionAccepted = false; }
 
-type Props = {
-  visible: boolean;
-  onAccept: () => void;
-  onCancel: () => void;
-};
+// ...mas o aceite ANTIGO fica gravado no banco. Antes vivia só em memória, então o usuário
+// tomava as 6 confirmações de novo a cada reinício do app — o caminho mais curto para ele
+// aprender a marcar tudo sem ler. Agora: na primeira vez ele marca; nas seguintes o aviso
+// ainda APARECE (ele precisa ver), só que já marcado, e sai com um toque.
+const CONSENT_KEY = 'interaction_consent_v2';
 
-// Uma linha por aviso. Texto longo não é lido — e aviso não lido não protege ninguém.
-const ITEMS: { icon: string; title: string; sub: string }[] = [
+// Avisos que o usuário LÊ. Não viram caixa: seis caixas obrigatórias não são seis decisões,
+// são seis toques mecânicos.
+const AVISOS: { icon: string; title: string; sub: string }[] = [
   {
-    icon: '🛑',
-    title: 'Não pare nem mude nenhum remédio por causa deste alerta.',
-    sub: 'Parar de repente pode ser mais perigoso que a própria interação.',
+    icon: '📄',
+    title: 'O app é só um alerta. A bula é a fonte oficial.',
+    sub: 'Confirme sempre na bula impressa do seu medicamento.',
   },
   {
     icon: '🧑‍⚕️',
-    title: 'Só o médico ou farmacêutico decide.',
-    sub: 'O app não sabe sua dose, seus exames, nem suas outras doenças.',
-  },
-  {
-    icon: '📄',
-    title: 'O app é só um alerta. Sempre confirme com a bula.',
-    sub: 'Ela é a fonte oficial do seu medicamento.',
-  },
-  {
-    icon: '🔍',
-    title: 'Não aparecer alerta não quer dizer que é seguro.',
-    sub: 'A lista não é completa. Existem outras interações.',
-  },
-  {
-    icon: '🤖',
-    title: 'Feito por IA a partir das bulas do FDA.',
-    sub: 'Pode conter erros de medicamento e de tradução.',
+    title: 'O app não conhece o seu caso.',
+    sub: 'Ele não sabe sua dose, seus exames, nem suas outras doenças.',
   },
   {
     icon: '🚑',
@@ -49,21 +36,60 @@ const ITEMS: { icon: string; title: string; sub: string }[] = [
   },
 ];
 
+// As duas que o usuário CONFIRMA. São as que de fato protegem: a primeira impede o dano mais
+// provável (parar um remédio necessário por causa de um alerta), a segunda diz a verdade
+// sobre o que este app é e sobre o que o silêncio dele NÃO significa.
+const CONFIRMACOES: { icon: string; text: string }[] = [
+  {
+    icon: '🛑',
+    text: 'Não vou parar nem mudar nenhum medicamento por causa deste alerta. Quem decide é o médico ou o farmacêutico.',
+  },
+  {
+    icon: '🤖',
+    text: 'Entendi que os alertas são gerados por IA e podem conter erros — e que NÃO aparecer alerta não quer dizer que a combinação é segura.',
+  },
+];
+
+type Props = {
+  visible: boolean;
+  onAccept: () => void;
+  onCancel: () => void;
+};
+
 export default function InteractionConsentModal({ visible, onAccept, onCancel }: Props) {
   const insets = useSafeAreaInsets();
-  const [checked, setChecked] = useState<boolean[]>(() => ITEMS.map(() => false));
+  const [checked, setChecked] = useState<boolean[]>(() => CONFIRMACOES.map(() => false));
+  const [jaAceitou, setJaAceitou] = useState(false);
 
-  const total = ITEMS.length;
-  const done = checked.filter(Boolean).length;
-  const allChecked = done === total;
+  // Quem já aceitou antes reencontra as caixas MARCADAS — o aviso continua na frente dele,
+  // mas o trabalho não se repete.
+  useEffect(() => {
+    if (!visible) return;
+    let vivo = true;
+    getKV(CONSENT_KEY)
+      .then(v => {
+        if (!vivo || v !== '1') return;
+        setJaAceitou(true);
+        setChecked(CONFIRMACOES.map(() => true));
+      })
+      .catch(() => {});
+    return () => { vivo = false; };
+  }, [visible]);
+
+  const allChecked = checked.every(Boolean);
 
   function toggle(i: number) {
     setChecked(prev => prev.map((v, k) => (k === i ? !v : v)));
   }
 
   function handleCancel() {
-    setChecked(ITEMS.map(() => false));
+    setChecked(CONFIRMACOES.map(() => jaAceitou));
     onCancel();
+  }
+
+  function handleAccept() {
+    setKV(CONSENT_KEY, '1').catch(() => {});
+    onAccept();
   }
 
   return (
@@ -71,47 +97,55 @@ export default function InteractionConsentModal({ visible, onAccept, onCancel }:
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Antes de ver as interações</Text>
-          <Text style={styles.headerSub}>Marque cada item para continuar.</Text>
+          <Text style={styles.headerSub}>
+            {jaAceitou ? 'Confirme para continuar.' : 'Leia e confirme os dois itens no fim.'}
+          </Text>
         </View>
 
         <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
-          {ITEMS.map((item, i) => (
+          {AVISOS.map(a => (
+            <View key={a.title} style={styles.aviso}>
+              <Text style={styles.icon}>{a.icon}</Text>
+              <View style={styles.texts}>
+                <Text style={styles.title}>{a.title}</Text>
+                <Text style={styles.sub}>{a.sub}</Text>
+              </View>
+            </View>
+          ))}
+
+          <Text style={styles.secao}>Confirme para continuar</Text>
+
+          {CONFIRMACOES.map((c, i) => (
             <TouchableOpacity
-              key={item.title}
+              key={c.text}
               style={[styles.row, checked[i] && styles.rowChecked]}
               onPress={() => toggle(i)}
               activeOpacity={0.7}
               accessibilityRole="checkbox"
               accessibilityState={{ checked: checked[i] }}
-              accessibilityLabel={item.title}
+              accessibilityLabel={c.text}
             >
               <View style={[styles.box, checked[i] && styles.boxChecked]}>
                 {checked[i] && <Text style={styles.check}>✓</Text>}
               </View>
-              <Text style={styles.icon}>{item.icon}</Text>
-              <View style={styles.texts}>
-                <Text style={styles.title}>{item.title}</Text>
-                <Text style={styles.sub}>{item.sub}</Text>
-              </View>
+              <Text style={styles.icon}>{c.icon}</Text>
+              <Text style={styles.confirmText}>{c.text}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
 
         <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
-          {!allChecked && (
-            <Text style={styles.counter}>{done} de {total} marcados</Text>
-          )}
           <TouchableOpacity style={styles.btnBack} onPress={handleCancel} activeOpacity={0.7}>
             <Text style={styles.btnBackText}>Voltar</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.btnOk, !allChecked && styles.btnOkDisabled]}
-            onPress={onAccept}
+            onPress={handleAccept}
             activeOpacity={0.8}
             disabled={!allChecked}
           >
             <Text style={[styles.btnOkText, !allChecked && styles.btnOkTextDisabled]}>
-              Ok, li e aceito os itens acima
+              Li e concordo
             </Text>
           </TouchableOpacity>
         </View>
@@ -133,6 +167,20 @@ const styles = StyleSheet.create({
 
   scroll: { flex: 1 },
   scrollContent: { padding: 14, gap: 8 },
+
+  aviso: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
+    paddingVertical: 12, paddingHorizontal: 12,
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+  },
+
+  secao: {
+    fontSize: 12, fontWeight: '700', color: '#6B7280',
+    marginTop: 10, marginBottom: 2, marginLeft: 2,
+    textTransform: 'uppercase', letterSpacing: 0.5,
+  },
 
   row: {
     backgroundColor: '#fff',
@@ -156,6 +204,7 @@ const styles = StyleSheet.create({
   texts: { flex: 1 },
   title: { fontSize: 13.5, fontWeight: '700', color: '#1A1F2E', lineHeight: 18 },
   sub: { fontSize: 12.5, color: '#6B7280', lineHeight: 17, marginTop: 2 },
+  confirmText: { flex: 1, fontSize: 13, color: '#1A1F2E', lineHeight: 18, fontWeight: '600' },
 
   footer: {
     backgroundColor: '#fff',
@@ -163,7 +212,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14, paddingTop: 12,
     gap: 8,
   },
-  counter: { fontSize: 12, color: '#9CA3AF', textAlign: 'center', marginBottom: 2 },
   btnBack: {
     backgroundColor: '#F2F4F8',
     borderRadius: 12, paddingVertical: 13,
