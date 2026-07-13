@@ -12,6 +12,7 @@ import { useBulaViewer } from '../utils/useBulaViewer';
 import { DrugInteraction, Medication } from '../types';
 import MedDisclaimer from '../components/MedDisclaimer';
 import InteractionConsentModal, { hasAcceptedInteractionTerms, acceptInteractionTerms } from '../components/InteractionConsentModal';
+import ReportarErroModal from '../components/ReportarErroModal';
 
 const RISK_CONFIG = {
   critical: { label: 'Crítico',  color: '#CC3322', bg: '#FEE9E9' },
@@ -31,6 +32,7 @@ function InteractionCard({ item, expanded, onToggle }: {
   const accentColor = isPhyto ? '#1a6b3a' : risk.color;
   const typeLabel = isPhyto ? '🌿 Fito.' : '💊';
   const temFonte = !!item.source && item.source !== 'desconhecida';
+  const [reportar, setReportar] = useState(false);
 
   return (
     <TouchableOpacity
@@ -84,8 +86,28 @@ function InteractionCard({ item, expanded, onToggle }: {
             Confira na <Text style={styles.bold}>bula impressa</Text> do seu medicamento e
             fale com seu <Text style={styles.bold}>médico ou farmacêutico</Text>.
           </Text>
+
+          {/* O usuário é a última linha de defesa, e a mais valiosa: as auditorias automáticas
+              pegam alarme falso por token de sal e bula de composto no slug do puro, mas não
+              pegam "esta interação está exagerada" nem "falta a que eu conheço". Sem um caminho
+              para ele contar, o erro fica no ar. */}
+          <TouchableOpacity
+            style={styles.reportBtn}
+            onPress={() => setReportar(true)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.reportBtnText}>⚑ Informar erro nesta interação</Text>
+          </TouchableOpacity>
         </View>
       )}
+
+      <ReportarErroModal
+        visible={reportar}
+        tipo="interacao"
+        alvo={`${item.id} · ${item.drug1} × ${item.drug2}`}
+        titulo={`${item.drug1} + ${item.drug2}`}
+        onClose={() => setReportar(false)}
+      />
     </TouchableOpacity>
   );
 }
@@ -445,6 +467,13 @@ const styles = StyleSheet.create({
   mechanismBox: { borderRadius: 8, padding: 10, marginTop: 10 },
   mechanismTitle: { fontSize: 11, fontWeight: '700', color: '#444', marginBottom: 4 },
   mechanismText: { fontSize: 12, color: '#333', lineHeight: 18 },
+  reportBtn: {
+    marginTop: 8, alignSelf: 'flex-start',
+    paddingVertical: 6, paddingHorizontal: 10,
+    borderRadius: 8, borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.12)',
+    backgroundColor: 'rgba(255,255,255,0.6)',
+  },
+  reportBtnText: { fontSize: 11.5, color: '#6B7280', fontWeight: '600' },
   sourceOk:   { fontSize: 11, color: '#5A6472', marginTop: 8, fontStyle: 'italic' },
   sourceNone: { fontSize: 11, color: '#8A5A00', marginTop: 8, fontStyle: 'italic', fontWeight: '600' },
   aiNotice: {
