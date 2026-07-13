@@ -54,33 +54,65 @@ if (checkInteractions('Varfarina', ['AAS']).length === 0) {
 const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
   .replace(/[()\/+]/g, ' ').replace(/\s+/g, ' ').trim();
 
-// Espelha GENERIC_QUALIFIER_TOKENS do drugSearch.ts. Só serve para PROPOR suspeitos —
-// quem dá o veredito final é sempre a checkInteractions() acima.
+// CÓPIA INDEPENDENTE da regra de identidade do drugSearch.ts. É de propósito que seja uma
+// cópia e não um import: se alguém tirar "cloridrato" da lista de produção, a lista daqui
+// continua dizendo que cloridrato não identifica fármaco — e o gate acusa a divergência.
+// Uma auditoria que importa a regra que audita não audita nada.
 const SEM_IDENTIDADE = new Set([
   'acido', 'acida',
   'cloridrato', 'dicloridrato', 'bromidrato', 'mesilato', 'besilato', 'maleato',
   'tartarato', 'succinato', 'fumarato', 'valerato', 'propionato', 'dipropionato',
   'furoato', 'pamoato', 'oxalato', 'gluconato', 'acetato', 'citrato', 'lactato', 'nitrato',
-  'sulfato', 'cloreto', 'carbonato', 'bicarbonato', 'fosfato',
+  'sulfato', 'cloreto', 'carbonato', 'bicarbonato', 'fosfato', 'hidroxido', 'oxido',
   'humana', 'humano', 'ocular', 'oftalmico', 'topico', 'sais', 'suplementos',
   'com', 'sem', 'dos', 'das', 'por', 'para', 'seus', 'suas', 'outros', 'outras',
 ]);
-const palavras = d => norm(d).split(/[\s,]+/).filter(t => t.length >= 3);
+const IONS = new Set([
+  'sodio', 'sodica', 'sodico', 'potassio', 'potassica', 'potassico',
+  'calcio', 'calcica', 'calcico', 'magnesio', 'aluminio', 'zinco',
+  'ferro', 'ferroso', 'ferrica', 'ferrico',
+]);
+const GENITIVOS = new Set(['de', 'do', 'da']);
+
+function identidade(nome) {
+  const out = new Set();
+  for (const alt of nome.split(/[/+()]/)) {
+    const seq = norm(alt).split(/[\s,]+/).filter(Boolean);
+    const words = seq.filter(t => t.length >= 3 && !SEM_IDENTIDADE.has(t));
+    const contra = new Set();
+    for (let i = 1; i < seq.length; i++) {
+      if (IONS.has(seq[i]) && GENITIVOS.has(seq[i - 1])) contra.add(seq[i]);
+    }
+    const resto = words.filter(t => !contra.has(t));
+    for (const t of (resto.length ? resto : words)) out.add(t);
+  }
+  return [...out];
+}
+const casa = (a, b) => (a.length >= 6 ? b.includes(a) : b.split(/[\s-]+/).some(w => w.startsWith(a)));
+const ligados = (ts, ms) => ts.some(t => ms.some(m => casa(t, m) || casa(m, t)));
 
 // ── 1. alarme falso ──────────────────────────────────────────────────────────
+// O alerta dispara, mas o fármaco e a interação não compartilham NENHUMA palavra que
+// identifique princípio ativo — ou seja, o que os ligou foi sal, forma ou conectivo.
 const genericos = DB.map(e => e.genericName).filter(g => norm(g).length >= 3);
+const idMed = new Map(genericos.map(g => [g, identidade(g)]));
+const nomeMed = new Map(genericos.map(g => [g, norm(g)]));
+
+// Pré-filtro BARATO e permissivo (substring de palavra crua, a regra ANTIGA): é superconjunto
+// do que o motor casa hoje, então não perde suspeito — e evita chamar checkInteractions()
+// 7 milhões de vezes.
+const cru = d => norm(d).split(/[\s,]+/).filter(t => t.length >= 3);
+
 const falsos = [];
 for (const it of INTER) {
   for (const lado of ['drug1', 'drug2']) {
-    const t = palavras(it[lado]);
-    const vazios = t.filter(x => SEM_IDENTIDADE.has(x));
-    if (!vazios.length) continue;
-    const identidade = t.filter(x => !SEM_IDENTIDADE.has(x));
+    const palavras = cru(it[lado]);
+    const tk = identidade(it[lado]);
     const outro = it[lado === 'drug1' ? 'drug2' : 'drug1'];
     for (const g of genericos) {
-      const n = norm(g);
-      if (!vazios.some(x => x.includes(n) || n.includes(x))) continue;      // não casa nem pelo token vazio
-      if (identidade.some(x => x.includes(n) || n.includes(x))) continue;   // casa pelo nome real: legítimo
+      const n = nomeMed.get(g);
+      if (!palavras.some(x => x.includes(n) || n.includes(x))) continue;   // nem o filtro frouxo casa
+      if (ligados(tk, idMed.get(g))) continue;                             // ligados pelo nome real: legítimo
       if (checkInteractions(g, [outro]).some(r => r.id === it.id)) {
         falsos.push({ id: it.id, generico: g, inter: it[lado], outro, risco: it.risk_level });
       }

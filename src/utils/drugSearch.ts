@@ -70,36 +70,51 @@ const GENERIC_QUALIFIER_TOKENS = new Set([
   'cloridrato', 'dicloridrato', 'bromidrato', 'mesilato', 'besilato', 'maleato',
   'tartarato', 'succinato', 'fumarato', 'valerato', 'propionato', 'dipropionato',
   'furoato', 'pamoato', 'oxalato', 'gluconato', 'acetato', 'citrato', 'lactato', 'nitrato',
-  'sulfato', 'cloreto', 'carbonato', 'bicarbonato', 'fosfato',
+  'sulfato', 'cloreto', 'carbonato', 'bicarbonato', 'fosfato', 'hidroxido', 'oxido',
   // qualificadores, formas e conectivos
   'humana', 'humano', 'ocular', 'oftalmico', 'topico', 'sais', 'suplementos',
   'com', 'sem', 'dos', 'das', 'por', 'para', 'seus', 'suas', 'outros', 'outras',
 ]);
 
-// Os ÍONS ficam de fora da lista acima porque em eletrólito e suplemento eles SÃO o ativo
-// ("Cloreto de Sódio", "Suplementos de Ferro"). Mas em "Valproato de sódio" o sódio é só o
-// contra-íon — e era ele que fazia "Picossulfato de Sódio" herdar o alerta CRÍTICO do
-// valproato. Regra: o íon só conta como identidade quando é a única identidade da alternativa.
+// Os ÍONS ficam de fora da lista acima porque em eletrólito, antiácido e suplemento eles SÃO
+// o ativo ("Cloreto de Sódio", "Hidróxido de Alumínio", "Suplementos de Ferro"). Mas em
+// "Valproato de sódio" o sódio é só o contra-íon — e era ele que fazia "Picossulfato de Sódio"
+// herdar o alerta CRÍTICO do valproato.
 const ION_TOKENS = new Set([
   'sodio', 'sodica', 'sodico', 'potassio', 'potassica', 'potassico',
   'calcio', 'calcica', 'calcico', 'magnesio', 'aluminio', 'zinco',
   'ferro', 'ferroso', 'ferrica', 'ferrico',
 ]);
+const GENITIVOS = new Set(['de', 'do', 'da']);
 
-// A barra separa ALTERNATIVAS ("Sulfato Ferroso / Suplementos de Ferro", "Antiácidos com
-// Alumínio/Magnésio / Suplementos de Ferro/Zinco"), e a regra do contra-íon tem que valer
-// por alternativa: achatar tudo numa lista só faria "Antiácidos" engolir o "Ferro" e o app
-// pararia de avisar sobre ferro + quinolona. normalize() apaga a barra, então ela é dividida antes.
+// Divide o nome em PEDAÇOS antes de qualquer regra — normalize() apaga estes separadores:
+//   "/"    ALTERNATIVAS  — "Antiácidos com Alumínio / Suplementos de Ferro/Zinco": achatar
+//                          faria "Antiácidos" engolir o "Ferro" e o app pararia de avisar
+//                          sobre ferro + quinolona.
+//   "+"    CO-ATIVOS     — em "Sulfato Ferroso + Ácido Fólico" o ferro É um ativo; achatar
+//                          deixaria o "fólico" derrubá-lo e o remédio perderia a identidade
+//                          de ferro. Idem "Carbonato de Cálcio + Vitamina D".
+//   "( )"  APOSTO        — "Hidróxido de Alumínio (Antiácidos)": sem separar, o "antiácidos"
+//                          derrubaria o alumínio, que é o próprio ativo.
+//
+// Dentro do pedaço, o que marca CONTRA-ÍON é o GENITIVO, não a mera presença de outra
+// palavra: "Valproato DE sódio" e "Clavulanato DE potássio" são contra-íon; já "Ferro
+// Polimaltosado" (polimaltosado é a FORMA) e "Antiácidos COM Alumínio" trazem o íon como o
+// próprio fármaco. Tentar adivinhar pela existência de outra palavra apagava os alertas de
+// ferro do Ferro Polimaltosado — regressão que só a rede de proteção pegou.
+// E se remover o contra-íon esvaziar o pedaço, o íon É o fármaco ("Cloreto de Sódio").
 function identityTokens(drugName: string): string[] {
   const out = new Set<string>();
-  for (const alt of drugName.split('/')) {
-    const words = normalize(alt).split(/[\s,]+/)
-      .filter(t => t.length >= 3 && !GENERIC_QUALIFIER_TOKENS.has(t));
-    const temIdentidadePropria = words.some(t => !ION_TOKENS.has(t));
-    for (const t of words) {
-      if (temIdentidadePropria && ION_TOKENS.has(t)) continue;
-      out.add(t);
+  for (const alt of drugName.split(/[/+()]/)) {
+    const seq = normalize(alt).split(/[\s,]+/).filter(Boolean);
+    const words = seq.filter(t => t.length >= 3 && !GENERIC_QUALIFIER_TOKENS.has(t));
+
+    const contraIons = new Set<string>();
+    for (let i = 1; i < seq.length; i++) {
+      if (ION_TOKENS.has(seq[i]) && GENITIVOS.has(seq[i - 1])) contraIons.add(seq[i]);
     }
+    const restantes = words.filter(t => !contraIons.has(t));
+    for (const t of (restantes.length ? restantes : words)) out.add(t);
   }
   return [...out];
 }
@@ -461,9 +476,13 @@ function tokensMatchName(tokens: string[], name: string): boolean {
   const resolved = resolveGeneric(name);
   const candidates = resolved !== name ? [resolved, name] : [name];
   for (const c of candidates) {
-    const cNorm = normalize(c);
-    if (cNorm.length < 3) continue;
-    if (tokens.some(t => pieceMatches(t, cNorm) || pieceMatches(cNorm, t))) return true;
+    if (normalize(c).length < 3) continue;
+    // A regra do contra-íon vale para os DOIS lados. "Amoxicilina + Clavulanato de potássio"
+    // tem identidade própria (amoxicilina, clavulanato), então o potássio ali é contra-íon —
+    // igual ao sódio em "Valproato de sódio". Sem isso, uma interação de SUPLEMENTO DE
+    // POTÁSSIO (hipercalemia) dispararia para um antibiótico.
+    const medTokens = identityTokens(c);
+    if (tokens.some(t => medTokens.some(mt => pieceMatches(t, mt) || pieceMatches(mt, t)))) return true;
   }
   return false;
 }
