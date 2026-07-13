@@ -88,7 +88,7 @@
   },
   {
     "id": "int_007",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "IMAOs",
     "drug2": "Tramadol",
     "risk_level": "critical",
@@ -100,7 +100,7 @@
   },
   {
     "id": "int_008",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "IMAOs",
     "drug2": "Triptanos (Sumatriptano, Rizatriptano)",
     "risk_level": "critical",
@@ -109,7 +109,7 @@
   },
   {
     "id": "int_009",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Metotrexato",
     "drug2": "AINEs",
     "risk_level": "critical",
@@ -2984,7 +2984,7 @@
   },
   {
     "id": "int_228",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Amisulprida",
     "drug2": "Pimozida",
     "risk_level": "critical",
@@ -3014,7 +3014,7 @@
   },
   {
     "id": "int_230",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Amitriptilina",
     "drug2": "Rasagilina",
     "risk_level": "critical",
@@ -3029,7 +3029,7 @@
   },
   {
     "id": "int_231",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Amitriptilina",
     "drug2": "Pimozida",
     "risk_level": "critical",
@@ -3044,7 +3044,7 @@
   },
   {
     "id": "int_232",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Amitriptilina",
     "drug2": "Tioridazina",
     "risk_level": "critical",
@@ -3171,7 +3171,7 @@
   },
   {
     "id": "int_240",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Aprepitanto",
     "drug2": "Tioridazina",
     "risk_level": "critical",
@@ -3962,7 +3962,7 @@
   },
   {
     "id": "int_292",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Cetorolaco",
     "drug2": "Lítio",
     "risk_level": "high",
@@ -3977,7 +3977,7 @@
   },
   {
     "id": "int_293",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Cetorolaco",
     "drug2": "Metotrexato",
     "risk_level": "high",
@@ -4275,7 +4275,7 @@
   },
   {
     "id": "int_312",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Clobazam",
     "drug2": "Fluoxetina",
     "risk_level": "moderate",
@@ -4305,7 +4305,7 @@
   },
   {
     "id": "int_314",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Clobazam",
     "drug2": "Sertralina",
     "risk_level": "moderate",
@@ -4320,7 +4320,7 @@
   },
   {
     "id": "int_315",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Clomipramina",
     "drug2": "Selegilina",
     "risk_level": "critical",
@@ -4335,7 +4335,7 @@
   },
   {
     "id": "int_316",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Clomipramina",
     "drug2": "Rasagilina",
     "risk_level": "critical",
@@ -4350,7 +4350,7 @@
   },
   {
     "id": "int_317",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Clomipramina",
     "drug2": "Pimozida",
     "risk_level": "critical",
@@ -4597,7 +4597,7 @@
   },
   {
     "id": "int_335",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Codeína",
     "drug2": "Citalopram",
     "risk_level": "critical",
@@ -4612,7 +4612,7 @@
   },
   {
     "id": "int_336",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Codeína",
     "drug2": "Escitalopram",
     "risk_level": "high",
@@ -4658,7 +4658,7 @@
   },
   {
     "id": "int_339",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Codeína",
     "drug2": "Sertralina",
     "risk_level": "high",
@@ -4785,7 +4785,7 @@
   },
   {
     "id": "int_350",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Dabigatrana",
     "drug2": "Voriconazol",
     "risk_level": "critical",
@@ -4831,7 +4831,7 @@
   },
   {
     "id": "int_353",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Dalteparina",
     "drug2": "Itraconazol",
     "risk_level": "moderate",
@@ -4846,7 +4846,7 @@
   },
   {
     "id": "int_354",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Dalteparina",
     "drug2": "Rivaroxabana",
     "risk_level": "critical",
@@ -5512,7 +5512,7 @@
   },
   {
     "id": "int_397",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Enoxaparina",
     "drug2": "Ibuprofeno",
     "risk_level": "moderate",
@@ -5773,7 +5773,7 @@
   },
   {
     "id": "int_414",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Etoricoxibe",
     "drug2": "Lítio",
     "risk_level": "high",
@@ -5991,7 +5991,7 @@
   },
   {
     "id": "int_428",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Fentanila",
     "drug2": "Cetamina",
     "risk_level": "high",
@@ -6021,7 +6021,7 @@
   },
   {
     "id": "int_430",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Fentanila",
     "drug2": "Lorazepam",
     "risk_level": "critical",
@@ -6052,7 +6052,7 @@
   },
   {
     "id": "int_432",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Fentanila",
     "drug2": "Oxazepam",
     "risk_level": "critical",
@@ -6067,7 +6067,7 @@
   },
   {
     "id": "int_433",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Fentanila",
     "drug2": "Triazolam",
     "risk_level": "critical",
@@ -6285,7 +6285,7 @@
   },
   {
     "id": "int_447",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Fondaparinux",
     "drug2": "Ibuprofeno",
     "risk_level": "high",
@@ -6478,7 +6478,7 @@
   },
   {
     "id": "int_461",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Granisetrona",
     "drug2": "Pimozida",
     "risk_level": "high",
@@ -6570,7 +6570,7 @@
   },
   {
     "id": "int_467",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Hidrocodona",
     "drug2": "Citalopram",
     "risk_level": "high",
@@ -6585,7 +6585,7 @@
   },
   {
     "id": "int_468",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Hidrocodona",
     "drug2": "Escitalopram",
     "risk_level": "high",
@@ -6600,7 +6600,7 @@
   },
   {
     "id": "int_469",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Hidrocodona",
     "drug2": "Fluoxetina",
     "risk_level": "critical",
@@ -6615,7 +6615,7 @@
   },
   {
     "id": "int_470",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Hidrocodona",
     "drug2": "Paroxetina",
     "risk_level": "high",
@@ -6630,7 +6630,7 @@
   },
   {
     "id": "int_471",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Hidrocodona",
     "drug2": "Sertralina",
     "risk_level": "high",
@@ -6734,7 +6734,7 @@
   },
   {
     "id": "int_478",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Ibuprofeno",
     "drug2": "Lítio",
     "risk_level": "critical",
@@ -6812,7 +6812,7 @@
   },
   {
     "id": "int_483",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Imipramina",
     "drug2": "Selegilina",
     "risk_level": "critical",
@@ -7337,7 +7337,7 @@
   },
   {
     "id": "int_518",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Lornoxicam",
     "drug2": "Lítio",
     "risk_level": "critical",
@@ -7368,7 +7368,7 @@
   },
   {
     "id": "int_520",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Lornoxicam",
     "drug2": "Varfarina",
     "risk_level": "high",
@@ -7477,7 +7477,7 @@
   },
   {
     "id": "int_527",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Maprotilina",
     "drug2": "Pimozida",
     "risk_level": "critical",
@@ -7615,7 +7615,7 @@
   },
   {
     "id": "int_536",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Metadona",
     "drug2": "Citalopram",
     "risk_level": "high",
@@ -7630,7 +7630,7 @@
   },
   {
     "id": "int_537",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Metadona",
     "drug2": "Clorpromazina",
     "risk_level": "high",
@@ -7645,7 +7645,7 @@
   },
   {
     "id": "int_538",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Metadona",
     "drug2": "Diazepam",
     "risk_level": "critical",
@@ -7691,7 +7691,7 @@
   },
   {
     "id": "int_541",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Metadona",
     "drug2": "Lorazepam",
     "risk_level": "critical",
@@ -7706,7 +7706,7 @@
   },
   {
     "id": "int_542",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Metadona",
     "drug2": "Midazolam",
     "risk_level": "critical",
@@ -7721,7 +7721,7 @@
   },
   {
     "id": "int_543",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Metadona",
     "drug2": "Paroxetina",
     "risk_level": "critical",
@@ -8018,7 +8018,7 @@
   },
   {
     "id": "int_565",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Morfina",
     "drug2": "Citalopram",
     "risk_level": "moderate",
@@ -8033,7 +8033,7 @@
   },
   {
     "id": "int_566",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Morfina",
     "drug2": "Fluoxetina",
     "risk_level": "high",
@@ -8048,7 +8048,7 @@
   },
   {
     "id": "int_567",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Morfina",
     "drug2": "Paroxetina",
     "risk_level": "high",
@@ -8063,7 +8063,7 @@
   },
   {
     "id": "int_568",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Morfina",
     "drug2": "Sertralina",
     "risk_level": "high",
@@ -8093,7 +8093,7 @@
   },
   {
     "id": "int_570",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Nalbufina",
     "drug2": "Buprenorfina",
     "risk_level": "critical",
@@ -8187,7 +8187,7 @@
   },
   {
     "id": "int_576",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Naratriptano",
     "drug2": "Rasagilina",
     "risk_level": "critical",
@@ -8281,7 +8281,7 @@
   },
   {
     "id": "int_583",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Nimesulida",
     "drug2": "Lítio",
     "risk_level": "high",
@@ -8376,7 +8376,7 @@
   },
   {
     "id": "int_589",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Nortriptilina",
     "drug2": "Selegilina",
     "risk_level": "critical",
@@ -9347,7 +9347,7 @@
   },
   {
     "id": "int_652",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Rasagilina",
     "drug2": "Citalopram",
     "risk_level": "critical",
@@ -9362,7 +9362,7 @@
   },
   {
     "id": "int_653",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Rasagilina",
     "drug2": "Escitalopram",
     "risk_level": "critical",
@@ -9393,7 +9393,7 @@
   },
   {
     "id": "int_655",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Rasagilina",
     "drug2": "Paroxetina",
     "risk_level": "critical",
@@ -9408,7 +9408,7 @@
   },
   {
     "id": "int_656",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Rasagilina",
     "drug2": "Sertralina",
     "risk_level": "critical",
@@ -9640,7 +9640,7 @@
   },
   {
     "id": "int_672",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Rizatriptano",
     "drug2": "Linezolida",
     "risk_level": "critical",
@@ -9739,7 +9739,7 @@
   },
   {
     "id": "int_679",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Selegilina",
     "drug2": "Tramadol",
     "risk_level": "critical",
@@ -9754,7 +9754,7 @@
   },
   {
     "id": "int_680",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Selegilina",
     "drug2": "Dextrometorfano",
     "risk_level": "critical",
@@ -10340,7 +10340,7 @@
   },
   {
     "id": "int_718",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Tapentadol",
     "drug2": "Citalopram",
     "risk_level": "critical",
@@ -10355,7 +10355,7 @@
   },
   {
     "id": "int_719",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Tapentadol",
     "drug2": "Fluoxetina",
     "risk_level": "moderate",
@@ -10386,7 +10386,7 @@
   },
   {
     "id": "int_721",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Tenoxicam",
     "drug2": "Lítio",
     "risk_level": "high",
@@ -10909,7 +10909,7 @@
   },
   {
     "id": "int_759",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Trimipramina",
     "drug2": "Selegilina",
     "risk_level": "critical",
@@ -10924,7 +10924,7 @@
   },
   {
     "id": "int_760",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Trimipramina",
     "drug2": "Rasagilina",
     "risk_level": "critical",
@@ -11718,7 +11718,7 @@
   },
   {
     "id": "int_815",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Almotriptano",
     "drug2": "Tranilcipromina",
     "risk_level": "critical",
@@ -11776,7 +11776,7 @@
   },
   {
     "id": "int_819",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Alprazolam",
     "drug2": "Etanol",
     "risk_level": "critical",
@@ -11879,7 +11879,7 @@
   },
   {
     "id": "int_827",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Amitriptilina",
     "drug2": "MAOIs",
     "risk_level": "critical",
@@ -12018,7 +12018,7 @@
   },
   {
     "id": "int_838",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Atomoxetina",
     "drug2": "MAOIs",
     "risk_level": "critical",
@@ -12076,7 +12076,7 @@
   },
   {
     "id": "int_842",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Azatioprina",
     "drug2": "Inibidores da xantina oxidase",
     "risk_level": "critical",
@@ -12239,7 +12239,7 @@
   },
   {
     "id": "int_856",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Carisoprodol",
     "drug2": "Opioides",
     "risk_level": "high",
@@ -12277,7 +12277,7 @@
   },
   {
     "id": "int_859",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Clonazepam",
     "drug2": "Opioides",
     "risk_level": "critical",
@@ -12302,7 +12302,7 @@
   },
   {
     "id": "int_861",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Clorazepato",
     "drug2": "Opioides",
     "risk_level": "critical",
@@ -12314,7 +12314,7 @@
   },
   {
     "id": "int_862",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Clorazepato",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -12351,7 +12351,7 @@
   },
   {
     "id": "int_865",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Clorzoxazona",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
@@ -12438,7 +12438,7 @@
   },
   {
     "id": "int_873",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Diazepam",
     "drug2": "Opióides",
     "risk_level": "critical",
@@ -12463,7 +12463,7 @@
   },
   {
     "id": "int_875",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Dissulfiram",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -12475,7 +12475,7 @@
   },
   {
     "id": "int_876",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Doxepina",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
@@ -12487,7 +12487,7 @@
   },
   {
     "id": "int_877",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Dronabinol",
     "drug2": "Etanol",
     "risk_level": "moderate",
@@ -12554,7 +12554,7 @@
   },
   {
     "id": "int_882",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Fenelzina",
     "drug2": "Etanol",
     "risk_level": "high",
@@ -12595,7 +12595,7 @@
   },
   {
     "id": "int_885",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Fentanila",
     "drug2": "Etanol",
     "risk_level": "critical",
@@ -12688,7 +12688,7 @@
   },
   {
     "id": "int_892",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Hidrocodona",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -12750,7 +12750,7 @@
   },
   {
     "id": "int_897",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Isoniazida",
     "drug2": "Etanol",
     "risk_level": "high",
@@ -12894,7 +12894,7 @@
   },
   {
     "id": "int_908",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Metocarbamol",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -13009,7 +13009,7 @@
   },
   {
     "id": "int_919",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Oxazepam",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -13125,7 +13125,7 @@
   },
   {
     "id": "int_928",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Quetiapina",
     "drug2": "Etanol",
     "risk_level": "moderate",
@@ -13165,7 +13165,7 @@
   },
   {
     "id": "int_931",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Tapentadol",
     "drug2": "Etanol",
     "risk_level": "critical",
@@ -13232,7 +13232,7 @@
   },
   {
     "id": "int_936",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Tranilcipromina",
     "drug2": "Etanol",
     "risk_level": "moderate",
@@ -13260,7 +13260,7 @@
   },
   {
     "id": "int_938",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Triazolam",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -13334,7 +13334,7 @@
   },
   {
     "id": "int_944",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Zaleplon",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",

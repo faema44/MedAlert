@@ -149,19 +149,63 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   }
 
   // 3. confirmação: a bula americana do lado A cita o fármaco do lado B?
+  //
+  // POR NOME não basta, e a razão é estrutural: a bula quase nunca lista os parceiros um a um.
+  // A do fentanil diz "benzodiazepines and other CNS depressants" — não diz "lorazepam".
+  // A do metotrexato diz "nonsteroidal anti-inflammatory drugs" — não diz "ibuprofeno".
+  // A do tramadol diz "monoamine oxidase (MAO) inhibitors" — não diz "fenelzina".
+  // Exigir o nome descartava 110 interações CLÁSSICAS como se fossem duvidosas.
+  //
+  // A citação por CLASSE é legítima (lorazepam É benzodiazepínico), mas é mais larga que a
+  // nominal — então fica MARCADA como tal, e não vendemos uma pela outra.
+  const CLASSES = [
+    { en: ['benzodiazepin'],                                   pt: ['alprazolam', 'diazepam', 'lorazepam', 'midazolam', 'oxazepam', 'triazolam', 'clonazepam', 'bromazepam', 'clobazam', 'flurazepam', 'nitrazepam', 'cloxazolam', 'estazolam'] },
+    { en: ['nsaid', 'nonsteroidal anti', 'non-steroidal anti'],  pt: ['ibuprofeno', 'diclofenaco', 'naproxeno', 'cetoprofeno', 'piroxicam', 'meloxicam', 'indometacina', 'cetorolaco', 'nimesulida', 'lornoxicam', 'aines', 'tenoxicam', 'etoricoxibe', 'celecoxibe'] },
+    { en: ['monoamine oxidase', 'mao inhibitor'],              pt: ['fenelzina', 'tranilcipromina', 'selegilina', 'rasagilina', 'moclobemida', 'linezolida', 'imaos', 'imao'] },
+    { en: ['selective serotonin reuptake', 'ssri'],            pt: ['fluoxetina', 'sertralina', 'paroxetina', 'citalopram', 'escitalopram', 'fluvoxamina', 'isrs'] },
+    { en: ['tricyclic'],                                       pt: ['amitriptilina', 'nortriptilina', 'imipramina', 'clomipramina', 'doxepina', 'trimipramina', 'maprotilina', 'triciclicos'] },
+    { en: ['triptan'],                                         pt: ['sumatriptano', 'rizatriptano', 'naratriptano', 'almotriptano', 'zolmitriptano', 'triptanos'] },
+    { en: ['opioid'],                                          pt: ['morfina', 'fentanila', 'metadona', 'oxicodona', 'codeina', 'tramadol', 'hidrocodona', 'buprenorfina', 'nalbufina', 'petidina', 'opioides'] },
+    { en: ['qt interval', 'qt prolongation', 'prolong the qt'], pt: ['pimozida', 'tioridazina', 'amiodarona', 'sotalol', 'clorpromazina', 'haloperidol', 'citalopram', 'domperidona', 'metadona'] },
+    { en: ['statin', 'hmg-coa'],                               pt: ['sinvastatina', 'atorvastatina', 'rosuvastatina', 'pravastatina', 'lovastatina', 'estatinas'] },
+    { en: ['anticoagulant'],                                   pt: ['varfarina', 'dabigatrana', 'rivaroxabana', 'apixabana', 'edoxabana', 'heparina', 'enoxaparina', 'dalteparina'] },
+    // ÁLCOOL não é medicamento: não está no banco, não tem RxCUI nem bula, então nunca virou
+    // alvo de busca — e eram 12 interações CRÍTICAS órfãs só por isso. Mas toda bula fala dele.
+    { en: ['alcohol', 'ethanol'],                              pt: ['etanol', 'alcool'] },
+    { en: ['xanthine oxidase'],                                pt: ['alopurinol', 'febuxostate', 'xantina oxidase'] },
+    { en: ['cisapride'],                                       pt: ['cisaprida'] },
+  ];
+  // A base escreve a mesma classe de várias formas ("IMAOs", "MAOIs", "Inibidores da MAO").
+  // Sem normalizar isso, a classe existe no mapa e mesmo assim não casa.
+  const APELIDOS = {
+    'maois': 'imaos', 'maoi': 'imaos', 'inibidores da mao': 'imaos',
+    'inibidores da monoaminoxidase': 'imaos', 'inibidores da monoamina oxidase': 'imaos',
+  };
+  const classesDe = nomePt => {
+    let n = norm(nomePt);
+    for (const [de, para] of Object.entries(APELIDOS)) if (n.includes(de)) n += ' ' + para;
+    return CLASSES.filter(c => c.pt.some(p => n.includes(p)));
+  };
+
   const confirmadas = new Map();
   for (const i of orfas) {
     const l = ladosDe.get(i.id);
     for (const [a, b] of [[1, 2], [2, 1]]) {
+      const nomeB = b === 1 ? i.drug1 : i.drug2;
       const alvos = l[b].map(g => enDe[g]).filter(n => n && n.length >= 6);
-      if (!alvos.length) continue;
+      const classes = [...new Set([...l[b], nomeB].flatMap(g => classesDe(g)).flatMap(c => c.en))];
+      if (!alvos.length && !classes.length) continue;
       for (const g of l[a]) {
         const texto = labels[enDe[g]];
         if (!texto) continue;
         const t = texto.toLowerCase();
-        const achou = alvos.find(n => new RegExp(`(^|[^a-z])${n.split(' ')[0]}`, 'i').test(t));
-        if (!achou) continue;
-        confirmadas.set(i.id, { medicamento: g, en: enDe[g], citou: achou });
+        const porNome = alvos.find(n => new RegExp(`(^|[^a-z])${n.split(' ')[0]}`, 'i').test(t));
+        const porClasse = porNome ? null : classes.find(c => t.includes(c));
+        if (!porNome && !porClasse) continue;
+        confirmadas.set(i.id, {
+          medicamento: g, en: enDe[g],
+          citou: porNome ?? porClasse, nominal: !!porNome,
+        });
         break;
       }
       if (confirmadas.has(i.id)) break;
@@ -176,7 +220,7 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   for (const i of crit.filter(x => confirmadas.has(x.id)).slice(0, 12)) {
     const c = confirmadas.get(i.id);
     console.log(`   [${i.id}] ${i.drug1}  ×  ${i.drug2}`);
-    console.log(`        bula FDA de ${c.en} cita "${c.citou}"`);
+    console.log(`        bula FDA de ${c.en} cita "${c.citou}" ${c.nominal ? '(nome)' : '(classe)'}`);
   }
 
   if (!GRAVAR) { console.log('\n[relatório] use --gravar para escrever source: "FDA"'); return; }
