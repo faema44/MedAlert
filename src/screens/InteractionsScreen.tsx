@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity,
 } from 'react-native';
@@ -67,6 +67,13 @@ export default function InteractionsScreen() {
   const [showFilters, setShowFilters] = useState(false);
   // Esta aba lista a base inteira de interações, então também passa pelo termo de ciência.
   const [consentDone, setConsentDone] = useState(hasAcceptedInteractionTerms);
+  // O Modal PRECISA nascer fechado e só então abrir. A aba é montada preguiçosamente (só
+  // quando o usuário entra nela), e um Modal que já vem visible={true} no primeiro render
+  // dessa montagem nunca chega a ser anexado à janela: o termo simplesmente não aparecia, e a
+  // lista inteira ficava acessível sem aceite. Na Home e em Medicamentos o mesmo componente
+  // sempre funcionou porque lá ele abre num TOQUE — false → true — que é o que falta aqui.
+  const [montado, setMontado] = useState(false);
+  useEffect(() => { setMontado(true); }, []);
 
   const intFiltered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -156,7 +163,7 @@ export default function InteractionsScreen() {
       {/* A aba de interações lista a base inteira — passa pelo termo antes de exibir.
           "Voltar" leva para a aba de remédios em vez de deixar a tela vazia. */}
       <InteractionConsentModal
-        visible={tab === 'interactions' && !consentDone}
+        visible={montado && tab === 'interactions' && !consentDone}
         onCancel={() => switchTab('meds')}
         onAccept={() => { acceptInteractionTerms(); setConsentDone(true); }}
       />
