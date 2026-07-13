@@ -62,7 +62,16 @@ function extrair(pdf) {
     buf.push(linhas[k]);
   }
   const texto = buf.join('\n').replace(/[ \t]+/g, ' ').replace(/\n{2,}/g, '\n').trim();
-  return texto.length >= MIN_UTIL ? texto : null;
+  if (texto.length < MIN_UTIL) return null;
+
+  // CABEÇALHO da bula (as 3 primeiras linhas com conteúdo: nome comercial, princípio ativo,
+  // fabricante, apresentação). Vai junto com o trecho por dois motivos:
+  //   1. o usuário CONFIRMA que o texto é do remédio dele — o app não pede fé;
+  //   2. é a nossa defesa contra a doença que passamos o dia matando: bula de OUTRO
+  //      medicamento ocupando o slug (umeclidinio.pdf era o Trelegy, quinina era hidroxizina).
+  //      Se algum dia voltar a acontecer, o erro fica VISÍVEL na tela em vez de silencioso.
+  const ident = linhas.filter(l => l.trim()).slice(0, 3).join(' ').replace(/\s+/g, ' ').trim();
+  return { cabecalho: ident.slice(0, 160), texto };
 }
 
 const pdfs = fs.readdirSync(BULAS).filter(f => f.endsWith('.pdf')).sort();
@@ -70,10 +79,10 @@ const out = {};
 let porCabecalho = 0, porFormula = 0;
 
 for (const f of pdfs) {
-  const texto = extrair(path.join(BULAS, f));
-  if (!texto) continue;
-  out[f.slice(0, -4)] = texto;
-  if (CABECALHO.test(texto.split('\n')[0])) porCabecalho++; else porFormula++;
+  const r = extrair(path.join(BULAS, f));
+  if (!r) continue;
+  out[f.slice(0, -4)] = r;
+  if (CABECALHO.test(r.texto.split('\n')[0])) porCabecalho++; else porFormula++;
 }
 
 const json = JSON.stringify(out);

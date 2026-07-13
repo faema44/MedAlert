@@ -29552,5 +29552,23 @@
     "risk_level": "high",
     "risk_description": "Lesão do trato digestivo — NÃO é hipercalemia",
     "mechanism": "O anticolinérgico retarda o esvaziamento gástrico e o trânsito intestinal. O comprimido de potássio fica parado em contato com a mucosa e concentra sal ali, podendo causar úlcera, sangramento e até perfuração. Vale para as formas SÓLIDAS de potássio; a solução oral não tem esse risco. Avise o médico se sentir dor abdominal, náusea, vômito ou notar sangue nas fezes."
+  },
+  {
+    "id": "int_3091",
+    "source": "ANVISA",
+    "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+    "drug2": "Heparina",
+    "risk_level": "moderate",
+    "risk_description": "Hipercalemia — a heparina reduz a aldosterona",
+    "mechanism": "A bula do cloreto de potássio (ANVISA) lista a heparina, de baixo peso molecular e não fracionada, entre os medicamentos que aumentam o risco de hipercalemia. A heparina suprime a produção de aldosterona e o rim passa a reter potássio. Exige controle do potássio sérico."
+  },
+  {
+    "id": "int_3092",
+    "source": "ANVISA",
+    "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+    "drug2": "Ciclosporina / Tacrolimo (imunossupressores)",
+    "risk_level": "high",
+    "risk_description": "Hipercalemia — o imunossupressor prejudica a excreção renal de potássio",
+    "mechanism": "A bula do cloreto de potássio (ANVISA) cita nominalmente ciclosporina e tacrolimo entre os imunossupressores que elevam o risco de hipercalemia. Eles reduzem a eliminação renal de potássio, e o quadro é frequente em transplantados. Não use suplemento de potássio sem orientação e mantenha o controle laboratorial."
   }
 ]

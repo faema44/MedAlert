@@ -41,7 +41,7 @@ export interface DrugInteraction {
   // ERRADA: o int_001 (Metformina × Contraste Iodado) é clássico e está aí. Quer dizer que o app
   // não tem o que CITAR — então ele pode sinalizar o par e mandar ler a bula, mas não deve
   // afirmar mecanismo nem gravidade como se fosse fato apurado.
-  source?: 'FDA' | 'Infarma 2007' | 'Fiocruz 2024' | 'drugs.com' | 'desconhecida';
+  source?: 'ANVISA' | 'FDA' | 'Infarma 2007' | 'Fiocruz 2024' | 'drugs.com' | 'desconhecida';
   drug1: string;
   drug2: string;
   risk_level: 'critical' | 'high' | 'moderate';

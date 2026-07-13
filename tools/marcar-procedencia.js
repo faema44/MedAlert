@@ -53,7 +53,12 @@ for (const c of commits) {
 const base = JSON.parse(fs.readFileSync(ALVO, 'utf8'));
 const conta = {};
 const saida = base.map(x => {
-  const fonte = FONTE_POR_COMMIT[primeiroCommit.get(x.id)] ?? DESCONHECIDA;
+  // `source` já gravado à mão VENCE a atribuição por commit: as entradas com fonte anotada
+  // na origem (ANVISA, drugs.com) não podem ser rebaixadas para "desconhecida" só porque o
+  // commit que as criou ainda não está no mapa acima.
+  const fonte = x.source && x.source !== DESCONHECIDA
+    ? x.source
+    : (FONTE_POR_COMMIT[primeiroCommit.get(x.id)] ?? DESCONHECIDA);
   conta[fonte] = (conta[fonte] || 0) + 1;
   // `source` logo após o id: é metadado da entrada, não conteúdo clínico
   const { id, ...resto } = x;
