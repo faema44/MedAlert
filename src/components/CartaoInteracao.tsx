@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { DrugInteraction } from '../types';
-import { isPhytotherapicInteraction } from '../utils/drugSearch';
+import { isPhytotherapicInteraction, bulaUrlDoSlug } from '../utils/drugSearch';
+import { useBulaViewer } from '../utils/useBulaViewer';
 import ReportarErroModal from './ReportarErroModal';
 
 /**
@@ -59,8 +60,23 @@ function mecanismoUtil(resumo: string, mecanismo?: string): string | null {
   return sobra.length >= 12 ? sobra : null;   // abaixo disso é só pontuação: não vale uma seção
 }
 
+// "Fonte: ANVISA" não diz nada: ANVISA é a AGÊNCIA. O documento é a BULA DA VARFARINA — e é
+// ela que o usuário precisa poder abrir e conferir. source_ref guarda o fármaco cuja bula cita
+// o outro; source_bula guarda o slug, que aponta para o PDF no nosso servidor.
+function textoDaFonte(item: DrugInteraction): string {
+  const ref = item.source_ref;
+  switch (item.source) {
+    case 'ANVISA':  return ref ? `Fonte: bula da ${ref} (ANVISA)` : 'Fonte: bula da ANVISA';
+    case 'FDA':     return ref ? `Fonte: bula do FDA — ${ref}` : 'Fonte: bulas do FDA';
+    case undefined:
+    case 'desconhecida': return 'Sem fonte verificada';
+    default:        return `Fonte: ${item.source}`;
+  }
+}
+
 export default function CartaoInteracao({ item, aberto, onToggle }: Props) {
   const [reportar, setReportar] = useState(false);
+  const { openBula, modal: bulaModal } = useBulaViewer();
   const risco = RISCO[item.risk_level] ?? RISCO.moderate;
   const fito = isPhytotherapicInteraction(item);
   const cor = fito ? '#1a6b3a' : risco.cor;
@@ -108,15 +124,29 @@ export default function CartaoInteracao({ item, aberto, onToggle }: Props) {
               mesma frase duas vezes. O que faltava era uma ÂNCORA no ponto da decisão, não um
               segundo parágrafo. */}
           <View style={styles.rodape}>
-            <Text style={temFonte ? styles.fonteOk : styles.fonteNenhuma}>
-              {temFonte ? `Fonte: ${item.source} · apontado por IA` : 'Sem fonte verificada · apontado por IA'}
-            </Text>
+            {item.source_bula ? (
+              <TouchableOpacity
+                style={styles.fonteBox}
+                onPress={() => openBula(bulaUrlDoSlug(item.source_bula!), item.source_ref ?? '')}
+                activeOpacity={0.6}
+              >
+                <Text style={styles.fonteLink}>{textoDaFonte(item)} ›</Text>
+                <Text style={styles.porIA}>apontado por IA</Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.fonteBox}>
+                <Text style={temFonte ? styles.fonteOk : styles.fonteNenhuma}>{textoDaFonte(item)}</Text>
+                <Text style={styles.porIA}>apontado por IA</Text>
+              </View>
+            )}
             <TouchableOpacity style={styles.btnErro} onPress={() => setReportar(true)} activeOpacity={0.7}>
               <Text style={styles.btnErroText}>⚑ Informar erro</Text>
             </TouchableOpacity>
           </View>
         </View>
       )}
+
+      {bulaModal}
 
       <ReportarErroModal
         visible={reportar}
@@ -159,8 +189,11 @@ const styles = StyleSheet.create({
     marginTop: 8, paddingTop: 8,
     borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.10)',
   },
-  fonteOk:      { flex: 1, fontSize: 11, color: '#5A6472', fontStyle: 'italic' },
-  fonteNenhuma: { flex: 1, fontSize: 11, color: '#8A5A00', fontStyle: 'italic', fontWeight: '600' },
+  fonteBox:     { flex: 1 },
+  fonteOk:      { fontSize: 11, color: '#5A6472', fontStyle: 'italic' },
+  fonteNenhuma: { fontSize: 11, color: '#8A5A00', fontStyle: 'italic', fontWeight: '600' },
+  fonteLink:    { fontSize: 11, color: '#1C3F7A', fontWeight: '600' },
+  porIA:        { fontSize: 10.5, color: '#9CA3AF', marginTop: 1 },
   bold: { fontWeight: '700' },
 
   btnErro: {

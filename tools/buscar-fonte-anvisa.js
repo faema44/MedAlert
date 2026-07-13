@@ -141,7 +141,10 @@ function genericosDoLado(inter, lado) {
   return [...bulaDe.keys()].filter(g => ligados(tk, idDoGenerico.get(g)));
 }
 
-const orfas = INTER.filter(i => !i.source || i.source === 'desconhecida');
+// Reprocessa também as já marcadas como ANVISA: é assim que o source_ref (o NOME do fármaco
+// cuja bula confirma) é preenchido nas que foram gravadas antes de este campo existir.
+// Quem não for confirmado agora mantém o que tem — o map de saída só toca nas confirmadas.
+const orfas = INTER.filter(i => !i.source || i.source === 'desconhecida' || i.source === 'ANVISA');
 console.log(`${INTER.length} interações · ${orfas.length} sem fonte (${orfas.filter(i => i.risk_level === 'critical').length} críticas)`);
 console.log(`${bulaDe.size} medicamentos do banco têm seção de interações na bula\n`);
 
@@ -196,8 +199,10 @@ if (!GRAVAR) { console.log('\n[relatório] use --gravar para escrever source: "A
 const saida = INTER.map(i => {
   const c = confirmadas.get(i.id);
   if (!c) return i;
-  const { id, source, ...resto } = i;
-  return { id, source: 'ANVISA', source_bula: c.slug, ...resto };
+  const { id, source, source_bula, source_ref, ...resto } = i;
+  // source_ref = o fármaco cuja bula cita o outro. Sem isto o app só podia dizer "Fonte:
+  // ANVISA" — que é a AGÊNCIA, não o documento. O documento é a BULA DA VARFARINA.
+  return { id, source: 'ANVISA', source_ref: c.medicamento, source_bula: c.slug, ...resto };
 });
 fs.writeFileSync(path.join(ROOT, 'src/data/interactions.json'), JSON.stringify(saida, null, 2) + '\n');
 console.log(`\n✓ ${confirmadas.size} entradas marcadas com source: "ANVISA" + source_bula`);

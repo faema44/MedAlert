@@ -72,7 +72,8 @@ const casa = (a, b) => (a.length >= 6 ? b.includes(a) : b.split(/[\s-]+/).some(w
 const ligados = (as, bs) => as.some(a => bs.some(b => casa(a, b) || casa(b, a)));
 
 // ── quem participa das órfãs ────────────────────────────────────────────────
-const orfas = INTER.filter(i => !i.source || i.source === 'desconhecida');
+// Reprocessa também as já marcadas como FDA, para preencher o source_ref nas antigas.
+const orfas = INTER.filter(i => !i.source || i.source === 'desconhecida' || i.source === 'FDA');
 const comRxcui = DB.filter(e => e.rxcui);
 const idPorGenerico = new Map(comRxcui.map(e => [e.genericName, identidade(e.genericName)]));
 
@@ -226,8 +227,11 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   if (!GRAVAR) { console.log('\n[relatório] use --gravar para escrever source: "FDA"'); return; }
   const saida = INTER.map(i => {
     if (!confirmadas.has(i.id)) return i;
-    const { id, source, ...resto } = i;
-    return { id, source: 'FDA', ...resto };
+    const { id, source, source_ref, ...resto } = i;
+    // O fármaco cuja bula AMERICANA cita o outro. "Fonte: FDA" sozinho não diz nada:
+    // o documento é a bula do WARFARIN, e é isso que o usuário precisa poder conferir.
+    const c = confirmadas.get(i.id);
+    return { id, source: 'FDA', source_ref: c.medicamento, ...resto };
   });
   fs.writeFileSync(path.join(ROOT, 'src/data/interactions.json'), JSON.stringify(saida, null, 2) + '\n');
   console.log(`\n✓ ${confirmadas.size} entradas marcadas com source: "FDA"`);

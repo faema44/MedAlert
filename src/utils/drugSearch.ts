@@ -287,6 +287,13 @@ const PHYTO_BULA_MAP: Record<string, string> = {
 
 const BULA_BASE = 'https://www.alertamedico.ia.br/bulas';
 
+// A bula que CONFIRMA uma interação (source_bula). O cartão precisa poder abri-la: dizer
+// "Fonte: ANVISA" sem mostrar ONDE não vale muito mais que não dizer fonte nenhuma — ANVISA
+// é a AGÊNCIA, não o documento. O documento é a bula da Varfarina, e ela está no nosso servidor.
+export function bulaUrlDoSlug(slug: string): string {
+  return `${BULA_BASE}/${slug}.pdf`;
+}
+
 export function getPhytoBulaUrl(genericName: string, brandName?: string): string {
   const key = normalize(genericName.split('(')[0].split('/')[0].trim());
   const slug = Object.entries(PHYTO_BULA_MAP).find(([k]) => key.includes(k) || k.includes(key))?.[1];

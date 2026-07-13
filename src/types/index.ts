@@ -42,9 +42,13 @@ export interface DrugInteraction {
   // não tem o que CITAR — então ele pode sinalizar o par e mandar ler a bula, mas não deve
   // afirmar mecanismo nem gravidade como se fosse fato apurado.
   source?: 'ANVISA' | 'FDA' | 'Infarma 2007' | 'Fiocruz 2024' | 'drugs.com' | 'desconhecida';
-  // Slug da bula que confirma a interação (só quando source === 'ANVISA'). Sem isto o app
-  // diria "fonte: ANVISA" sem poder mostrar ONDE — e citação que não se pode conferir não
-  // vale muito mais que afirmação sem fonte.
+  // O FÁRMACO cuja bula confirma a interação — "Varfarina" (ANVISA) ou "warfarin" (FDA).
+  // Sem ele o app só podia dizer "Fonte: ANVISA", que é a AGÊNCIA, não o documento. O
+  // documento é a BULA DA VARFARINA, e é essa que o usuário precisa poder conferir.
+  source_ref?: string;
+  // Slug da bula que confirma (só quando source === 'ANVISA'): é o que permite ABRIR o PDF
+  // no nosso servidor. Citação que não se pode conferir não vale muito mais que afirmação
+  // sem fonte nenhuma.
   source_bula?: string;
   drug1: string;
   drug2: string;
