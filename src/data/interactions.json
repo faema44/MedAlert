@@ -1,7 +1,8 @@
 [
   {
     "id": "int_001",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metformina",
     "drug1": "Metformina",
     "drug2": "Contraste Iodado",
     "risk_level": "critical",
@@ -16,7 +17,8 @@
   },
   {
     "id": "int_002",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "naproxeno",
     "drug1": "Varfarina",
     "drug2": "AINEs (Ibuprofeno, Diclofenaco, Naproxeno)",
     "risk_level": "critical",
@@ -28,7 +30,8 @@
   },
   {
     "id": "int_003",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "tranilcipromina",
     "drug1": "IMAOs (Fenelzina, Tranilcipromina)",
     "drug2": "Simpaticomiméticos (Efedrina, Pseudoefedrina)",
     "risk_level": "critical",
@@ -43,7 +46,8 @@
   },
   {
     "id": "int_004",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "digoxina",
     "drug1": "Digoxina",
     "drug2": "Amiodarona",
     "risk_level": "critical",
@@ -58,7 +62,8 @@
   },
   {
     "id": "int_005",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "litio",
     "drug1": "Lítio",
     "drug2": "Diuréticos Tiazídicos (Hidroclorotiazida)",
     "risk_level": "critical",
@@ -70,7 +75,8 @@
   },
   {
     "id": "int_006",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sildenafila",
     "drug1": "Sildenafila (Viagra)",
     "drug2": "Nitratos (Isossorbida, Nitroglicerina)",
     "risk_level": "critical",
@@ -115,7 +121,8 @@
   },
   {
     "id": "int_010",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "clopidogrel",
     "drug1": "Clopidogrel",
     "drug2": "Omeprazol / Esomeprazol (IBPs)",
     "risk_level": "high",
@@ -131,7 +138,8 @@
   },
   {
     "id": "int_011",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metronidazol",
     "drug1": "Metronidazol (Flagyl)",
     "drug2": "Álcool etílico",
     "risk_level": "high",
@@ -143,7 +151,8 @@
   },
   {
     "id": "int_012",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "claritromicina",
     "drug1": "Claritromicina",
     "drug2": "Estatinas (Sinvastatina, Atorvastatina)",
     "risk_level": "critical",
@@ -155,7 +164,8 @@
   },
   {
     "id": "int_013",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluconazol",
     "drug1": "Fluconazol",
     "drug2": "Varfarina",
     "risk_level": "high",
@@ -170,7 +180,8 @@
   },
   {
     "id": "int_014",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "gentamicina",
     "drug1": "Gentamicina",
     "drug2": "Furosemida",
     "risk_level": "high",
@@ -185,7 +196,8 @@
   },
   {
     "id": "int_015",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fenitoina",
     "drug1": "Fenitoína",
     "drug2": "Ácido Valpróico",
     "risk_level": "high",
@@ -200,7 +212,8 @@
   },
   {
     "id": "int_016",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "enalapril",
     "drug1": "Captopril / Enalapril (IECA)",
     "drug2": "Espironolactona / Amilorida (Poupadores de K+)",
     "risk_level": "high",
@@ -218,7 +231,8 @@
   },
   {
     "id": "int_018",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "insulina-aspart",
     "drug1": "Insulina",
     "drug2": "Betabloqueadores (Propranolol, Atenolol)",
     "risk_level": "moderate",
@@ -227,7 +241,8 @@
   },
   {
     "id": "int_019",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "carbamazepina",
     "drug1": "Carbamazepina",
     "drug2": "Anticoncepcional Oral (Etinilestradiol)",
     "risk_level": "moderate",
@@ -239,7 +254,8 @@
   },
   {
     "id": "int_020",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "levofloxacino",
     "drug1": "Quinolonas (Ciprofloxacino, Levofloxacino)",
     "drug2": "Antiácidos com Alumínio/Magnésio / Suplementos de Ferro/Zinco",
     "risk_level": "moderate",
@@ -248,7 +264,8 @@
   },
   {
     "id": "int_021",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "levotiroxina",
     "drug1": "Metformina",
     "drug2": "Levotiroxina (Puran T4, Euthyrox)",
     "risk_level": "moderate",
@@ -263,7 +280,8 @@
   },
   {
     "id": "int_022",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metformina",
     "drug1": "Metformina",
     "drug2": "Álcool etílico",
     "risk_level": "moderate",
@@ -275,7 +293,8 @@
   },
   {
     "id": "int_023",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "losartana",
     "drug1": "Losartana / Valsartana (BRA)",
     "drug2": "Espironolactona / Amilorida (Poupadores de K+)",
     "risk_level": "high",
@@ -284,7 +303,8 @@
   },
   {
     "id": "int_024",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cafeina-carisoprodol-diclofenaco",
     "drug1": "Losartana / Valsartana (BRA)",
     "drug2": "AINEs (Ibuprofeno, Diclofenaco, Naproxeno)",
     "risk_level": "moderate",
@@ -293,7 +313,8 @@
   },
   {
     "id": "int_025",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sinvastatina",
     "drug1": "Estatinas (Sinvastatina, Atorvastatina, Rosuvastatina)",
     "drug2": "Fibratos (Gemfibrozila, Fenofibrato)",
     "risk_level": "high",
@@ -302,7 +323,8 @@
   },
   {
     "id": "int_026",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "levotiroxina",
     "drug1": "Levotiroxina (Puran T4, Euthyrox)",
     "drug2": "Carbonato de Cálcio / Hidróxido de Alumínio (Antiácidos)",
     "risk_level": "moderate",
@@ -314,7 +336,8 @@
   },
   {
     "id": "int_027",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "levotiroxina",
     "drug1": "Levotiroxina (Puran T4, Euthyrox)",
     "drug2": "Sulfato Ferroso / Suplementos de Ferro",
     "risk_level": "moderate",
@@ -326,7 +349,8 @@
   },
   {
     "id": "int_028",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "ibuprofeno",
     "drug1": "Corticosteroides (Prednisona, Dexametasona)",
     "drug2": "AINEs (Ibuprofeno, Diclofenaco, Naproxeno)",
     "risk_level": "high",
@@ -335,7 +359,8 @@
   },
   {
     "id": "int_029",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cafeina-carisoprodol-diclofenaco",
     "drug1": "Captopril / Enalapril (IECA)",
     "drug2": "AINEs (Ibuprofeno, Diclofenaco, Naproxeno)",
     "risk_level": "moderate",
@@ -344,7 +369,8 @@
   },
   {
     "id": "int_030",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "amiodarona",
     "drug1": "Amiodarona",
     "drug2": "Varfarina",
     "risk_level": "critical",
@@ -374,7 +400,8 @@
   },
   {
     "id": "int_032",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "digoxina",
     "drug1": "Digoxina",
     "drug2": "Furosemida / Hidroclorotiazida (Diuréticos)",
     "risk_level": "high",
@@ -398,7 +425,8 @@
   },
   {
     "id": "int_034",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "varfarina",
     "drug1": "Varfarina",
     "drug2": "Amoxicilina / Azitromicina / Antibióticos em geral",
     "risk_level": "moderate",
@@ -410,7 +438,8 @@
   },
   {
     "id": "int_035",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metformina",
     "drug1": "Insulina / Hipoglicemiantes Orais (Metformina, Glibenclamida)",
     "drug2": "Corticosteroides (Prednisona, Dexametasona)",
     "risk_level": "high",
@@ -419,7 +448,8 @@
   },
   {
     "id": "int_036",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "amiodarona",
     "drug1": "Amiodarona",
     "drug2": "Estatinas (Sinvastatina, Atorvastatina)",
     "risk_level": "high",
@@ -431,7 +461,8 @@
   },
   {
     "id": "int_037",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "amiodarona",
     "drug1": "Amiodarona",
     "drug2": "Betabloqueadores (Metoprolol, Propranolol, Atenolol)",
     "risk_level": "high",
@@ -455,7 +486,8 @@
   },
   {
     "id": "int_039",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluconazol",
     "drug1": "Amiodarona",
     "drug2": "Fluconazol / Voriconazol (Azóis)",
     "risk_level": "critical",
@@ -467,7 +499,8 @@
   },
   {
     "id": "int_040",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "diltiazem",
     "drug1": "Diltiazem / Verapamil",
     "drug2": "Digoxina",
     "risk_level": "high",
@@ -483,7 +516,8 @@
   },
   {
     "id": "int_041",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "diltiazem",
     "drug1": "Diltiazem / Verapamil",
     "drug2": "Betabloqueadores (Atenolol, Metoprolol, Propranolol)",
     "risk_level": "high",
@@ -496,7 +530,8 @@
   },
   {
     "id": "int_042",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "atenolol",
     "drug1": "Anlodipino / Nifedipino",
     "drug2": "Betabloqueadores (Atenolol, Metoprolol, Propranolol)",
     "risk_level": "moderate",
@@ -509,7 +544,8 @@
   },
   {
     "id": "int_043",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluoxetina",
     "drug1": "Amitriptilina / Antidepressivos Tricíclicos (ATC)",
     "drug2": "Fluoxetina / Sertralina / Paroxetina / Escitalopram (ISRS)",
     "risk_level": "critical",
@@ -518,7 +554,8 @@
   },
   {
     "id": "int_044",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "amitriptilina",
     "drug1": "Amitriptilina / Antidepressivos Tricíclicos (ATC)",
     "drug2": "Tramadol",
     "risk_level": "critical",
@@ -530,7 +567,8 @@
   },
   {
     "id": "int_045",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluoxetina",
     "drug1": "Fluoxetina / Sertralina / Paroxetina (ISRS)",
     "drug2": "Tramadol",
     "risk_level": "critical",
@@ -542,7 +580,8 @@
   },
   {
     "id": "int_046",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluconazol",
     "drug1": "Carbamazepina",
     "drug2": "Fluconazol / Itraconazol (Azóis)",
     "risk_level": "high",
@@ -554,7 +593,8 @@
   },
   {
     "id": "int_047",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "varfarina",
     "drug1": "Carbamazepina",
     "drug2": "Varfarina",
     "risk_level": "moderate",
@@ -569,7 +609,8 @@
   },
   {
     "id": "int_048",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "atorvastatina",
     "drug1": "Azitromicina",
     "drug2": "Estatinas (Sinvastatina, Atorvastatina)",
     "risk_level": "high",
@@ -596,7 +637,8 @@
   },
   {
     "id": "int_050",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "captopril",
     "drug1": "Captopril / Enalapril (IECA)",
     "drug2": "AAS (Ácido Acetilsalicílico)",
     "risk_level": "moderate",
@@ -608,7 +650,8 @@
   },
   {
     "id": "int_051",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cefalexina",
     "drug1": "Cefalexina",
     "drug2": "Metformina",
     "risk_level": "moderate",
@@ -623,7 +666,8 @@
   },
   {
     "id": "int_052",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cafeina-carisoprodol-diclofenaco",
     "drug1": "Furosemida",
     "drug2": "AINEs (Diclofenaco, Ibuprofeno, Naproxeno)",
     "risk_level": "moderate",
@@ -635,7 +679,8 @@
   },
   {
     "id": "int_053",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluconazol",
     "drug1": "Fluconazol",
     "drug2": "Estatinas (Sinvastatina, Atorvastatina)",
     "risk_level": "critical",
@@ -647,7 +692,8 @@
   },
   {
     "id": "int_054",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "levofloxacino",
     "drug1": "Ciprofloxacino / Levofloxacino (Quinolonas)",
     "drug2": "Corticosteroides (Prednisona, Dexametasona, Hidrocortisona)",
     "risk_level": "high",
@@ -656,7 +702,8 @@
   },
   {
     "id": "int_055",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "glibenclamida-metformina",
     "drug1": "Glibenclamida / Glipizida (Sulfonilureias)",
     "drug2": "Fluconazol / Itraconazol (Azóis)",
     "risk_level": "moderate",
@@ -665,7 +712,8 @@
   },
   {
     "id": "int_056",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "amiodarona",
     "drug1": "Fenitoína",
     "drug2": "Amiodarona",
     "risk_level": "moderate",
@@ -695,7 +743,8 @@
   },
   {
     "id": "int_058",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "itraconazol",
     "drug1": "Fenitoína",
     "drug2": "Cetoconazol / Itraconazol (Azóis)",
     "risk_level": "high",
@@ -707,7 +756,8 @@
   },
   {
     "id": "int_059",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fenitoina",
     "drug1": "Fenitoína",
     "drug2": "Fluoxetina / Sertralina (ISRS)",
     "risk_level": "moderate",
@@ -719,7 +769,8 @@
   },
   {
     "id": "int_060",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fenitoina",
     "drug1": "Fenitoína",
     "drug2": "Fluconazol",
     "risk_level": "moderate",
@@ -764,7 +815,8 @@
   },
   {
     "id": "int_063",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluconazol",
     "drug1": "Fluconazol",
     "drug2": "Losartana / Valsartana (BRA)",
     "risk_level": "moderate",
@@ -776,7 +828,8 @@
   },
   {
     "id": "int_064",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "diltiazem",
     "drug1": "Fluconazol / Diltiazem / Verapamil",
     "drug2": "Benzodiazepínicos (Diazepam, Midazolam, Clonazepam)",
     "risk_level": "moderate",
@@ -790,7 +843,8 @@
   },
   {
     "id": "int_065",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "levofloxacino",
     "drug1": "Levofloxacino",
     "drug2": "Amiodarona / Clorpromazina / Fluconazol / Sotalol (Drogas que prolongam QT)",
     "risk_level": "critical",
@@ -802,7 +856,8 @@
   },
   {
     "id": "int_066",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluoxetina",
     "drug1": "Fluoxetina / SSRIs (Sertralina, Paroxetina, Escitalopram)",
     "drug2": "Carbamazepina",
     "risk_level": "high",
@@ -826,7 +881,8 @@
   },
   {
     "id": "int_068",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "haloperidol",
     "drug1": "Haloperidol",
     "drug2": "Amiodarona / Eritromicina / Azitromicina / Fluconazol / Fluoxetina (Drogas que prolongam QT)",
     "risk_level": "critical",
@@ -838,7 +894,8 @@
   },
   {
     "id": "int_069",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "haloperidol",
     "drug1": "Carbamazepina",
     "drug2": "Haloperidol",
     "risk_level": "high",
@@ -868,7 +925,8 @@
   },
   {
     "id": "int_071",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "hidroclorotiazida",
     "drug1": "Hidroclorotiazida",
     "drug2": "Amiodarona",
     "risk_level": "high",
@@ -883,7 +941,8 @@
   },
   {
     "id": "int_072",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cafeina-carisoprodol-diclofenaco",
     "drug1": "Hidroclorotiazida",
     "drug2": "AINEs (Diclofenaco, Ibuprofeno, Naproxeno)",
     "risk_level": "high",
@@ -895,7 +954,8 @@
   },
   {
     "id": "int_073",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "claritromicina",
     "drug1": "Corticosteroides (Prednisona, Dexametasona, Betametasona)",
     "drug2": "Claritromicina",
     "risk_level": "moderate",
@@ -907,7 +967,8 @@
   },
   {
     "id": "int_074",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluconazol",
     "drug1": "Corticosteroides (Prednisona, Dexametasona, Betametasona)",
     "drug2": "Fluconazol",
     "risk_level": "moderate",
@@ -943,7 +1004,8 @@
   },
   {
     "id": "int_077",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "pantoprazol",
     "drug1": "Omeprazol / Esomeprazol / Pantoprazol (IBPs)",
     "drug2": "Varfarina",
     "risk_level": "moderate",
@@ -955,7 +1017,8 @@
   },
   {
     "id": "int_078",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "paracetamol",
     "drug1": "Paracetamol (Acetaminofeno)",
     "drug2": "Varfarina",
     "risk_level": "moderate",
@@ -967,7 +1030,8 @@
   },
   {
     "id": "int_079",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "rivaroxabana",
     "drug1": "Rivaroxabana / Apixabana (NOAC)",
     "drug2": "Amiodarona / Fluconazol / Diltiazem / Verapamil (Inibidores de CYP3A4 e P-gp)",
     "risk_level": "moderate",
@@ -991,7 +1055,8 @@
   },
   {
     "id": "int_081",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "enalapril",
     "drug1": "Sulfametoxazol + Trimetoprima (TMP-SMX)",
     "drug2": "Captopril / Enalapril (IECA)",
     "risk_level": "moderate",
@@ -1000,7 +1065,8 @@
   },
   {
     "id": "int_082",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "alogliptina-metformina",
     "drug1": "Sulfametoxazol + Trimetoprima (TMP-SMX)",
     "drug2": "Metformina",
     "risk_level": "moderate",
@@ -1012,7 +1078,8 @@
   },
   {
     "id": "int_083",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluoxetina",
     "drug1": "Hypericum perforatum (Erva de São João)",
     "drug2": "Fluoxetina",
     "risk_level": "critical",
@@ -1048,7 +1115,8 @@
   },
   {
     "id": "int_086",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "erva-de-sao-joao",
     "drug1": "Hypericum perforatum (Erva de São João)",
     "drug2": "Ciclosporina",
     "risk_level": "critical",
@@ -1060,7 +1128,8 @@
   },
   {
     "id": "int_087",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "erva-de-sao-joao",
     "drug1": "Hypericum perforatum (Erva de São João)",
     "drug2": "Varfarina",
     "risk_level": "high",
@@ -1072,7 +1141,8 @@
   },
   {
     "id": "int_088",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "erva-de-sao-joao",
     "drug1": "Hypericum perforatum (Erva de São João)",
     "drug2": "Digoxina",
     "risk_level": "high",
@@ -1084,7 +1154,8 @@
   },
   {
     "id": "int_089",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "erva-de-sao-joao",
     "drug1": "Hypericum perforatum (Erva de São João)",
     "drug2": "Etinilestradiol (Anticoncepcional oral)",
     "risk_level": "high",
@@ -1093,7 +1164,8 @@
   },
   {
     "id": "int_090",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "efavirenz",
     "drug1": "Hypericum perforatum (Erva de São João)",
     "drug2": "Efavirenz",
     "risk_level": "high",
@@ -1263,7 +1335,8 @@
   },
   {
     "id": "int_102",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "furosemida",
     "drug1": "Glycyrrhiza glabra (Alcaçuz)",
     "drug2": "Furosemida",
     "risk_level": "high",
@@ -1299,7 +1372,8 @@
   },
   {
     "id": "int_105",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "valeriana",
     "drug1": "Valeriana officinalis (Valeriana)",
     "drug2": "Diazepam",
     "risk_level": "high",
@@ -1335,7 +1409,8 @@
   },
   {
     "id": "int_108",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "valeriana",
     "drug1": "Valeriana officinalis (Valeriana)",
     "drug2": "Álcool etílico",
     "risk_level": "moderate",
@@ -1344,7 +1419,8 @@
   },
   {
     "id": "int_109",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "kava-kava",
     "drug1": "Piper methysticum (Kava Kava)",
     "drug2": "Álcool etílico",
     "risk_level": "high",
@@ -2434,7 +2510,8 @@
   },
   {
     "id": "int_196",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "acido-acetilsalicilico-cafeina-paracetamol",
     "drug1": "AAS (Ácido Acetilsalicílico)",
     "drug2": "Varfarina",
     "risk_level": "critical",
@@ -2449,7 +2526,8 @@
   },
   {
     "id": "int_197",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "enoxaparina",
     "drug1": "AAS (Ácido Acetilsalicílico)",
     "drug2": "Heparina / Enoxaparina (HBPM)",
     "risk_level": "high",
@@ -2461,7 +2539,8 @@
   },
   {
     "id": "int_198",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "aas-acido-acetilsalicilico",
     "drug1": "AAS (Ácido Acetilsalicílico)",
     "drug2": "Metotrexato",
     "risk_level": "critical",
@@ -2491,7 +2570,8 @@
   },
   {
     "id": "int_200",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "acetazolamida",
     "drug1": "Acetazolamida",
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
@@ -2506,7 +2586,8 @@
   },
   {
     "id": "int_202",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "ibuprofeno",
     "drug1": "Ácido acetilsalicílico",
     "drug2": "Ibuprofeno",
     "risk_level": "moderate",
@@ -2566,7 +2647,8 @@
   },
   {
     "id": "int_206",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "adalimumabe",
     "drug1": "Adalimumabe",
     "drug2": "Abatacepte",
     "risk_level": "high",
@@ -2626,7 +2708,8 @@
   },
   {
     "id": "int_210",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "lopinavir-ritonavir",
     "drug1": "Alfuzosina",
     "drug2": "Ritonavir",
     "risk_level": "high",
@@ -2728,7 +2811,8 @@
   },
   {
     "id": "int_217",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "alopurinol",
     "drug1": "Alopurinol",
     "drug2": "Azatioprina",
     "risk_level": "critical",
@@ -2758,7 +2842,8 @@
   },
   {
     "id": "int_219",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "alprazolam",
     "drug1": "Alprazolam",
     "drug2": "Fluoxetina",
     "risk_level": "moderate",
@@ -2773,7 +2858,8 @@
   },
   {
     "id": "int_220",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "memantina",
     "drug1": "Amantadina",
     "drug2": "Memantina",
     "risk_level": "moderate",
@@ -2788,7 +2874,8 @@
   },
   {
     "id": "int_221",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "amiodarona",
     "drug1": "Amiodarona",
     "drug2": "Atorvastatina",
     "risk_level": "high",
@@ -2803,7 +2890,8 @@
   },
   {
     "id": "int_222",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "amiodarona",
     "drug1": "Amiodarona",
     "drug2": "Lovastatina",
     "risk_level": "high",
@@ -2818,7 +2906,8 @@
   },
   {
     "id": "int_223",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "amiodarona",
     "drug1": "Amiodarona",
     "drug2": "Flecainida",
     "risk_level": "high",
@@ -2833,7 +2922,8 @@
   },
   {
     "id": "int_224",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "propafenona",
     "drug1": "Amiodarona",
     "drug2": "Propafenona",
     "risk_level": "critical",
@@ -2848,7 +2938,8 @@
   },
   {
     "id": "int_225",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "amiodarona",
     "drug1": "Amiodarona",
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
@@ -2968,7 +3059,8 @@
   },
   {
     "id": "int_233",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "ciclosporina",
     "drug1": "Anfotericina B",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -2983,7 +3075,8 @@
   },
   {
     "id": "int_234",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "tacrolimo",
     "drug1": "Anfotericina B",
     "drug2": "Tacrolimo",
     "risk_level": "high",
@@ -2998,7 +3091,8 @@
   },
   {
     "id": "int_235",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "apixabana",
     "drug1": "Apixabana",
     "drug2": "Itraconazol",
     "risk_level": "high",
@@ -3013,7 +3107,8 @@
   },
   {
     "id": "int_236",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "apixabana",
     "drug1": "Apixabana",
     "drug2": "Posaconazol",
     "risk_level": "critical",
@@ -3028,7 +3123,8 @@
   },
   {
     "id": "int_237",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "apixabana",
     "drug1": "Apixabana",
     "drug2": "Voriconazol",
     "risk_level": "critical",
@@ -3043,7 +3139,8 @@
   },
   {
     "id": "int_238",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "apixabana",
     "drug1": "Apixabana",
     "drug2": "Ritonavir",
     "risk_level": "critical",
@@ -3058,7 +3155,8 @@
   },
   {
     "id": "int_239",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "aprepitanto",
     "drug1": "Aprepitanto",
     "drug2": "Pimozida",
     "risk_level": "high",
@@ -3133,7 +3231,8 @@
   },
   {
     "id": "int_244",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "aripiprazol",
     "drug1": "Aripiprazol",
     "drug2": "Fluoxetina",
     "risk_level": "moderate",
@@ -3148,7 +3247,8 @@
   },
   {
     "id": "int_245",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "aripiprazol",
     "drug1": "Aripiprazol",
     "drug2": "Paroxetina",
     "risk_level": "moderate",
@@ -3238,7 +3338,8 @@
   },
   {
     "id": "int_251",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "atenolol",
     "drug1": "Atenolol",
     "drug2": "Clonidina",
     "risk_level": "high",
@@ -3268,7 +3369,8 @@
   },
   {
     "id": "int_253",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "atorvastatina",
     "drug1": "Atorvastatina",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -3283,7 +3385,8 @@
   },
   {
     "id": "int_254",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "atorvastatina",
     "drug1": "Atorvastatina",
     "drug2": "Eritromicina",
     "risk_level": "high",
@@ -3298,7 +3401,8 @@
   },
   {
     "id": "int_255",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "atorvastatina",
     "drug1": "Atorvastatina",
     "drug2": "Claritromicina",
     "risk_level": "high",
@@ -3313,7 +3417,8 @@
   },
   {
     "id": "int_256",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "atorvastatina",
     "drug1": "Atorvastatina",
     "drug2": "Itraconazol",
     "risk_level": "high",
@@ -3358,7 +3463,8 @@
   },
   {
     "id": "int_259",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "lopinavir-ritonavir",
     "drug1": "Avanafila",
     "drug2": "Ritonavir",
     "risk_level": "high",
@@ -3403,7 +3509,8 @@
   },
   {
     "id": "int_262",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "betametasona",
     "drug1": "Betametasona",
     "drug2": "Rifampicina",
     "risk_level": "moderate",
@@ -3418,7 +3525,8 @@
   },
   {
     "id": "int_264",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "bevacizumabe",
     "drug1": "Bevacizumabe (oncológico)",
     "drug2": "Sunitinibe",
     "risk_level": "high",
@@ -3463,7 +3571,8 @@
   },
   {
     "id": "int_267",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "bortezomibe",
     "drug1": "Bortezomibe",
     "drug2": "Cetoconazol",
     "risk_level": "moderate",
@@ -3478,7 +3587,8 @@
   },
   {
     "id": "int_268",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "bortezomibe",
     "drug1": "Bortezomibe",
     "drug2": "Ritonavir",
     "risk_level": "moderate",
@@ -3493,7 +3603,8 @@
   },
   {
     "id": "int_269",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "ciclosporina",
     "drug1": "Bosentana",
     "drug2": "Ciclosporina",
     "risk_level": "critical",
@@ -3538,7 +3649,8 @@
   },
   {
     "id": "int_272",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "budesonida",
     "drug1": "Budesonida Oral",
     "drug2": "Ritonavir",
     "risk_level": "high",
@@ -3553,7 +3665,8 @@
   },
   {
     "id": "int_273",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "buspirona",
     "drug1": "Buspirona",
     "drug2": "Cetoconazol",
     "risk_level": "high",
@@ -3568,7 +3681,8 @@
   },
   {
     "id": "int_274",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "buspirona",
     "drug1": "Buspirona",
     "drug2": "Itraconazol",
     "risk_level": "moderate",
@@ -3583,7 +3697,8 @@
   },
   {
     "id": "int_275",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "buspirona",
     "drug1": "Buspirona",
     "drug2": "Ritonavir",
     "risk_level": "high",
@@ -3613,7 +3728,8 @@
   },
   {
     "id": "int_277",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "capecitabina",
     "drug1": "Capecitabina",
     "drug2": "Fenitoína",
     "risk_level": "moderate",
@@ -3628,7 +3744,8 @@
   },
   {
     "id": "int_278",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "eritromicina",
     "drug1": "Carbamazepina",
     "drug2": "Eritromicina",
     "risk_level": "high",
@@ -3643,7 +3760,8 @@
   },
   {
     "id": "int_279",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cimetidina",
     "drug1": "Carbamazepina",
     "drug2": "Cimetidina",
     "risk_level": "high",
@@ -3658,7 +3776,8 @@
   },
   {
     "id": "int_280",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "lopinavir-ritonavir",
     "drug1": "Carbamazepina",
     "drug2": "Ritonavir",
     "risk_level": "high",
@@ -3703,7 +3822,8 @@
   },
   {
     "id": "int_283",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "caspofungina",
     "drug1": "Caspofungina",
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
@@ -3748,7 +3868,8 @@
   },
   {
     "id": "int_286",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "celecoxibe",
     "drug1": "Celecoxibe",
     "drug2": "Varfarina",
     "risk_level": "high",
@@ -3778,7 +3899,8 @@
   },
   {
     "id": "int_288",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cetoconazol",
     "drug1": "Cetoconazol",
     "drug2": "Lovastatina",
     "risk_level": "critical",
@@ -3793,7 +3915,8 @@
   },
   {
     "id": "int_289",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cetoconazol",
     "drug1": "Cetoconazol",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -3823,7 +3946,8 @@
   },
   {
     "id": "int_291",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cetoprofeno",
     "drug1": "Cetoprofeno",
     "drug2": "Metotrexato",
     "risk_level": "high",
@@ -3868,7 +3992,8 @@
   },
   {
     "id": "int_294",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "ciclofosfamida",
     "drug1": "Ciclofosfamida",
     "drug2": "Cimetidina",
     "risk_level": "moderate",
@@ -3883,7 +4008,8 @@
   },
   {
     "id": "int_295",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "ciclofosfamida",
     "drug1": "Ciclofosfamida",
     "drug2": "Fenitoína",
     "risk_level": "high",
@@ -3913,7 +4039,8 @@
   },
   {
     "id": "int_297",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "ciclosporina",
     "drug1": "Ciclosporina",
     "drug2": "Eritromicina",
     "risk_level": "high",
@@ -3928,7 +4055,8 @@
   },
   {
     "id": "int_298",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "ciclosporina",
     "drug1": "Ciclosporina",
     "drug2": "Rifampicina",
     "risk_level": "high",
@@ -3958,7 +4086,8 @@
   },
   {
     "id": "int_300",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cimetidina",
     "drug1": "Cimetidina",
     "drug2": "Fenitoína",
     "risk_level": "high",
@@ -3973,7 +4102,8 @@
   },
   {
     "id": "int_301",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cimetidina",
     "drug1": "Cimetidina",
     "drug2": "Teofilina",
     "risk_level": "high",
@@ -3988,7 +4118,8 @@
   },
   {
     "id": "int_302",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "teofilina",
     "drug1": "Ciprofloxacino",
     "drug2": "Teofilina",
     "risk_level": "high",
@@ -4003,7 +4134,8 @@
   },
   {
     "id": "int_303",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metotrexato",
     "drug1": "Cisplatina",
     "drug2": "Metotrexato",
     "risk_level": "high",
@@ -4018,7 +4150,8 @@
   },
   {
     "id": "int_304",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "escitalopram",
     "drug1": "Citalopram",
     "drug2": "Pimozida",
     "risk_level": "critical",
@@ -4033,7 +4166,8 @@
   },
   {
     "id": "int_305",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "escitalopram",
     "drug1": "Citalopram",
     "drug2": "Tioridazina",
     "risk_level": "critical",
@@ -4048,7 +4182,8 @@
   },
   {
     "id": "int_306",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "claritromicina",
     "drug1": "Claritromicina",
     "drug2": "Pimozida",
     "risk_level": "critical",
@@ -4063,7 +4198,8 @@
   },
   {
     "id": "int_307",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "claritromicina",
     "drug1": "Claritromicina",
     "drug2": "Ergotamina",
     "risk_level": "critical",
@@ -4093,7 +4229,8 @@
   },
   {
     "id": "int_309",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "clindamicina",
     "drug1": "Clindamicina",
     "drug2": "Eritromicina",
     "risk_level": "moderate",
@@ -4243,7 +4380,8 @@
   },
   {
     "id": "int_321",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "dabigatrana",
     "drug1": "Clopidogrel",
     "drug2": "Dabigatrana",
     "risk_level": "high",
@@ -4273,7 +4411,8 @@
   },
   {
     "id": "int_323",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "tacrolimo",
     "drug1": "Cloranfenicol",
     "drug2": "Tacrolimo",
     "risk_level": "high",
@@ -4288,7 +4427,8 @@
   },
   {
     "id": "int_324",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cimetidina",
     "drug1": "Cloroquina",
     "drug2": "Cimetidina",
     "risk_level": "moderate",
@@ -4303,7 +4443,8 @@
   },
   {
     "id": "int_325",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cloroquina",
     "drug1": "Cloroquina",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -4318,7 +4459,8 @@
   },
   {
     "id": "int_326",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cloroquina",
     "drug1": "Cloroquina",
     "drug2": "Digoxina",
     "risk_level": "critical",
@@ -4333,7 +4475,8 @@
   },
   {
     "id": "int_327",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cloroquina",
     "drug1": "Cloroquina",
     "drug2": "Eritromicina",
     "risk_level": "critical",
@@ -4423,7 +4566,8 @@
   },
   {
     "id": "int_333",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluoxetina",
     "drug1": "Clozapina",
     "drug2": "Fluoxetina",
     "risk_level": "high",
@@ -4498,7 +4642,8 @@
   },
   {
     "id": "int_338",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "codeina",
     "drug1": "Codeína",
     "drug2": "Paroxetina",
     "risk_level": "high",
@@ -4528,7 +4673,8 @@
   },
   {
     "id": "int_343",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "colchicina",
     "drug1": "Colchicina (gota)",
     "drug2": "Ciclosporina",
     "risk_level": "critical",
@@ -4543,7 +4689,8 @@
   },
   {
     "id": "int_344",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "colchicina",
     "drug1": "Colchicina (gota)",
     "drug2": "Eritromicina",
     "risk_level": "critical",
@@ -4558,7 +4705,8 @@
   },
   {
     "id": "int_345",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "colchicina",
     "drug1": "Colchicina (gota)",
     "drug2": "Claritromicina",
     "risk_level": "critical",
@@ -4573,7 +4721,8 @@
   },
   {
     "id": "int_346",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "vancomicina",
     "drug1": "Colistina",
     "drug2": "Vancomicina",
     "risk_level": "high",
@@ -4588,7 +4737,8 @@
   },
   {
     "id": "int_347",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "dabigatrana",
     "drug1": "Dabigatrana",
     "drug2": "Ritonavir",
     "risk_level": "moderate",
@@ -4603,7 +4753,8 @@
   },
   {
     "id": "int_348",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "dabigatrana",
     "drug1": "Dabigatrana",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -4618,7 +4769,8 @@
   },
   {
     "id": "int_349",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "dabigatrana",
     "drug1": "Dabigatrana",
     "drug2": "Itraconazol",
     "risk_level": "critical",
@@ -4663,7 +4815,8 @@
   },
   {
     "id": "int_352",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "dabigatrana",
     "drug1": "Dabigatrana",
     "drug2": "Cloridrato de amiodarona",
     "risk_level": "high",
@@ -4708,7 +4861,8 @@
   },
   {
     "id": "int_355",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sulfametoxazol-trimetoprima",
     "drug1": "Dapsona",
     "drug2": "Trimetoprima",
     "risk_level": "high",
@@ -4723,7 +4877,8 @@
   },
   {
     "id": "int_356",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "venlafaxina",
     "drug1": "Desvenlafaxina",
     "drug2": "Linezolida",
     "risk_level": "critical",
@@ -4753,7 +4908,8 @@
   },
   {
     "id": "int_358",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cetoconazol",
     "drug1": "Dexametasona",
     "drug2": "Cetoconazol",
     "risk_level": "high",
@@ -4768,7 +4924,8 @@
   },
   {
     "id": "int_359",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "dexametasona-ocular",
     "drug1": "Dexametasona",
     "drug2": "Ritonavir",
     "risk_level": "high",
@@ -4798,7 +4955,8 @@
   },
   {
     "id": "int_361",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "diclofenaco",
     "drug1": "Diclofenaco",
     "drug2": "Metotrexato",
     "risk_level": "high",
@@ -4813,7 +4971,8 @@
   },
   {
     "id": "int_362",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "difenidramina",
     "drug1": "Difenidramina",
     "drug2": "Oxicodona",
     "risk_level": "critical",
@@ -4828,7 +4987,8 @@
   },
   {
     "id": "int_363",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "digoxina",
     "drug1": "Digoxina",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -4843,7 +5003,8 @@
   },
   {
     "id": "int_364",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "eritromicina",
     "drug1": "Digoxina",
     "drug2": "Eritromicina",
     "risk_level": "high",
@@ -4858,7 +5019,8 @@
   },
   {
     "id": "int_365",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "digoxina",
     "drug1": "Digoxina",
     "drug2": "Verapamil",
     "risk_level": "high",
@@ -4903,7 +5065,8 @@
   },
   {
     "id": "int_368",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "diltiazem",
     "drug1": "Diltiazem",
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
@@ -4918,7 +5081,8 @@
   },
   {
     "id": "int_369",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "isossorbida",
     "drug1": "Dinitrato de Isossorbida",
     "drug2": "Tadalafila",
     "risk_level": "high",
@@ -4933,7 +5097,8 @@
   },
   {
     "id": "int_370",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "isossorbida",
     "drug1": "Dinitrato de Isossorbida",
     "drug2": "Vardenafila",
     "risk_level": "high",
@@ -4948,7 +5113,8 @@
   },
   {
     "id": "int_371",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "dipirona",
     "drug1": "Dipirona",
     "drug2": "Metotrexato",
     "risk_level": "moderate",
@@ -4963,7 +5129,8 @@
   },
   {
     "id": "int_372",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metronidazol",
     "drug1": "Dissulfiram",
     "drug2": "Metronidazol",
     "risk_level": "critical",
@@ -4978,7 +5145,8 @@
   },
   {
     "id": "int_373",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "docetaxel",
     "drug1": "Docetaxel",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -4993,7 +5161,8 @@
   },
   {
     "id": "int_374",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "docetaxel",
     "drug1": "Docetaxel",
     "drug2": "Eritromicina",
     "risk_level": "high",
@@ -5008,7 +5177,8 @@
   },
   {
     "id": "int_375",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "docetaxel",
     "drug1": "Docetaxel",
     "drug2": "Claritromicina",
     "risk_level": "high",
@@ -5023,7 +5193,8 @@
   },
   {
     "id": "int_376",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "dolutegravir",
     "drug1": "Dolutegravir",
     "drug2": "Rifampicina",
     "risk_level": "moderate",
@@ -5038,7 +5209,8 @@
   },
   {
     "id": "int_377",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "domperidona",
     "drug1": "Domperidona",
     "drug2": "Eritromicina",
     "risk_level": "critical",
@@ -5053,7 +5225,8 @@
   },
   {
     "id": "int_378",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "domperidona",
     "drug1": "Domperidona",
     "drug2": "Claritromicina",
     "risk_level": "critical",
@@ -5083,7 +5256,8 @@
   },
   {
     "id": "int_380",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "doxiciclina-acne",
     "drug1": "Doxiciclina (acne)",
     "drug2": "Varfarina",
     "risk_level": "high",
@@ -5095,7 +5269,8 @@
   },
   {
     "id": "int_381",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "doxiciclina-acne",
     "drug1": "Doxiciclina (acne)",
     "drug2": "Isotretinoína",
     "risk_level": "high",
@@ -5107,7 +5282,8 @@
   },
   {
     "id": "int_382",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "ciclosporina",
     "drug1": "Doxorrubicina",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -5137,7 +5313,8 @@
   },
   {
     "id": "int_384",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "verapamil",
     "drug1": "Doxorrubicina",
     "drug2": "Verapamil",
     "risk_level": "high",
@@ -5242,7 +5419,8 @@
   },
   {
     "id": "int_391",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "ebastina",
     "drug1": "Ebastina",
     "drug2": "Eritromicina",
     "risk_level": "high",
@@ -5257,7 +5435,8 @@
   },
   {
     "id": "int_392",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "efavirenz",
     "drug1": "Efavirenz",
     "drug2": "Midazolam",
     "risk_level": "critical",
@@ -5272,7 +5451,8 @@
   },
   {
     "id": "int_393",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "efavirenz",
     "drug1": "Efavirenz",
     "drug2": "Triazolam",
     "risk_level": "critical",
@@ -5362,7 +5542,8 @@
   },
   {
     "id": "int_399",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "eritromicina",
     "drug1": "Ergotamina",
     "drug2": "Eritromicina",
     "risk_level": "critical",
@@ -5407,7 +5588,8 @@
   },
   {
     "id": "int_402",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "erlotinibe",
     "drug1": "Erlotinibe",
     "drug2": "Ciprofloxacino",
     "risk_level": "high",
@@ -5422,7 +5604,8 @@
   },
   {
     "id": "int_403",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "erlotinibe",
     "drug1": "Erlotinibe",
     "drug2": "Eritromicina",
     "risk_level": "moderate",
@@ -5452,7 +5635,8 @@
   },
   {
     "id": "int_405",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "valproato-de-sodio",
     "drug1": "Ertapeném",
     "drug2": "Valproato de sódio",
     "risk_level": "critical",
@@ -5467,7 +5651,8 @@
   },
   {
     "id": "int_406",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "escitalopram",
     "drug1": "Escitalopram",
     "drug2": "Linezolida",
     "risk_level": "critical",
@@ -5482,7 +5667,8 @@
   },
   {
     "id": "int_407",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "oxcarbazepina",
     "drug1": "Eslicarbazepina",
     "drug2": "Oxcarbazepina",
     "risk_level": "high",
@@ -5524,7 +5710,8 @@
   },
   {
     "id": "int_410",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "eszopiclona",
     "drug1": "Eszopiclona",
     "drug2": "Olanzapina",
     "risk_level": "moderate",
@@ -5539,7 +5726,8 @@
   },
   {
     "id": "int_411",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "etanercepte",
     "drug1": "Etanercepte",
     "drug2": "Abatacepte",
     "risk_level": "high",
@@ -5569,7 +5757,8 @@
   },
   {
     "id": "int_413",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "estradiol",
     "drug1": "Etinilestradiol",
     "drug2": "Ritonavir",
     "risk_level": "high",
@@ -5599,7 +5788,8 @@
   },
   {
     "id": "int_415",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "etoricoxibe",
     "drug1": "Etoricoxibe",
     "drug2": "Metotrexato",
     "risk_level": "moderate",
@@ -5629,7 +5819,8 @@
   },
   {
     "id": "int_417",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "everolimo",
     "drug1": "Everolimo",
     "drug2": "Eritromicina",
     "risk_level": "moderate",
@@ -5644,7 +5835,8 @@
   },
   {
     "id": "int_418",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "everolimo",
     "drug1": "Everolimo",
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
@@ -5659,7 +5851,8 @@
   },
   {
     "id": "int_419",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "everolimo",
     "drug1": "Everolimo",
     "drug2": "Rifampicina",
     "risk_level": "high",
@@ -5689,7 +5882,8 @@
   },
   {
     "id": "int_421",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "efedrina",
     "drug1": "Fenelzina",
     "drug2": "Pseudoefedrina",
     "risk_level": "critical",
@@ -5719,7 +5913,8 @@
   },
   {
     "id": "int_423",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fenitoina",
     "drug1": "Fenitoína",
     "drug2": "Isoniazida",
     "risk_level": "high",
@@ -5734,7 +5929,8 @@
   },
   {
     "id": "int_424",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fenitoina",
     "drug1": "Fenitoína",
     "drug2": "Voriconazol",
     "risk_level": "high",
@@ -5764,7 +5960,8 @@
   },
   {
     "id": "int_426",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "teofilina",
     "drug1": "Fenobarbital",
     "drug2": "Teofilina",
     "risk_level": "high",
@@ -5839,7 +6036,8 @@
   },
   {
     "id": "int_431",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fentanila",
     "drug1": "Fentanila",
     "drug2": "Midazolam",
     "risk_level": "critical",
@@ -5884,7 +6082,8 @@
   },
   {
     "id": "int_434",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "ferro-sulfato",
     "drug1": "Ferro Sulfato",
     "drug2": "Levodopa",
     "risk_level": "moderate",
@@ -5914,7 +6113,8 @@
   },
   {
     "id": "int_436",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "ritonavir",
     "drug1": "Flecainida",
     "drug2": "Ritonavir",
     "risk_level": "critical",
@@ -5929,7 +6129,8 @@
   },
   {
     "id": "int_437",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluconazol",
     "drug1": "Fluconazol",
     "drug2": "Pimozida",
     "risk_level": "critical",
@@ -5989,7 +6190,8 @@
   },
   {
     "id": "int_441",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluoxetina",
     "drug1": "Fluoxetina",
     "drug2": "Tioridazina",
     "risk_level": "critical",
@@ -6004,7 +6206,8 @@
   },
   {
     "id": "int_442",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluoxetina",
     "drug1": "Fluoxetina",
     "drug2": "Linezolida",
     "risk_level": "critical",
@@ -6019,7 +6222,8 @@
   },
   {
     "id": "int_443",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metoclopramida",
     "drug1": "Fluoxetina",
     "drug2": "Metoclopramida",
     "risk_level": "moderate",
@@ -6034,7 +6238,8 @@
   },
   {
     "id": "int_444",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluvoxamina",
     "drug1": "Fluvoxamina",
     "drug2": "Tioridazina",
     "risk_level": "critical",
@@ -6049,7 +6254,8 @@
   },
   {
     "id": "int_445",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluvoxamina",
     "drug1": "Fluvoxamina",
     "drug2": "Pimozida",
     "risk_level": "critical",
@@ -6124,7 +6330,8 @@
   },
   {
     "id": "int_451",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "genfibrozila",
     "drug1": "Genfibrozila",
     "drug2": "Rosuvastatina",
     "risk_level": "high",
@@ -6154,7 +6361,8 @@
   },
   {
     "id": "int_453",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "gentamicina",
     "drug1": "Gentamicina",
     "drug2": "Vancomicina",
     "risk_level": "high",
@@ -6169,7 +6377,8 @@
   },
   {
     "id": "int_454",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "gentamicina",
     "drug1": "Gentamicina",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -6199,7 +6408,8 @@
   },
   {
     "id": "int_456",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "glibenclamida-metformina",
     "drug1": "Glibenclamida",
     "drug2": "Cimetidina",
     "risk_level": "moderate",
@@ -6298,7 +6508,8 @@
   },
   {
     "id": "int_463",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "varfarina",
     "drug1": "Griseofulvina",
     "drug2": "Varfarina",
     "risk_level": "moderate",
@@ -6328,7 +6539,8 @@
   },
   {
     "id": "int_465",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "heparina",
     "drug1": "Heparina",
     "drug2": "Ticlopidina",
     "risk_level": "moderate",
@@ -6478,7 +6690,8 @@
   },
   {
     "id": "int_475",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cloroquina",
     "drug1": "Hidroxicloroquina",
     "drug2": "Digoxina",
     "risk_level": "moderate",
@@ -6493,7 +6706,8 @@
   },
   {
     "id": "int_476",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cloroquina",
     "drug1": "Hidroxicloroquina",
     "drug2": "Eritromicina",
     "risk_level": "critical",
@@ -6535,7 +6749,8 @@
   },
   {
     "id": "int_479",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "ibuprofeno",
     "drug1": "Ibuprofeno",
     "drug2": "Metotrexato",
     "risk_level": "high",
@@ -6565,7 +6780,8 @@
   },
   {
     "id": "int_481",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "imatinibe",
     "drug1": "Imatinibe",
     "drug2": "Fenitoína",
     "risk_level": "high",
@@ -6580,7 +6796,8 @@
   },
   {
     "id": "int_482",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "imatinibe",
     "drug1": "Imatinibe",
     "drug2": "Rifampicina",
     "risk_level": "high",
@@ -6685,7 +6902,8 @@
   },
   {
     "id": "int_489",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "indometacina",
     "drug1": "Indometacina",
     "drug2": "Metotrexato",
     "risk_level": "critical",
@@ -6715,7 +6933,8 @@
   },
   {
     "id": "int_491",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "isavuconazol",
     "drug1": "Isavuconazol",
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
@@ -6745,7 +6964,8 @@
   },
   {
     "id": "int_493",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "isavuconazol",
     "drug1": "Isavuconazol",
     "drug2": "Midazolam",
     "risk_level": "high",
@@ -6790,7 +7010,8 @@
   },
   {
     "id": "int_496",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "itraconazol",
     "drug1": "Itraconazol",
     "drug2": "Pimozida",
     "risk_level": "critical",
@@ -6805,7 +7026,8 @@
   },
   {
     "id": "int_497",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "verapamil",
     "drug1": "Ivabradina",
     "drug2": "Verapamil",
     "risk_level": "critical",
@@ -6820,7 +7042,8 @@
   },
   {
     "id": "int_498",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "lamotrigina",
     "drug1": "Lamotrigina",
     "drug2": "Valproato de sódio",
     "risk_level": "high",
@@ -6865,7 +7088,8 @@
   },
   {
     "id": "int_501",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "leflunomida",
     "drug1": "Leflunomida",
     "drug2": "Metotrexato",
     "risk_level": "high",
@@ -6880,7 +7104,8 @@
   },
   {
     "id": "int_502",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "levofloxacino",
     "drug1": "Levofloxacino",
     "drug2": "Teofilina",
     "risk_level": "moderate",
@@ -6910,7 +7135,8 @@
   },
   {
     "id": "int_504",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "levomepromazina",
     "drug1": "Levomepromazina",
     "drug2": "Clorpromazina",
     "risk_level": "critical",
@@ -6940,7 +7166,8 @@
   },
   {
     "id": "int_506",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "levomepromazina",
     "drug1": "Levomepromazina",
     "drug2": "Pimozida",
     "risk_level": "critical",
@@ -6970,7 +7197,8 @@
   },
   {
     "id": "int_508",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "levomepromazina",
     "drug1": "Levomepromazina",
     "drug2": "Tioridazina",
     "risk_level": "critical",
@@ -7000,7 +7228,8 @@
   },
   {
     "id": "int_510",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "linezolida",
     "drug1": "Linezolida",
     "drug2": "Pseudoefedrina",
     "risk_level": "critical",
@@ -7030,7 +7259,8 @@
   },
   {
     "id": "int_512",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "bupropiona-naltrexona",
     "drug1": "Linezolida",
     "drug2": "Bupropiona",
     "risk_level": "critical",
@@ -7060,7 +7290,8 @@
   },
   {
     "id": "int_515",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "loperamida",
     "drug1": "Loperamida",
     "drug2": "Itraconazol",
     "risk_level": "high",
@@ -7075,7 +7306,8 @@
   },
   {
     "id": "int_516",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "loperamida",
     "drug1": "Loperamida",
     "drug2": "Cetoconazol",
     "risk_level": "high",
@@ -7120,7 +7352,8 @@
   },
   {
     "id": "int_519",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "lornoxicam",
     "drug1": "Lornoxicam",
     "drug2": "Metotrexato",
     "risk_level": "critical",
@@ -7150,7 +7383,8 @@
   },
   {
     "id": "int_521",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "lovastatina",
     "drug1": "Lovastatina",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -7165,7 +7399,8 @@
   },
   {
     "id": "int_522",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "lovastatina",
     "drug1": "Lovastatina",
     "drug2": "Eritromicina",
     "risk_level": "critical",
@@ -7180,7 +7415,8 @@
   },
   {
     "id": "int_523",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "lovastatina",
     "drug1": "Lovastatina",
     "drug2": "Claritromicina",
     "risk_level": "critical",
@@ -7195,7 +7431,8 @@
   },
   {
     "id": "int_524",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "lovastatina",
     "drug1": "Lovastatina",
     "drug2": "Itraconazol",
     "risk_level": "critical",
@@ -7270,7 +7507,8 @@
   },
   {
     "id": "int_529",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "meloxicam",
     "drug1": "Meloxicam",
     "drug2": "Metotrexato",
     "risk_level": "high",
@@ -7285,7 +7523,8 @@
   },
   {
     "id": "int_530",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "memantina",
     "drug1": "Memantina",
     "drug2": "Dextrometorfano",
     "risk_level": "moderate",
@@ -7345,7 +7584,8 @@
   },
   {
     "id": "int_534",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "meropenem",
     "drug1": "Meropeném",
     "drug2": "Valproato de sódio",
     "risk_level": "critical",
@@ -7435,7 +7675,8 @@
   },
   {
     "id": "int_540",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "haloperidol",
     "drug1": "Metadona",
     "drug2": "Haloperidol",
     "risk_level": "high",
@@ -7495,7 +7736,8 @@
   },
   {
     "id": "int_544",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metadona",
     "drug1": "Metadona",
     "drug2": "Sertralina",
     "risk_level": "high",
@@ -7525,7 +7767,8 @@
   },
   {
     "id": "int_546",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "gatifloxacino-prednisolona",
     "drug1": "Metilprednisolona",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -7540,7 +7783,8 @@
   },
   {
     "id": "int_547",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metimazol",
     "drug1": "Metimazol",
     "drug2": "Teofilina",
     "risk_level": "moderate",
@@ -7555,7 +7799,8 @@
   },
   {
     "id": "int_548",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metoclopramida",
     "drug1": "Metoclopramida",
     "drug2": "Levodopa",
     "risk_level": "high",
@@ -7570,7 +7815,8 @@
   },
   {
     "id": "int_549",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metoprolol",
     "drug1": "Metoprolol",
     "drug2": "Clorpromazina",
     "risk_level": "moderate",
@@ -7585,7 +7831,8 @@
   },
   {
     "id": "int_550",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metoprolol",
     "drug1": "Metoprolol",
     "drug2": "Rifampicina",
     "risk_level": "moderate",
@@ -7630,7 +7877,8 @@
   },
   {
     "id": "int_553",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metotrexato",
     "drug1": "Metotrexato",
     "drug2": "Trimetoprima/Sulfametoxazol",
     "risk_level": "critical",
@@ -7646,7 +7894,8 @@
   },
   {
     "id": "int_554",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metotrexato",
     "drug1": "Metotrexato",
     "drug2": "Pirimetamina",
     "risk_level": "high",
@@ -7673,7 +7922,8 @@
   },
   {
     "id": "int_557",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "midazolam",
     "drug1": "Midazolam",
     "drug2": "Eritromicina",
     "risk_level": "high",
@@ -7688,7 +7938,8 @@
   },
   {
     "id": "int_558",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "midazolam",
     "drug1": "Midazolam",
     "drug2": "Cetoconazol",
     "risk_level": "high",
@@ -7703,7 +7954,8 @@
   },
   {
     "id": "int_559",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "mirtazapina",
     "drug1": "Mirtazapina",
     "drug2": "Linezolida",
     "risk_level": "critical",
@@ -7718,7 +7970,8 @@
   },
   {
     "id": "int_560",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "mirtazapina",
     "drug1": "Mirtazapina",
     "drug2": "Tramadol",
     "risk_level": "high",
@@ -7733,7 +7986,8 @@
   },
   {
     "id": "int_561",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "isossorbida",
     "drug1": "Mononitrato de Isossorbida",
     "drug2": "Tadalafila",
     "risk_level": "critical",
@@ -7748,7 +8002,8 @@
   },
   {
     "id": "int_562",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "isossorbida",
     "drug1": "Mononitrato de Isossorbida",
     "drug2": "Vardenafila",
     "risk_level": "critical",
@@ -7853,7 +8108,8 @@
   },
   {
     "id": "int_571",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "naltrexona",
     "drug1": "Naltrexona",
     "drug2": "Metadona",
     "risk_level": "critical",
@@ -7868,7 +8124,8 @@
   },
   {
     "id": "int_572",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "bupropiona-naltrexona",
     "drug1": "Naltrexona",
     "drug2": "Buprenorfina",
     "risk_level": "critical",
@@ -7898,7 +8155,8 @@
   },
   {
     "id": "int_574",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "naproxeno",
     "drug1": "Naproxeno",
     "drug2": "Metotrexato",
     "risk_level": "high",
@@ -7913,7 +8171,8 @@
   },
   {
     "id": "int_575",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "naratriptano",
     "drug1": "Naratriptano",
     "drug2": "Ergotamina",
     "risk_level": "high",
@@ -7958,7 +8217,8 @@
   },
   {
     "id": "int_579",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "nevirapina",
     "drug1": "Nevirapina",
     "drug2": "Rifampicina",
     "risk_level": "high",
@@ -7973,7 +8233,8 @@
   },
   {
     "id": "int_580",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "ciclosporina",
     "drug1": "Nifedipina",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -7988,7 +8249,8 @@
   },
   {
     "id": "int_581",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "nifedipina",
     "drug1": "Nifedipina",
     "drug2": "Rifampicina",
     "risk_level": "high",
@@ -8003,7 +8265,8 @@
   },
   {
     "id": "int_582",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "nifedipina",
     "drug1": "Nifedipina",
     "drug2": "Cimetidina",
     "risk_level": "moderate",
@@ -8033,7 +8296,8 @@
   },
   {
     "id": "int_584",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "nimesulida",
     "drug1": "Nimesulida",
     "drug2": "Metotrexato",
     "risk_level": "high",
@@ -8048,7 +8312,8 @@
   },
   {
     "id": "int_585",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "nitroglicerina",
     "drug1": "Nitroglicerina",
     "drug2": "Tadalafila",
     "risk_level": "critical",
@@ -8063,7 +8328,8 @@
   },
   {
     "id": "int_586",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "nitroglicerina",
     "drug1": "Nitroglicerina",
     "drug2": "Vardenafila",
     "risk_level": "critical",
@@ -8078,7 +8344,8 @@
   },
   {
     "id": "int_587",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "norfloxacino",
     "drug1": "Norfloxacino",
     "drug2": "Teofilina",
     "risk_level": "moderate",
@@ -8093,7 +8360,8 @@
   },
   {
     "id": "int_588",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "norfloxacino",
     "drug1": "Norfloxacino",
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
@@ -8138,7 +8406,8 @@
   },
   {
     "id": "int_591",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "nortriptilina",
     "drug1": "Nortriptilina",
     "drug2": "Tramadol",
     "risk_level": "high",
@@ -8168,7 +8437,8 @@
   },
   {
     "id": "int_593",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "olanzapina",
     "drug1": "Olanzapina",
     "drug2": "Fluoxetina",
     "risk_level": "moderate",
@@ -8183,7 +8453,8 @@
   },
   {
     "id": "int_594",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cilostazol",
     "drug1": "Omeprazol",
     "drug2": "Cilostazol",
     "risk_level": "moderate",
@@ -8228,7 +8499,8 @@
   },
   {
     "id": "int_597",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "esomeprazol",
     "drug1": "Omeprazol",
     "drug2": "Voriconazol",
     "risk_level": "moderate",
@@ -8273,7 +8545,8 @@
   },
   {
     "id": "int_600",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "oxcarbazepina",
     "drug1": "Oxcarbazepina",
     "drug2": "Rifampicina",
     "risk_level": "high",
@@ -8288,7 +8561,8 @@
   },
   {
     "id": "int_601",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "oxicodona",
     "drug1": "Oxicodona",
     "drug2": "Cetoconazol",
     "risk_level": "critical",
@@ -8303,7 +8577,8 @@
   },
   {
     "id": "int_602",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "paclitaxel",
     "drug1": "Paclitaxel",
     "drug2": "Cisplatina",
     "risk_level": "moderate",
@@ -8318,7 +8593,8 @@
   },
   {
     "id": "int_603",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "paclitaxel",
     "drug1": "Paclitaxel",
     "drug2": "Doxorrubicina",
     "risk_level": "moderate",
@@ -8423,7 +8699,8 @@
   },
   {
     "id": "int_610",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cafeina-carisoprodol-diclofenaco-paracetamol",
     "drug1": "Paracetamol",
     "drug2": "Isoniazida",
     "risk_level": "high",
@@ -8453,7 +8730,8 @@
   },
   {
     "id": "int_612",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "parecoxibe",
     "drug1": "Parecoxibe",
     "drug2": "Metotrexato",
     "risk_level": "high",
@@ -8468,7 +8746,8 @@
   },
   {
     "id": "int_613",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "paroxetina",
     "drug1": "Paroxetina",
     "drug2": "Linezolida",
     "risk_level": "critical",
@@ -8483,7 +8762,8 @@
   },
   {
     "id": "int_614",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "perampanel",
     "drug1": "Perampanel",
     "drug2": "Carbamazepina",
     "risk_level": "moderate",
@@ -8498,7 +8778,8 @@
   },
   {
     "id": "int_615",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "perampanel",
     "drug1": "Perampanel",
     "drug2": "Fenitoína",
     "risk_level": "moderate",
@@ -8693,7 +8974,8 @@
   },
   {
     "id": "int_628",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "piroxicam",
     "drug1": "Piroxicam",
     "drug2": "Metotrexato",
     "risk_level": "critical",
@@ -8708,7 +8990,8 @@
   },
   {
     "id": "int_629",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "pitavastatina",
     "drug1": "Pitavastatina",
     "drug2": "Eritromicina",
     "risk_level": "high",
@@ -8723,7 +9006,8 @@
   },
   {
     "id": "int_630",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "pitavastatina",
     "drug1": "Pitavastatina",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -8768,7 +9052,8 @@
   },
   {
     "id": "int_633",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "pramipexol",
     "drug1": "Pramipexol",
     "drug2": "Cimetidina",
     "risk_level": "high",
@@ -8783,7 +9068,8 @@
   },
   {
     "id": "int_634",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "prasugrel",
     "drug1": "Prasugrel",
     "drug2": "Varfarina",
     "risk_level": "moderate",
@@ -8798,7 +9084,8 @@
   },
   {
     "id": "int_635",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "pravastatina",
     "drug1": "Pravastatina",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -8813,7 +9100,8 @@
   },
   {
     "id": "int_636",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "prednisolona",
     "drug1": "Prednisolona",
     "drug2": "Rifampicina",
     "risk_level": "moderate",
@@ -8828,7 +9116,8 @@
   },
   {
     "id": "int_637",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "prednisolona",
     "drug1": "Prednisolona",
     "drug2": "Fenitoína",
     "risk_level": "moderate",
@@ -8903,7 +9192,8 @@
   },
   {
     "id": "int_642",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "primidona",
     "drug1": "Primidona",
     "drug2": "Fenitoína",
     "risk_level": "moderate",
@@ -8933,7 +9223,8 @@
   },
   {
     "id": "int_644",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "propafenona",
     "drug1": "Propafenona",
     "drug2": "Eritromicina",
     "risk_level": "critical",
@@ -8963,7 +9254,8 @@
   },
   {
     "id": "int_646",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "propranolol",
     "drug1": "Propranolol",
     "drug2": "Ergotamina",
     "risk_level": "critical",
@@ -9008,7 +9300,8 @@
   },
   {
     "id": "int_649",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "rabeprazol",
     "drug1": "Rabeprazol",
     "drug2": "Cetoconazol",
     "risk_level": "moderate",
@@ -9038,7 +9331,8 @@
   },
   {
     "id": "int_651",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "rasagilina",
     "drug1": "Rasagilina",
     "drug2": "Dextrometorfano",
     "risk_level": "critical",
@@ -9083,7 +9377,8 @@
   },
   {
     "id": "int_654",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "rasagilina",
     "drug1": "Rasagilina",
     "drug2": "Fluoxetina",
     "risk_level": "critical",
@@ -9158,7 +9453,8 @@
   },
   {
     "id": "int_659",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "rifampicina",
     "drug1": "Rifampicina",
     "drug2": "Ritonavir",
     "risk_level": "high",
@@ -9173,7 +9469,8 @@
   },
   {
     "id": "int_660",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "tacrolimo",
     "drug1": "Rifampicina",
     "drug2": "Tacrolimo",
     "risk_level": "high",
@@ -9188,7 +9485,8 @@
   },
   {
     "id": "int_661",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cetoconazol",
     "drug1": "Risperidona",
     "drug2": "Cetoconazol",
     "risk_level": "moderate",
@@ -9248,7 +9546,8 @@
   },
   {
     "id": "int_665",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "rivaroxabana",
     "drug1": "Rivaroxabana",
     "drug2": "Posaconazol",
     "risk_level": "critical",
@@ -9263,7 +9562,8 @@
   },
   {
     "id": "int_666",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "rivaroxabana",
     "drug1": "Rivaroxabana",
     "drug2": "Voriconazol",
     "risk_level": "high",
@@ -9278,7 +9578,8 @@
   },
   {
     "id": "int_667",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "rivaroxabana",
     "drug1": "Rivaroxabana",
     "drug2": "Ritonavir",
     "risk_level": "high",
@@ -9323,7 +9624,8 @@
   },
   {
     "id": "int_670",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "rizatriptano",
     "drug1": "Rizatriptano",
     "drug2": "Ergotamina",
     "risk_level": "critical",
@@ -9368,7 +9670,8 @@
   },
   {
     "id": "int_674",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "rosuvastatina",
     "drug1": "Rosuvastatina",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -9398,7 +9701,8 @@
   },
   {
     "id": "int_676",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "rupatadina",
     "drug1": "Rupatadina",
     "drug2": "Eritromicina",
     "risk_level": "moderate",
@@ -9410,7 +9714,8 @@
   },
   {
     "id": "int_677",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "rupatadina",
     "drug1": "Rupatadina",
     "drug2": "Cetoconazol",
     "risk_level": "moderate",
@@ -9494,7 +9799,8 @@
   },
   {
     "id": "int_683",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sertralina",
     "drug1": "Sertralina",
     "drug2": "Pimozida",
     "risk_level": "critical",
@@ -9509,7 +9815,8 @@
   },
   {
     "id": "int_684",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sertralina",
     "drug1": "Sertralina",
     "drug2": "Linezolida",
     "risk_level": "critical",
@@ -9524,7 +9831,8 @@
   },
   {
     "id": "int_685",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sertralina",
     "drug1": "Sertralina",
     "drug2": "Fenelzina",
     "risk_level": "critical",
@@ -9599,7 +9907,8 @@
   },
   {
     "id": "int_690",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "nirmatrelvir-ritonavir",
     "drug1": "Silodosina",
     "drug2": "Ritonavir",
     "risk_level": "critical",
@@ -9614,7 +9923,8 @@
   },
   {
     "id": "int_691",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sinvastatina",
     "drug1": "Sinvastatina",
     "drug2": "Ciclosporina",
     "risk_level": "critical",
@@ -9629,7 +9939,8 @@
   },
   {
     "id": "int_692",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sinvastatina",
     "drug1": "Sinvastatina",
     "drug2": "Eritromicina",
     "risk_level": "critical",
@@ -9644,7 +9955,8 @@
   },
   {
     "id": "int_693",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sinvastatina",
     "drug1": "Sinvastatina",
     "drug2": "Claritromicina",
     "risk_level": "critical",
@@ -9659,7 +9971,8 @@
   },
   {
     "id": "int_694",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sinvastatina",
     "drug1": "Sinvastatina",
     "drug2": "Itraconazol",
     "risk_level": "critical",
@@ -9674,7 +9987,8 @@
   },
   {
     "id": "int_695",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sinvastatina",
     "drug1": "Sinvastatina",
     "drug2": "Posaconazol",
     "risk_level": "critical",
@@ -9689,7 +10003,8 @@
   },
   {
     "id": "int_696",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sinvastatina",
     "drug1": "Sinvastatina",
     "drug2": "Voriconazol",
     "risk_level": "critical",
@@ -9704,7 +10019,8 @@
   },
   {
     "id": "int_697",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sirolimo",
     "drug1": "Sirolimo",
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
@@ -9719,7 +10035,8 @@
   },
   {
     "id": "int_698",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "tacrolimo",
     "drug1": "Sirolimo",
     "drug2": "Tacrolimo",
     "risk_level": "critical",
@@ -9734,7 +10051,8 @@
   },
   {
     "id": "int_699",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sirolimo",
     "drug1": "Sirolimo",
     "drug2": "Eritromicina",
     "risk_level": "high",
@@ -9749,7 +10067,8 @@
   },
   {
     "id": "int_700",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sofosbuvir",
     "drug1": "Sofosbuvir",
     "drug2": "Amiodarona",
     "risk_level": "critical",
@@ -9794,7 +10113,8 @@
   },
   {
     "id": "int_703",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sulfametoxazol-trimetoprima",
     "drug1": "Sulfametoxazol-trimetoprima",
     "drug2": "Fenitoína",
     "risk_level": "high",
@@ -9806,7 +10126,8 @@
   },
   {
     "id": "int_704",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sulfametoxazol-trimetoprima",
     "drug1": "Sulfametoxazol-trimetoprima",
     "drug2": "Metotrexato",
     "risk_level": "critical",
@@ -9863,7 +10184,8 @@
   },
   {
     "id": "int_708",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sumatriptano",
     "drug1": "Sumatriptano",
     "drug2": "Ergotamina",
     "risk_level": "critical",
@@ -9878,7 +10200,8 @@
   },
   {
     "id": "int_709",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "tacrolimo",
     "drug1": "Tacrolimo",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -9893,7 +10216,8 @@
   },
   {
     "id": "int_710",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "gentamicina",
     "drug1": "Tacrolimo",
     "drug2": "Gentamicina",
     "risk_level": "high",
@@ -9923,7 +10247,8 @@
   },
   {
     "id": "int_712",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "lenalidomida",
     "drug1": "Talidomida",
     "drug2": "Lenalidomida",
     "risk_level": "high",
@@ -9953,7 +10278,8 @@
   },
   {
     "id": "int_714",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "tamoxifeno",
     "drug1": "Tamoxifeno",
     "drug2": "Paroxetina",
     "risk_level": "high",
@@ -9983,7 +10309,8 @@
   },
   {
     "id": "int_716",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "tamoxifeno",
     "drug1": "Tamoxifeno",
     "drug2": "Varfarina",
     "risk_level": "high",
@@ -10043,7 +10370,8 @@
   },
   {
     "id": "int_720",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "teicoplanina",
     "drug1": "Teicoplanina",
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
@@ -10073,7 +10401,8 @@
   },
   {
     "id": "int_722",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "tenoxicam",
     "drug1": "Tenoxicam",
     "drug2": "Metotrexato",
     "risk_level": "high",
@@ -10088,7 +10417,8 @@
   },
   {
     "id": "int_723",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "teofilina",
     "drug1": "Teofilina",
     "drug2": "Eritromicina",
     "risk_level": "high",
@@ -10103,7 +10433,8 @@
   },
   {
     "id": "int_724",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "ciclosporina",
     "drug1": "Terbinafina",
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
@@ -10118,7 +10449,8 @@
   },
   {
     "id": "int_725",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "dabigatrana",
     "drug1": "Ticagrelor",
     "drug2": "Dabigatrana",
     "risk_level": "moderate",
@@ -10268,7 +10600,8 @@
   },
   {
     "id": "int_738",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "vancomicina",
     "drug1": "Tobramicina",
     "drug2": "Vancomicina",
     "risk_level": "high",
@@ -10283,7 +10616,8 @@
   },
   {
     "id": "int_739",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "tocilizumabe",
     "drug1": "Tocilizumabe",
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
@@ -10373,7 +10707,8 @@
   },
   {
     "id": "int_745",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "litio",
     "drug1": "Topiramato",
     "drug2": "Carbonato de lítio",
     "risk_level": "moderate",
@@ -10433,7 +10768,8 @@
   },
   {
     "id": "int_749",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "tranilcipromina",
     "drug1": "Tranilcipromina",
     "drug2": "Buspirona",
     "risk_level": "critical",
@@ -10448,7 +10784,8 @@
   },
   {
     "id": "int_750",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "tranilcipromina",
     "drug1": "Tranilcipromina",
     "drug2": "Dextrometorfano",
     "risk_level": "critical",
@@ -10463,7 +10800,8 @@
   },
   {
     "id": "int_752",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "tranilcipromina",
     "drug1": "Tranilcipromina",
     "drug2": "Selegilina",
     "risk_level": "critical",
@@ -10493,7 +10831,8 @@
   },
   {
     "id": "int_754",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "trazodona",
     "drug1": "Trazodona",
     "drug2": "Linezolida",
     "risk_level": "critical",
@@ -10508,7 +10847,8 @@
   },
   {
     "id": "int_755",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cetoconazol",
     "drug1": "Triazolam",
     "drug2": "Cetoconazol",
     "risk_level": "critical",
@@ -10523,7 +10863,8 @@
   },
   {
     "id": "int_756",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "eritromicina",
     "drug1": "Triazolam",
     "drug2": "Eritromicina",
     "risk_level": "high",
@@ -10709,7 +11050,8 @@
   },
   {
     "id": "int_769",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "valproato-de-sodio",
     "drug1": "Valproato de Sódio",
     "drug2": "Carbamazepina",
     "risk_level": "high",
@@ -10724,7 +11066,8 @@
   },
   {
     "id": "int_770",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "valproato-de-sodio",
     "drug1": "Valproato de Sódio",
     "drug2": "Fenobarbital",
     "risk_level": "high",
@@ -10739,7 +11082,8 @@
   },
   {
     "id": "int_771",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "valproato-de-sodio",
     "drug1": "Valproato de Sódio",
     "drug2": "Fenitoína",
     "risk_level": "high",
@@ -10754,7 +11098,8 @@
   },
   {
     "id": "int_772",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "valproato-de-sodio",
     "drug1": "Valproato de Sódio",
     "drug2": "Rifampicina",
     "risk_level": "moderate",
@@ -10784,7 +11129,8 @@
   },
   {
     "id": "int_774",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cefazolina",
     "drug1": "Varfarina",
     "drug2": "Cefazolina",
     "risk_level": "moderate",
@@ -10829,7 +11175,8 @@
   },
   {
     "id": "int_777",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "venlafaxina",
     "drug1": "Venlafaxina",
     "drug2": "Linezolida",
     "risk_level": "critical",
@@ -10874,7 +11221,8 @@
   },
   {
     "id": "int_780",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "verapamil",
     "drug1": "Verapamil",
     "drug2": "Colchicina",
     "risk_level": "critical",
@@ -10889,7 +11237,8 @@
   },
   {
     "id": "int_781",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "verapamil",
     "drug1": "Verapamil",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -10904,7 +11253,8 @@
   },
   {
     "id": "int_782",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "verapamil",
     "drug1": "Verapamil",
     "drug2": "Lovastatina",
     "risk_level": "high",
@@ -10919,7 +11269,8 @@
   },
   {
     "id": "int_783",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "vilazodona",
     "drug1": "Vilazodona",
     "drug2": "Linezolida",
     "risk_level": "critical",
@@ -10964,7 +11315,8 @@
   },
   {
     "id": "int_787",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "voriconazol",
     "drug1": "Voriconazol",
     "drug2": "Pimozida",
     "risk_level": "critical",
@@ -10994,7 +11346,8 @@
   },
   {
     "id": "int_789",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "vortioxetina",
     "drug1": "Vortioxetina",
     "drug2": "Linezolida",
     "risk_level": "critical",
@@ -11114,7 +11467,8 @@
   },
   {
     "id": "int_797",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "zolmitriptano",
     "drug1": "Zolmitriptano",
     "drug2": "Ergotamina",
     "risk_level": "critical",
@@ -11129,7 +11483,8 @@
   },
   {
     "id": "int_798",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "zolmitriptano",
     "drug1": "Zolmitriptano",
     "drug2": "Fluoxetina",
     "risk_level": "moderate",
@@ -11144,7 +11499,8 @@
   },
   {
     "id": "int_799",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "zolmitriptano",
     "drug1": "Zolmitriptano",
     "drug2": "Paroxetina",
     "risk_level": "high",
@@ -11159,7 +11515,8 @@
   },
   {
     "id": "int_800",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "zolmitriptano",
     "drug1": "Zolmitriptano",
     "drug2": "Sertralina",
     "risk_level": "high",
@@ -11174,7 +11531,8 @@
   },
   {
     "id": "int_801",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "zolpidem",
     "drug1": "Zolpidem",
     "drug2": "Cetoconazol",
     "risk_level": "moderate",
@@ -11204,7 +11562,8 @@
   },
   {
     "id": "int_803",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "zopiclona",
     "drug1": "Zopiclona",
     "drug2": "Eritromicina",
     "risk_level": "moderate",
@@ -11219,7 +11578,8 @@
   },
   {
     "id": "int_804",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "zopiclona",
     "drug1": "Zopiclona",
     "drug2": "Cetoconazol",
     "risk_level": "high",
@@ -11234,7 +11594,8 @@
   },
   {
     "id": "int_805",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "acido-acetilsalicilico-cafeina-paracetamol",
     "drug1": "AAS (Ácido Acetilsalicílico)",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
@@ -11246,7 +11607,8 @@
   },
   {
     "id": "int_806",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "abatacepte",
     "drug1": "Abatacepte",
     "drug2": "Anakinra",
     "risk_level": "high",
@@ -11285,7 +11647,8 @@
   },
   {
     "id": "int_810",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "acitretina",
     "drug1": "Acitretina",
     "drug2": "Tetraciclinas",
     "risk_level": "high",
@@ -11312,7 +11675,8 @@
   },
   {
     "id": "int_812",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "itraconazol",
     "drug1": "Alfuzosina",
     "drug2": "Itraconazol",
     "risk_level": "critical",
@@ -11396,7 +11760,8 @@
   },
   {
     "id": "int_818",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "alopurinol",
     "drug1": "Alopurinol",
     "drug2": "Mercaptopurina",
     "risk_level": "critical",
@@ -11498,7 +11863,8 @@
   },
   {
     "id": "int_825",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "amiodarona",
     "drug1": "Amiodarona",
     "drug2": "Sinvastatina",
     "risk_level": "critical",
@@ -11525,7 +11891,8 @@
   },
   {
     "id": "int_828",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "amitriptilina",
     "drug1": "Amitriptilina",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -11549,7 +11916,8 @@
   },
   {
     "id": "int_830",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "apixabana",
     "drug1": "Apixabana",
     "drug2": "Cetoconazol",
     "risk_level": "critical",
@@ -11594,7 +11962,8 @@
   },
   {
     "id": "int_833",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "apixabana",
     "drug1": "Apixabana",
     "drug2": "Cloridrato de claritromicina",
     "risk_level": "high",
@@ -11633,7 +12002,8 @@
   },
   {
     "id": "int_837",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "epinefrina",
     "drug1": "Atenolol",
     "drug2": "Epinefrina",
     "risk_level": "high",
@@ -11660,7 +12030,8 @@
   },
   {
     "id": "int_839",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "genfibrozila",
     "drug1": "Atorvastatina",
     "drug2": "Genfibrozila",
     "risk_level": "high",
@@ -11741,7 +12112,8 @@
   },
   {
     "id": "int_845",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "baclofeno",
     "drug1": "Baclofeno",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -11765,7 +12137,8 @@
   },
   {
     "id": "int_847",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "betametasona-dexclorfeniramina",
     "drug1": "Betametasona",
     "drug2": "Barbitúricos",
     "risk_level": "moderate",
@@ -11777,7 +12150,8 @@
   },
   {
     "id": "int_848",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "pazopanibe",
     "drug1": "Bevacizumabe (oncológico)",
     "drug2": "Pazopanibe",
     "risk_level": "high",
@@ -11801,7 +12175,8 @@
   },
   {
     "id": "int_850",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "bromazepam",
     "drug1": "Bromazepam",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -11813,7 +12188,8 @@
   },
   {
     "id": "int_851",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "buprenorfina",
     "drug1": "Buprenorfina",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -11825,7 +12201,8 @@
   },
   {
     "id": "int_852",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "bupropiona",
     "drug1": "Bupropiona",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -11837,7 +12214,8 @@
   },
   {
     "id": "int_854",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "carbamazepina",
     "drug1": "Carbamazepina",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -11873,7 +12251,8 @@
   },
   {
     "id": "int_857",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "cafeina-carisoprodol-diclofenaco",
     "drug1": "Carisoprodol",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -11885,7 +12264,8 @@
   },
   {
     "id": "int_858",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "clomipramina",
     "drug1": "Clomipramina",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -11909,7 +12289,8 @@
   },
   {
     "id": "int_860",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "clonazepam",
     "drug1": "Clonazepam",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -11945,7 +12326,8 @@
   },
   {
     "id": "int_863",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "clorpromazina",
     "drug1": "Clorpromazina",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12005,7 +12387,8 @@
   },
   {
     "id": "int_868",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "codeina",
     "drug1": "Codeína",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -12017,7 +12400,8 @@
   },
   {
     "id": "int_869",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "dapagliflozina",
     "drug1": "Dapagliflozina",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
@@ -12029,7 +12413,8 @@
   },
   {
     "id": "int_871",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "venlafaxina",
     "drug1": "Desvenlafaxina",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
@@ -12065,7 +12450,8 @@
   },
   {
     "id": "int_874",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "diazepam",
     "drug1": "Diazepam",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -12116,7 +12502,8 @@
   },
   {
     "id": "int_878",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "duloxetina",
     "drug1": "Duloxetina",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12128,7 +12515,8 @@
   },
   {
     "id": "int_879",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "empagliflozina",
     "drug1": "Empagliflozina",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
@@ -12140,7 +12528,8 @@
   },
   {
     "id": "int_880",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "escitalopram",
     "drug1": "Escitalopram",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
@@ -12152,7 +12541,8 @@
   },
   {
     "id": "int_881",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "zopiclona",
     "drug1": "Eszopiclona",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12179,7 +12569,8 @@
   },
   {
     "id": "int_883",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fenitoina",
     "drug1": "Fenitoína",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12191,7 +12582,8 @@
   },
   {
     "id": "int_884",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fenobarbital",
     "drug1": "Fenobarbital",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12218,7 +12610,8 @@
   },
   {
     "id": "int_886",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluoxetina",
     "drug1": "Fluoxetina",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
@@ -12230,7 +12623,8 @@
   },
   {
     "id": "int_887",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "fluvoxamina",
     "drug1": "Fluvoxamina",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
@@ -12242,7 +12636,8 @@
   },
   {
     "id": "int_888",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "glibenclamida",
     "drug1": "Glibenclamida",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -12254,7 +12649,8 @@
   },
   {
     "id": "int_889",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "gliclazida",
     "drug1": "Gliclazida",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12266,7 +12662,8 @@
   },
   {
     "id": "int_890",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "glimepirida",
     "drug1": "Glimepirida",
     "drug2": "Álcool (etanol)",
     "risk_level": "high",
@@ -12278,7 +12675,8 @@
   },
   {
     "id": "int_891",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "haloperidol",
     "drug1": "Haloperidol",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12326,7 +12724,8 @@
   },
   {
     "id": "int_895",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "imipramina",
     "drug1": "Imipramina",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
@@ -12338,7 +12737,8 @@
   },
   {
     "id": "int_896",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "insulina-nph",
     "drug1": "Insulina NPH",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12365,7 +12765,8 @@
   },
   {
     "id": "int_898",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "ivermectina",
     "drug1": "Ivermectina",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
@@ -12404,7 +12805,8 @@
   },
   {
     "id": "int_901",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "lorazepam",
     "drug1": "Lorazepam",
     "drug2": "Opioides",
     "risk_level": "critical",
@@ -12416,7 +12818,8 @@
   },
   {
     "id": "int_902",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "lorazepam",
     "drug1": "Lorazepam",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -12440,7 +12843,8 @@
   },
   {
     "id": "int_904",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metadona",
     "drug1": "Metadona",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -12452,7 +12856,8 @@
   },
   {
     "id": "int_905",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metformina",
     "drug1": "Metformina",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12464,7 +12869,8 @@
   },
   {
     "id": "int_906",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "prednisolona",
     "drug1": "Metilprednisolona",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
@@ -12500,7 +12906,8 @@
   },
   {
     "id": "int_909",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metotrexato",
     "drug1": "Metotrexato",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12512,7 +12919,8 @@
   },
   {
     "id": "int_911",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "metronidazol",
     "drug1": "Metronidazol",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12524,7 +12932,8 @@
   },
   {
     "id": "int_913",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "midazolam",
     "drug1": "Midazolam",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -12536,7 +12945,8 @@
   },
   {
     "id": "int_914",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "morfina",
     "drug1": "Morfina",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -12560,7 +12970,8 @@
   },
   {
     "id": "int_916",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "flunitrazepam",
     "drug1": "Nitrazepam",
     "drug2": "Opioides",
     "risk_level": "critical",
@@ -12572,7 +12983,8 @@
   },
   {
     "id": "int_917",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "nitrazepam",
     "drug1": "Nitrazepam",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -12584,7 +12996,8 @@
   },
   {
     "id": "int_918",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "nortriptilina",
     "drug1": "Nortriptilina",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12608,7 +13021,8 @@
   },
   {
     "id": "int_920",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "oxicodona",
     "drug1": "Oxicodona",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -12620,7 +13034,8 @@
   },
   {
     "id": "int_921",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "paracetamol",
     "drug1": "Paracetamol",
     "drug2": "Etanol (álcool)",
     "risk_level": "high",
@@ -12632,7 +13047,8 @@
   },
   {
     "id": "int_922",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "perampanel",
     "drug1": "Perampanel",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12671,7 +13087,8 @@
   },
   {
     "id": "int_925",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "primidona",
     "drug1": "Primidona",
     "drug2": "Álcool",
     "risk_level": "high",
@@ -12695,7 +13112,8 @@
   },
   {
     "id": "int_927",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "prometazina",
     "drug1": "Prometazina",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -12734,7 +13152,8 @@
   },
   {
     "id": "int_930",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "sertralina",
     "drug1": "Sertralina",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
@@ -12761,7 +13180,8 @@
   },
   {
     "id": "int_932",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "tinidazol",
     "drug1": "Tinidazol",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12773,7 +13193,8 @@
   },
   {
     "id": "int_933",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "tioridazina",
     "drug1": "Tioridazina",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -12785,7 +13206,8 @@
   },
   {
     "id": "int_934",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "topiramato",
     "drug1": "Topiramato",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
@@ -12797,7 +13219,8 @@
   },
   {
     "id": "int_935",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "tramadol",
     "drug1": "Tramadol",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -12824,7 +13247,8 @@
   },
   {
     "id": "int_937",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "trazodona",
     "drug1": "Trazodona",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12848,7 +13272,8 @@
   },
   {
     "id": "int_939",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "imipramina",
     "drug1": "Trimipramina",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12860,7 +13285,8 @@
   },
   {
     "id": "int_940",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "valeriana",
     "drug1": "Valeriana officinalis (Valeriana)",
     "drug2": "Etanol (álcool)",
     "risk_level": "moderate",
@@ -12869,7 +13295,8 @@
   },
   {
     "id": "int_941",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "valproato-de-sodio",
     "drug1": "Valproato de Sódio",
     "drug2": "Álcool/Etanol",
     "risk_level": "high",
@@ -12881,7 +13308,8 @@
   },
   {
     "id": "int_942",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "varfarina",
     "drug1": "Varfarina",
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
@@ -12893,7 +13321,8 @@
   },
   {
     "id": "int_943",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "venlafaxina",
     "drug1": "Venlafaxina",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12917,7 +13346,8 @@
   },
   {
     "id": "int_945",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "zolpidem",
     "drug1": "Zolpidem",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -12929,7 +13359,8 @@
   },
   {
     "id": "int_946",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "zopiclona",
     "drug1": "Zopiclona",
     "drug2": "Álcool/etanol",
     "risk_level": "high",
@@ -29438,7 +29869,8 @@
   },
   {
     "id": "int_3078",
-    "source": "desconhecida",
+    "source": "ANVISA",
+    "source_bula": "espironolactona",
     "drug1": "Espironolactona",
     "drug2": "Digoxina",
     "risk_level": "high",
