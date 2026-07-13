@@ -57,14 +57,57 @@ export function getAllInteractions(): DrugInteraction[] {
   return ALL_INTERACTIONS;
 }
 
-// "ácido" recurs across unrelated drugs (Ácido Valpróico, Ácido Acetilsalicílico, Ácido Fólico...);
-// as a standalone token it causes false-positive interaction matches between them.
-const GENERIC_QUALIFIER_TOKENS = new Set(['acido', 'acida']);
+// Palavras que NÃO identificam um princípio ativo: o contra-íon do sal, o éster, a forma
+// farmacêutica e alguns conectivos. Como o casamento aceita UMA palavra qualquer, bastava
+// uma delas para o alerta disparar no fármaco errado: "Cloridrato de Cefepime" (antibiótico)
+// casava com "Cloridrato de amiodarona" e o app avisava sobre dabigatrana. Eram 677 alertas
+// falsos, 300 deles de risco alto — e alarme falso em app de medicamento ensina o usuário a
+// ignorar o alerta que importa.
+// "ácido" já estava aqui pelo mesmo motivo (Ácido Valpróico × Ácido Fólico × AAS).
+const GENERIC_QUALIFIER_TOKENS = new Set([
+  'acido', 'acida',
+  // sais e ésteres — sempre o contra-íon, nunca a identidade
+  'cloridrato', 'dicloridrato', 'bromidrato', 'mesilato', 'besilato', 'maleato',
+  'tartarato', 'succinato', 'fumarato', 'valerato', 'propionato', 'dipropionato',
+  'furoato', 'pamoato', 'oxalato', 'gluconato', 'acetato', 'citrato', 'lactato', 'nitrato',
+  'sulfato', 'cloreto', 'carbonato', 'bicarbonato', 'fosfato',
+  // qualificadores, formas e conectivos
+  'humana', 'humano', 'ocular', 'oftalmico', 'topico', 'sais', 'suplementos',
+  'com', 'sem', 'dos', 'das', 'por', 'para', 'seus', 'suas', 'outros', 'outras',
+]);
+
+// Os ÍONS ficam de fora da lista acima porque em eletrólito e suplemento eles SÃO o ativo
+// ("Cloreto de Sódio", "Suplementos de Ferro"). Mas em "Valproato de sódio" o sódio é só o
+// contra-íon — e era ele que fazia "Picossulfato de Sódio" herdar o alerta CRÍTICO do
+// valproato. Regra: o íon só conta como identidade quando é a única identidade da alternativa.
+const ION_TOKENS = new Set([
+  'sodio', 'sodica', 'sodico', 'potassio', 'potassica', 'potassico',
+  'calcio', 'calcica', 'calcico', 'magnesio', 'aluminio', 'zinco',
+  'ferro', 'ferroso', 'ferrica', 'ferrico',
+]);
+
+// A barra separa ALTERNATIVAS ("Sulfato Ferroso / Suplementos de Ferro", "Antiácidos com
+// Alumínio/Magnésio / Suplementos de Ferro/Zinco"), e a regra do contra-íon tem que valer
+// por alternativa: achatar tudo numa lista só faria "Antiácidos" engolir o "Ferro" e o app
+// pararia de avisar sobre ferro + quinolona. normalize() apaga a barra, então ela é dividida antes.
+function identityTokens(drugName: string): string[] {
+  const out = new Set<string>();
+  for (const alt of drugName.split('/')) {
+    const words = normalize(alt).split(/[\s,]+/)
+      .filter(t => t.length >= 3 && !GENERIC_QUALIFIER_TOKENS.has(t));
+    const temIdentidadePropria = words.some(t => !ION_TOKENS.has(t));
+    for (const t of words) {
+      if (temIdentidadePropria && ION_TOKENS.has(t)) continue;
+      out.add(t);
+    }
+  }
+  return [...out];
+}
 
 function buildInteractionTokens() {
   INTERACTION_TOKENS = ALL_INTERACTIONS.map(i => ({
-    tokens1: normalize(i.drug1).split(/[\s,]+/).filter(t => t.length >= 3 && !GENERIC_QUALIFIER_TOKENS.has(t)),
-    tokens2: normalize(i.drug2).split(/[\s,]+/).filter(t => t.length >= 3 && !GENERIC_QUALIFIER_TOKENS.has(t)),
+    tokens1: identityTokens(i.drug1),
+    tokens2: identityTokens(i.drug2),
   }));
 }
 
@@ -400,6 +443,19 @@ function resolveGeneric(name: string): string {
   return name;
 }
 
+// Peça curta (< 6 letras) só casa no INÍCIO de uma palavra. Sem isso o "BRA" de
+// "Losartana / Valsartana (BRA)" casava DENTRO de toBRAmicina, fenofiBRAto e ivaBRAdina:
+// 33 alertas de hipercalemia em fármacos que não são BRA. Peça longa segue casando por
+// substring — é o que faz "penicilina" encontrar "fenoximetilpenicilina" e "ferro"
+// (via início de palavra) encontrar "ferroso".
+const SUBSTRING_MIN = 6;
+
+function pieceMatches(piece: string, whole: string): boolean {
+  return piece.length >= SUBSTRING_MIN
+    ? whole.includes(piece)
+    : whole.split(/[\s-]+/).some(w => w.startsWith(piece));
+}
+
 // Match a name against pre-computed token array (no DB scan)
 function tokensMatchName(tokens: string[], name: string): boolean {
   const resolved = resolveGeneric(name);
@@ -407,7 +463,7 @@ function tokensMatchName(tokens: string[], name: string): boolean {
   for (const c of candidates) {
     const cNorm = normalize(c);
     if (cNorm.length < 3) continue;
-    if (tokens.some(t => t.includes(cNorm) || cNorm.includes(t))) return true;
+    if (tokens.some(t => pieceMatches(t, cNorm) || pieceMatches(cNorm, t))) return true;
   }
   return false;
 }
