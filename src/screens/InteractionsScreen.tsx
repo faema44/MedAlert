@@ -12,7 +12,7 @@ import { useBulaViewer } from '../utils/useBulaViewer';
 import { DrugInteraction, Medication } from '../types';
 import MedDisclaimer from '../components/MedDisclaimer';
 import InteractionConsentModal, { hasAcceptedInteractionTerms, acceptInteractionTerms } from '../components/InteractionConsentModal';
-import ReportarErroModal from '../components/ReportarErroModal';
+import CartaoInteracao from '../components/CartaoInteracao';
 
 const RISK_CONFIG = {
   critical: { label: 'Crítico',  color: '#CC3322', bg: '#FEE9E9' },
@@ -23,94 +23,6 @@ const RISK_CONFIG = {
 type Tab = 'interactions' | 'meds' | 'phyto';
 type RiskFilter = 'all' | 'critical' | 'high' | 'moderate';
 type TypeFilter = 'all' | 'meds' | 'phyto';
-
-function InteractionCard({ item, expanded, onToggle }: {
-  item: DrugInteraction; expanded: boolean; onToggle: () => void;
-}) {
-  const risk = RISK_CONFIG[item.risk_level];
-  const isPhyto = isPhytotherapicInteraction(item);
-  const accentColor = isPhyto ? '#1a6b3a' : risk.color;
-  const typeLabel = isPhyto ? '🌿 Fito.' : '💊';
-  const temFonte = !!item.source && item.source !== 'desconhecida';
-  const [reportar, setReportar] = useState(false);
-
-  return (
-    <TouchableOpacity
-      style={[styles.intCard, { borderLeftColor: accentColor }]}
-      onPress={onToggle}
-      activeOpacity={0.8}
-    >
-      <View style={styles.intCardHeader}>
-        <View style={styles.intCardHeaderLeft}>
-          <View style={[styles.riskBadge, { backgroundColor: isPhyto ? '#EAF4EC' : risk.bg }]}>
-            <Text style={[styles.riskBadgeText, { color: isPhyto ? '#1a6b3a' : risk.color }]}>
-              {risk.label}
-            </Text>
-          </View>
-        </View>
-        <View style={styles.intCardHeaderRight}>
-          <Text style={styles.typeTag}>{typeLabel}</Text>
-          <Text style={styles.chevron}>{expanded ? '▲' : '▼'}</Text>
-        </View>
-      </View>
-
-      <Text style={styles.drugPair}>
-        <Text style={styles.drugName}>{item.drug1}</Text>
-        <Text style={[styles.drugPlus, { color: accentColor }]}>{' + '}</Text>
-        <Text style={styles.drugName}>{item.drug2}</Text>
-      </Text>
-
-      <Text style={styles.riskDesc}>{item.risk_description}</Text>
-
-      {expanded && (
-        <View style={[styles.mechanismBox, { backgroundColor: isPhyto ? '#EAF4EC' : risk.bg }]}>
-          <Text style={styles.mechanismTitle}>Como ocorre:</Text>
-          <Text style={styles.mechanismText}>{item.mechanism}</Text>
-
-          {/* De onde veio. 31% da base não tem procedência (847 entradas, e elas carregam 281
-              dos 429 alertas críticos) — o app precisa DIZER isso em vez de apresentar tudo
-              com a mesma autoridade. "Sem fonte" não é o mesmo que "errado": a interação
-              Metformina × Contraste Iodado está entre elas e é clássica. É que não temos o
-              que citar — então o usuário é quem confere. */}
-          <Text style={temFonte ? styles.sourceOk : styles.sourceNone}>
-            {temFonte
-              ? `Fonte: ${item.source}`
-              : 'Sem fonte verificada — não conseguimos rastrear este texto até uma bula ou publicação.'}
-          </Text>
-
-          {/* O aviso fica NO CARTÃO, junto da afirmação. O MedDisclaimer do topo da tela é
-              recolhível e some da vista justamente na hora em que o usuário está lendo o
-              alerta e decidindo o que fazer. */}
-          <Text style={styles.aiNotice}>
-            🤖 Interação apontada por <Text style={styles.bold}>IA</Text> e sujeita a erro.
-            Confira na <Text style={styles.bold}>bula impressa</Text> do seu medicamento e
-            fale com seu <Text style={styles.bold}>médico ou farmacêutico</Text>.
-          </Text>
-
-          {/* O usuário é a última linha de defesa, e a mais valiosa: as auditorias automáticas
-              pegam alarme falso por token de sal e bula de composto no slug do puro, mas não
-              pegam "esta interação está exagerada" nem "falta a que eu conheço". Sem um caminho
-              para ele contar, o erro fica no ar. */}
-          <TouchableOpacity
-            style={styles.reportBtn}
-            onPress={() => setReportar(true)}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.reportBtnText}>⚑ Informar erro nesta interação</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      <ReportarErroModal
-        visible={reportar}
-        tipo="interacao"
-        alvo={`${item.id} · ${item.drug1} × ${item.drug2}`}
-        titulo={`${item.drug1} + ${item.drug2}`}
-        onClose={() => setReportar(false)}
-      />
-    </TouchableOpacity>
-  );
-}
 
 function MedCard({ item, isPhyto, onOpenBula }: { item: DbEntry; isPhyto?: boolean; onOpenBula: (url: string, medName: string) => void }) {
   const accent = isPhyto ? '#1a6b3a' : '#1C3F7A';
@@ -320,7 +232,7 @@ export default function InteractionsScreen() {
               </View>
             }
             renderItem={({ item }) => (
-              <InteractionCard item={item} expanded={expanded === item.id} onToggle={() => toggle(item.id)} />
+              <CartaoInteracao item={item} aberto={expanded === item.id} onToggle={() => toggle(item.id)} />
             )}
           />
         </>
