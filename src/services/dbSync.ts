@@ -21,6 +21,8 @@ import { verifyDataSignature } from './dataSignature';
 // Seed local — sempre disponível, não depende de rede
 const bundledMeds = require('../data/medications-db.json');
 const bundledInts: DrugInteraction[] = require('../data/interactions.json');
+// O PISO do guard: os IDs que passaram pela revisão da Play Store. Ver acceptInteractions.
+const PISO_IDS: Set<string> = new Set(bundledInts.map(i => i.id));
 
 // ─── Configure aqui ──────────────────────────────────────────────────────────
 const GITHUB_USER = 'faema44';
@@ -62,7 +64,7 @@ const MANIFEST_PATH = 'src/data/manifest.json';
 //
 // Um atacante com push pode apontar o manifesto para outro commit, mas não consegue assinar
 // dados novos. O máximo que consegue é servir uma versão ANTERIOR já assinada por nós — e o
-// piso de quantidade (acceptInteractions) barra qualquer commit com menos entradas que o
+// piso de IDs (acceptInteractions) barra qualquer commit em que falte um alerta que já veio
 // embarcado. Por isso o manifesto não precisa de assinatura própria: assiná-lo criaria uma
 // segunda entrada de cache e traria o problema de volta.
 
@@ -147,10 +149,15 @@ async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Respons
 // revisão da Play Store. O paciente deixaria de receber alertas reais e não teria como
 // saber.
 //
-// Regra adotada: **o remoto só pode CRESCER em relação ao que veio embarcado no app.**
+// Regra adotada: **todo alerta EMBARCADO precisa continuar presente no remoto.**
 // O bundled passou pela revisão da loja — é a linha de base confiável. Assim, a Play Store
 // vira o portão para qualquer REMOÇÃO de alerta; o canal remoto só serve para ACRESCENTAR.
 // Se uma auditoria futura precisar remover entradas, isso sai numa versão nova do app.
+//
+// A regra ANTIGA comparava só a QUANTIDADE (`data.length < baselineCount`), e tinha um furo:
+// um payload que trocasse as 2.768 entradas por outras 2.768 FALSAS tinha o mesmo tamanho e
+// PASSAVA — todo alerta real sumia e o app não via diferença. Por isso o piso virou o conjunto
+// de IDs.
 //
 // ⚠️ Isto NÃO impede a injeção de uma entrada falsa plausível — para isso seria preciso
 // assinar o JSON e verificar com chave pública embarcada. O que estas checagens fecham é o
@@ -170,10 +177,16 @@ function isValidInteraction(e: any): boolean {
 // Aceita o lote inteiro ou nenhum: um payload com QUALQUER item malformado é descartado.
 // Filtrar os ruins e ficar com o resto seria pior — aceitaria silenciosamente uma base
 // adulterada pela metade.
-function acceptInteractions(data: unknown, baselineCount: number): DrugInteraction[] | null {
+// O piso deixou de ser uma CONTAGEM e passou a ser o conjunto de IDs embarcado (revisado pela
+// Play Store). Comparar quantidade era frouxo: um payload que trocasse as 2.768 entradas por
+// outras 2.768 FALSAS tinha o mesmo `length` e PASSAVA — todo alerta real sumia e o app não via
+// diferença. Agora, cada alerta que passou pela loja precisa continuar presente; remover um
+// exige uma versão nova do app.
+function acceptInteractions(data: unknown, pisoIds: Set<string>): DrugInteraction[] | null {
   if (!Array.isArray(data)) return null;
-  if (data.length < baselineCount) return null;      // só pode crescer
-  if (!data.every(isValidInteraction)) return null;  // schema íntegro em todos
+  if (!data.every(isValidInteraction)) return null;          // schema íntegro em todos
+  const presentes = new Set(data.map((e: any) => e.id));
+  for (const id of pisoIds) if (!presentes.has(id)) return null;   // sumiu alerta que a loja revisou
   return data as DrugInteraction[];
 }
 
@@ -254,7 +267,7 @@ export async function syncInteractionsDb(): Promise<void> {
   try {
     const cached = await getKV(INT_CACHE_KEY);
     if (cached) {
-      const accepted = acceptInteractions(JSON.parse(cached), bundledInts.length);
+      const accepted = acceptInteractions(JSON.parse(cached), PISO_IDS);
       if (accepted) loadExternalInteractions(accepted);
       else await setKV(INT_CACHE_KEY, '').catch(() => {}); // cache suspeito: descarta
     }
@@ -283,7 +296,7 @@ async function fetchAndUpdateInteractions(): Promise<void> {
     const raw = await fetchSigned(url, `${url}.sig`, 8000);
     if (!raw) return; // assinatura ausente ou inválida → descarta
 
-    const accepted = acceptInteractions(JSON.parse(raw), bundledInts.length);
+    const accepted = acceptInteractions(JSON.parse(raw), PISO_IDS);
     if (!accepted) return; // menor que o embarcado ou schema inválido → descarta o lote
 
     await setKV(INT_CACHE_KEY, JSON.stringify(accepted));

@@ -38,7 +38,9 @@
     "sign:data": "node tools/sign-data.js",
     "test:signature": "node tests/signature-guard.js",
     "publish:data": "node tools/publish-data.js",
-    "test:ota": "node tools/check-ota.js"
+    "test:ota": "node tools/check-ota.js",
+    "test:bulas": "node tools/audit-bulas.js --gate",
+    "test:interactions": "node tools/audit-interactions.js --gate"
   },
   "private": true
 }

@@ -43,3 +43,44 @@ export async function reportMissingDrug(drugName: string): Promise<void> {
     // Falha silenciosa — não impacta o usuário
   }
 }
+
+/**
+ * Erro apontado pelo USUÁRIO — bula trocada, interação que não existe, texto errado.
+ *
+ * Ele é a última linha de defesa, e a mais valiosa: as auditorias automáticas de hoje pegam
+ * bula de composto no slug do puro e alarme falso por token de sal, mas não pegam "esta bula é
+ * do fabricante errado para MIM" nem "esta interação está exagerada". Quem vê isso é quem toma
+ * o remédio.
+ *
+ * Vai pelo MESMO webhook do medicamento faltante, e tudo é empacotado no parâmetro `drug` — que
+ * é o único que o Apps Script publicado hoje grava na planilha. Os campos estruturados vão
+ * junto, para quando o script for atualizado; sem isso, um relato chegaria vazio e ninguém
+ * perceberia.
+ */
+export async function reportarErro(
+  tipo: 'bula' | 'interacao',
+  alvo: string,          // slug da bula, ou id + par da interação
+  motivo: string,        // o que o usuário marcou
+  detalhe?: string,      // texto livre, opcional
+): Promise<boolean> {
+  if (!WEBHOOK_URL.includes('/exec')) return false;
+
+  const resumo = [`[ERRO ${tipo}]`, alvo, '—', motivo, detalhe?.trim() ? `· ${detalhe.trim()}` : '']
+    .filter(Boolean).join(' ');
+
+  try {
+    const url = new URL(WEBHOOK_URL);
+    url.searchParams.set('drug', resumo.slice(0, 500));
+    url.searchParams.set('tipo', tipo);
+    url.searchParams.set('alvo', alvo);
+    url.searchParams.set('motivo', motivo);
+    if (detalhe?.trim()) url.searchParams.set('detalhe', detalhe.trim().slice(0, 400));
+    url.searchParams.set('platform', Platform.OS);
+    url.searchParams.set('version', Constants.expoConfig?.version ?? '?');
+
+    const res = await fetch(url.toString());
+    return res.ok;
+  } catch {
+    return false;
+  }
+}

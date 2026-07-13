@@ -1,0 +1,126 @@
+{
+  "_leia-me": [
+    "PROPOSTA — NÃO É A BASE. Nada aqui está no ar. Revise e só então mande mesclar.",
+    "",
+    "MOTIVO: a base tem UMA única interação de suplemento de potássio (int_1450, contra",
+    "amilorida). Cloreto de Potássio + Espironolactona — hipercalemia clássica — não avisava",
+    "NADA. Isso é falso-negativo: a direção perigosa.",
+    "",
+    "FONTE: drugs.com, índice do potassium chloride (148 fármacos: 102 maiores, 30 moderadas,",
+    "16 menores) — https://www.drugs.com/drug-interactions/potassium-chloride-index.html",
+    "Severidade copiada da classificação DELES (Major → high/critical, Moderate → moderate),",
+    "não do meu chute. A fonte me corrigiu em três pontos: heparina, ciclosporina e tacrolimo",
+    "NÃO constam (eu os teria incluído de cabeça); sacubitril também não (o risco vem pela",
+    "valsartana que o acompanha); e os ANTICOLINÉRGICOS são interação MAIOR, por um mecanismo",
+    "que eu nem tinha considerado (ver int_3090).",
+    "",
+    "AMILORIDA FICA DE FORA DE PROPÓSITO: int_1450 já casa com TODOS os suplementos de",
+    "potássio (o token dele é 'potassio'). Incluí-la aqui geraria alerta DUPLICADO — o mesmo",
+    "bug do Invokana. E não dá para simplesmente corrigir o int_1450: o guard do dbSync só",
+    "deixa a base CRESCER, então remover exige release na Play Store.",
+    "",
+    "PUBLICAÇÃO: como só ACRESCENTA, sai por OTA (npm run publish:data).",
+    "",
+    "STATUS: APROVADO pelo Fabio em 13/07/2026 e MESCLADO no interactions.json. Este arquivo",
+    "fica como registro da fonte e do raciocínio.",
+    "",
+    "FALSO POSITIVO ACEITO (duas vezes, conscientemente): o banco não registra FORMA",
+    "farmacêutica, e dois alertas dependem dela.",
+    "  int_3090 — o risco de úlcera é do COMPRIMIDO de KCl; quem usa solução oral também",
+    "             recebe o alerta. O texto do mecanismo diz isso explicitamente.",
+    "  int_3086 — 'Cetorolaco Ocular' (colírio) herda o alerta do cetorolaco sistêmico.",
+    "",
+    "TENTATIVA DESFEITA: cheguei a criar uma regra 'tópico não interage como sistêmico' no",
+    "drugSearch.ts para separar colírio de comprimido. Ela quebrou o TIMOLOL — colírio de",
+    "betabloqueador TEM absorção sistêmica relevante (bradicardia, broncoespasmo), e os",
+    "colírios de glaucoma combinados ('Dorzolamida + Timolol') nem trazem 'Ocular' no nome.",
+    "A regra apagava alerta real, que é pior que alarme falso. Revertida. Se um dia o banco",
+    "guardar a via de administração, o eixo volta a valer."
+  ],
+
+  "propostas": [
+    {
+      "id": "int_3082",
+      "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+      "drug2": "Espironolactona / Eplerenona (Poupadores de K+)",
+      "risk_level": "critical",
+      "risk_description": "Hipercalemia grave, com risco de arritmia e parada cardíaca",
+      "mechanism": "O suplemento acrescenta potássio e o diurético poupador impede o rim de excretá-lo. O potássio sobe sem freio. A associação é desaconselhada; se for inevitável, exige dosagem frequente de potássio sérico. Procure atendimento se sentir fraqueza muscular, formigamento ou batimentos irregulares.",
+      "_fonte": "drugs.com: Major (spironolactone, eplerenone)",
+      "_nota": "Amilorida e triantereno ficam fora: amilorida já é o int_1450; triantereno não está no nosso banco."
+    },
+    {
+      "id": "int_3083",
+      "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+      "drug2": "Captopril / Enalapril / Lisinopril / Ramipril / Benazepril / Fosinopril / Quinapril / Perindopril / Trandolapril (IECA)",
+      "risk_level": "high",
+      "risk_description": "Hipercalemia — o IECA reduz a excreção renal de potássio",
+      "mechanism": "O IECA bloqueia a aldosterona, hormônio que faz o rim eliminar potássio. Somado ao suplemento, o potássio se acumula. Não tome suplemento de potássio por conta própria durante o uso de IECA, e faça o controle laboratorial pedido pelo médico.",
+      "_fonte": "drugs.com: Major (todos os IECA listados)"
+    },
+    {
+      "id": "int_3084",
+      "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+      "drug2": "Losartana / Valsartana / Candesartana / Irbesartana / Olmesartana / Telmisartana (BRA)",
+      "risk_level": "high",
+      "risk_description": "Hipercalemia — o BRA reduz a excreção renal de potássio",
+      "mechanism": "Mesmo mecanismo do IECA: o bloqueio da angiotensina derruba a aldosterona e o rim para de eliminar potássio. Vale também para as combinações com sacubitril, que carregam valsartana.",
+      "_fonte": "drugs.com: Major (todos os BRA listados)"
+    },
+    {
+      "id": "int_3085",
+      "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+      "drug2": "Trimetoprima / Sulfametoxazol-trimetoprima",
+      "risk_level": "high",
+      "risk_description": "Hipercalemia — a trimetoprima retém potássio no rim",
+      "mechanism": "A trimetoprima bloqueia o canal de sódio no túbulo renal, com efeito parecido ao da amilorida, e segura o potássio. O risco é maior em idosos, em doença renal e em tratamento prolongado.",
+      "_fonte": "drugs.com: Major"
+    },
+    {
+      "id": "int_3086",
+      "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+      "drug2": "Ibuprofeno / Diclofenaco / Naproxeno / Cetoprofeno / Piroxicam / Meloxicam / Indometacina / Cetorolaco / Nimesulida (AINEs)",
+      "risk_level": "moderate",
+      "risk_description": "Hipercalemia — o anti-inflamatório reduz o fluxo renal",
+      "mechanism": "O AINE reduz as prostaglandinas que mantêm o fluxo de sangue no rim, e a queda da filtração dificulta a eliminação do potássio. Efeito maior em idosos, desidratados e em quem já tem doença renal.",
+      "_fonte": "drugs.com: Moderate"
+    },
+    {
+      "id": "int_3087",
+      "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+      "drug2": "Alisquireno",
+      "risk_level": "moderate",
+      "risk_description": "Hipercalemia — o alisquireno reduz a aldosterona",
+      "mechanism": "O bloqueio da renina derruba a aldosterona e o rim retém potássio, do mesmo jeito que com IECA e BRA. Exige controle do potássio sérico.",
+      "_fonte": "drugs.com: Moderate"
+    },
+    {
+      "id": "int_3088",
+      "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+      "drug2": "Drospirenona",
+      "risk_level": "moderate",
+      "risk_description": "Hipercalemia — a drospirenona tem efeito antimineralocorticoide",
+      "mechanism": "A drospirenona (presente em vários anticoncepcionais) age parecido com a espironolactona e segura potássio. O risco cresce em doença renal, hepática ou adrenal.",
+      "_fonte": "drugs.com: Moderate"
+    },
+    {
+      "id": "int_3089",
+      "drug1": "Cloreto de Potássio / Citrato de Potássio / Fosfato de Potássio (Suplementos de K+)",
+      "drug2": "Tolvaptana",
+      "risk_level": "moderate",
+      "risk_description": "Hipercalemia — a tolvaptana eleva o potássio sérico",
+      "mechanism": "A tolvaptana aumenta a excreção de água livre e concentra o potássio no sangue. Exige dosagem de potássio no início do tratamento e após aumento de dose.",
+      "_fonte": "drugs.com: Moderate"
+    },
+    {
+      "id": "int_3090",
+      "drug1": "Cloreto de Potássio (comprimido)",
+      "drug2": "Amitriptilina / Imipramina / Nortriptilina / Clomipramina / Difenidramina / Prometazina / Hidroxizina / Clorfeniramina / Clorpromazina / Olanzapina / Clozapina / Ciclobenzaprina / Oxibutinina / Solifenacina / Tolterodina / Escopolamina / Biperideno (Anticolinérgicos)",
+      "risk_level": "high",
+      "risk_description": "Lesão do trato digestivo — NÃO é hipercalemia",
+      "mechanism": "O anticolinérgico retarda o esvaziamento gástrico e o trânsito intestinal. O comprimido de potássio fica parado em contato com a mucosa e concentra sal ali, podendo causar úlcera, sangramento e até perfuração. Vale para as formas SÓLIDAS de potássio; a solução oral não tem esse risco. Avise o médico se sentir dor abdominal, náusea, vômito ou notar sangue nas fezes.",
+      "_fonte": "drugs.com: Major",
+      "_decisao_pendente": "É a de maior volume (20 fármacos do banco casam) e o mecanismo depende da FORMA (comprimido, não solução) — que o nosso banco não registra. Aprovar como está, restringir, ou cortar."
+    }
+  ]
+}

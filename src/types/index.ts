@@ -36,6 +36,20 @@ export interface EmergencyContact {
 
 export interface DrugInteraction {
   id: string;
+  // De onde a entrada veio (atribuída pelo commit que a criou — ver tools/marcar-procedencia.js).
+  // "desconhecida" = 31% da base, e ela carrega 281 dos 429 alertas CRÍTICOS. NÃO quer dizer
+  // ERRADA: o int_001 (Metformina × Contraste Iodado) é clássico e está aí. Quer dizer que o app
+  // não tem o que CITAR — então ele pode sinalizar o par e mandar ler a bula, mas não deve
+  // afirmar mecanismo nem gravidade como se fosse fato apurado.
+  source?: 'ANVISA' | 'FDA' | 'Infarma 2007' | 'Fiocruz 2024' | 'drugs.com' | 'desconhecida';
+  // O FÁRMACO cuja bula confirma a interação — "Varfarina" (ANVISA) ou "warfarin" (FDA).
+  // Sem ele o app só podia dizer "Fonte: ANVISA", que é a AGÊNCIA, não o documento. O
+  // documento é a BULA DA VARFARINA, e é essa que o usuário precisa poder conferir.
+  source_ref?: string;
+  // Slug da bula que confirma (só quando source === 'ANVISA'): é o que permite ABRIR o PDF
+  // no nosso servidor. Citação que não se pode conferir não vale muito mais que afirmação
+  // sem fonte nenhuma.
+  source_bula?: string;
   drug1: string;
   drug2: string;
   risk_level: 'critical' | 'high' | 'moderate';

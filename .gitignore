@@ -61,3 +61,6 @@ verify_brands.py
 store-assets/
 PROJETO.md
 analise-bulas-med-br/
+scripts/cache_rxnav_en.json
+scripts/cache_fda_labels.json
+src/data/interactions.json.bak-*

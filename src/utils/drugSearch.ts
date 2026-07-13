@@ -57,14 +57,72 @@ export function getAllInteractions(): DrugInteraction[] {
   return ALL_INTERACTIONS;
 }
 
-// "ácido" recurs across unrelated drugs (Ácido Valpróico, Ácido Acetilsalicílico, Ácido Fólico...);
-// as a standalone token it causes false-positive interaction matches between them.
-const GENERIC_QUALIFIER_TOKENS = new Set(['acido', 'acida']);
+// Palavras que NÃO identificam um princípio ativo: o contra-íon do sal, o éster, a forma
+// farmacêutica e alguns conectivos. Como o casamento aceita UMA palavra qualquer, bastava
+// uma delas para o alerta disparar no fármaco errado: "Cloridrato de Cefepime" (antibiótico)
+// casava com "Cloridrato de amiodarona" e o app avisava sobre dabigatrana. Eram 677 alertas
+// falsos, 300 deles de risco alto — e alarme falso em app de medicamento ensina o usuário a
+// ignorar o alerta que importa.
+// "ácido" já estava aqui pelo mesmo motivo (Ácido Valpróico × Ácido Fólico × AAS).
+const GENERIC_QUALIFIER_TOKENS = new Set([
+  'acido', 'acida',
+  // sais e ésteres — sempre o contra-íon, nunca a identidade
+  'cloridrato', 'dicloridrato', 'bromidrato', 'mesilato', 'besilato', 'maleato',
+  'tartarato', 'succinato', 'fumarato', 'valerato', 'propionato', 'dipropionato',
+  'furoato', 'pamoato', 'oxalato', 'gluconato', 'acetato', 'citrato', 'lactato', 'nitrato',
+  'sulfato', 'cloreto', 'carbonato', 'bicarbonato', 'fosfato', 'hidroxido', 'oxido',
+  // qualificadores, formas e conectivos
+  'humana', 'humano', 'ocular', 'oftalmico', 'topico', 'sais', 'suplementos',
+  'com', 'sem', 'dos', 'das', 'por', 'para', 'seus', 'suas', 'outros', 'outras',
+]);
+
+// Os ÍONS ficam de fora da lista acima porque em eletrólito, antiácido e suplemento eles SÃO
+// o ativo ("Cloreto de Sódio", "Hidróxido de Alumínio", "Suplementos de Ferro"). Mas em
+// "Valproato de sódio" o sódio é só o contra-íon — e era ele que fazia "Picossulfato de Sódio"
+// herdar o alerta CRÍTICO do valproato.
+const ION_TOKENS = new Set([
+  'sodio', 'sodica', 'sodico', 'potassio', 'potassica', 'potassico',
+  'calcio', 'calcica', 'calcico', 'magnesio', 'aluminio', 'zinco',
+  'ferro', 'ferroso', 'ferrica', 'ferrico',
+]);
+const GENITIVOS = new Set(['de', 'do', 'da']);
+
+// Divide o nome em PEDAÇOS antes de qualquer regra — normalize() apaga estes separadores:
+//   "/"    ALTERNATIVAS  — "Antiácidos com Alumínio / Suplementos de Ferro/Zinco": achatar
+//                          faria "Antiácidos" engolir o "Ferro" e o app pararia de avisar
+//                          sobre ferro + quinolona.
+//   "+"    CO-ATIVOS     — em "Sulfato Ferroso + Ácido Fólico" o ferro É um ativo; achatar
+//                          deixaria o "fólico" derrubá-lo e o remédio perderia a identidade
+//                          de ferro. Idem "Carbonato de Cálcio + Vitamina D".
+//   "( )"  APOSTO        — "Hidróxido de Alumínio (Antiácidos)": sem separar, o "antiácidos"
+//                          derrubaria o alumínio, que é o próprio ativo.
+//
+// Dentro do pedaço, o que marca CONTRA-ÍON é o GENITIVO, não a mera presença de outra
+// palavra: "Valproato DE sódio" e "Clavulanato DE potássio" são contra-íon; já "Ferro
+// Polimaltosado" (polimaltosado é a FORMA) e "Antiácidos COM Alumínio" trazem o íon como o
+// próprio fármaco. Tentar adivinhar pela existência de outra palavra apagava os alertas de
+// ferro do Ferro Polimaltosado — regressão que só a rede de proteção pegou.
+// E se remover o contra-íon esvaziar o pedaço, o íon É o fármaco ("Cloreto de Sódio").
+function identityTokens(drugName: string): string[] {
+  const out = new Set<string>();
+  for (const alt of drugName.split(/[/+()]/)) {
+    const seq = normalize(alt).split(/[\s,]+/).filter(Boolean);
+    const words = seq.filter(t => t.length >= 3 && !GENERIC_QUALIFIER_TOKENS.has(t));
+
+    const contraIons = new Set<string>();
+    for (let i = 1; i < seq.length; i++) {
+      if (ION_TOKENS.has(seq[i]) && GENITIVOS.has(seq[i - 1])) contraIons.add(seq[i]);
+    }
+    const restantes = words.filter(t => !contraIons.has(t));
+    for (const t of (restantes.length ? restantes : words)) out.add(t);
+  }
+  return [...out];
+}
 
 function buildInteractionTokens() {
   INTERACTION_TOKENS = ALL_INTERACTIONS.map(i => ({
-    tokens1: normalize(i.drug1).split(/[\s,]+/).filter(t => t.length >= 3 && !GENERIC_QUALIFIER_TOKENS.has(t)),
-    tokens2: normalize(i.drug2).split(/[\s,]+/).filter(t => t.length >= 3 && !GENERIC_QUALIFIER_TOKENS.has(t)),
+    tokens1: identityTokens(i.drug1),
+    tokens2: identityTokens(i.drug2),
   }));
 }
 
@@ -228,6 +286,13 @@ const PHYTO_BULA_MAP: Record<string, string> = {
 };
 
 const BULA_BASE = 'https://www.alertamedico.ia.br/bulas';
+
+// A bula que CONFIRMA uma interação (source_bula). O cartão precisa poder abri-la: dizer
+// "Fonte: ANVISA" sem mostrar ONDE não vale muito mais que não dizer fonte nenhuma — ANVISA
+// é a AGÊNCIA, não o documento. O documento é a bula da Varfarina, e ela está no nosso servidor.
+export function bulaUrlDoSlug(slug: string): string {
+  return `${BULA_BASE}/${slug}.pdf`;
+}
 
 export function getPhytoBulaUrl(genericName: string, brandName?: string): string {
   const key = normalize(genericName.split('(')[0].split('/')[0].trim());
@@ -400,14 +465,31 @@ function resolveGeneric(name: string): string {
   return name;
 }
 
+// Peça curta (< 6 letras) só casa no INÍCIO de uma palavra. Sem isso o "BRA" de
+// "Losartana / Valsartana (BRA)" casava DENTRO de toBRAmicina, fenofiBRAto e ivaBRAdina:
+// 33 alertas de hipercalemia em fármacos que não são BRA. Peça longa segue casando por
+// substring — é o que faz "penicilina" encontrar "fenoximetilpenicilina" e "ferro"
+// (via início de palavra) encontrar "ferroso".
+const SUBSTRING_MIN = 6;
+
+function pieceMatches(piece: string, whole: string): boolean {
+  return piece.length >= SUBSTRING_MIN
+    ? whole.includes(piece)
+    : whole.split(/[\s-]+/).some(w => w.startsWith(piece));
+}
+
 // Match a name against pre-computed token array (no DB scan)
 function tokensMatchName(tokens: string[], name: string): boolean {
   const resolved = resolveGeneric(name);
   const candidates = resolved !== name ? [resolved, name] : [name];
   for (const c of candidates) {
-    const cNorm = normalize(c);
-    if (cNorm.length < 3) continue;
-    if (tokens.some(t => t.includes(cNorm) || cNorm.includes(t))) return true;
+    if (normalize(c).length < 3) continue;
+    // A regra do contra-íon vale para os DOIS lados. "Amoxicilina + Clavulanato de potássio"
+    // tem identidade própria (amoxicilina, clavulanato), então o potássio ali é contra-íon —
+    // igual ao sódio em "Valproato de sódio". Sem isso, uma interação de SUPLEMENTO DE
+    // POTÁSSIO (hipercalemia) dispararia para um antibiótico.
+    const medTokens = identityTokens(c);
+    if (tokens.some(t => medTokens.some(mt => pieceMatches(t, mt) || pieceMatches(mt, t)))) return true;
   }
   return false;
 }
@@ -467,24 +549,28 @@ export function checkSubstanceInteractions(drugName: string, userMedNames: strin
   return results.sort((a, b) => (order[a.risk_level] ?? 3) - (order[b.risk_level] ?? 3));
 }
 
-// Álcool e barbitúricos nunca aparecem na lista de medicamentos do próprio usuário
-// (ninguém cadastra "Álcool" como remédio que toma), então essas interações precisam
-// ser sinalizadas de forma independente de existingMedNames — um aviso permanente por
-// medicamento, não condicionado a outro cadastro do usuário.
+// O ÁLCOOL nunca aparece na lista de medicamentos do usuário — ninguém cadastra "Álcool" como
+// remédio que toma. Por isso a interação com álcool precisa ser sinalizada de forma INDEPENDENTE
+// de existingMedNames: é um aviso permanente por medicamento, não condicionado a outro cadastro.
+//
+// OS BARBITÚRICOS ESTAVAM AQUI JUNTO, E ERA UM ERRO. A premissa ("ninguém cadastra isso") vale
+// para o álcool e é FALSA para eles: o fenobarbital é o GARDENAL — antiepiléptico comum, que
+// está no nosso banco com marcas (Gardenal, Carbital, Eucalmina) e que as pessoas cadastram.
+// O tiopental idem (Thiopentax).
+//
+// O estrago: 46 interações disparavam SEM o usuário ter o parceiro, 31 delas de risco alto.
+// Quem cadastrava Varfarina recebia "Fenobarbital × Varfarina" sem tomar fenobarbital. Quem
+// cadastrava camomila, valeriana ou maracujá também. Era o mesmo alarme falso que matamos no
+// casamento de tokens — só que por um ATALHO que ignora o casamento, e por isso o gate não via.
+// Achado pelo Fabio testando o app, não pela auditoria.
+//
+// Agora barbitúrico é medicamento como qualquer outro: o alerta só sai se o usuário tiver os
+// DOIS lados cadastrados.
 const ALCOHOL_TERMS = ['alcool', 'etanol', 'alcohol'];
-const BARBITURATE_TERMS = ['barbiturico', 'barbiturate', 'fenobarbital', 'pentobarbital', 'secobarbital', 'amobarbital', 'tiopental'];
 
-// null quando `name` não é álcool nem barbitúrico — usado tanto para achar essas
-// interações "de padrão" (ver checkInteractions) quanto para rotular o aviso na UI.
-export function alcoholOrBarbiturateKind(name: string): 'alcohol' | 'barbiturate' | null {
+function isAlcoholName(name: string): boolean {
   const n = normalize(name);
-  if (ALCOHOL_TERMS.some(t => n.includes(t))) return 'alcohol';
-  if (BARBITURATE_TERMS.some(t => n.includes(t))) return 'barbiturate';
-  return null;
-}
-
-function isAlcoholOrBarbiturateName(name: string): boolean {
-  return alcoholOrBarbiturateKind(name) !== null;
+  return ALCOHOL_TERMS.some(t => n.includes(t));
 }
 
 export function checkInteractions(newDrug: string, existingMedNames: string[]): DrugInteraction[] {
@@ -499,9 +585,9 @@ export function checkInteractions(newDrug: string, existingMedNames: string[]): 
     const { tokens1, tokens2 } = INTERACTION_TOKENS[i] ?? { tokens1: [], tokens2: [] };
     const m1 = matchesSide(tokens1, interaction.drug1_rxcuis, newDrug);
     const m2 = m1 ? false : matchesSide(tokens2, interaction.drug2_rxcuis, newDrug);
-    if (m1 && (isAlcoholOrBarbiturateName(interaction.drug2) || existingMedNames.some(m => matchesSide(tokens2, interaction.drug2_rxcuis, m)))) {
+    if (m1 && (isAlcoholName(interaction.drug2) || existingMedNames.some(m => matchesSide(tokens2, interaction.drug2_rxcuis, m)))) {
       seen.add(interaction.id); results.push(interaction);
-    } else if (m2 && (isAlcoholOrBarbiturateName(interaction.drug1) || existingMedNames.some(m => matchesSide(tokens1, interaction.drug1_rxcuis, m)))) {
+    } else if (m2 && (isAlcoholName(interaction.drug1) || existingMedNames.some(m => matchesSide(tokens1, interaction.drug1_rxcuis, m)))) {
       seen.add(interaction.id); results.push(interaction);
     }
   }

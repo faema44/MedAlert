@@ -24,6 +24,7 @@ import {
 } from '../services/notifications';
 import { Medication, MedicationReminder, DrugInteraction } from '../types';
 import MedDisclaimer from '../components/MedDisclaimer';
+import CartaoInteracao from '../components/CartaoInteracao';
 import InteractionConsentModal, { hasAcceptedInteractionTerms, acceptInteractionTerms } from '../components/InteractionConsentModal';
 import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, checkInteractions, isPhytotherapic, getAllMedGenericNames } from '../utils/drugSearch';
 import { useBulaViewer } from '../utils/useBulaViewer';
@@ -1663,25 +1664,11 @@ export default function MedicationsScreen() {
             <Text style={styles.intModalTitle}>Interações detectadas</Text>
             <MedDisclaimer />
             <ScrollView>
-              {(interactionModal ?? []).map(i => {
-                const color = i.risk_level === 'critical' ? '#CC0000' : i.risk_level === 'high' ? '#e65c00' : '#b58900';
-                const label = i.risk_level === 'critical' ? 'Crítico' : i.risk_level === 'high' ? 'Alto' : 'Moderado';
-                return (
-                  <View key={i.id} style={[styles.intModalItem, { borderLeftColor: color }]}>
-                    <View style={[styles.intModalBadge, { borderColor: color }]}>
-                      <Text style={[styles.intModalBadgeText, { color }]}>{label}</Text>
-                    </View>
-                    <Text style={styles.intModalDrugs}>{i.drug1} + {i.drug2}</Text>
-                    <Text style={styles.intModalDesc}>{i.risk_description}</Text>
-                    {!!i.mechanism && (
-                      <View style={styles.intModalMechanismBox}>
-                        <Text style={styles.intModalMechanismTitle}>Como ocorre:</Text>
-                        <Text style={styles.intModalMechanismText}>{i.mechanism}</Text>
-                      </View>
-                    )}
-                  </View>
-                );
-              })}
+              {/* Cartão ÚNICO (components/CartaoInteracao) — traz fonte, aviso de IA e
+                  botão de informar erro, que esta cópia não tinha. */}
+              {(interactionModal ?? []).map(i => (
+                <CartaoInteracao key={i.id} item={i} aberto />
+              ))}
             </ScrollView>
             <TouchableOpacity style={styles.intModalClose} onPress={() => setInteractionModal(null)}>
               <Text style={styles.intModalCloseText}>Fechar</Text>

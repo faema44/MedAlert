@@ -12,6 +12,7 @@ import {
   getAppointments, resolveMedicationLogSlot, updateMedicationStock, getMedicationLog,
 } from '../database/db';
 import MedDisclaimer from '../components/MedDisclaimer';
+import CartaoInteracao from '../components/CartaoInteracao';
 import InteractionConsentModal, { hasAcceptedInteractionTerms, acceptInteractionTerms } from '../components/InteractionConsentModal';
 import EmergencyChecklist from '../components/EmergencyChecklist';
 import { getCyclePhase, CyclePhaseInfo } from '../utils/cyclePhase';
@@ -716,19 +717,11 @@ export default function HomeScreen() {
             <Text style={styles.intModalTitle}>Interações detectadas</Text>
             <MedDisclaimer />
             <ScrollView>
-              {allInteractions.map(i => {
-                const color = i.risk_level === 'critical' ? '#CC0000' : i.risk_level === 'high' ? '#e65c00' : '#b58900';
-                const label = i.risk_level === 'critical' ? 'Crítico' : i.risk_level === 'high' ? 'Alto' : 'Moderado';
-                return (
-                  <View key={i.id} style={[styles.intModalItem, { borderLeftColor: color }]}>
-                    <View style={[styles.intModalBadge, { borderColor: color }]}>
-                      <Text style={[styles.intModalBadgeText, { color }]}>{label}</Text>
-                    </View>
-                    <Text style={styles.intModalDrugs}>{i.drug1} + {i.drug2}</Text>
-                    <Text style={styles.intModalDesc}>{i.risk_description}</Text>
-                  </View>
-                );
-              })}
+              {/* Cartão ÚNICO (components/CartaoInteracao). Aqui ele nem mostrava o
+                  mecanismo — três cópias do mesmo cartão já tinham divergido. */}
+              {allInteractions.map(i => (
+                <CartaoInteracao key={i.id} item={i} aberto />
+              ))}
             </ScrollView>
             <TouchableOpacity style={styles.intModalClose} onPress={() => setShowInteractionsModal(false)}>
               <Text style={styles.intModalCloseText}>Fechar</Text>
