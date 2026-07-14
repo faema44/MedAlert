@@ -54,7 +54,7 @@ import {
   snoozeActivityReminder, getLastResponse, notifyTreatmentEnded, notifyLowStock, cancelAllRemindersForMedication,
   resetEmergencySignature, updateEmergencyNotification,
 } from './src/services/notifications';
-import { getDb, getMedications, getMedicationById, updateMedicationStock, addActivityLog, getKV, setKV, addMedicationLog, addMedicationTreatmentEndedLog, upsertMedicationLogTaken, archiveMedication, getExpiredUnarchivedMedications, getRemindersForMedication, getMedicationLog, getProfile, reconcileMissedDoses } from './src/database/db';
+import { getDb, getMedications, getMedicationById, updateMedicationStock, addActivityLog, getKV, setKV, addMedicationLog, addMedicationTreatmentEndedLog, upsertMedicationLogTaken, archiveMedication, getExpiredUnarchivedMedications, getRemindersForMedication, getMedicationLog, getProfile, reconcileMissedDoses, falhaDeBanco } from './src/database/db';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
 
 const Tab = createBottomTabNavigator();
@@ -232,7 +232,7 @@ function AppNavigator() {
               const logId = dailyLogId((data.mainNotifId as string) || notifId, firedAt);
               if (actionId === 'TOOK') {
                 cancelRepeatAlarm(medId).catch(() => {});
-                upsertMedicationLogTaken(logId, medId, medName, medDose, true, firedAt.toISOString()).catch(() => {});
+                upsertMedicationLogTaken(logId, medId, medName, medDose, true, firedAt.toISOString()).catch(falhaDeBanco('cold:TOOK'));
                 const med = await getMedicationById(medId).catch(() => null);
                 if (med?.stock_quantity != null && med.stock_quantity > 0) {
                   const next = Math.max(0, med.stock_quantity - (med.units_per_dose || 1));
@@ -243,7 +243,7 @@ function AppNavigator() {
                 dismissPresentedForMedication(medId).catch(() => {});
               } else if (actionId === 'SKIP') {
                 cancelRepeatAlarm(medId).catch(() => {});
-                upsertMedicationLogTaken(logId, medId, medName, medDose, false, firedAt.toISOString()).catch(() => {});
+                upsertMedicationLogTaken(logId, medId, medName, medDose, false, firedAt.toISOString()).catch(falhaDeBanco('cold:SKIP'));
                 dismissPresentedForMedication(medId).catch(() => {});
               }
               await setKV('last_notif_response_id', notifId).catch(() => {});
@@ -266,7 +266,7 @@ function AppNavigator() {
       dismissDuplicateReminders().catch(() => {});
       // Doses que dispararam com o app morto não geraram linha no log (o listener JS não
       // rodou). Cria as faltantes como "Sem resposta" — sem isso a dose some do histórico.
-      reconcileMissedDoses().catch(() => {});
+      reconcileMissedDoses().catch(falhaDeBanco('init:reconcileMissedDoses'));
     }
     init();
 
@@ -302,7 +302,7 @@ function AppNavigator() {
         dose: data.dose,
         notification_id: dailyLogId(data.notificationId),
         scheduled_at: scheduledTimeFromNotificationId(data.notificationId),
-      }).catch(() => {});
+      }).catch(falhaDeBanco('lembrete:cria linha do log'));
       // Se o estoque já está baixo quando o lembrete dispara, notifica junto
       getMedicationById(data.medicationId).then(med => {
         if (med?.stock_quantity != null) {
@@ -320,7 +320,7 @@ function AppNavigator() {
       onMedTook: async (medicationId, notifId, name, dose, firedAtMs) => {
         cancelRepeatAlarm(medicationId).catch(() => {});
         const firedAt = new Date(firedAtMs);
-        upsertMedicationLogTaken(dailyLogId(notifId, firedAt), medicationId, name, dose, true, firedAt.toISOString()).catch(() => {});
+        upsertMedicationLogTaken(dailyLogId(notifId, firedAt), medicationId, name, dose, true, firedAt.toISOString()).catch(falhaDeBanco('resposta:TOOK'));
         const med = await getMedicationById(medicationId).catch(() => null);
         if (med?.stock_quantity != null && med.stock_quantity > 0) {
           const next = Math.max(0, med.stock_quantity - (med.units_per_dose || 1));
@@ -334,12 +334,12 @@ function AppNavigator() {
       onMedSkip: (medicationId, notifId, name, dose, firedAtMs) => {
         cancelRepeatAlarm(medicationId).catch(() => {});
         const firedAt = new Date(firedAtMs);
-        upsertMedicationLogTaken(dailyLogId(notifId, firedAt), medicationId, name, dose, false, firedAt.toISOString()).catch(() => {});
+        upsertMedicationLogTaken(dailyLogId(notifId, firedAt), medicationId, name, dose, false, firedAt.toISOString()).catch(falhaDeBanco('resposta:SKIP'));
         dismissPresentedForMedication(medicationId).catch(() => {});
       },
       onMedDefault: () => {},
       onActivityDone: async (activityId, activityName, activityType, notifId) => {
-        await addActivityLog({ activity_id: activityId, activity_name: activityName, activity_type: activityType, realized: true, value: '' }).catch(() => {});
+        await addActivityLog({ activity_id: activityId, activity_name: activityName, activity_type: activityType, realized: true, value: '' }).catch(falhaDeBanco('atividade:feita'));
         await dismissNotification(notifId);
       },
       onActivitySnooze: async (activityId, activityName, activityType, notifId) => {
@@ -347,7 +347,7 @@ function AppNavigator() {
         await dismissNotification(notifId);
       },
       onActivitySkip: async (activityId, activityName, activityType, notifId) => {
-        await addActivityLog({ activity_id: activityId, activity_name: activityName, activity_type: activityType, realized: false, value: '' }).catch(() => {});
+        await addActivityLog({ activity_id: activityId, activity_name: activityName, activity_type: activityType, realized: false, value: '' }).catch(falhaDeBanco('atividade:pulada'));
         dismissNotification(notifId);
       },
       onActivityMeasure: (activityId, notifId) => {
@@ -373,7 +373,7 @@ function AppNavigator() {
     const sub = AppState.addEventListener('change', async (state) => {
       if (state !== 'active') return;
       dismissDuplicateReminders().catch(() => {});
-      reconcileMissedDoses().catch(() => {});
+      reconcileMissedDoses().catch(falhaDeBanco('foreground:reconcileMissedDoses'));
       if (!navRef.isReady()) return;
       if (navRef.getCurrentRoute()?.name === 'Home') return;
       try {

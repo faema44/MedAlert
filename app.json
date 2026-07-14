@@ -2,7 +2,7 @@
   "expo": {
     "name": "Alerta Médico",
     "slug": "alerta-medico",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -15,7 +15,7 @@
     },
     "android": {
       "package": "com.alertamedico.app",
-      "versionCode": 11,
+      "versionCode": 12,
       "adaptiveIcon": {
         "backgroundColor": "#1a3a6b",
         "foregroundImage": "./assets/android-icon-foreground.png",

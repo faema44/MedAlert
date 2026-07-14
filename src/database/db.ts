@@ -1,8 +1,70 @@
 import * as SQLite from 'expo-sqlite';
+import * as Sentry from '@sentry/react-native';
 import { Profile, Medication, EmergencyContact, MedicationReminder, Activity, ActivityReminder, ActivityType, Appointment } from '../types';
 
 let db: SQLite.SQLiteDatabase | null = null;
 let dbInitPromise: Promise<SQLite.SQLiteDatabase> | null = null;
+
+// O objeto NATIVO do SQLite pode morrer por baixo do JS. Quando o Android destrói a Activity
+// (a Samsung faz isso agressivamente), o registro de shared objects do Expo vai junto — mas este
+// módulo continua segurando o handle antigo, e o JS do app sobrevive: os lembretes rodam com a
+// tela fechada. A consulta seguinte estoura com "Cannot use shared object that was already
+// released", e como quase toda gravação de log sai de handler de notificação, o erro ia parar
+// numa promise sem dono. Falhava CALADO: 9 eventos no Sentry, em 3 aparelhos reais.
+//
+// Aqui o handle morto é reconhecido e o banco reaberto — uma vez só, para não virar laço.
+const HANDLE_MORTO = /already released|shared object/i;
+const OPERACOES = ['runAsync', 'execAsync', 'getAllAsync', 'getFirstAsync'] as const;
+type Operacao = (typeof OPERACOES)[number];
+
+const ORIGINAIS = new WeakMap<SQLite.SQLiteDatabase, Record<Operacao, Function>>();
+
+// Dentro de uma transação NÃO se reabre. O único uso é o restore do backup: reabrir no meio
+// aplicaria o resto num banco novo e deixaria os dados pela metade. Ali a falha tem que subir.
+let emTransacao = false;
+
+function ehHandleMorto(erro: unknown): boolean {
+  return HANDLE_MORTO.test(String((erro as { message?: string })?.message ?? erro));
+}
+
+function blindar(database: SQLite.SQLiteDatabase): SQLite.SQLiteDatabase {
+  const originais = {} as Record<Operacao, Function>;
+
+  for (const nome of OPERACOES) {
+    const original = (database[nome] as Function).bind(database);
+    originais[nome] = original;
+    (database as unknown as Record<string, unknown>)[nome] = async (...args: unknown[]) => {
+      try {
+        return await original(...args);
+      } catch (erro) {
+        if (emTransacao || !ehHandleMorto(erro)) throw erro;
+        Sentry.captureMessage(`SQLite reaberto após handle liberado (${nome})`, 'warning');
+        // Só descarta se ninguém já descartou: com duas consultas falhando juntas, a segunda
+        // apagaria a reabertura em curso da primeira e o banco seria aberto duas vezes.
+        if (db === database) {
+          db = null;
+          dbInitPromise = null;
+        }
+        const novo = await getDb();
+        // Chama o método CRU do banco novo: uma tentativa, e se ela falhar o erro sobe.
+        return await ORIGINAIS.get(novo)![nome](...args);
+      }
+    };
+  }
+
+  const transacaoOriginal = database.withTransactionAsync.bind(database);
+  (database as unknown as Record<string, unknown>).withTransactionAsync = async (fn: () => Promise<void>) => {
+    emTransacao = true;
+    try {
+      return await transacaoOriginal(fn);
+    } finally {
+      emTransacao = false;
+    }
+  };
+
+  ORIGINAIS.set(database, originais);
+  return database;
+}
 
 export async function getDb(): Promise<SQLite.SQLiteDatabase> {
   if (db) return db;
@@ -11,11 +73,21 @@ export async function getDb(): Promise<SQLite.SQLiteDatabase> {
       const database = await SQLite.openDatabaseAsync('medalert.db');
       await initSchema(database);
       await runMigrations(database);
-      db = database;
-      return database;
+      db = blindar(database);
+      return db;
     })();
   }
   return dbInitPromise;
+}
+
+// Substitui o `.catch(() => {})` das gravações de log. Uma dose que o usuário respondeu e que o
+// banco não gravou é justamente o bug que estamos caçando ("Tomei" que ninguém marcou, alerta
+// que some sem deixar rastro) — engolir esse erro é apagar a única prova.
+export function falhaDeBanco(contexto: string) {
+  return (erro: unknown) => {
+    console.warn(`[db] falhou: ${contexto}`, erro);
+    Sentry.captureException(erro, { tags: { db_contexto: contexto } });
+  };
 }
 
 async function initSchema(database: SQLite.SQLiteDatabase): Promise<void> {
