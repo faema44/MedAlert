@@ -1,7 +1,10 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { getProfile, getKV, getCaregiver } from '../database/db';
+import { getMedIdOptIn } from '../services/medicalId';
+
+const IS_IOS = Platform.OS === 'ios';
 
 const KV_ALERT_ACTIVE = 'alert_active';
 
@@ -32,12 +35,18 @@ export default function SettingsScreen() {
 
   const load = useCallback(async () => {
     const [p, alertActive, cg] = await Promise.all([getProfile(), getKV(KV_ALERT_ACTIVE), getCaregiver()]);
-    const profileDone = !!p?.name;
-    const notifActive = alertActive === '1' && profileDone;
-    if (!profileDone) {
-      setLockSubtitle('Necessário completar o Perfil Médico');
+    if (IS_IOS) {
+      // iPhone: a ficha da tela de bloqueio é a Ficha Médica nativa da Apple; o app só lembra.
+      const on = await getMedIdOptIn();
+      setLockSubtitle(on ? 'Lembretes de atualização ativados' : 'Ajuda a manter sua Ficha Médica atualizada');
     } else {
-      setLockSubtitle(notifActive ? 'Alerta ativado — visível na tela de bloqueio' : 'Alerta desativado');
+      const profileDone = !!p?.name;
+      const notifActive = alertActive === '1' && profileDone;
+      if (!profileDone) {
+        setLockSubtitle('Necessário completar o Perfil Médico');
+      } else {
+        setLockSubtitle(notifActive ? 'Alerta ativado — visível na tela de bloqueio' : 'Alerta desativado');
+      }
     }
     setCaregiverSubtitle(cg ? `${cg.name} recebe seus avisos` : 'Ninguém acompanha seus avisos');
   }, []);
@@ -48,7 +57,7 @@ export default function SettingsScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <MenuRow
         icon="🔒"
-        title="Tela de Bloqueio"
+        title={IS_IOS ? 'Ficha Médica (Apple)' : 'Tela de Bloqueio'}
         subtitle={lockSubtitle}
         onPress={() => (navigation as any).navigate('LockScreen')}
       />

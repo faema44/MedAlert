@@ -22,6 +22,7 @@ import {
   scheduleReminder, cancelAllRemindersForMedication, notifyLowStock,
   rescheduleRemindersForMedication,
 } from '../services/notifications';
+import { syncMedicalIdReminder } from '../services/medicalId';
 import { Medication, MedicationReminder } from '../types';
 import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, isPhytotherapic, nomeDaBaseParaBula } from '../utils/drugSearch';
 import { useBulaViewer } from '../utils/useBulaViewer';
@@ -247,6 +248,8 @@ export default function MedicationsScreen() {
       const profile = await getProfile();
       if (profile?.name) await updateEmergencyNotification(profile, meds);
     } catch {}
+    // iOS: se a pessoa usa o Medical ID, lembra que os remédios mudaram (no-op fora do iOS)
+    await syncMedicalIdReminder(meds);
   }
 
   function handleGenericNameChange(v: string) {

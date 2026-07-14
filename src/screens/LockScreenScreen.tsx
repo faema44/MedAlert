@@ -1,16 +1,27 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Switch, Alert, AppState } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Switch, Alert, AppState, Platform } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { getProfile, getMedications, getContacts, getKV, setKV } from '../database/db';
 import { updateEmergencyNotification, cancelEmergencyNotification, buildEmergencyCardLines } from '../services/notifications';
 import { isIgnoringBatteryOptimizations, requestIgnoreBatteryOptimizations } from '../services/medNotification';
+import {
+  getMedIdOptIn, setMedIdOptIn, isMedicalIdPending, ackMedicalIdUpdate, buildMedListText,
+} from '../services/medicalId';
 import { Profile, Medication, EmergencyContact } from '../types';
 import EmergencyChecklist from '../components/EmergencyChecklist';
 
 const KV_ALERT_ACTIVE = 'alert_active';
 
+// No iPhone a ficha da tela de bloqueio não existe pra apps — só a Ficha Médica nativa da Apple,
+// que nenhum app pode ler nem preencher. Lá o app só ensina e lembra (ver IOSMedicalIdScreen).
 export default function LockScreenScreen() {
+  if (Platform.OS === 'ios') return <IOSMedicalIdScreen />;
+  return <AndroidLockScreen />;
+}
+
+function AndroidLockScreen() {
   const navigation = useNavigation();
   const route = useRoute<any>();
   const insets = useSafeAreaInsets();
@@ -165,6 +176,159 @@ export default function LockScreenScreen() {
     </ScrollView>
   );
 }
+
+// ───────────────────────── iOS: Ficha Médica (Medical ID) ─────────────────────────
+// O app não configura nada aqui — não tem como. Ele só ajuda a copiar a lista de remédios
+// e lembra quando eles mudam. Nunca diz que está feito, porque não consegue conferir.
+function IOSMedicalIdScreen() {
+  const [optIn, setOptIn] = useState(false);
+  const [meds, setMeds] = useState<Medication[]>([]);
+  const [pending, setPending] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const load = useCallback(async () => {
+    const [on, m] = await Promise.all([getMedIdOptIn(), getMedications()]);
+    const active = m.filter(x => !x.suspended);
+    setOptIn(on);
+    setMeds(active);
+    setPending(on ? await isMedicalIdPending(m) : false);
+  }, []);
+
+  useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  async function toggle(v: boolean) {
+    await setMedIdOptIn(v);
+    setOptIn(v);
+    setPending(false);
+  }
+
+  async function markDone() {
+    await ackMedicalIdUpdate();
+    setPending(false);
+  }
+
+  const listText = buildMedListText(meds);
+
+  async function copyList() {
+    await Clipboard.setStringAsync(listText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <ScrollView style={ios.container} contentContainerStyle={ios.content}>
+      <View style={ios.card}>
+        <Text style={ios.title}>Ficha Médica do iPhone</Text>
+        <Text style={ios.body}>
+          O iPhone mostra a sua Ficha Médica (Medical ID) na tela de bloqueio, em Emergência — e
+          socorristas são treinados a procurar ali. Mas nenhum app pode preenchê-la nem lê-la por
+          você: quem preenche é você mesmo, no app Saúde da Apple.{'\n\n'}
+          O Alerta Médico só te lembra de manter os medicamentos atualizados lá. Não temos como
+          conferir se está feito — por isso nunca dizemos que está.
+        </Text>
+      </View>
+
+      <View style={ios.toggleRow}>
+        <Text style={ios.toggleLabel}>
+          Uso o Medical ID e quero receber os alertas para não esquecer de atualizar o Medical ID
+          da Apple
+        </Text>
+        <Switch
+          value={optIn}
+          onValueChange={toggle}
+          trackColor={{ true: '#1C3F7A', false: '#ccc' }}
+          thumbColor="#fff"
+        />
+      </View>
+
+      {optIn && (
+        <>
+          {pending && (
+            <View style={ios.pendingBox}>
+              <Text style={ios.pendingTitle}>⚠️ Seus remédios mudaram</Text>
+              <Text style={ios.pendingBody}>
+                Atualize a lista de medicamentos na sua Ficha Médica. Uma ficha desatualizada é mais
+                perigosa que uma vazia. Quando terminar, toque abaixo.
+              </Text>
+              <TouchableOpacity style={ios.doneBtn} onPress={markDone}>
+                <Text style={ios.doneBtnText}>Já atualizei</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          <View style={ios.card}>
+            <Text style={ios.section}>Como atualizar</Text>
+            {[
+              'Abra o app Saúde',
+              'Toque na sua foto (canto superior) → Ficha Médica',
+              'Toque em Editar',
+              'No campo Medicamentos, cole a lista abaixo',
+              'Toque em OK',
+            ].map((step, i) => (
+              <View key={i} style={ios.stepRow}>
+                <View style={ios.stepNum}><Text style={ios.stepNumText}>{i + 1}</Text></View>
+                <Text style={ios.stepText}>{step}</Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={ios.card}>
+            <Text style={ios.section}>Seus medicamentos</Text>
+            <Text selectable style={ios.listText}>
+              {listText || 'Nenhum medicamento cadastrado.'}
+            </Text>
+            {!!listText && (
+              <TouchableOpacity style={ios.copyBtn} onPress={copyList}>
+                <Text style={ios.copyBtnText}>{copied ? '✓ Copiado' : 'Copiar lista'}</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </>
+      )}
+    </ScrollView>
+  );
+}
+
+const ios = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#F2F4F8' },
+  content: { padding: 14, paddingBottom: 32, gap: 10 },
+  card: {
+    backgroundColor: '#fff', borderRadius: 12, padding: 14,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
+  },
+  title: { fontSize: 16, fontWeight: '700', color: '#1C3F7A', marginBottom: 8 },
+  body: { fontSize: 13, color: '#444', lineHeight: 20 },
+  toggleRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: '#fff', borderRadius: 12, padding: 14,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
+  },
+  toggleLabel: { flex: 1, fontSize: 13, color: '#1A1F2E', lineHeight: 19 },
+  section: { fontSize: 11, fontWeight: '700', color: '#8A8F9D', letterSpacing: 0.5, marginBottom: 10 },
+  stepRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },
+  stepNum: {
+    width: 22, height: 22, borderRadius: 6, backgroundColor: '#1C3F7A',
+    alignItems: 'center', justifyContent: 'center', marginRight: 10, marginTop: 1, flexShrink: 0,
+  },
+  stepNumText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  stepText: { fontSize: 13, color: '#333', lineHeight: 20, flex: 1 },
+  listText: {
+    fontSize: 14, color: '#1A1F2E', lineHeight: 22,
+    backgroundColor: '#F2F4F8', borderRadius: 8, padding: 12,
+  },
+  copyBtn: {
+    marginTop: 12, backgroundColor: '#1C3F7A', borderRadius: 10, padding: 12, alignItems: 'center',
+  },
+  copyBtnText: { fontSize: 14, color: '#fff', fontWeight: '700' },
+  pendingBox: {
+    backgroundColor: '#fff5ef', borderRadius: 12, padding: 14,
+    borderWidth: 0.5, borderColor: '#E07B4F',
+  },
+  pendingTitle: { fontSize: 14, fontWeight: '700', color: '#b45526', marginBottom: 6 },
+  pendingBody: { fontSize: 13, color: '#7a4a30', lineHeight: 19, marginBottom: 12 },
+  doneBtn: { backgroundColor: '#E07B4F', borderRadius: 10, padding: 12, alignItems: 'center' },
+  doneBtnText: { fontSize: 14, color: '#fff', fontWeight: '700' },
+});
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F2F4F8' },
