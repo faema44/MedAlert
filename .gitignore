@@ -16,6 +16,9 @@ expo-env.d.ts
 *firebase-adminsdk*.json
 fcm.json
 
+# CSVs de conferência gerados por tools/export-bulas-csv.js — ~1 MB, refeitos com um comando.
+tools/out/
+
 # Native
 .kotlin/
 *.orig.*
