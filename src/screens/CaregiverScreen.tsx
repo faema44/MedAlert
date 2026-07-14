@@ -5,7 +5,9 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import * as Sentry from '@sentry/react-native';
 import { getCaregiver, setCaregiver, clearCaregiver, getProfile, Caregiver } from '../database/db';
-import { createInvite, getInbox, InboxItem, notifyCaregiver } from '../services/caregiver';
+import {
+  createInvite, getInbox, InboxItem, notifyCaregiver, syncCaregiverSchedule,
+} from '../services/caregiver';
 
 const TOLERANCIAS = [15, 30, 60, 120];
 
@@ -55,6 +57,9 @@ export default function CaregiverScreen() {
     if (!cuidador) return;
     const novo = { ...cuidador, delay_minutes: min };
     await setCaregiver(novo);
+    // Os alarmes do "sem resposta" já estão marcados com a tolerância ANTIGA — sem refazer a
+    // agenda, mudar este número não muda nada no mundo real.
+    await syncCaregiverSchedule().catch(() => {});
     setCuidador(novo);
   }
 
@@ -88,7 +93,13 @@ export default function CaregiverScreen() {
         { text: 'Cancelar', style: 'cancel' },
         {
           text: 'Desconectar', style: 'destructive',
-          onPress: async () => { await clearCaregiver(); load(); },
+          onPress: async () => {
+            await clearCaregiver();
+            // Sem isto, os alarmes já marcados continuariam disparando avisos para alguém que
+            // o usuário acabou de remover — o pior tipo de vazamento: o que ele acha que cortou.
+            await syncCaregiverSchedule().catch(() => {});
+            load();
+          },
         },
       ]
     );

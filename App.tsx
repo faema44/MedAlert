@@ -57,7 +57,9 @@ import {
 } from './src/services/notifications';
 import { getDb, getMedications, getMedicationById, updateMedicationStock, addActivityLog, getKV, setKV, addMedicationLog, addMedicationTreatmentEndedLog, upsertMedicationLogTaken, archiveMedication, getExpiredUnarchivedMedications, getRemindersForMedication, getMedicationLog, getProfile, reconcileMissedDoses, falhaDeBanco, getCaregiver, setCaregiver, setLogHook } from './src/database/db';
 import * as Notifications from 'expo-notifications';
-import { parsePairingLink, ingestCaregiverPush, notifyCaregiver } from './src/services/caregiver';
+import {
+  parsePairingLink, ingestCaregiverPush, notifyCaregiver, syncCaregiverSchedule,
+} from './src/services/caregiver';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
 
 const Tab = createBottomTabNavigator();
@@ -375,6 +377,12 @@ function AppNavigator() {
   // registrado uma vez e o db.ts o dispara de dentro — ver setLogHook em src/database/db.ts.
   useEffect(() => {
     setLogHook(e => { notifyCaregiver(e).catch(() => {}); });
+    // Rearma os alarmes do "sem resposta". O alarme exato não sobrevive a reboot nem a um
+    // medicamento novo/alterado — sem rearmar, o cuidador para de ser avisado EM SILÊNCIO.
+    syncCaregiverSchedule().catch(e => {
+      console.warn('[cuidador] falha ao armar a agenda de "sem resposta":', e?.code, e?.message);
+      Sentry.captureException(e);
+    });
   }, []);
 
   // Pareamento com o cuidador: ele manda um link (pelo WhatsApp dele, uma vez só) e o idoso
@@ -388,6 +396,7 @@ function AppNavigator() {
       const anterior = await getCaregiver().catch(() => null);
       const trocando = anterior && anterior.push_token !== cg.push_token;
       await setCaregiver(cg).catch(() => {});
+      await syncCaregiverSchedule().catch(() => {});
       Alert.alert(
         'Cuidador conectado',
         trocando

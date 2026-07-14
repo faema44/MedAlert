@@ -1,7 +1,9 @@
 import { NativeModules, Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import appJson from '../../app.json';
-import { getCaregiver, getProfile, getKV, setKV, Caregiver } from '../database/db';
+import {
+  getCaregiver, getProfile, getKV, setKV, getMedications, getRemindersForMedication, Caregiver,
+} from '../database/db';
 
 // ---------------------------------------------------------------------------
 // Cuidador: uma pessoa recebe, por notificação, o que aconteceu com os remédios e as
@@ -37,6 +39,7 @@ const Med = NativeModules.MedNotification as {
   caregiverNewKey(): Promise<string>;
   caregiverEncrypt(plaintext: string, keyB64: string): Promise<string>;
   caregiverDecrypt(payloadB64: string, keyB64: string): Promise<string>;
+  setCaregiverSchedule(pushJson: string, checksJson: string): Promise<void>;
 };
 
 export type CaregiverEvent = {
@@ -186,4 +189,80 @@ export async function notifyCaregiver(e: CaregiverEvent): Promise<boolean> {
   if (!res.ok) return false;
   const json = await res.json().catch(() => null);
   return json?.data?.status === 'ok';
+}
+
+// ---------------------------------------------------------------------------
+// O "SEM RESPOSTA" (etapa 2)
+//
+// Este é o único aviso que acontece quando NINGUÉM tocou em nada — e é exatamente aí que o
+// Android já matou o processo. Quem envia é o CaregiverReceiver.kt, acordado por alarme exato.
+// O JS só entrega a agenda: quais doses cobrar, quando, e com que credenciais. Depois disso o
+// Kotlin é autossuficiente, porque na hora de cobrar não há JS para ajudar.
+//
+// Chamada sempre que os lembretes ou o cuidador mudam, e na abertura do app (rearme).
+// ---------------------------------------------------------------------------
+const HORIZONTE_DIAS = 3;
+
+export async function syncCaregiverSchedule(): Promise<void> {
+  if (Platform.OS !== 'android') return;
+
+  const cg = await getCaregiver();
+  if (!cg) {
+    // Sem cuidador: zera a agenda. Não engolir o erro — se isto falhar, alarmes antigos
+    // continuam disparando avisos para alguém que o usuário já removeu.
+    await Med.setCaregiverSchedule('', '[]');
+    return;
+  }
+
+  const profile = await getProfile();
+  const meds = await getMedications();
+  const agora = Date.now();
+  const checks: { at: number; slot: number; medId: number; name: string; dose: string }[] = [];
+
+  for (const med of meds) {
+    // save_history=0 → o medicamento é "só alerta": não pergunta nada, logo não há resposta a
+    // cobrar. Cobrar seria inventar uma falta que o app nunca deu chance de evitar.
+    if (med.save_history === 0) continue;
+
+    const reminders = await getRemindersForMedication(med.id).catch(() => []);
+    for (const r of reminders) {
+      if (!r.is_active) continue;
+      const [h, m] = r.time.split(':').map(Number);
+      if (isNaN(h) || isNaN(m)) continue;
+
+      for (let d = 0; d <= HORIZONTE_DIAS; d++) {
+        const dia = new Date();
+        dia.setDate(dia.getDate() + d);
+        if (!ocorreNoDia(r.period, dia)) continue;
+
+        const slot = new Date(dia.getFullYear(), dia.getMonth(), dia.getDate(), h, m, 0, 0).getTime();
+        const at = slot + cg.delay_minutes * 60_000;
+        if (at <= agora) continue; // já passou: quem cobra o passado é o reconcileMissedDoses
+
+        checks.push({
+          at, slot, medId: med.id,
+          name: med.commercial_name?.trim() || med.generic_name,
+          dose: med.dose ?? '',
+        });
+      }
+    }
+  }
+
+  checks.sort((a, b) => a.at - b.at);
+  const push = JSON.stringify({
+    token: cg.push_token,
+    key: cg.key,
+    patient: profile?.name?.trim() || 'A pessoa que você cuida',
+  });
+  // SEM .catch() de propósito. Engolir a falha aqui significa que nenhum alarme é armado e o
+  // cuidador nunca recebe o "sem resposta" — sem erro, sem log, sem nada. Quem chama loga.
+  await Med.setCaregiverSchedule(push, JSON.stringify(checks));
+}
+
+function ocorreNoDia(period: string | undefined, d: Date): boolean {
+  const p = period || 'day';
+  if (p === 'day') return true;
+  if (p.startsWith('week:')) return p.split(':')[1].split(',').map(Number).includes(d.getDay() + 1);
+  if (p.startsWith('month:')) return p.split(':')[1].split(',').map(Number).includes(d.getDate());
+  return false;
 }
