@@ -59,6 +59,7 @@ import { getDb, getMedications, getMedicationById, updateMedicationStock, addAct
 import * as Notifications from 'expo-notifications';
 import {
   parsePairingLink, ingestCaregiverPush, notifyCaregiver, syncCaregiverSchedule,
+  registerCaregiverTask,
 } from './src/services/caregiver';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
 
@@ -376,11 +377,24 @@ function AppNavigator() {
   // Toda resposta gravada no banco (por qualquer caminho) vira um aviso ao cuidador. O gancho é
   // registrado uma vez e o db.ts o dispara de dentro — ver setLogHook em src/database/db.ts.
   useEffect(() => {
-    setLogHook(e => { notifyCaregiver(e).catch(() => {}); });
-    // Rearma os alarmes do "sem resposta". O alarme exato não sobrevive a reboot nem a um
-    // medicamento novo/alterado — sem rearmar, o cuidador para de ser avisado EM SILÊNCIO.
+    // Sem .catch vazio: se o aviso ao cuidador não sai, ele NÃO recebe — e lê o silêncio como
+    // "está tudo bem". A falha tem que aparecer em algum lugar.
+    setLogHook(e => {
+      notifyCaregiver(e).catch(err => {
+        console.warn('[cuidador] o aviso NÃO foi entregue:', err?.message);
+        Sentry.captureException(err);
+      });
+    });
+
+    // Este aparelho pode ser o do CUIDADOR: a tarefa acorda o app quando a push chega com ele
+    // morto, para cancelar o alerta local de uma dose que foi confirmada. Sem ela, toda dose
+    // tomada geraria um alerta falso de "não confirmou".
+    registerCaregiverTask();
+
+    // E pode ser o do IDOSO: manda a agenda das próximas doses para o cuidador. É a agenda que
+    // permite a ele saber o que cobrar — inclusive quando ESTE celular estiver desligado.
     syncCaregiverSchedule().catch(e => {
-      console.warn('[cuidador] falha ao armar a agenda de "sem resposta":', e?.code, e?.message);
+      console.warn('[cuidador] falha ao enviar a agenda:', e?.code, e?.message);
       Sentry.captureException(e);
     });
   }, []);

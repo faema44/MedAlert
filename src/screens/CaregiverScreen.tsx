@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Share, Alert, ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Sentry from '@sentry/react-native';
@@ -57,10 +58,18 @@ export default function CaregiverScreen() {
     if (!cuidador) return;
     const novo = { ...cuidador, delay_minutes: min };
     await setCaregiver(novo);
-    // Os alarmes do "sem resposta" já estão marcados com a tolerância ANTIGA — sem refazer a
-    // agenda, mudar este número não muda nada no mundo real.
+    // O cuidador já marcou os alertas locais com a tolerância ANTIGA. Sem reenviar a agenda,
+    // mudar este número não muda nada no mundo real.
     await syncCaregiverSchedule().catch(() => {});
     setCuidador(novo);
+  }
+
+  async function salvarApelido() {
+    if (!cuidador) return;
+    await setCaregiver(cuidador);
+    // O apelido viaja dentro da agenda. Sem reenviar, os alertas já marcados no celular do
+    // cuidador continuariam usando o apelido velho.
+    await syncCaregiverSchedule().catch(() => {});
   }
 
   async function testar() {
@@ -113,7 +122,22 @@ export default function CaregiverScreen() {
           <>
             <Text style={styles.pareado}>👤 {cuidador.name}</Text>
             <Text style={styles.hint}>
-              Recebe um aviso a cada resposta sua — e também quando uma dose fica sem resposta.
+              Recebe um aviso a cada resposta sua — e é avisado se uma dose ficar sem resposta,
+              mesmo que seu celular esteja desligado.
+            </Text>
+
+            <Text style={styles.label}>Como {cuidador.name} te chama:</Text>
+            <TextInput
+              style={styles.apelidoInput}
+              value={cuidador.nickname}
+              onChangeText={t => setCuidador({ ...cuidador, nickname: t })}
+              onBlur={salvarApelido}
+              placeholder="Vovó, Mãe, Seu João..."
+              placeholderTextColor="#B0B5C0"
+              maxLength={30}
+            />
+            <Text style={styles.hint}>
+              É este apelido que aparece nos avisos — seu nome completo nunca sai do celular.
             </Text>
 
             <Text style={styles.label}>Avisar se eu não responder em:</Text>
@@ -191,6 +215,11 @@ const styles = StyleSheet.create({
   pareado: { fontSize: 16, fontWeight: '700', color: '#1A1F2E', marginBottom: 4 },
   hint: { fontSize: 12, color: '#8A8F9D', lineHeight: 17 },
   label: { fontSize: 12, fontWeight: '600', color: '#1A1F2E', marginTop: 14, marginBottom: 6 },
+  apelidoInput: {
+    borderWidth: 1, borderColor: '#C8CDD8', borderRadius: 10,
+    paddingHorizontal: 12, paddingVertical: 10, fontSize: 15, color: '#1A1F2E',
+    marginBottom: 6,
+  },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: {
     paddingVertical: 7, paddingHorizontal: 14, borderRadius: 20,

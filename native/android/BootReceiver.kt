@@ -13,9 +13,6 @@ class BootReceiver : BroadcastReceiver() {
 
         // Restaura o banner "Próximo medicamento" (independente do alerta de emergência)
         NextMedReceiver.refresh(context)
-        // Alarme não sobrevive a reboot. Sem rearmar, o cuidador para de receber o "sem resposta"
-        // e nada o avisa disso — o silêncio é indistinguível de "está tudo bem".
-        CaregiverReceiver.refresh(context)
 
         val prefs = context.getSharedPreferences("MedAlertNotif", Context.MODE_PRIVATE)
         if (!prefs.getBoolean("alert_active", false)) return

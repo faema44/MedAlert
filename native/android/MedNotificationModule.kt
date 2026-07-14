@@ -169,53 +169,18 @@ class MedNotificationModule(private val reactContext: ReactApplicationContext) :
         }
     }
 
-    // Cripto dos avisos ao cuidador. Ver CaregiverCrypto: a cifra tem que existir em Kotlin de
-    // qualquer forma (o aviso de "sem resposta" sai com o app morto), então o JS reaproveita a
-    // mesma implementação em vez de trazer uma biblioteca de cripto para o package.json.
-    @ReactMethod
-    fun caregiverNewKey(promise: Promise) {
-        try {
-            promise.resolve(CaregiverCrypto.newKeyB64())
-        } catch (e: Exception) {
-            promise.reject("ERR_CRYPTO", e.message)
-        }
-    }
-
-    @ReactMethod
-    fun caregiverEncrypt(plaintext: String, keyB64: String, promise: Promise) {
-        try {
-            promise.resolve(CaregiverCrypto.encrypt(plaintext, keyB64))
-        } catch (e: Exception) {
-            promise.reject("ERR_CRYPTO", e.message)
-        }
-    }
-
-    @ReactMethod
-    fun caregiverDecrypt(payloadB64: String, keyB64: String, promise: Promise) {
-        try {
-            promise.resolve(CaregiverCrypto.decrypt(payloadB64, keyB64))
-        } catch (e: Exception) {
-            // Chave errada ou payload adulterado — o GCM detecta e estoura aqui.
-            promise.reject("ERR_CRYPTO", e.message)
-        }
-    }
-
-    // Agenda do "sem resposta" (ver CaregiverReceiver). O JS entrega a lista de doses a cobrar e
-    // os dados de envio; a partir daí o Kotlin é autossuficiente — é obrigatório, porque na hora
-    // de cobrar o app está morto.
-    @ReactMethod
-    fun setCaregiverSchedule(pushJson: String, checksJson: String, promise: Promise) {
-        try {
-            reactContext.getSharedPreferences("MedAlertNotif", Context.MODE_PRIVATE).edit()
-                .putString("caregiver_push", pushJson)
-                .putString("caregiver_checks", checksJson)
-                .apply()
-            CaregiverReceiver.refresh(reactContext)
-            promise.resolve(null)
-        } catch (e: Exception) {
-            promise.reject("ERR_CAREGIVER", e.message)
-        }
-    }
+    // Aqui viviam a cripto do cuidador (CaregiverCrypto) e a agenda do "sem resposta"
+    // (setCaregiverSchedule + CaregiverReceiver). Ambas foram REMOVIDAS em 14/07/2026.
+    //
+    // Elas existiam por um motivo só: o idoso tinha que ENVIAR o aviso com o app morto, e lá não
+    // há runtime de JS. A inversão do disparo eliminou essa necessidade — quem gera o alerta
+    // agora é o celular do CUIDADOR, com uma notificação local sua. O idoso só envia quando
+    // alguém toca num botão, e aí o JS está vivo.
+    //
+    // Isso apagou ~250 linhas de Kotlin, tirou o cuidador da dependência de alarme exato (que o
+    // iOS proíbe) e ainda cobriu o buraco que o desenho antigo tinha: com o celular do idoso
+    // DESLIGADO, o alarme não disparava e o cuidador não recebia nada — lendo o silêncio como
+    // "está tudo bem". Ver src/services/caregiver.ts.
 
     companion object {
         const val NOTIF_ID = 1001

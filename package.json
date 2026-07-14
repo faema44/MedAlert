@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
+    "@noble/ciphers": "2.2.0",
     "@noble/ed25519": "3.1.0",
     "@react-native-community/datetimepicker": "9.1.0",
     "@react-navigation/bottom-tabs": "^7.18.2",
@@ -10,6 +11,7 @@
     "@react-navigation/native-stack": "^7.17.5",
     "@sentry/react-native": "8.16.0",
     "expo": "~56.0.12",
+    "expo-crypto": "56.0.4",
     "expo-device": "~56.0.4",
     "expo-document-picker": "56.0.4",
     "expo-file-system": "56.0.8",
@@ -17,6 +19,7 @@
     "expo-sharing": "56.0.18",
     "expo-sqlite": "~56.0.5",
     "expo-status-bar": "~56.0.4",
+    "expo-task-manager": "56.0.20",
     "react": "19.2.3",
     "react-native": "0.85.3",
     "react-native-blob-util": "0.24.9",

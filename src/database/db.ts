@@ -649,6 +649,10 @@ export type LoggedEvent = {
   at: string;
   dose?: string;
   value?: string;
+  // Obrigatório em medicamento: é com (medId, horário) que o cuidador identifica a DOSE e cancela
+  // o alerta local certo. Sem isso a confirmação chega e não cancela nada — e o cuidador é
+  // avisado de uma falta que não houve.
+  medId?: number;
 };
 
 let logHook: ((e: LoggedEvent) => void) | null = null;
@@ -755,7 +759,7 @@ export async function upsertMedicationLogTaken(
     [taken ? 1 : 0, taken ? 'taken' : 'skipped', notifId]
   );
   logHook?.({
-    kind: 'med', name, dose: dose || undefined,
+    kind: 'med', name, dose: dose || undefined, medId: medicationId,
     status: taken ? 'taken' : 'skipped', at: scheduledAt,
   });
 }
@@ -826,6 +830,7 @@ export async function resolveMedicationLogSlot(entry: {
     kind: 'med',
     name: entry.medication_name,
     dose: entry.dose || undefined,
+    medId: entry.medication_id,
     status: entry.taken ? 'taken' : 'skipped',
     at: entry.scheduled_at,
   });
@@ -1039,8 +1044,13 @@ export async function getExpiredUnarchivedMedications(): Promise<Medication[]> {
 export interface Caregiver {
   name: string;
   push_token: string;   // ExpoPushToken do APARELHO do cuidador
-  key: string;          // AES-256 base64, gerada no pareamento
-  delay_minutes: number; // avisa se a dose ficar este tanto sem resposta
+  key: string;          // XChaCha20-Poly1305, base64, gerada no pareamento
+  // Como o cuidador chama o idoso ("Vovó", "Mãe"). É este apelido que viaja, NUNCA o nome do
+  // perfil. Não é para o cuidador — ele já sabe quem é a pessoa. É defesa em profundidade: a
+  // chave de cifra viaja no arquivo de backup EM TEXTO PURO, e se esse arquivo vazar, o apelido
+  // é a diferença entre "alguém toma varfarina" e "Maria Helena Duarte toma varfarina".
+  nickname: string;
+  delay_minutes: number; // o cuidador é avisado se a dose ficar este tanto sem resposta
   paired_at: string;
 }
 

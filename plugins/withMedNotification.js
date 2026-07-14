@@ -82,14 +82,6 @@ function withBootReceiver(config) {
       });
     }
 
-    // Quem envia o "sem resposta" ao cuidador. Sem estar declarado aqui, o alarme dispara e o
-    // Android descarta o broadcast — o aviso nunca sai, e nada indica o motivo.
-    if (!application.receiver.some(r => r.$?.['android:name'] === '.CaregiverReceiver')) {
-      application.receiver.push({
-        $: { 'android:name': '.CaregiverReceiver', 'android:exported': 'false' },
-      });
-    }
-
     return cfg;
   });
 }

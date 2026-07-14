@@ -1,88 +1,214 @@
-import { NativeModules, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import * as TaskManager from 'expo-task-manager';
 import appJson from '../../app.json';
 import {
   getCaregiver, getProfile, getKV, setKV, getMedications, getRemindersForMedication, Caregiver,
 } from '../database/db';
+import { newSharedKey, encrypt, decrypt } from './caregiverCrypto';
 
 // ---------------------------------------------------------------------------
-// Cuidador: uma pessoa recebe, por notificação, o que aconteceu com os remédios e as
-// atividades do idoso.
+// CUIDADOR — quem dispara o alerta é o celular DELE.
 //
-// COMO O CONTEÚDO CLÍNICO NÃO VAZA
-// A push atravessa os servidores do Expo e do Google (FCM). O que vai VISÍVEL nela é genérico
-// ("Novo aviso sobre a Maria"). O conteúdo — qual remédio, qual dose, qual pressão — vai só no
-// campo `data`, cifrado em AES-GCM com a chave que os dois trocaram no pareamento. O cuidador
-// toca na notificação, o app abre, decifra e mostra. Expo e Google carregam um blob opaco.
+// A primeira versão fazia o contrário: o celular do idoso acordava por alarme exato e cobrava a
+// dose. Funcionava, e mesmo assim estava errada. Tinha um buraco que só apareceu quando o
+// usuário perguntou pelo iPhone: se o celular do idoso estivesse DESLIGADO, sem bateria ou sem
+// rede, o alarme não disparava e o cuidador NÃO RECEBIA NADA — lendo o silêncio como "está tudo
+// bem". Justo no cenário em que algo de fato aconteceu.
 //
-// POR QUE A CIFRA É NATIVA
-// Não é preciosismo: o aviso de "sem resposta" precisa sair com o app MORTO (é a definição de
-// sem resposta — ninguém tocou em nada), e lá não existe runtime de JS. A cifra tem que existir
-// em Kotlin de qualquer jeito, então o JS chama a MESMA implementação (CaregiverCrypto.kt) em
-// vez de trazer uma biblioteca de cripto para o package.json.
+// Agora: o celular do cuidador recebe a AGENDA do idoso e marca uma notificação LOCAL para si
+// mesmo em cada dose ("Vovó não confirmou Enalapril às 15:00"). Quando o idoso responde, chega
+// uma push que CANCELA essa notificação.
 //
-// SEM SERVIDOR
-// O POST vai direto do aparelho do idoso para o serviço de push do Expo. Não há backend, não há
-// contas, não há mensalidade — o app continua sendo local.
+//   O silêncio deixou de ser ausência de aviso. O silêncio VIROU o aviso.
+//
+// Não importa mais por que o idoso não respondeu — se esqueceu, se o celular morreu, se ficou
+// sem sinal. O cuidador é avisado, e quem julga é ele. O app não precisa adivinhar.
+//
+// Três consequências:
+//   1. Some o alarme exato — a única coisa que o iOS proíbe. Funciona no iPhone.
+//   2. Some o código nativo do cuidador (~250 linhas de Kotlin, apagadas).
+//   3. O idoso só envia quando alguém TOCA num botão — e aí o JS está vivo.
+//
+// FALSO ALARME CONHECIDO: se a push de confirmação não conseguir acordar o app do cuidador a
+// tempo (a Apple estrangula push silenciosa), a notificação local dispara mesmo com a dose
+// tomada. O cuidador toca, o app abre, processa a push represada e mostra a verdade. Errar para
+// MAIS aviso é recuperável; errar para menos é silêncio, e silêncio aqui é indistinguível de
+// "está tudo bem".
 // ---------------------------------------------------------------------------
 
-// Lido do app.json, NUNCA copiado para cá. O token de push é emitido por projectId: com o valor
-// errado, o Expo entrega o token de outro projeto e a push some sem erro nenhum. E este id muda
-// sozinho — o `eas` o reescreve ao (re)vincular o projeto. Uma cópia aqui envelheceria calada.
 const EAS_PROJECT_ID: string = (appJson as any).expo?.extra?.eas?.projectId;
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 const PAIR_SCHEME = 'alertamedico://cuidador';
 
 export const CAREGIVER_CHANNEL = 'caregiver_alerts';
+export const CAREGIVER_TASK = 'caregiver-push';
 
-const Med = NativeModules.MedNotification as {
-  caregiverNewKey(): Promise<string>;
-  caregiverEncrypt(plaintext: string, keyB64: string): Promise<string>;
-  caregiverDecrypt(payloadB64: string, keyB64: string): Promise<string>;
-  setCaregiverSchedule(pushJson: string, checksJson: string): Promise<void>;
+const KV_MY_KEY = 'caregiver_my_key';   // a chave que EU gerei para cuidar de alguém
+const KV_INBOX = 'caregiver_inbox';
+const HORIZONTE_DIAS = 3;
+
+// ---------------------------------------------------------------------------
+// As duas mensagens que o idoso envia
+// ---------------------------------------------------------------------------
+// A agenda viaja como REGRA, não como lista de doses expandida.
+//
+// Expandir aqui parecia mais simples e teria quebrado em produção: 6 medicamentos × 2 doses/dia
+// × 4 dias ≈ 4,8 KB, e o payload de dados de uma push tem ~4 KB. A mensagem seria REJEITADA — e
+// o cuidador simplesmente pararia de ser avisado, sem erro visível. Mandando a regra (remédio +
+// horários + recorrência), são ~60 bytes por medicamento, e quem expande é o celular do cuidador.
+export type MedRule = {
+  i: number;      // medication_id
+  n: string;      // nome
+  d: string;      // dose
+  h: string[];    // horários "HH:MM"
+  p: string;      // recorrência: 'day' | 'week:1,3' | 'month:5'
 };
+
+type Msg =
+  | { t: 'schedule'; nick: string; delayMin: number; meds: MedRule[] }
+  | {
+      t: 'event'; id: string; nick: string; name: string; dose?: string;
+      status: 'taken' | 'skipped' | 'done'; at: string; value?: string;
+    };
 
 export type CaregiverEvent = {
   kind: 'med' | 'activity';
   name: string;
-  status: 'taken' | 'skipped' | 'no_response' | 'done';
-  at: string;          // ISO do horário AGENDADO (não o de agora)
+  status: 'taken' | 'skipped' | 'done';
+  at: string;
   dose?: string;
-  value?: string;      // medições: "12/8", "110 mg/dL"
+  value?: string;
+  medId?: number;
 };
 
-// O nome do paciente vai CIFRADO, junto com o resto. Poderia ir no corpo visível da push ("Novo
-// aviso sobre a Maria"), o que seria mais bonito — mas entregaria a identificação ao Expo e ao
-// Google de graça, e o cuidador acompanha uma pessoa só: ele não precisa do nome no banner.
-type SealedPayload = CaregiverEvent & { patient: string };
+export type InboxItem = { text: string; at: string };
 
-export function describeEvent(e: SealedPayload): string {
-  const hora = new Date(e.at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  const oQue = e.dose ? `${e.name} ${e.dose}` : e.name;
-  switch (e.status) {
-    case 'taken':       return `${e.patient} tomou ${oQue} (${hora})`;
-    case 'skipped':     return `${e.patient} NÃO tomou ${oQue} (${hora})`;
-    case 'no_response': return `${e.patient} não respondeu ao aviso de ${oQue} (${hora})`;
-    case 'done':        return e.value
-      ? `${e.patient}: ${e.name} — ${e.value} (${hora})`
-      : `${e.patient} fez: ${e.name} (${hora})`;
+/** Identidade da dose. Os dois lados calculam a MESMA string, senão o cancelamento não casa. */
+export function doseId(medId: number, slot: Date): string {
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${medId}_${slot.getFullYear()}${p(slot.getMonth() + 1)}${p(slot.getDate())}_${p(slot.getHours())}${p(slot.getMinutes())}`;
+}
+
+function hora(iso: string): string {
+  return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+
+// Apelido vazio NUNCA cai no nome do perfil — seria exatamente o que o apelido veio evitar.
+// O cuidador acompanha uma pessoa só; ele não precisa do nome para saber de quem se trata.
+function apelido(cg: Caregiver): string {
+  return cg.nickname?.trim() || 'A pessoa que você acompanha';
+}
+
+function frase(m: Extract<Msg, { t: 'event' }>): string {
+  const oQue = m.dose ? `${m.name} ${m.dose}` : m.name;
+  switch (m.status) {
+    case 'taken':   return `${m.nick} tomou ${oQue} (${hora(m.at)})`;
+    case 'skipped': return `${m.nick} NÃO tomou ${oQue} (${hora(m.at)})`;
+    case 'done':    return m.value
+      ? `${m.nick}: ${m.name} — ${m.value} (${hora(m.at)})`
+      : `${m.nick} fez: ${m.name} (${hora(m.at)})`;
   }
 }
 
 // ---------------------------------------------------------------------------
-// O LADO DE QUEM CUIDA
-//
-// Quem GERA a chave é o cuidador, ao montar o convite — e ele precisa guardá-la, senão recebe a
-// push cifrada e não consegue abrir a própria mensagem. Duas chaves distintas no kv_store:
-//   caregiver         → "quem cuida de MIM" (gravado pelo idoso ao tocar no link)
-//   caregiver_my_key  → "a chave que EU gerei para cuidar de alguém" (gravado pelo cuidador)
-// Um mesmo aparelho pode ter as duas: nada impede que duas pessoas se cuidem mutuamente.
+// LADO DO IDOSO — envia
 // ---------------------------------------------------------------------------
-const KV_MY_KEY = 'caregiver_my_key';
-const KV_INBOX = 'caregiver_inbox';
+async function enviar(cg: Caregiver, msg: Msg): Promise<boolean> {
+  const res = await fetch(EXPO_PUSH_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      to: cg.push_token,
+      // Título e corpo são o que o Expo, o Google e a Apple conseguem ler — por isso não dizem
+      // NADA. Nem o remédio, nem a dose, nem o apelido. O conteúdo vai cifrado em data.c.
+      title: 'Alerta Médico',
+      body: 'Novo aviso — toque para ver',
+      data: { c: encrypt(JSON.stringify(msg), cg.key) },
+      channelId: CAREGIVER_CHANNEL,
+      priority: 'high',
+      // Acorda o app do cuidador em segundo plano para ele CANCELAR a notificação local da dose.
+      // Sem isto, um "Tomei" com o app do cuidador morto não cancela nada e o alerta dispara
+      // mesmo o remédio tendo sido tomado.
+      _contentAvailable: true,
+    }),
+  });
+  // O Expo responde 200 mesmo recusando a mensagem — o veredito está no corpo. Um `return false`
+  // silencioso aqui já me custou um ciclo inteiro de depuração: a agenda não chegava e nada
+  // indicava o motivo. Quem chama PRECISA saber que o cuidador ficou sem ser avisado.
+  const json = await res.json().catch(() => null);
+  if (!res.ok || json?.data?.status !== 'ok') {
+    throw new Error(
+      `Expo recusou a mensagem (HTTP ${res.status}): ${JSON.stringify(json?.data ?? json?.errors ?? json)}`
+    );
+  }
+  return true;
+}
 
-export type InboxItem = { text: string; at: string };
+/** Uma resposta do idoso (Tomei / Não tomei / atividade). Silencioso se ninguém estiver pareado. */
+export async function notifyCaregiver(e: CaregiverEvent): Promise<boolean> {
+  const cg = await getCaregiver();
+  if (!cg) return false;
 
+  const id = e.medId != null ? doseId(e.medId, new Date(e.at)) : `act_${e.at}`;
+  return enviar(cg, {
+    t: 'event', id, nick: apelido(cg),
+    name: e.name, dose: e.dose, status: e.status, at: e.at, value: e.value,
+  });
+}
+
+/**
+ * Manda a agenda das próximas doses. É ela que permite ao cuidador saber o que COBRAR.
+ * Chamada na abertura do app, no pareamento e quando os lembretes mudam.
+ */
+export async function syncCaregiverSchedule(): Promise<void> {
+  const cg = await getCaregiver();
+  if (!cg) return;
+
+  const meds = await getMedications();
+  const regras: MedRule[] = [];
+
+  for (const med of meds) {
+    // save_history=0 → "só alerta": o app não pergunta nada, logo não há resposta a cobrar.
+    // Cobrar seria inventar uma falta que o app nunca deu chance de evitar.
+    if (med.save_history === 0) continue;
+
+    const reminders = (await getRemindersForMedication(med.id).catch(() => []))
+      .filter(r => r.is_active && /^\d{1,2}:\d{2}$/.test(r.time));
+    if (!reminders.length) continue;
+
+    // Um medicamento pode ter horários com recorrências diferentes; uma regra por recorrência.
+    const porPeriodo = new Map<string, string[]>();
+    for (const r of reminders) {
+      const p = r.period || 'day';
+      if (!porPeriodo.has(p)) porPeriodo.set(p, []);
+      porPeriodo.get(p)!.push(r.time);
+    }
+    for (const [p, horarios] of porPeriodo) {
+      regras.push({
+        i: med.id,
+        n: med.commercial_name?.trim() || med.generic_name,
+        d: med.dose ?? '',
+        h: horarios.sort(),
+        p,
+      });
+    }
+  }
+
+  await enviar(cg, { t: 'schedule', nick: apelido(cg), delayMin: cg.delay_minutes, meds: regras });
+}
+
+function ocorreNoDia(period: string | undefined, d: Date): boolean {
+  const p = period || 'day';
+  if (p === 'day') return true;
+  if (p.startsWith('week:')) return p.split(':')[1].split(',').map(Number).includes(d.getDay() + 1);
+  if (p.startsWith('month:')) return p.split(':')[1].split(',').map(Number).includes(d.getDate());
+  return false;
+}
+
+// ---------------------------------------------------------------------------
+// LADO DO CUIDADOR — recebe, agenda o alerta local, e o cancela na confirmação
+// ---------------------------------------------------------------------------
 export async function getMyCaregiverKey(): Promise<string | null> {
   return getKV(KV_MY_KEY);
 }
@@ -93,23 +219,47 @@ export async function getInbox(): Promise<InboxItem[]> {
   try { return JSON.parse(raw) as InboxItem[]; } catch { return []; }
 }
 
-export async function addToInbox(item: InboxItem): Promise<void> {
-  const atual = await getInbox();
-  await setKV(KV_INBOX, JSON.stringify([item, ...atual].slice(0, 100)));
-}
-
 /** Monta o convite: gera a chave, guarda a MINHA cópia dela e devolve o link para compartilhar. */
 export async function createInvite(myName: string): Promise<string> {
-  const [pushToken, key] = await Promise.all([getMyPushToken(), Med.caregiverNewKey()]);
+  const [pushToken, key] = await Promise.all([getMyPushToken(), Promise.resolve(newSharedKey())]);
   await setKV(KV_MY_KEY, key);
-  return buildPairingLink(myName, pushToken, key);
+  const q = new URLSearchParams({ n: myName, t: pushToken, k: key });
+  return `${PAIR_SCHEME}?${q.toString()}`;
 }
 
+export async function getMyPushToken(): Promise<string> {
+  const { status } = await Notifications.getPermissionsAsync();
+  if (status !== 'granted') {
+    const req = await Notifications.requestPermissionsAsync();
+    if (req.status !== 'granted') throw new Error('SEM_PERMISSAO_NOTIFICACAO');
+  }
+  return (await Notifications.getExpoPushTokenAsync({ projectId: EAS_PROJECT_ID })).data;
+}
+
+export function parsePairingLink(url: string): Caregiver | null {
+  if (!url.startsWith(PAIR_SCHEME)) return null;
+  const q = new URLSearchParams(url.slice(url.indexOf('?') + 1));
+  const name = q.get('n');
+  const push_token = q.get('t');
+  const key = q.get('k');
+  if (!name || !push_token || !key) return null;
+  return {
+    name, push_token, key,
+    nickname: '',            // o idoso escolhe depois; vazio = usa o nome do perfil
+    delay_minutes: 30,
+    paired_at: new Date().toISOString(),
+  };
+}
+
+const LOCAL_PREFIX = 'cg_';
+
 /**
- * Recebe uma push que chegou neste aparelho. Decifra, guarda na caixa e devolve a frase pronta.
- * Devolve null quando a push não é de cuidador (ou este aparelho não cuida de ninguém).
- * Estoura se a chave não bater — o GCM detecta adulteração, e engolir isso seria esconder que
- * alguém está mandando lixo para o cuidador.
+ * Processa uma push recebida NESTE aparelho (sou o cuidador). Devolve o texto quando é um evento,
+ * null quando é a agenda (que não vira notificação, só reprograma os alertas) ou quando a push
+ * não é de cuidador.
+ *
+ * Estoura se a chave não bater — não engula: significa que alguém está mandando lixo, ou que o
+ * pareamento foi refeito do outro lado e este aparelho parou de entender o que recebe.
  */
 export async function ingestCaregiverPush(data: unknown): Promise<string | null> {
   const sealed = (data as { c?: unknown })?.c;
@@ -118,151 +268,103 @@ export async function ingestCaregiverPush(data: unknown): Promise<string | null>
   const key = await getMyCaregiverKey();
   if (!key) return null;
 
-  const payload = JSON.parse(await Med.caregiverDecrypt(sealed, key)) as SealedPayload;
-  const text = describeEvent(payload);
-  await addToInbox({ text, at: new Date().toISOString() });
+  const msg = JSON.parse(decrypt(sealed, key)) as Msg;
+
+  if (msg.t === 'schedule') {
+    await reprogramarAlertas(msg);
+    return null;
+  }
+
+  // Chegou a resposta: a dose foi confirmada, então o alerta local dela não deve mais disparar.
+  await Notifications.cancelScheduledNotificationAsync(LOCAL_PREFIX + msg.id).catch(() => {});
+
+  const text = frase(msg);
+  const atual = await getInbox();
+  await setKV(KV_INBOX, JSON.stringify([{ text, at: new Date().toISOString() }, ...atual].slice(0, 100)));
   return text;
 }
 
-/** Token de push DESTE aparelho — é o que o cuidador põe no link de convite. */
-export async function getMyPushToken(): Promise<string> {
-  const { status } = await Notifications.getPermissionsAsync();
-  if (status !== 'granted') {
-    const req = await Notifications.requestPermissionsAsync();
-    if (req.status !== 'granted') throw new Error('SEM_PERMISSAO_NOTIFICACAO');
-  }
-  const token = await Notifications.getExpoPushTokenAsync({ projectId: EAS_PROJECT_ID });
-  return token.data;
-}
-
-export function buildPairingLink(name: string, pushToken: string, key: string): string {
-  const q = new URLSearchParams({ n: name, t: pushToken, k: key });
-  return `${PAIR_SCHEME}?${q.toString()}`;
-}
-
-/** Devolve o cuidador contido num link de convite, ou null se o link não for um convite válido. */
-export function parsePairingLink(url: string): Caregiver | null {
-  if (!url.startsWith(PAIR_SCHEME)) return null;
-  const q = new URLSearchParams(url.slice(url.indexOf('?') + 1));
-  const name = q.get('n');
-  const push_token = q.get('t');
-  const key = q.get('k');
-  if (!name || !push_token || !key) return null;
-  return { name, push_token, key, delay_minutes: 30, paired_at: new Date().toISOString() };
-}
-
 /**
- * Envia um evento ao cuidador. Silencioso se não houver ninguém pareado.
+ * Marca uma notificação LOCAL para cada dose da agenda, em (horário + tolerância).
+ * É este alerta que dispara quando o idoso não responde — inclusive quando o celular dele está
+ * desligado, que é o caso que o desenho antigo perdia em silêncio.
  *
- * Devolve true só quando o Expo ACEITOU a mensagem. Quem chama decide o que fazer com um false —
- * mas nunca deixe o erro sumir: um cuidador que não recebe o aviso é pior do que nenhum
- * cuidador, porque ele confia no silêncio.
+ * O texto aqui é detalhado de propósito: esta notificação é local, nasce e morre no aparelho do
+ * cuidador, e não passa por servidor nenhum.
  */
-export async function notifyCaregiver(e: CaregiverEvent): Promise<boolean> {
-  if (Platform.OS !== 'android') return false;
+// O iOS descarta silenciosamente qualquer notificação local além de 64 pendentes. Ficar abaixo
+// disso é obrigação, não zelo: passar do teto faria as últimas doses simplesmente não serem
+// cobradas, e ninguém saberia. Com 3 dias de horizonte, sobra folga para uma rotina pesada.
+const MAX_ALERTAS = 60;
 
-  const cg = await getCaregiver();
-  if (!cg) return false;
-
-  const profile = await getProfile();
-  const patient = profile?.name?.trim() || 'A pessoa que você cuida';
-
-  const payload: SealedPayload = { ...e, patient };
-  const sealed = await Med.caregiverEncrypt(JSON.stringify(payload), cg.key);
-
-  const res = await fetch(EXPO_PUSH_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({
-      to: cg.push_token,
-      // Título e corpo são o que o Expo e o Google conseguem ler — por isso não dizem NADA.
-      // O conteúdo real vai em `data.c`, cifrado. O Android exibe este texto sozinho, sem JS;
-      // se o app do cuidador não conseguir acordar para decifrar, ele ainda vê que há um aviso.
-      title: 'Alerta Médico',
-      body: 'Novo aviso — toque para ver',
-      data: { c: sealed },
-      channelId: CAREGIVER_CHANNEL,
-      priority: 'high',
-    }),
-  });
-
-  if (!res.ok) return false;
-  const json = await res.json().catch(() => null);
-  return json?.data?.status === 'ok';
-}
-
-// ---------------------------------------------------------------------------
-// O "SEM RESPOSTA" (etapa 2)
-//
-// Este é o único aviso que acontece quando NINGUÉM tocou em nada — e é exatamente aí que o
-// Android já matou o processo. Quem envia é o CaregiverReceiver.kt, acordado por alarme exato.
-// O JS só entrega a agenda: quais doses cobrar, quando, e com que credenciais. Depois disso o
-// Kotlin é autossuficiente, porque na hora de cobrar não há JS para ajudar.
-//
-// Chamada sempre que os lembretes ou o cuidador mudam, e na abertura do app (rearme).
-// ---------------------------------------------------------------------------
-const HORIZONTE_DIAS = 3;
-
-export async function syncCaregiverSchedule(): Promise<void> {
-  if (Platform.OS !== 'android') return;
-
-  const cg = await getCaregiver();
-  if (!cg) {
-    // Sem cuidador: zera a agenda. Não engolir o erro — se isto falhar, alarmes antigos
-    // continuam disparando avisos para alguém que o usuário já removeu.
-    await Med.setCaregiverSchedule('', '[]');
-    return;
+async function reprogramarAlertas(msg: Extract<Msg, { t: 'schedule' }>): Promise<void> {
+  // Limpa os alertas antigos antes de remarcar: sem isso, um medicamento removido ou um horário
+  // alterado continuaria cobrando para sempre uma dose que já não existe.
+  const marcados = await Notifications.getAllScheduledNotificationsAsync().catch(() => []);
+  for (const n of marcados) {
+    if (n.identifier.startsWith(LOCAL_PREFIX)) {
+      await Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {});
+    }
   }
 
-  const profile = await getProfile();
-  const meds = await getMedications();
   const agora = Date.now();
-  const checks: { at: number; slot: number; medId: number; name: string; dose: string }[] = [];
+  const alertas: { quando: number; id: string; texto: string }[] = [];
 
-  for (const med of meds) {
-    // save_history=0 → o medicamento é "só alerta": não pergunta nada, logo não há resposta a
-    // cobrar. Cobrar seria inventar uma falta que o app nunca deu chance de evitar.
-    if (med.save_history === 0) continue;
+  for (const med of msg.meds) {
+    for (let d = 0; d <= HORIZONTE_DIAS; d++) {
+      const dia = new Date();
+      dia.setDate(dia.getDate() + d);
+      if (!ocorreNoDia(med.p, dia)) continue;
 
-    const reminders = await getRemindersForMedication(med.id).catch(() => []);
-    for (const r of reminders) {
-      if (!r.is_active) continue;
-      const [h, m] = r.time.split(':').map(Number);
-      if (isNaN(h) || isNaN(m)) continue;
+      for (const hhmm of med.h) {
+        const [h, m] = hhmm.split(':').map(Number);
+        const slot = new Date(dia.getFullYear(), dia.getMonth(), dia.getDate(), h, m, 0, 0);
+        const quando = slot.getTime() + msg.delayMin * 60_000;
+        if (quando <= agora) continue;
 
-      for (let d = 0; d <= HORIZONTE_DIAS; d++) {
-        const dia = new Date();
-        dia.setDate(dia.getDate() + d);
-        if (!ocorreNoDia(r.period, dia)) continue;
-
-        const slot = new Date(dia.getFullYear(), dia.getMonth(), dia.getDate(), h, m, 0, 0).getTime();
-        const at = slot + cg.delay_minutes * 60_000;
-        if (at <= agora) continue; // já passou: quem cobra o passado é o reconcileMissedDoses
-
-        checks.push({
-          at, slot, medId: med.id,
-          name: med.commercial_name?.trim() || med.generic_name,
-          dose: med.dose ?? '',
+        const oQue = med.d ? `${med.n} ${med.d}` : med.n;
+        alertas.push({
+          quando,
+          id: doseId(med.i, slot),
+          texto: `${msg.nick} não confirmou ${oQue} (${hhmm})`,
         });
       }
     }
   }
 
-  checks.sort((a, b) => a.at - b.at);
-  const push = JSON.stringify({
-    token: cg.push_token,
-    key: cg.key,
-    patient: profile?.name?.trim() || 'A pessoa que você cuida',
-  });
-  // SEM .catch() de propósito. Engolir a falha aqui significa que nenhum alarme é armado e o
-  // cuidador nunca recebe o "sem resposta" — sem erro, sem log, sem nada. Quem chama loga.
-  await Med.setCaregiverSchedule(push, JSON.stringify(checks));
+  // As doses mais próximas primeiro: se o teto cortar alguma, que seja a mais distante — ela
+  // será remarcada na próxima agenda que chegar.
+  alertas.sort((a, b) => a.quando - b.quando);
+
+  for (const a of alertas.slice(0, MAX_ALERTAS)) {
+    await Notifications.scheduleNotificationAsync({
+      identifier: LOCAL_PREFIX + a.id,
+      content: { title: 'Alerta Médico', body: a.texto, data: { local: true } },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: new Date(a.quando),
+        channelId: CAREGIVER_CHANNEL,
+      },
+    }).catch(() => {});
+  }
 }
 
-function ocorreNoDia(period: string | undefined, d: Date): boolean {
-  const p = period || 'day';
-  if (p === 'day') return true;
-  if (p.startsWith('week:')) return p.split(':')[1].split(',').map(Number).includes(d.getDay() + 1);
-  if (p.startsWith('month:')) return p.split(':')[1].split(',').map(Number).includes(d.getDate());
-  return false;
+// A tarefa que acorda o app do cuidador quando a push chega com ele MORTO. É ela que cancela o
+// alerta local de uma dose confirmada sem ninguém abrir nada — sem ela, toda dose TOMADA geraria
+// um alerta falso de "não confirmou".
+//
+// defineTask FICA NO ESCOPO GLOBAL DO MÓDULO, e isso não é estilo: quando o Android acorda o app
+// em modo headless para entregar a push, o React NÃO MONTA — só o escopo global do bundle roda.
+// Definindo dentro de um useEffect, a tarefa só existiria com o app aberto, ou seja, jamais no
+// cenário para o qual ela foi criada.
+TaskManager.defineTask(CAREGIVER_TASK, async ({ data, error }: any) => {
+  if (error) return;
+  const payload = data?.notification?.request?.content?.data
+    ?? data?.notification?.data
+    ?? data;
+  await ingestCaregiverPush(payload).catch(() => {});
+});
+
+export function registerCaregiverTask(): void {
+  Notifications.registerTaskAsync(CAREGIVER_TASK).catch(() => {});
 }
