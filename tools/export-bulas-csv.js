@@ -116,7 +116,16 @@ const csvFaltando = linhasFaltando.map(r => r.map(csvField).join(';')).join('\n'
 fs.writeFileSync(path.join(OUT_DIR, 'bulas_faltando.csv'), csvFaltando, 'utf8');
 
 console.log(`✓ ${slugsOrdenados.length} bulas com PDF, ${linhasBulas.length - 1} linhas → tools/out/bulas.csv`);
-console.log(`✓ ${faltando.length} medicamentos sem PDF publicado → tools/out/bulas_faltando.csv`);
+
+// Cada MARCA vira uma linha própria, então faltando.length conta linhas, não medicamentos —
+// e as marcas quase sempre compartilham a bula do genérico. Reportar o total de linhas como
+// "medicamentos sem bula" inflava o buraco em quase 3x (948 em vez de 331) e faria alguém
+// concluir que a base de bulas está muito pior do que está.
+const genericosSemBula = new Set(faltando.filter(f => f.tipo === 'generico').map(f => f.genericName));
+console.log(
+  `✓ ${genericosSemBula.size} medicamentos sem bula (de ${medications.length}) — ` +
+  `${faltando.length} linhas contando marcas → tools/out/bulas_faltando.csv`
+);
 
 // PDFs publicados que nenhum medicamento do banco referencia — pode ser nome legado
 // (ex.: "aspirina.pdf" substituído por "aas-acido-acetilsalicilico.pdf") ou slug
