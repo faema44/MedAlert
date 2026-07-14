@@ -53,6 +53,37 @@ importa — inclusive o alerta certo.
 - **Auditoria humana.** É o que falta de verdade, e é o que um app gratuito não paga. Sem isso,
   interação medicamentosa é uma promessa que não dá para cumprir com honestidade.
 
+## IDEIA PARA O FUTURO: verificação por IA, sob demanda (Fabio, 13/07/2026)
+
+Em vez de o app **vigiar** os remédios e disparar alertas — que é o que foi suspenso —, ele
+oferece uma **varredura sob demanda**:
+
+> "Quer que a IA faça uma varredura na sua lista de medicamentos e procure interações?"
+
+E o que sai não é um alerta: é um **relatório**, explicitamente rotulado como feito por IA. O app
+**avisa, mas não assume a responsabilidade** — a validação do resultado é do médico.
+
+**Por que isso é diferente do que suspendemos, e por que pode funcionar:**
+
+- **É um ato do usuário, não do app.** Ele pede a varredura; não é o app afirmando algo sozinho na
+  tela, todo dia, ao lado do lembrete. Muda quem está fazendo a alegação.
+- **Relatório não banaliza.** O alerta permanente é o que ensina a ignorar (ver os 1273 alarmes
+  falsos e o fenobarbital). Um relatório que se lê uma vez e se leva ao consultório não tem essa
+  erosão.
+- **A moldura é honesta desde o primeiro pixel**: "isto foi gerado por IA, pode conter erros, leve
+  ao seu médico". Não é letra miúda no rodapé — é o que o documento É.
+- **O destino do resultado é o médico**, não uma decisão do paciente sozinho às 23h.
+
+**O que NÃO resolve, e não adianta fingir que resolve:**
+
+- A base continua sendo a mesma, com os mesmos erros. Relatório errado continua errado — só muda
+  quem carrega a responsabilidade, e "a IA disse" não é defesa se o app foi quem ofereceu a
+  varredura. **Antes de ligar isso, as pendências desta página continuam valendo** (duplicatas,
+  52 críticas sem fonte, 30 fontes de outro medicamento).
+- O rótulo "feito por IA" **protege menos do que parece**. Ele ajuda com o usuário atento; não
+  ajuda com quem toma a decisão errada e se machuca. A régua continua sendo: não afirmar o que não
+  se pode sustentar.
+
 ## O que APRENDEMOS e não pode se perder
 
 - **Auditoria de eixo único é cega.** A leitura de texto aprovava bulas trocadas; foi o *hash* que
