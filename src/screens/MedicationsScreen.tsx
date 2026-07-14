@@ -23,6 +23,8 @@ import {
   rescheduleRemindersForMedication,
 } from '../services/notifications';
 import { syncMedicalIdReminder } from '../services/medicalId';
+import { syncCaregiverSchedule } from '../services/caregiver';
+import * as Sentry from '@sentry/react-native';
 import { Medication, MedicationReminder } from '../types';
 import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, isPhytotherapic, nomeDaBaseParaBula } from '../utils/drugSearch';
 import { useBulaViewer } from '../utils/useBulaViewer';
@@ -250,6 +252,15 @@ export default function MedicationsScreen() {
     } catch {}
     // iOS: se a pessoa usa o Medical ID, lembra que os remédios mudaram (no-op fora do iOS)
     await syncMedicalIdReminder(meds);
+    // O cuidador precisa da agenda corrigida a CADA mudança de remédio — senão fica com a tabela
+    // antiga e não cobra (nem mostra) o que mudou. No-op se ninguém acompanha; uma falha de rede
+    // aqui não pode quebrar o salvar do remédio.
+    try {
+      await syncCaregiverSchedule();
+    } catch (e: any) {
+      console.warn('[cuidador] falha ao reenviar a agenda após mudança de remédio:', e?.code, e?.message);
+      Sentry.captureException(e);
+    }
   }
 
   function handleGenericNameChange(v: string) {

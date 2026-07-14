@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Switch, Alert, AppState, Platform } from 'react-native';
-import * as Clipboard from 'expo-clipboard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { getProfile, getMedications, getContacts, getKV, setKV } from '../database/db';
@@ -210,6 +209,9 @@ function IOSMedicalIdScreen() {
   const listText = buildMedListText(meds);
 
   async function copyList() {
+    // Carregado sob demanda: expo-clipboard é módulo nativo e só é usado no iOS. Importar no topo
+    // faria o Android tentar linká-lo já na inicialização e derrubaria o app num build sem o rebuild.
+    const Clipboard = require('expo-clipboard');
     await Clipboard.setStringAsync(listText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
