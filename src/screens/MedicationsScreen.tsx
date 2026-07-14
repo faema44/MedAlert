@@ -22,11 +22,8 @@ import {
   scheduleReminder, cancelAllRemindersForMedication, notifyLowStock,
   rescheduleRemindersForMedication,
 } from '../services/notifications';
-import { Medication, MedicationReminder, DrugInteraction } from '../types';
-import MedDisclaimer from '../components/MedDisclaimer';
-import CartaoInteracao from '../components/CartaoInteracao';
-import InteractionConsentModal, { hasAcceptedInteractionTerms, acceptInteractionTerms } from '../components/InteractionConsentModal';
-import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, checkInteractions, isPhytotherapic, getAllMedGenericNames } from '../utils/drugSearch';
+import { Medication, MedicationReminder } from '../types';
+import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, isPhytotherapic, getAllMedGenericNames } from '../utils/drugSearch';
 import { useBulaViewer } from '../utils/useBulaViewer';
 import { reportMissingDrug } from '../services/reportMissing';
 // ──────────────────────────────────────────────────────────────────────────────
@@ -123,13 +120,9 @@ export default function MedicationsScreen() {
   const [knownDrug, setKnownDrug] = useState<boolean>(false);
   const [customNameConfirmed, setCustomNameConfirmed] = useState<boolean>(false);
   const [commercialSuggestions, setCommercialSuggestions] = useState<DrugSuggestion[]>([]);
-  const [interactions, setInteractions] = useState<DrugInteraction[]>([]);
   const [entryType, setEntryType] = useState<'medicamento' | 'fitoterapico'>('medicamento');
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [cardInteractions, setCardInteractions] = useState<Map<number, DrugInteraction[]>>(new Map());
-  const [interactionModal, setInteractionModal] = useState<DrugInteraction[] | null>(null);
   // Interações aguardando o aceite do termo. O detalhe só abre depois do consentimento.
-  const [pendingInteractions, setPendingInteractions] = useState<DrugInteraction[] | null>(null);
   const [stockInput, setStockInput] = useState('');
   const [unitsPerDoseInput, setUnitsPerDoseInput] = useState('1');
   const [durationDays, setDurationDays] = useState('');
@@ -207,14 +200,10 @@ export default function MedicationsScreen() {
       try {
         // Suspensos ficam fora das interações e do card detalhado (card compacto)
         const meds = allMeds.filter(m => !m.suspended);
-        const interactionMap = new Map<number, DrugInteraction[]>();
         const timesMap = new Map<number, string[]>();
         const soundMap = new Map<number, boolean>();
         const metaMap = new Map<number, { repeat: number; periodType: string }>();
         await Promise.all(meds.map(async (med) => {
-          const others = meds.filter(m => m.id !== med.id).map(m => m.generic_name);
-          const ints = checkInteractions(med.generic_name, others);
-          if (ints.length > 0) interactionMap.set(med.id, ints);
           const rs = await getRemindersForMedication(med.id);
           const active = rs.filter(r => r.is_active);
           timesMap.set(med.id, active.map(r => periodLabel(r.period, r.time)));
@@ -228,7 +217,6 @@ export default function MedicationsScreen() {
             : 'day';
           metaMap.set(med.id, { repeat: first?.repeat_interval ?? 0, periodType: pt });
         }));
-        setCardInteractions(interactionMap);
         setReminderTimes(timesMap);
         setReminderHasSound(soundMap);
         setReminderMeta(metaMap);
@@ -265,13 +253,6 @@ export default function MedicationsScreen() {
       const profile = await getProfile();
       if (profile?.name) await updateEmergencyNotification(profile, meds);
     } catch {}
-    const map = new Map<number, DrugInteraction[]>();
-    meds.forEach(med => {
-      const others = meds.filter(m => m.id !== med.id).map(m => m.generic_name);
-      const ints = checkInteractions(med.generic_name, others);
-      if (ints.length > 0) map.set(med.id, ints);
-    });
-    setCardInteractions(map);
   }
 
   function handleGenericNameChange(v: string) {
@@ -285,8 +266,6 @@ export default function MedicationsScreen() {
     searchDebounceRef.current = setTimeout(() => {
       setSuggestions(getSuggestions(v, 7, entryType === 'fitoterapico' ? 'Fitoterápico' : undefined));
       setCommercialSuggestions([]);
-      const others = medications.filter(m => m.id !== editingId && !m.suspended).map(m => m.generic_name);
-      setInteractions(checkInteractions(v, others));
     }, 300);
   }
 
@@ -301,12 +280,6 @@ export default function MedicationsScreen() {
     setCommercialSuggestions([]);
     setKnownDrug(true);
     setCustomNameConfirmed(false);
-    setInteractions([]);
-    // Delay interaction check so keyboard dismiss + UI render settle first
-    setTimeout(() => {
-      const others = medications.filter(m => m.id !== editingId && !m.suspended).map(m => m.generic_name);
-      setInteractions(checkInteractions(s.genericName, others));
-    }, 250);
   }
 
   function handleCommercialNameChange(v: string) {
@@ -324,9 +297,6 @@ export default function MedicationsScreen() {
       generic_name: f.generic_name.trim() ? f.generic_name : s.genericName,
     }));
     setCommercialSuggestions([]);
-    if (!form.generic_name.trim()) {
-      setInteractions(checkInteractions(s.genericName, medications.filter(m => !m.suspended).map(m => m.generic_name)));
-    }
   }
 
   async function handleDelete(id: number, name: string) {
@@ -514,7 +484,6 @@ export default function MedicationsScreen() {
         }
       }
 
-      const isCritical = interactions.some(i => i.risk_level === 'critical' || i.risk_level === 'high');
       const stockQty = stockInput.trim() ? parseInt(stockInput.trim(), 10) : null;
       const unitsPerDose = unitsPerDoseInput.trim() ? Math.max(1, parseInt(unitsPerDoseInput.trim(), 10)) : 1;
       const endDate = hasDeadline && durationDays.trim() ? addDays(parseInt(durationDays.trim(), 10)) : null;
@@ -522,7 +491,6 @@ export default function MedicationsScreen() {
         ...form,
         generic_name: form.generic_name.trim(),
         commercial_name: form.commercial_name.trim(),
-        is_critical: isCritical,
         stock_quantity: stockQty,
         units_per_dose: unitsPerDose,
         end_date: endDate,
@@ -569,7 +537,7 @@ export default function MedicationsScreen() {
       setMedications(updated);
       setShowModal(false);
 
-      setSuggestions([]); setCommercialSuggestions([]); setInteractions([]);
+      setSuggestions([]); setCommercialSuggestions([]);
       setEditingId(null); setKnownDrug(false);
       setStockInput(''); setUnitsPerDoseInput('1'); setDurationDays(''); setHasDeadline(false);
       setReminders([]); resetPickerState(); setWizardStep('name'); lockOnlyRef.current = false;
@@ -606,7 +574,7 @@ export default function MedicationsScreen() {
     setForm(EMPTY_MED);
     setDoseValue(''); setDoseUnit('mg'); setDoseUnitTouched(false);
     setEditingId(null);
-    setSuggestions([]); setCommercialSuggestions([]); setInteractions([]);
+    setSuggestions([]); setCommercialSuggestions([]);
     setEntryType('medicamento'); setKnownDrug(false); setCustomNameConfirmed(false);
     setReminders([]); setStockInput(''); setUnitsPerDoseInput('1'); setDurationDays(''); setHasDeadline(false);
     setDeadlineTouched(false); setSoundTouched(false); setRepeatTouched(false);
@@ -643,7 +611,6 @@ export default function MedicationsScreen() {
     setEditingId(item.id);
     setSuggestions([]); setCommercialSuggestions([]); setKnownDrug(true); setCustomNameConfirmed(false);
     setEntryType(isPhytotherapic(item.generic_name) ? 'fitoterapico' : 'medicamento');
-    setInteractions([]);
     resetPickerState(); setReminders([]);
     setEditSnapshot(null);
     setWizardStep('summary');
@@ -652,17 +619,6 @@ export default function MedicationsScreen() {
       setReminders(rs);
       if (rs.length > 0) populatePickerFromReminders(rs);
     }).catch(() => {});
-    setTimeout(() => {
-      const others = medications.filter(m => m.id !== item.id && !m.suspended).map(m => m.generic_name);
-      setInteractions(checkInteractions(item.generic_name, others));
-    }, 0);
-  }
-
-  // Abre as interações — mas só depois do aceite do termo. Uma vez aceito na sessão,
-  // vai direto (pedir a cada toque geraria habituação e o aviso perderia o efeito).
-  function requestInteractions(list: DrugInteraction[]) {
-    if (hasAcceptedInteractionTerms()) setInteractionModal(list);
-    else setPendingInteractions(list);
   }
 
   function stepNeedsNext(): boolean {
@@ -1387,8 +1343,6 @@ export default function MedicationsScreen() {
               </TouchableOpacity>
             );
           }
-          const itemInteractions = cardInteractions.get(item.id) ?? [];
-          const hasHighRisk = itemInteractions.some(i => i.risk_level === 'critical' || i.risk_level === 'high');
           const times = reminderTimes.get(item.id) ?? [];
           const hasSound = reminderHasSound.get(item.id) ?? false;
           const meta = reminderMeta.get(item.id);
@@ -1416,7 +1370,7 @@ export default function MedicationsScreen() {
           const hasAnyInfo = item.dose || times.length > 0 || item.notes || item.stock_quantity != null || item.end_date;
 
           return (
-          <TouchableOpacity style={[styles.medCard, hasHighRisk && styles.medCardCritical]} activeOpacity={0.85} onPress={() => openEdit(item)}>
+          <TouchableOpacity style={styles.medCard} activeOpacity={0.85} onPress={() => openEdit(item)}>
             {/* Header: name + delete */}
             <View style={styles.medHeader}>
               <Text style={styles.criticalIcon}>{isPhytotherapic(item.generic_name) ? '🌿' : '💊'}</Text>
@@ -1472,28 +1426,6 @@ export default function MedicationsScreen() {
               )}
               {!hasAnyInfo && <Text style={styles.medEditHint}>Toque para configurar →</Text>}
             </View>
-            {itemInteractions.length > 0 && (() => {
-              // Só a contagem, com a cor do risco mais alto. Listar cada interação no cartão
-              // polui a lista e, pior, banaliza o alerta — o detalhe fica no modal.
-              const worst = itemInteractions.some(i => i.risk_level === 'critical') ? 'critical'
-                : itemInteractions.some(i => i.risk_level === 'high') ? 'high' : 'moderate';
-              const color = worst === 'critical' ? '#CC0000' : worst === 'high' ? '#e65c00' : '#b58900';
-              const n = itemInteractions.length;
-              return (
-                <TouchableOpacity
-                  style={[styles.cardInteractionRow, { borderColor: color }]}
-                  activeOpacity={0.7}
-                  onPress={() => requestInteractions(itemInteractions)}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Ver ${n} ${n > 1 ? 'interações' : 'interação'}`}
-                >
-                  <Text style={[styles.cardInteractionText, { color }]}>
-                    ⚠ {n} {n > 1 ? 'interações' : 'interação'}
-                  </Text>
-                  <Text style={[styles.cardInteractionChevron, { color }]}>›</Text>
-                </TouchableOpacity>
-              );
-            })()}
           </TouchableOpacity>
           );
         }}
@@ -1646,37 +1578,6 @@ export default function MedicationsScreen() {
 
       {bulaModal}
 
-      {/* Interaction detail modal (from card tap) */}
-      {/* Termo de ciência — precede a exibição das interações */}
-      <InteractionConsentModal
-        visible={!!pendingInteractions}
-        onCancel={() => setPendingInteractions(null)}
-        onAccept={() => {
-          acceptInteractionTerms();
-          setInteractionModal(pendingInteractions);
-          setPendingInteractions(null);
-        }}
-      />
-
-      <Modal visible={!!interactionModal} animationType="slide" transparent onRequestClose={() => setInteractionModal(null)}>
-        <View style={styles.intModalOverlay}>
-          <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
-            <Text style={styles.intModalTitle}>Interações detectadas</Text>
-            <MedDisclaimer />
-            <ScrollView>
-              {/* Cartão ÚNICO (components/CartaoInteracao) — traz fonte, aviso de IA e
-                  botão de informar erro, que esta cópia não tinha. */}
-              {(interactionModal ?? []).map(i => (
-                <CartaoInteracao key={i.id} item={i} aberto />
-              ))}
-            </ScrollView>
-            <TouchableOpacity style={styles.intModalClose} onPress={() => setInteractionModal(null)}>
-              <Text style={styles.intModalCloseText}>Fechar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
       {/* Stock help modal */}
       <Modal visible={showStockHelp} animationType="slide" transparent onRequestClose={() => setShowStockHelp(false)}>
         <View style={styles.intModalOverlay}>
@@ -1721,7 +1622,6 @@ const styles = StyleSheet.create({
     elevation: 1, shadowColor: '#000', shadowOpacity: 0.07, shadowRadius: 3,
   },
   medCardRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
-  medCardCritical: { borderLeftWidth: 4, borderLeftColor: '#CC0000' },
   medInfo: { flex: 1, paddingTop: 2, paddingBottom: 4 },
   medHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: 6, marginBottom: 2 },
   criticalIcon: { fontSize: 16 },
@@ -1753,12 +1653,6 @@ const styles = StyleSheet.create({
   takenBtnText: { fontSize: 12, color: '#fff', fontWeight: '700' },
   endDateText: { fontSize: 12, color: '#888', marginTop: 4 },
   endDateDone: { color: '#CC0000' },
-  cardInteractionRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    marginTop: 8, borderWidth: 1, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 5,
-  },
-  cardInteractionText: { fontSize: 11.5, fontWeight: '700' },
-  cardInteractionChevron: { fontSize: 15, fontWeight: '700' },
   intModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   intModalBox: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '70%' },
   intModalTitle: { fontSize: 16, fontWeight: '700', color: '#1C3F7A', marginBottom: 16 },

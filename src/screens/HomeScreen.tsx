@@ -11,9 +11,6 @@ import {
   getActivities, getRemindersForActivity, updateAllActivityRemindersSound,
   getAppointments, resolveMedicationLogSlot, updateMedicationStock, getMedicationLog,
 } from '../database/db';
-import MedDisclaimer from '../components/MedDisclaimer';
-import CartaoInteracao from '../components/CartaoInteracao';
-import InteractionConsentModal, { hasAcceptedInteractionTerms, acceptInteractionTerms } from '../components/InteractionConsentModal';
 import EmergencyChecklist from '../components/EmergencyChecklist';
 import { getCyclePhase, CyclePhaseInfo } from '../utils/cyclePhase';
 
@@ -29,8 +26,8 @@ import {
   rescheduleRemindersForMedication, rescheduleRemindersForActivity, notifyLowStock,
   dismissPresentedForMedication, clearBadge,
 } from '../services/notifications';
-import { Profile, Medication, MedicationReminder, DrugInteraction, ActivityReminder, Appointment, ACTIVITY_PRESETS, EmergencyContact } from '../types';
-import { checkInteractions, isPhytotherapic } from '../utils/drugSearch';
+import { Profile, Medication, MedicationReminder, ActivityReminder, Appointment, ACTIVITY_PRESETS, EmergencyContact } from '../types';
+import { isPhytotherapic } from '../utils/drugSearch';
 
 const KV_ALERT_ACTIVE = 'alert_active';
 
@@ -130,9 +127,6 @@ export default function HomeScreen() {
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([]);
   const [notifActive, setNotifActive] = useState(false);
   const [showPhoneConfigModal, setShowPhoneConfigModal] = useState(false);
-  const [allInteractions, setAllInteractions] = useState<DrugInteraction[]>([]);
-  const [showInteractionsModal, setShowInteractionsModal] = useState(false);
-  const [showInteractionsConsent, setShowInteractionsConsent] = useState(false);
   const [unifiedItems, setUnifiedItems] = useState<UnifiedItem[]>([]);
   const [emergencyReady, setEmergencyReady] = useState(false);
   const [medsHintDismissedAt, setMedsHintDismissedAt] = useState<string | null>(null);
@@ -177,19 +171,6 @@ export default function HomeScreen() {
     if (alertActive === '1' && p?.name) {
       await updateEmergencyNotification(p, m).catch(() => {});
     }
-
-    // Drug interactions
-    const seen = new Set<string>();
-    const ints: DrugInteraction[] = [];
-    const order: Record<string, number> = { critical: 0, high: 1, moderate: 2 };
-    m.forEach(med => {
-      const others = m.filter(x => x.id !== med.id).map(x => x.generic_name);
-      checkInteractions(med.generic_name, others).forEach(i => {
-        if (!seen.has(i.id)) { seen.add(i.id); ints.push(i); }
-      });
-    });
-    ints.sort((a, b) => (order[a.risk_level] ?? 3) - (order[b.risk_level] ?? 3));
-    setAllInteractions(ints);
 
     // Build unified items
     const items: UnifiedItem[] = [];
@@ -640,33 +621,6 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {allInteractions.length > 0 && (
-        <TouchableOpacity
-          style={styles.interactionChip}
-          activeOpacity={0.7}
-          onPress={() => {
-            if (hasAcceptedInteractionTerms()) setShowInteractionsModal(true);
-            else setShowInteractionsConsent(true);
-          }}
-        >
-          <Text style={styles.interactionChipIcon}>⚠</Text>
-          <Text style={styles.interactionChipText}>
-            {allInteractions.length} interaç{allInteractions.length > 1 ? 'ões' : 'ão'} detectada{allInteractions.length > 1 ? 's' : ''}
-          </Text>
-          <Text style={styles.cardChevron}>›</Text>
-        </TouchableOpacity>
-      )}
-
-      <InteractionConsentModal
-        visible={showInteractionsConsent}
-        onCancel={() => setShowInteractionsConsent(false)}
-        onAccept={() => {
-          acceptInteractionTerms();
-          setShowInteractionsConsent(false);
-          setShowInteractionsModal(true);
-        }}
-      />
-
       {fgHModalItem && (
         <Modal visible transparent animationType="fade" onRequestClose={() => setFgHModalItem(null)}>
           <View style={styles.overdueOverlay}>
@@ -710,25 +664,6 @@ export default function HomeScreen() {
           </View>
         </Modal>
       )}
-
-      <Modal visible={showInteractionsModal} animationType="slide" transparent onRequestClose={() => setShowInteractionsModal(false)}>
-        <View style={styles.intModalOverlay}>
-          <View style={[styles.intModalBox, { paddingBottom: insets.bottom + 16 }]}>
-            <Text style={styles.intModalTitle}>Interações detectadas</Text>
-            <MedDisclaimer />
-            <ScrollView>
-              {/* Cartão ÚNICO (components/CartaoInteracao). Aqui ele nem mostrava o
-                  mecanismo — três cópias do mesmo cartão já tinham divergido. */}
-              {allInteractions.map(i => (
-                <CartaoInteracao key={i.id} item={i} aberto />
-              ))}
-            </ScrollView>
-            <TouchableOpacity style={styles.intModalClose} onPress={() => setShowInteractionsModal(false)}>
-              <Text style={styles.intModalCloseText}>Fechar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
 
       {/* Phone configuration modal */}
       <Modal visible={showPhoneConfigModal} animationType="slide" transparent onRequestClose={() => setShowPhoneConfigModal(false)}>
@@ -921,14 +856,6 @@ const styles = StyleSheet.create({
 
   cardChevron: { fontSize: 22, color: '#C0C5D0', lineHeight: 24 },
 
-  interactionChip: {
-    flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: '#fff', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 14,
-    marginBottom: 10, borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
-  },
-  interactionChipIcon: { fontSize: 13, color: '#e65c00' },
-  interactionChipText: { fontSize: 13, color: '#555', flex: 1 },
-
   hintCard: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
     backgroundColor: '#fff', borderRadius: 12, padding: 12,
@@ -960,22 +887,9 @@ const styles = StyleSheet.create({
   hintExpandedTitle: { fontSize: 15, fontWeight: '700', color: '#1A1F2E', flex: 1 },
   hintExpandedList: { gap: 8 },
 
+  // Herdados do modal de interações (suspenso — ver docs/interacoes-suspensas.md); o modal de
+  // configuração do telefone reaproveita estes três.
   intModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  intModalBox: {
-    backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20,
-    padding: 20, maxHeight: '70%',
-  },
-  intModalTitle: { fontSize: 16, fontWeight: '700', color: '#1C3F7A', marginBottom: 16 },
-  intModalItem: {
-    borderLeftWidth: 3, borderRadius: 8, padding: 10, marginBottom: 10, backgroundColor: '#fafafa',
-  },
-  intModalBadge: {
-    borderWidth: 1, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2,
-    alignSelf: 'flex-start', marginBottom: 4,
-  },
-  intModalBadgeText: { fontSize: 10, fontWeight: '600' },
-  intModalDrugs: { fontSize: 13, fontWeight: '700', color: '#222', marginBottom: 2 },
-  intModalDesc: { fontSize: 12, color: '#555', fontStyle: 'italic' },
   intModalClose: {
     marginTop: 12, backgroundColor: '#1C3F7A', borderRadius: 10, padding: 14, alignItems: 'center',
   },
