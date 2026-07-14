@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "692151363845",
+    "project_id": "alerta-medico-1465c",
+    "storage_bucket": "alerta-medico-1465c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:692151363845:android:d40380c7641da5fe786f6c",
+        "android_client_info": {
+          "package_name": "com.alertamedico.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTY1zDnudeiVxGeqRGGfq9R8eYol_hb8c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -3,6 +3,7 @@
     "name": "Alerta Médico",
     "slug": "alerta-medico",
     "version": "1.5.3",
+    "scheme": "alertamedico",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -16,6 +17,7 @@
     "android": {
       "package": "com.alertamedico.app",
       "versionCode": 17,
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#1a3a6b",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -50,9 +52,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "36e93d0b-41e1-4979-a2c4-d4db79d0de76"
+        "projectId": "db12bc42-0dfd-4bce-952c-e8e00f85e455"
       }
     },
-    "owner": "faema44s-team"
+    "owner": "alertamedicos-team"
   }
 }

@@ -1,5 +1,7 @@
 'use strict';
-const { withDangerousMod, withAndroidManifest, withAppBuildGradle } = require('@expo/config-plugins');
+const {
+  withDangerousMod, withAndroidManifest, withAppBuildGradle, withProjectBuildGradle,
+} = require('@expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
 
@@ -162,8 +164,98 @@ class MedNotificationModule(private val reactContext: ReactApplicationContext) :
         }
     }
 
+    // Cripto dos avisos ao cuidador. Ver CAREGIVER_CRYPTO_KT: a cifra precisa existir em Kotlin
+    // de qualquer forma (o aviso de "sem resposta" sai com o app morto, sem runtime de JS), então
+    // o JS reaproveita a MESMA implementação em vez de trazer uma lib de cripto ao package.json.
+    @ReactMethod
+    fun caregiverNewKey(promise: Promise) {
+        try {
+            promise.resolve(CaregiverCrypto.newKeyB64())
+        } catch (e: Exception) {
+            promise.reject("ERR_CRYPTO", e.message)
+        }
+    }
+
+    @ReactMethod
+    fun caregiverEncrypt(plaintext: String, keyB64: String, promise: Promise) {
+        try {
+            promise.resolve(CaregiverCrypto.encrypt(plaintext, keyB64))
+        } catch (e: Exception) {
+            promise.reject("ERR_CRYPTO", e.message)
+        }
+    }
+
+    @ReactMethod
+    fun caregiverDecrypt(payloadB64: String, keyB64: String, promise: Promise) {
+        try {
+            promise.resolve(CaregiverCrypto.decrypt(payloadB64, keyB64))
+        } catch (e: Exception) {
+            // Chave errada ou payload adulterado — o GCM detecta e estoura aqui.
+            promise.reject("ERR_CRYPTO", e.message)
+        }
+    }
+
     companion object {
         const val NOTIF_ID = 1001
+    }
+}
+`;
+
+const CAREGIVER_CRYPTO_KT = `package com.alertamedico.app
+
+import android.util.Base64
+import java.security.SecureRandom
+import javax.crypto.Cipher
+import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.SecretKeySpec
+
+/**
+ * Cifra dos avisos enviados ao cuidador.
+ *
+ * O aviso viaja como push pelos servidores do Expo e do Google (FCM). O corpo VISÍVEL da push é
+ * genérico ("Novo aviso — toque para ver"); o que é dado de saúde (qual remédio, qual dose, e até
+ * o NOME do paciente) vai só aqui dentro, cifrado com a chave que idoso e cuidador trocaram no
+ * pareamento. Nem o Expo nem o Google conseguem ler.
+ *
+ * Fica em Kotlin, e não em JS, por um motivo que não é estético: o aviso de "sem resposta" tem que
+ * sair com o app MORTO (é a definição de sem resposta — ninguém tocou em nada). Quem envia é um
+ * receiver de alarme nativo, sem runtime de JS por perto. Como a cifra precisa existir aqui de
+ * qualquer jeito, o lado JS chama estas mesmas funções via MedNotificationModule — o que também
+ * evita adicionar uma biblioteca de cripto ao package.json.
+ *
+ * AES-256-GCM. O IV (12 bytes, novo a cada mensagem) vai na frente do texto cifrado.
+ */
+object CaregiverCrypto {
+    private const val IV_BYTES = 12
+    private const val TAG_BITS = 128
+
+    fun newKeyB64(): String {
+        val key = ByteArray(32)
+        SecureRandom().nextBytes(key)
+        return Base64.encodeToString(key, Base64.NO_WRAP)
+    }
+
+    fun encrypt(plaintext: String, keyB64: String): String {
+        val key = SecretKeySpec(Base64.decode(keyB64, Base64.NO_WRAP), "AES")
+        val iv = ByteArray(IV_BYTES)
+        SecureRandom().nextBytes(iv)
+
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.ENCRYPT_MODE, key, GCMParameterSpec(TAG_BITS, iv))
+        val sealed = cipher.doFinal(plaintext.toByteArray(Charsets.UTF_8))
+
+        return Base64.encodeToString(iv + sealed, Base64.NO_WRAP)
+    }
+
+    fun decrypt(payloadB64: String, keyB64: String): String {
+        val raw = Base64.decode(payloadB64, Base64.NO_WRAP)
+        require(raw.size > IV_BYTES) { "payload cifrado truncado" }
+
+        val key = SecretKeySpec(Base64.decode(keyB64, Base64.NO_WRAP), "AES")
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(TAG_BITS, raw.copyOfRange(0, IV_BYTES)))
+
+        return String(cipher.doFinal(raw.copyOfRange(IV_BYTES, raw.size)), Charsets.UTF_8)
     }
 }
 `;
@@ -412,6 +504,7 @@ function withKotlinFiles(config) {
       );
 
       fs.writeFileSync(path.join(javaDir, 'MedNotificationModule.kt'), MODULE_KT);
+      fs.writeFileSync(path.join(javaDir, 'CaregiverCrypto.kt'), CAREGIVER_CRYPTO_KT);
       fs.writeFileSync(path.join(javaDir, 'MedNotificationPackage.kt'), PACKAGE_KT);
       fs.writeFileSync(path.join(javaDir, 'BootReceiver.kt'), BOOT_RECEIVER_KT);
       fs.writeFileSync(path.join(javaDir, 'NotifRefreshReceiver.kt'), NOTIF_REFRESH_RECEIVER_KT);
@@ -521,10 +614,71 @@ function withReleaseSigning(config) {
   });
 }
 
+// FCM: o plugin do google-services precisa do classpath no build.gradle RAIZ. Sem ele, o
+// google-services.json é ignorado EM SILÊNCIO — o app compila, instala, e o push simplesmente
+// nunca chega. Foi assim que o projeto ficou meses com push impossível sem ninguém notar.
+function withGoogleServices(config) {
+  return withProjectBuildGradle(config, (cfg) => {
+    if (cfg.modResults.contents.includes('com.google.gms:google-services')) return cfg;
+    cfg.modResults.contents = cfg.modResults.contents.replace(
+      /classpath\('org\.jetbrains\.kotlin:kotlin-gradle-plugin'\)/,
+      `classpath('org.jetbrains.kotlin:kotlin-gradle-plugin')\n    classpath('com.google.gms:google-services:4.4.2')`
+    );
+    return cfg;
+  });
+}
+
+// E o plugin em si, no módulo do app. O google-services.json é copiado da RAIZ do repositório a
+// cada build: android/ é regenerável, e manter uma segunda cópia lá dentro repetiria o drift que
+// já custou caro com o versionCode — dois lugares com a mesma verdade, um deles envelhecendo
+// calado. Se o arquivo não existir, o plugin QUEBRA o build, de propósito.
+function withGoogleServicesApp(config) {
+  return withAppBuildGradle(config, (cfg) => {
+    if (cfg.modResults.contents.includes('com.google.gms.google-services')) return cfg;
+    cfg.modResults.contents += `
+copy {
+    from "\${rootDir}/../google-services.json"
+    into projectDir
+}
+apply plugin: 'com.google.gms.google-services'
+`;
+    return cfg;
+  });
+}
+
+// Deep link do pareamento do cuidador: alertamedico://cuidador?n=&t=&k=
+// O convite chega por WhatsApp e o idoso toca no link uma vez. Ver src/services/caregiver.ts.
+function withPairingDeepLink(config) {
+  return withAndroidManifest(config, (cfg) => {
+    const activities = cfg.modResults.manifest.application[0].activity || [];
+    const main = activities.find(a => a.$?.['android:name'] === '.MainActivity');
+    if (!main) return cfg;
+
+    if (!main['intent-filter']) main['intent-filter'] = [];
+    const jaTem = main['intent-filter'].some(f =>
+      f.data?.some(d => d.$?.['android:scheme'] === 'alertamedico')
+    );
+    if (!jaTem) {
+      main['intent-filter'].push({
+        action: [{ $: { 'android:name': 'android.intent.action.VIEW' } }],
+        category: [
+          { $: { 'android:name': 'android.intent.category.DEFAULT' } },
+          { $: { 'android:name': 'android.intent.category.BROWSABLE' } },
+        ],
+        data: [{ $: { 'android:scheme': 'alertamedico' } }],
+      });
+    }
+    return cfg;
+  });
+}
+
 module.exports = function withMedNotification(config) {
   config = withKotlinFiles(config);
   config = withBootReceiver(config);
   config = withCompatResizability(config);
   config = withReleaseSigning(config);
+  config = withGoogleServices(config);
+  config = withGoogleServicesApp(config);
+  config = withPairingDeepLink(config);
   return config;
 };

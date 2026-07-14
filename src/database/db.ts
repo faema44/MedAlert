@@ -630,6 +630,33 @@ export interface ActivityLog {
   logged_at: string;
 }
 
+// ---------------------------------------------------------------------------
+// Ponto ÚNICO por onde as respostas do usuário viram aviso ao cuidador.
+//
+// As respostas entram no banco por 8 caminhos diferentes (botão da Home, botão da notificação
+// com o app vivo, o mesmo botão com o app morto lido no próximo cold-start, modal de atividade,
+// medição na Agenda…). Pendurar o envio em cada um deles é convite para esquecer um — e um
+// evento esquecido não vira erro, vira SILÊNCIO. O cuidador lê silêncio como "está tudo bem".
+// Então o gancho fica aqui, nas três funções por onde toda resposta obrigatoriamente passa.
+//
+// É um hook, e não um import de caregiver.ts, porque caregiver.ts já importa ESTE arquivo —
+// importar de volta fecharia um ciclo. Quem registra é o App.tsx.
+// ---------------------------------------------------------------------------
+export type LoggedEvent = {
+  kind: 'med' | 'activity';
+  name: string;
+  status: 'taken' | 'skipped' | 'done';
+  at: string;
+  dose?: string;
+  value?: string;
+};
+
+let logHook: ((e: LoggedEvent) => void) | null = null;
+
+export function setLogHook(h: (e: LoggedEvent) => void): void {
+  logHook = h;
+}
+
 export async function addActivityLog(log: Omit<ActivityLog, 'id' | 'logged_at'>): Promise<void> {
   const database = await getDb();
   const now = new Date().toISOString();
@@ -637,6 +664,13 @@ export async function addActivityLog(log: Omit<ActivityLog, 'id' | 'logged_at'>)
     `INSERT INTO activity_logs (activity_id, activity_name, activity_type, realized, value, logged_at) VALUES (?, ?, ?, ?, ?, ?)`,
     [log.activity_id ?? null, log.activity_name, log.activity_type, log.realized ? 1 : 0, log.value, now],
   );
+  logHook?.({
+    kind: 'activity',
+    name: log.activity_name,
+    status: log.realized ? 'done' : 'skipped',
+    at: now,
+    value: log.value || undefined,
+  });
 }
 
 export async function getActivityLogs(limit = 5000): Promise<ActivityLog[]> {
@@ -720,6 +754,10 @@ export async function upsertMedicationLogTaken(
     'UPDATE medication_log SET taken=?, status=? WHERE notification_id=?',
     [taken ? 1 : 0, taken ? 'taken' : 'skipped', notifId]
   );
+  logHook?.({
+    kind: 'med', name, dose: dose || undefined,
+    status: taken ? 'taken' : 'skipped', at: scheduledAt,
+  });
 }
 
 export async function markMedicationLogTaken(notification_id: string, taken: boolean): Promise<void> {
@@ -778,12 +816,19 @@ export async function resolveMedicationLogSlot(entry: {
       'UPDATE medication_log SET taken=?, status=?, taken_at=? WHERE id=?',
       [entry.taken ? 1 : 0, entry.taken ? 'taken' : 'skipped', entry.taken_at ?? null, existing.id]
     );
-    return;
+  } else {
+    await database.runAsync(
+      `INSERT OR IGNORE INTO medication_log (medication_id, medication_name, dose, notification_id, scheduled_at, taken_at, taken, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [entry.medication_id, entry.medication_name, entry.dose, entry.notification_id, entry.scheduled_at, entry.taken_at ?? null, entry.taken ? 1 : 0, entry.taken ? 'taken' : 'skipped']
+    );
   }
-  await database.runAsync(
-    `INSERT OR IGNORE INTO medication_log (medication_id, medication_name, dose, notification_id, scheduled_at, taken_at, taken, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [entry.medication_id, entry.medication_name, entry.dose, entry.notification_id, entry.scheduled_at, entry.taken_at ?? null, entry.taken ? 1 : 0, entry.taken ? 'taken' : 'skipped']
-  );
+  logHook?.({
+    kind: 'med',
+    name: entry.medication_name,
+    dose: entry.dose || undefined,
+    status: entry.taken ? 'taken' : 'skipped',
+    at: entry.scheduled_at,
+  });
 }
 
 // Edição manual pelo usuário na tela de Histórico: só permite alternar entre tomei/não
@@ -979,16 +1024,62 @@ export async function getExpiredUnarchivedMedications(): Promise<Medication[]> {
   }));
 }
 
+// ---------------------------------------------------------------------------
+// Cuidador.
+//
+// Uma pessoa acompanha os avisos do idoso por notificação (ver src/services/caregiver.ts).
+// Mora no kv_store como um JSON só: é UM cuidador, e uma tabela para uma linha não se paga.
+// O Kotlin lê esta mesma chave (o aviso de "sem resposta" sai com o app morto, sem JS).
+//
+// `key` é a chave AES compartilhada no pareamento — o que cifra o conteúdo clínico da push.
+// Ela viaja no backup junto com o resto; não é um vazamento novo, porque o backup já carrega o
+// histórico de doses inteiro em texto puro. Se um dia o backup for cifrado, esta chave entra
+// junto e nada muda aqui.
+// ---------------------------------------------------------------------------
+export interface Caregiver {
+  name: string;
+  push_token: string;   // ExpoPushToken do APARELHO do cuidador
+  key: string;          // AES-256 base64, gerada no pareamento
+  delay_minutes: number; // avisa se a dose ficar este tanto sem resposta
+  paired_at: string;
+}
+
+const KV_CAREGIVER = 'caregiver';
+
+export async function getCaregiver(): Promise<Caregiver | null> {
+  const raw = await getKV(KV_CAREGIVER);
+  if (!raw) return null;
+  try {
+    const c = JSON.parse(raw) as Caregiver;
+    return c.push_token && c.key ? c : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function setCaregiver(c: Caregiver): Promise<void> {
+  await setKV(KV_CAREGIVER, JSON.stringify(c));
+}
+
+export async function clearCaregiver(): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('DELETE FROM kv_store WHERE key=?', [KV_CAREGIVER]);
+}
+
+
 // Backup / Restore
 // Só estas chaves do kv_store viajam no backup, e cada uma tem motivo.
 //   alert_active  — se a ficha de emergência está ligada. Sem ela, o celular novo restaura os
 //                   dados e a ficha volta DESLIGADA, em silêncio: a função principal do app
 //                   simplesmente não aparece na tela de bloqueio e ninguém avisa.
 //   weight_height — a altura da pessoa. Sem ela o IMC para de ser calculado.
+//   caregiver     — o pareamento com o cuidador. Mesmo motivo do alert_active: sem ele, o
+//                   celular novo restaura tudo e o cuidador para de receber aviso EM SILÊNCIO,
+//                   e ninguém percebe justamente porque a ausência de aviso parece "tudo bem".
 // As demais NÃO viajam de propósito: `last_notif_response_id` restaurado poderia engolir a
 // resposta de uma dose real; os aceites de bula/interação são um reconhecimento que a pessoa
 // deve dar de novo no aparelho novo; os "hints" dispensados não são dado de ninguém.
-const KV_NO_BACKUP = ['alert_active', 'weight_height'];
+const KV_NO_BACKUP = ['alert_active', 'weight_height', KV_CAREGIVER];
 
 export async function exportBackup(): Promise<string> {
   const database = await getDb();

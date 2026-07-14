@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { getProfile, getKV } from '../database/db';
+import { getProfile, getKV, getCaregiver } from '../database/db';
 
 const KV_ALERT_ACTIVE = 'alert_active';
 
@@ -28,9 +28,10 @@ function MenuRow({ icon, title, subtitle, onPress }: MenuRowProps) {
 export default function SettingsScreen() {
   const navigation = useNavigation();
   const [lockSubtitle, setLockSubtitle] = useState('Perfil, contato e alerta de emergência');
+  const [caregiverSubtitle, setCaregiverSubtitle] = useState('Ninguém acompanha seus avisos');
 
   const load = useCallback(async () => {
-    const [p, alertActive] = await Promise.all([getProfile(), getKV(KV_ALERT_ACTIVE)]);
+    const [p, alertActive, cg] = await Promise.all([getProfile(), getKV(KV_ALERT_ACTIVE), getCaregiver()]);
     const profileDone = !!p?.name;
     const notifActive = alertActive === '1' && profileDone;
     if (!profileDone) {
@@ -38,6 +39,7 @@ export default function SettingsScreen() {
     } else {
       setLockSubtitle(notifActive ? 'Alerta ativado — visível na tela de bloqueio' : 'Alerta desativado');
     }
+    setCaregiverSubtitle(cg ? `${cg.name} recebe seus avisos` : 'Ninguém acompanha seus avisos');
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
@@ -49,6 +51,12 @@ export default function SettingsScreen() {
         title="Tela de Bloqueio"
         subtitle={lockSubtitle}
         onPress={() => (navigation as any).navigate('LockScreen')}
+      />
+      <MenuRow
+        icon="👤"
+        title="Cuidador"
+        subtitle={caregiverSubtitle}
+        onPress={() => (navigation as any).navigate('Caregiver')}
       />
       <MenuRow
         icon="💾"

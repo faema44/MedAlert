@@ -9,6 +9,13 @@ dist/
 web-build/
 expo-env.d.ts
 
+# Chave de conta de serviço do Firebase (FCM). É SEGREDO: quem a tem manda push em nome do app.
+# Fica aqui porque o prompt do `eas credentials` só aceita caminho relativo ao projeto, então o
+# arquivo acaba passando pela raiz — e um `git add .` distraído o publicaria para sempre.
+# (Não confundir com google-services.json, que NÃO é segredo e vai dentro do próprio APK.)
+*firebase-adminsdk*.json
+fcm.json
+
 # Native
 .kotlin/
 *.orig.*
