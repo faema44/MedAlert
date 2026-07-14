@@ -54,7 +54,7 @@ export default function BackupScreen() {
   async function handleImport() {
     Alert.alert(
       'Restaurar backup',
-      'Isso substituirá todos os seus dados atuais (medicamentos, contatos, atividades, consultas). Histórico de registros não é afetado. Continuar?',
+      'Isso substituirá todos os seus dados atuais (medicamentos, contatos, atividades, consultas). Seu histórico de doses NÃO é apagado — e se este aparelho ainda não tiver histórico, o do backup é restaurado. Continuar?',
       [
         { text: 'Cancelar', style: 'cancel' },
         {

@@ -950,9 +950,19 @@ export async function getExpiredUnarchivedMedications(): Promise<Medication[]> {
 }
 
 // Backup / Restore
+// Só estas chaves do kv_store viajam no backup, e cada uma tem motivo.
+//   alert_active  — se a ficha de emergência está ligada. Sem ela, o celular novo restaura os
+//                   dados e a ficha volta DESLIGADA, em silêncio: a função principal do app
+//                   simplesmente não aparece na tela de bloqueio e ninguém avisa.
+//   weight_height — a altura da pessoa. Sem ela o IMC para de ser calculado.
+// As demais NÃO viajam de propósito: `last_notif_response_id` restaurado poderia engolir a
+// resposta de uma dose real; os aceites de bula/interação são um reconhecimento que a pessoa
+// deve dar de novo no aparelho novo; os "hints" dispensados não são dado de ninguém.
+const KV_NO_BACKUP = ['alert_active', 'weight_height'];
+
 export async function exportBackup(): Promise<string> {
   const database = await getDb();
-  const [profile, medications, med_reminders, contacts, activities, act_reminders, appointments] = await Promise.all([
+  const [profile, medications, med_reminders, contacts, activities, act_reminders, appointments, med_log, act_log] = await Promise.all([
     database.getFirstAsync<any>('SELECT * FROM profile WHERE id=1'),
     database.getAllAsync<any>('SELECT * FROM medications'),
     database.getAllAsync<any>('SELECT * FROM medication_reminders'),
@@ -960,18 +970,37 @@ export async function exportBackup(): Promise<string> {
     database.getAllAsync<any>('SELECT * FROM activities'),
     database.getAllAsync<any>('SELECT * FROM activity_reminders'),
     database.getAllAsync<any>('SELECT * FROM appointments'),
+    // O HISTÓRICO ficava de fora: quem trocava de celular levava os remédios e perdia todo o
+    // registro de doses — justamente o que o app pede para mostrar ao médico na consulta.
+    database.getAllAsync<any>('SELECT * FROM medication_log'),
+    database.getAllAsync<any>('SELECT * FROM activity_logs'),
   ]);
+
+  const kv: Record<string, string> = {};
+  for (const chave of KV_NO_BACKUP) {
+    const linha = await database.getFirstAsync<{ value: string }>(
+      'SELECT value FROM kv_store WHERE key = ?', [chave]
+    );
+    if (linha?.value != null) kv[chave] = linha.value;
+  }
   return JSON.stringify({
+    // Continua version 1 de propósito: os campos novos são ADIÇÕES, e um backup antigo (sem
+    // eles) tem que continuar restaurável — o import trata cada bloco como opcional.
     version: 1,
     exported_at: new Date().toISOString(),
-    data: { profile, medications, medication_reminders: med_reminders, emergency_contacts: contacts, activities, activity_reminders: act_reminders, appointments },
+    data: {
+      profile, medications, medication_reminders: med_reminders, emergency_contacts: contacts,
+      activities, activity_reminders: act_reminders, appointments,
+      medication_log: med_log, activity_logs: act_log, kv,
+    },
   });
 }
 
 export async function importBackup(json: string): Promise<void> {
   const parsed = JSON.parse(json);
   if (!parsed?.data || parsed.version !== 1) throw new Error('Formato de backup inválido');
-  const { profile, medications, medication_reminders, emergency_contacts, activities, activity_reminders, appointments } = parsed.data;
+  const { profile, medications, medication_reminders, emergency_contacts, activities, activity_reminders, appointments,
+          medication_log, activity_logs, kv } = parsed.data;
 
   const database = await getDb();
   await database.withTransactionAsync(async () => {
@@ -1006,9 +1035,15 @@ export async function importBackup(json: string): Promise<void> {
       );
     }
     for (const a of (activities ?? [])) {
+      // O ciclo menstrual vive em três colunas que este INSERT ignorava — o exportBackup as
+      // salvava (SELECT *) e a restauração as jogava fora. Quem trocava de celular reencontrava
+      // "Toque em editar para configurar" e perdia a data do 1º dia, que é o único dado que o
+      // app não consegue recalcular sozinho.
       await database.runAsync(
-        'INSERT INTO activities (id, type, name, notes) VALUES (?,?,?,?)',
-        [a.id, a.type ?? 'custom', a.name ?? '', a.notes ?? '']
+        `INSERT INTO activities (id, type, name, notes, cycle_start_date, cycle_length_days, period_length_days)
+         VALUES (?,?,?,?,?,?,?)`,
+        [a.id, a.type ?? 'custom', a.name ?? '', a.notes ?? '',
+         a.cycle_start_date ?? null, a.cycle_length_days ?? null, a.period_length_days ?? null]
       );
     }
     for (const r of (activity_reminders ?? [])) {
@@ -1021,6 +1056,47 @@ export async function importBackup(json: string): Promise<void> {
       await database.runAsync(
         'INSERT INTO appointments (id, doctor_name, specialty, date, time, location, notes) VALUES (?,?,?,?,?,?,?)',
         [a.id, a.doctor_name ?? '', a.specialty ?? '', a.date ?? '', a.time ?? '08:00', a.location ?? '', a.notes ?? '']
+      );
+    }
+
+    // ── HISTÓRICO ────────────────────────────────────────────────────────────────────────
+    // O DELETE lá em cima NÃO apaga o histórico, e continua assim: restaurar um backup nunca
+    // pode destruir registro de dose. Por isso o histórico do arquivo só entra quando o
+    // aparelho AINDA NÃO TEM histórico — que é o caso do celular novo, o único em que ele faz
+    // falta. Num aparelho que já tem registro, mesclar exigiria decidir quem ganha em cada
+    // conflito, e errar isso significa inventar ou apagar uma dose. Não vale o risco.
+    const jaTemLog = await database.getFirstAsync<{ n: number }>(
+      'SELECT (SELECT COUNT(*) FROM medication_log) + (SELECT COUNT(*) FROM activity_logs) AS n'
+    );
+    if ((jaTemLog?.n ?? 0) === 0) {
+      for (const l of (medication_log ?? [])) {
+        await database.runAsync(
+          `INSERT OR IGNORE INTO medication_log
+             (id, medication_id, medication_name, dose, notification_id, scheduled_at, taken, created_at, taken_at, status)
+           VALUES (?,?,?,?,?,?,?,?,?,?)`,
+          [l.id, l.medication_id ?? null, l.medication_name ?? '', l.dose ?? '', l.notification_id ?? null,
+           l.scheduled_at ?? '', l.taken ?? null, l.created_at ?? null, l.taken_at ?? null, l.status ?? null]
+        );
+      }
+      for (const l of (activity_logs ?? [])) {
+        await database.runAsync(
+          `INSERT OR IGNORE INTO activity_logs
+             (id, activity_id, activity_name, activity_type, realized, value, logged_at)
+           VALUES (?,?,?,?,?,?,?)`,
+          [l.id, l.activity_id ?? null, l.activity_name ?? '', l.activity_type ?? 'custom',
+           l.realized ?? 1, l.value ?? '', l.logged_at ?? null]
+        );
+      }
+    }
+
+    // Só as chaves da lista — ver KV_NO_BACKUP. Um backup antigo não tem este bloco, e aí
+    // nada acontece (o app segue com o comportamento de antes).
+    for (const chave of KV_NO_BACKUP) {
+      const valor = kv?.[chave];
+      if (valor == null) continue;
+      await database.runAsync(
+        'INSERT OR REPLACE INTO kv_store (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)',
+        [chave, String(valor)]
       );
     }
   });
