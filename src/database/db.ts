@@ -788,16 +788,46 @@ export async function resolveMedicationLogSlot(entry: {
 
 // Edição manual pelo usuário na tela de Histórico: só permite alternar entre tomei/não
 // tomei e ajustar o horário exibido (mantém taken_at limpo para o card continuar com uma linha só).
+//
+// O estoque acompanha a edição. Sem isso, uma dose que virou "Sem resposta" (o cartão da
+// Home expirou antes do usuário responder) e depois foi corrigida aqui para "Tomei" deixava
+// o comprimido na contagem: o histórico ficava certo e o estoque ficava errado PARA MAIS,
+// cumulativamente — o app diria que ainda há cartela quando ela já acabou.
+//
+// O ajuste é pela TRANSIÇÃO, nunca pelo estado final: só mexe no estoque quando o registro
+// cruza a fronteira tomou/não-tomou. Reeditar um "Tomei" (p.ex. só para corrigir o horário)
+// não desconta de novo, e voltar de "Tomei" para "Não tomei" devolve a unidade.
 export async function updateMedicationLogEntry(
   id: number,
   status: 'taken' | 'skipped',
   scheduledAtIso: string,
 ): Promise<void> {
   const database = await getDb();
+  const prev = await database.getFirstAsync<{ medication_id: number | null; taken: number | null; status: string | null }>(
+    'SELECT medication_id, taken, status FROM medication_log WHERE id=?',
+    [id]
+  );
   await database.runAsync(
     'UPDATE medication_log SET status=?, taken=?, scheduled_at=?, taken_at=NULL WHERE id=?',
     [status, status === 'taken' ? 1 : 0, scheduledAtIso, id]
   );
+  if (!prev?.medication_id) return;
+
+  const wasTaken = prev.status === 'taken' || (prev.status == null && prev.taken === 1);
+  const isTaken = status === 'taken';
+  if (wasTaken === isTaken) return;
+
+  const med = await database.getFirstAsync<{ stock_quantity: number | null; units_per_dose: number | null }>(
+    'SELECT stock_quantity, units_per_dose FROM medications WHERE id=?',
+    [prev.medication_id]
+  );
+  if (!med || med.stock_quantity == null) return; // sem controle de estoque
+
+  const units = med.units_per_dose || 1;
+  const next = isTaken
+    ? Math.max(0, med.stock_quantity - units)
+    : med.stock_quantity + units;
+  await database.runAsync('UPDATE medications SET stock_quantity=? WHERE id=?', [next, prev.medication_id]);
 }
 
 
