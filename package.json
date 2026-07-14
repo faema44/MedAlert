@@ -40,7 +40,8 @@
     "publish:data": "node tools/publish-data.js",
     "test:ota": "node tools/check-ota.js",
     "test:bulas": "node tools/audit-bulas.js --gate",
-    "test:interactions": "node tools/audit-interactions.js --gate"
+    "test:interactions": "node tools/audit-interactions.js --gate",
+    "test:bula-slug": "node tools/audit-bula-slug.js --gate"
   },
   "private": true
 }

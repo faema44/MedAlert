@@ -201,12 +201,52 @@ const XR_BULA_SLUGS: Record<string, string> = {
   'quetiapina':  'quetiapina-xr',
 };
 
+// "Losartana Potássica" é como o nome vem escrito na CAIXA — e não é um nome da base, que tem
+// "Losartana". O slug saía direto do que o usuário digitou (losartana-potassica.pdf), o arquivo
+// não existia e o botão da bula nem aparecia: falha em SILÊNCIO, no remédio mais comum que há.
+// Vale igual para "Levotiroxina Sódica", "Maleato de Enalapril" e todo nome com sal.
+//
+// O motor de interações já sabia que os dois são o mesmo fármaco — o sal não faz parte da
+// identidade. A bula não usava isso. Agora usa, com uma trava: a resolução só vale quando é
+// INEQUÍVOCA. "Cloreto de Sódio" e "Bicarbonato de Sódio" caem na mesma identidade ('sodio'),
+// e nesse caso é melhor não resolver (e cair no nome literal, como antes) do que abrir a bula
+// de outro medicamento.
+function identidadeSemSal(nome: string): string[] {
+  const seq = normalize(nome).split(/[\s,]+/).filter(Boolean);
+  const palavras = seq.filter(t => t.length >= 3 && !GENERIC_QUALIFIER_TOKENS.has(t));
+  const semIons = palavras.filter(t => !ION_TOKENS.has(t));
+  // Se tirar o íon não sobra nada, o íon É o fármaco: Cloreto de Potássio, Sulfato Ferroso.
+  return (semIons.length ? semIons : palavras).sort();
+}
+
+// chave de identidade → nome da base; null quando duas entradas disputam a mesma chave
+let indiceBula: Map<string, string | null> | null = null;
+
+/** Nome da BASE correspondente ao que o usuário cadastrou, ou null se não houver. */
+export function nomeDaBaseParaBula(nome: string): string | null {
+  if (!indiceBula) {
+    indiceBula = new Map();
+    for (const e of DB) {
+      if (e.genericName.includes('+')) continue;   // composto tem slug próprio (toComboSlug)
+      const chave = identidadeSemSal(e.genericName).join('|');
+      if (!chave) continue;
+      indiceBula.set(chave, indiceBula.has(chave) ? null : e.genericName);
+    }
+  }
+  const chave = identidadeSemSal(nome).join('|');
+  return chave ? (indiceBula.get(chave) ?? null) : null;
+}
+
 export function getBulaUrl(genericName: string, brandName?: string): string {
+  const nome = genericName.includes('+')
+    ? genericName
+    : (nomeDaBaseParaBula(genericName) ?? genericName);
+
   if (brandName && XR_BRAND_PATTERN.test(brandName)) {
-    const xrSlug = XR_BULA_SLUGS[normalize(genericName)];
+    const xrSlug = XR_BULA_SLUGS[normalize(nome)];
     if (xrSlug) return `${BULA_BASE}/${xrSlug}.pdf`;
   }
-  const slug = genericName.includes('+') ? toComboSlug(genericName) : toSlug(genericName);
+  const slug = nome.includes('+') ? toComboSlug(nome) : toSlug(nome);
   return `${BULA_BASE}/${slug}.pdf`;
 }
 

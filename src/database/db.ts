@@ -1002,11 +1002,20 @@ export async function importBackup(json: string): Promise<void> {
   const { profile, medications, medication_reminders, emergency_contacts, activities, activity_reminders, appointments,
           medication_log, activity_logs, kv } = parsed.data;
 
+  // O histórico do aparelho só é apagado quando o ARQUIVO traz histórico para pôr no lugar.
+  // Um backup no formato antigo não tem esses campos: apagar ali destruiria o registro de
+  // doses sem repor nada — e a tela avisa que os dados atuais serão substituídos, não que
+  // serão perdidos.
+  const arquivoTemHistorico = Array.isArray(medication_log) || Array.isArray(activity_logs);
+
   const database = await getDb();
   await database.withTransactionAsync(async () => {
     await database.execAsync(
       'DELETE FROM activity_reminders; DELETE FROM medication_reminders; DELETE FROM appointments; DELETE FROM activities; DELETE FROM emergency_contacts; DELETE FROM medications; DELETE FROM profile;'
     );
+    if (arquivoTemHistorico) {
+      await database.execAsync('DELETE FROM medication_log; DELETE FROM activity_logs;');
+    }
 
     if (profile) {
       await database.runAsync(
@@ -1060,33 +1069,26 @@ export async function importBackup(json: string): Promise<void> {
     }
 
     // ── HISTÓRICO ────────────────────────────────────────────────────────────────────────
-    // O DELETE lá em cima NÃO apaga o histórico, e continua assim: restaurar um backup nunca
-    // pode destruir registro de dose. Por isso o histórico do arquivo só entra quando o
-    // aparelho AINDA NÃO TEM histórico — que é o caso do celular novo, o único em que ele faz
-    // falta. Num aparelho que já tem registro, mesclar exigiria decidir quem ganha em cada
-    // conflito, e errar isso significa inventar ou apagar uma dose. Não vale o risco.
-    const jaTemLog = await database.getFirstAsync<{ n: number }>(
-      'SELECT (SELECT COUNT(*) FROM medication_log) + (SELECT COUNT(*) FROM activity_logs) AS n'
-    );
-    if ((jaTemLog?.n ?? 0) === 0) {
-      for (const l of (medication_log ?? [])) {
-        await database.runAsync(
-          `INSERT OR IGNORE INTO medication_log
-             (id, medication_id, medication_name, dose, notification_id, scheduled_at, taken, created_at, taken_at, status)
-           VALUES (?,?,?,?,?,?,?,?,?,?)`,
-          [l.id, l.medication_id ?? null, l.medication_name ?? '', l.dose ?? '', l.notification_id ?? null,
-           l.scheduled_at ?? '', l.taken ?? null, l.created_at ?? null, l.taken_at ?? null, l.status ?? null]
-        );
-      }
-      for (const l of (activity_logs ?? [])) {
-        await database.runAsync(
-          `INSERT OR IGNORE INTO activity_logs
-             (id, activity_id, activity_name, activity_type, realized, value, logged_at)
-           VALUES (?,?,?,?,?,?,?)`,
-          [l.id, l.activity_id ?? null, l.activity_name ?? '', l.activity_type ?? 'custom',
-           l.realized ?? 1, l.value ?? '', l.logged_at ?? null]
-        );
-      }
+    // Substitui, como o resto: o usuário confirmou na tela que os dados atuais seriam
+    // apagados. Mesclar seria pior — com dois registros para a mesma dose alguém teria que
+    // ganhar, e escolher errado significa INVENTAR ou APAGAR uma dose, calado.
+    for (const l of (medication_log ?? [])) {
+      await database.runAsync(
+        `INSERT OR IGNORE INTO medication_log
+           (id, medication_id, medication_name, dose, notification_id, scheduled_at, taken, created_at, taken_at, status)
+         VALUES (?,?,?,?,?,?,?,?,?,?)`,
+        [l.id, l.medication_id ?? null, l.medication_name ?? '', l.dose ?? '', l.notification_id ?? null,
+         l.scheduled_at ?? '', l.taken ?? null, l.created_at ?? null, l.taken_at ?? null, l.status ?? null]
+      );
+    }
+    for (const l of (activity_logs ?? [])) {
+      await database.runAsync(
+        `INSERT OR IGNORE INTO activity_logs
+           (id, activity_id, activity_name, activity_type, realized, value, logged_at)
+         VALUES (?,?,?,?,?,?,?)`,
+        [l.id, l.activity_id ?? null, l.activity_name ?? '', l.activity_type ?? 'custom',
+         l.realized ?? 1, l.value ?? '', l.logged_at ?? null]
+      );
     }
 
     // Só as chaves da lista — ver KV_NO_BACKUP. Um backup antigo não tem este bloco, e aí

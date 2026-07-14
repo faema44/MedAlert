@@ -23,7 +23,7 @@ import {
   rescheduleRemindersForMedication,
 } from '../services/notifications';
 import { Medication, MedicationReminder } from '../types';
-import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, isPhytotherapic, getAllMedGenericNames } from '../utils/drugSearch';
+import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, isPhytotherapic, nomeDaBaseParaBula } from '../utils/drugSearch';
 import { useBulaViewer } from '../utils/useBulaViewer';
 import { reportMissingDrug } from '../services/reportMissing';
 // ──────────────────────────────────────────────────────────────────────────────
@@ -186,12 +186,6 @@ export default function MedicationsScreen() {
     () => computeTimes(startTime, timesPerDay),
     [startTime, timesPerDay]
   );
-
-  const knownMedsSet = useMemo(() => {
-    const s = new Set<string>();
-    for (const name of getAllMedGenericNames()) s.add(name.toLowerCase());
-    return s;
-  }, []);
 
   const route = useRoute<RouteProp<{ Medications: { openMedId?: number } }, 'Medications'>>();
 
@@ -1377,7 +1371,10 @@ export default function MedicationsScreen() {
               <Text style={styles.medGeneric} numberOfLines={2}>
                 {item.commercial_name ? `${item.commercial_name} — ${item.generic_name}` : item.generic_name}
               </Text>
-              {(knownMedsSet.has(item.generic_name.toLowerCase()) || isPhytotherapic(item.generic_name)) && (
+              {/* Não basta o nome EXATO da base: quem cadastra "Losartana Potássica" — como está
+                  escrito na caixa — ficava sem nem o botão da bula. nomeDaBaseParaBula ignora o
+                  sal, que é o que o getBulaUrl usa para achar o PDF. */}
+              {(!!nomeDaBaseParaBula(item.generic_name) || isPhytotherapic(item.generic_name)) && (
                 <TouchableOpacity
                   style={styles.bulaCardBtn}
                   accessibilityLabel={`Ver bula de ${item.generic_name}`}
