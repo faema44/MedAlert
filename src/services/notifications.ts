@@ -4,6 +4,7 @@ import { Profile, Medication, MedicationReminder, ActivityReminder } from '../ty
 import { postMedNotification, cancelMedNotification, isEmergencyActive, setNextMedSchedule, cancelNextMedBanner } from './medNotification';
 import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity, getContacts, getKV, setKV, addMedicationLowStockLog } from '../database/db';
 import { isPhytotherapic } from '../utils/drugSearch';
+import { CAREGIVER_CHANNEL } from './caregiver';
 
 const CHANNEL_ID = 'medalert_emergency_v5';
 const NOTIF_ID = 'emergency';
@@ -122,6 +123,15 @@ export async function setupNotificationChannels(): Promise<void> {
     importance: Notifications.AndroidImportance.HIGH,
     lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
     sound: 'activity_reminder',
+  });
+
+  // Canal usado quando ESTE aparelho é o do cuidador e recebe os avisos do idoso.
+  // PRIVATE na tela de bloqueio: o texto visível já é genérico ("Novo aviso sobre a Maria"),
+  // mas não há razão para exibi-lo a quem pegar o celular do cuidador na mesa.
+  await Notifications.setNotificationChannelAsync(CAREGIVER_CHANNEL, {
+    name: 'Avisos de quem eu cuido',
+    importance: Notifications.AndroidImportance.HIGH,
+    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PRIVATE,
   });
 
   await Notifications.setNotificationChannelAsync(APPT_SOUND_CHANNEL, {

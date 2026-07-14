@@ -45,6 +45,7 @@ type UnifiedItem = {
   stockQty?: number | null;
   dailyDoses?: number;
   medObj?: Medication;
+  slotMs?: number; // instante exato da dose cobrada (alertas da Home podem ser de ontem)
 };
 
 function appointmentInfo(appt: Appointment): { label: string; sortMs: number } | null {
@@ -81,22 +82,66 @@ function dayLabelForDiff(dayDiff: number, sortMs: number): string {
   return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
-function todayDateStr(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
-// Um lembrete criado hoje, depois do horário de hoje já ter passado, não conta como
-// dose perdida (não existia ainda pra ser tomada) — só passa a valer a partir de amanhã.
-function reminderExistedBeforeSlot(r: MedicationReminder, rMins: number, nowD: Date): boolean {
+// Um lembrete criado depois do horário já ter passado não conta como dose perdida
+// (não existia ainda pra ser tomada) — só passa a valer no próximo horário.
+function reminderExistedBeforeSlot(r: MedicationReminder, slot: Date): boolean {
   if (!r.created_at) return true;
   const createdAt = new Date(r.created_at.replace(' ', 'T') + 'Z');
   if (isNaN(createdAt.getTime())) return true;
-  const createdToday = createdAt.getFullYear() === nowD.getFullYear()
-    && createdAt.getMonth() === nowD.getMonth()
-    && createdAt.getDate() === nowD.getDate();
-  if (!createdToday) return true;
-  return (createdAt.getHours() * 60 + createdAt.getMinutes()) <= rMins;
+  return createdAt.getTime() <= slot.getTime();
+}
+
+function ymd(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+function hhmm(d: Date): string {
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+function occursOnDay(period: string | undefined, d: Date): boolean {
+  const p = period || 'day';
+  if (p === 'day') return true;
+  if (p.startsWith('week:')) return p.split(':')[1].split(',').map(Number).includes(d.getDay() + 1);
+  if (p.startsWith('month:')) return p.split(':')[1].split(',').map(Number).includes(d.getDate());
+  return false; // 'year:' não tem lembrete diário
+}
+
+type MedSlot = { at: Date; r: MedicationReminder };
+
+// Horários agendados do medicamento nos dias [from, to] relativos a hoje, em ordem.
+function buildSlots(active: MedicationReminder[], today: Date, from: number, to: number): MedSlot[] {
+  const out: MedSlot[] = [];
+  for (let off = from; off <= to; off++) {
+    const day = new Date(today.getFullYear(), today.getMonth(), today.getDate() + off);
+    for (const r of active) {
+      if (!occursOnDay(r.period, day)) continue;
+      const [h, m] = r.time.split(':').map(Number);
+      if (isNaN(h) || isNaN(m)) continue;
+      out.push({ at: new Date(day.getFullYear(), day.getMonth(), day.getDate(), h, m, 0, 0), r });
+    }
+  }
+  return out.sort((a, b) => a.at.getTime() - b.at.getTime());
+}
+
+// Por quanto tempo um alerta vencido continua na tela: METADE do caminho até a próxima
+// dose do mesmo medicamento. 4x/dia (6h de intervalo) → 3h de cartão; 1x/dia → 12h.
+// A regra anterior era "até a meia-noite", que dava 16h para uma dose das 08:00 e
+// 10 minutos para uma das 23:50 — quanto mais tarde a dose, menos chance de responder.
+// Assim o cartão nunca sobrevive até encostar na dose seguinte, e a hora do relógio
+// deixa de decidir. Teto de 12h: sem ele um lembrete semanal ficaria 3 dias e meio na tela.
+const MAX_ALERT_WINDOW_MS = 12 * 60 * 60 * 1000;
+
+function alertExpiryMs(slot: MedSlot, allSlots: MedSlot[]): number {
+  const slotMs = slot.at.getTime();
+  const next = allSlots.find(s => s.at.getTime() > slotMs);
+  const gap = next ? next.at.getTime() - slotMs : 24 * 60 * 60 * 1000;
+  return slotMs + Math.min(gap / 2, MAX_ALERT_WINDOW_MS);
+}
+
+// Chave da dose, não do medicamento: o cartão pode ser de ontem, e responder a dose de
+// ontem não pode dispensar a de hoje.
+function alertKey(item: UnifiedItem): string {
+  return `${item.id}_${ymd(new Date(item.slotMs!))}_${item.time}`;
 }
 
 function nextDailyInfo(reminders: ActivityReminder[]): { label: string; sortMs: number } | null {
@@ -132,6 +177,7 @@ export default function HomeScreen() {
   const [medsHintDismissedAt, setMedsHintDismissedAt] = useState<string | null>(null);
   const [emergencyHintDismissedAt, setEmergencyHintDismissedAt] = useState<string | null>(null);
   const [foregroundAlerts, setForegroundAlerts] = useState<UnifiedItem[]>([]);
+  const [staleStockDoses, setStaleStockDoses] = useState(0);
   const [cycleStatus, setCycleStatus] = useState<{ activityId: number; name: string; phase: CyclePhaseInfo; cycleLength: number } | null>(null);
   const [fgHModalItem, setFgHModalItem] = useState<UnifiedItem | null>(null);
   const [fgHModalHour, setFgHModalHour] = useState(0);
@@ -252,9 +298,6 @@ export default function HomeScreen() {
 
     // Single source of truth: query all taken logs (1 year) for cross-location dedup
     const nowD = new Date();
-    const nowMins = nowD.getHours() * 60 + nowD.getMinutes();
-    const todayWd = nowD.getDay() + 1;
-    const todayDate = nowD.getDate();
     const since1y = new Date(nowD); since1y.setFullYear(since1y.getFullYear() - 1); since1y.setHours(0, 0, 0, 0);
     const allLogs = await getMedicationLog({ since_iso: since1y.toISOString() });
 
@@ -262,51 +305,62 @@ export default function HomeScreen() {
     // Janela de ±50min: cobre resposta atrasada via repetição (6×5min = 30min) sem
     // engolir doses vizinhas — com ±4h, responder uma dose suprimia o popup de
     // qualquer outra dose do mesmo medicamento nas 4h seguintes (ex.: testes seguidos)
-    const isSlotTaken = (medId: number, dateStr: string, timeStr: string) => {
-      const slotMs = new Date(`${dateStr}T${timeStr}:00`).getTime();
-      return allLogs.some(l =>
-        l.medication_id === medId && l.taken != null &&
-        Math.abs(new Date(l.scheduled_at).getTime() - slotMs) < 50 * 60 * 1000
-      );
-    };
+    const isSlotTaken = (medId: number, slot: Date) => allLogs.some(l =>
+      l.medication_id === medId && l.taken != null &&
+      Math.abs(new Date(l.scheduled_at).getTime() - slot.getTime()) < 50 * 60 * 1000
+    );
 
-    const todayStr = `${nowD.getFullYear()}-${String(nowD.getMonth()+1).padStart(2,'0')}-${String(nowD.getDate()).padStart(2,'0')}`;
+    const nowMs = nowD.getTime();
+    const today0 = new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate()).getTime();
 
-    // Foreground alerts (today only, past times, not taken, not session-dismissed)
     const overdue: UnifiedItem[] = [];
-    m.forEach((med, idx) => {
-      if (med.home_reminder === 0) return;
-      const reminders = medReminders[idx] ?? [];
-      const active = reminders.filter(r => r.is_active);
-      const dueTodayTimes = active.filter(r => {
-        const [h, rm] = r.time.split(':').map(Number);
-        if (isNaN(h)) return false;
-        const rMins = h * 60 + rm;
-        let dueToday: boolean;
-        if (!r.period || r.period === 'day') dueToday = rMins <= nowMins;
-        else if (r.period.startsWith('week:')) dueToday = r.period.split(':')[1].split(',').map(Number).includes(todayWd) && rMins <= nowMins;
-        else if (r.period.startsWith('month:')) dueToday = r.period.split(':')[1].split(',').map(Number).includes(todayDate) && rMins <= nowMins;
-        else dueToday = false;
-        return dueToday && reminderExistedBeforeSlot(r, rMins, nowD);
-      });
+    // Doses sem resposta cujo cartão já expirou, em medicamentos COM controle de estoque:
+    // o app descontou nada e nunca mais vai perguntar, então o estoque só volta a bater se
+    // o usuário ajustar o registro no Histórico. Janela de 7 dias, a mesma de
+    // reconcileMissedDoses() — o que é mais velho que isso não tem log criado nem conserto.
+    let staleStockDoses = 0;
 
-      const overdueTime = dueTodayTimes
-        .filter(r => !isSlotTaken(med.id, todayStr, r.time))
-        .map(r => r.time).sort()[0];
-      if (!overdueTime) return;
-      if (dismissedAlertsRef.current.has(`${med.id}_${todayStr}_${overdueTime}`)) return;
-      const isMuted = active.length > 0 && active.every(r => !r.with_sound);
+    m.forEach((med, idx) => {
+      const active = (medReminders[idx] ?? []).filter(r => r.is_active);
+      if (!active.length) return;
+
+      // +1 dia: a "próxima dose" de um horário das 23h cai amanhã, e é ela que define a janela.
+      const allSlots = buildSlots(active, nowD, -7, 1);
+      const pending = allSlots.filter(s =>
+        s.at.getTime() <= nowMs &&
+        reminderExistedBeforeSlot(s.r, s.at) &&
+        !isSlotTaken(med.id, s.at)
+      );
+
+      const live: MedSlot[] = [];
+      for (const s of pending) {
+        if (nowMs < alertExpiryMs(s, allSlots)) live.push(s);
+        else if (med.stock_quantity != null && med.save_history !== 0) staleStockDoses++;
+      }
+
+      // Um cartão por medicamento: a dose vencida mais antiga ainda dentro da janela.
+      if (med.home_reminder === 0) return;
+      const slot = live[0];
+      if (!slot) return;
+      const time = hhmm(slot.at);
+      if (dismissedAlertsRef.current.has(`${med.id}_${ymd(slot.at)}_${time}`)) return;
+
+      const slotDay = new Date(slot.at.getFullYear(), slot.at.getMonth(), slot.at.getDate()).getTime();
+      const dayDiff = Math.round((slotDay - today0) / 86400000);
+      const isMuted = active.every(r => !r.with_sound);
       overdue.push({
         id: med.id, type: 'med',
         icon: med.is_critical ? '⚠️' : isPhytotherapic(med.generic_name) ? '🌿' : '💊',
         name: med.commercial_name?.trim() || med.generic_name,
-        label: `hoje às ${overdueTime}`,
-        time: overdueTime, dayDiff: 0, sortMs: 0, isMuted,
+        label: `${dayDiff === 0 ? 'hoje' : 'ontem'} às ${time}`,
+        time, dayDiff, sortMs: slot.at.getTime(), isMuted,
         dose: med.dose || undefined, stockQty: med.stock_quantity,
         dailyDoses: active.length || 1, medObj: med,
+        slotMs: slot.at.getTime(),
       });
     });
     setForegroundAlerts(overdue);
+    setStaleStockDoses(staleStockDoses);
   }, []);
 
   useFocusEffect(useCallback(() => { load(); clearBadge(); }, [load]));
@@ -353,10 +407,9 @@ export default function HomeScreen() {
     if (!item.medObj) return;
     const med = item.medObj;
     const medDisplayName = med.commercial_name?.trim() || med.generic_name;
-    const nowD = new Date();
-    const todayStr = `${nowD.getFullYear()}-${String(nowD.getMonth()+1).padStart(2,'0')}-${String(nowD.getDate()).padStart(2,'0')}`;
-    const scheduledAt = new Date(`${todayStr}T${item.time}:00`).toISOString();
-    const notifId = `fg_${med.id}_${todayStr}_${item.time.replace(':', '')}`;
+    const slot = new Date(item.slotMs!);
+    const scheduledAt = slot.toISOString();
+    const notifId = `fg_${med.id}_${ymd(slot)}_${item.time.replace(':', '')}`;
     await resolveMedicationLogSlot({
       medication_id: med.id,
       medication_name: medDisplayName,
@@ -374,11 +427,10 @@ export default function HomeScreen() {
     if (!item.medObj) return;
     const med = item.medObj;
     const medDisplayName = med.commercial_name?.trim() || med.generic_name;
-    const nowD = new Date();
-    const todayStr = `${nowD.getFullYear()}-${String(nowD.getMonth()+1).padStart(2,'0')}-${String(nowD.getDate()).padStart(2,'0')}`;
-    const scheduledAt = new Date(`${todayStr}T${item.time}:00`).toISOString();
+    const slot = new Date(item.slotMs!);
+    const scheduledAt = slot.toISOString();
     const takenAtIso = takenAt ? takenAt.toISOString() : scheduledAt;
-    const notifId = `fg_${med.id}_${todayStr}_${item.time.replace(':', '')}`;
+    const notifId = `fg_${med.id}_${ymd(slot)}_${item.time.replace(':', '')}`;
     await resolveMedicationLogSlot({
       medication_id: med.id,
       medication_name: medDisplayName,
@@ -489,6 +541,21 @@ export default function HomeScreen() {
         </TouchableOpacity>
       )}
 
+      {staleStockDoses > 0 && (
+        <TouchableOpacity style={styles.stockWarnCard} activeOpacity={0.8} onPress={() => navigation.navigate('History')}>
+          <Text style={styles.hintIcon}>📦</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.stockWarnTitle}>Estoque pode estar desatualizado</Text>
+            <Text style={styles.stockWarnSub}>
+              {staleStockDoses === 1
+                ? '1 dose ficou sem resposta e saiu da tela. Ajuste no Histórico para o estoque ficar correto.'
+                : `${staleStockDoses} doses ficaram sem resposta e saíram da tela. Ajuste no Histórico para o estoque ficar correto.`}
+            </Text>
+          </View>
+          <Text style={styles.cardChevron}>›</Text>
+        </TouchableOpacity>
+      )}
+
       {/* Foreground overdue alerts */}
       {foregroundAlerts.map(alert => (
         <View key={alert.id} style={styles.fgAlertCard}>
@@ -499,7 +566,9 @@ export default function HomeScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Text style={styles.fgAlertName} numberOfLines={1}>{alert.name}</Text>
                 <View style={styles.fgAlertTimeBadge}>
-                  <Text style={styles.fgAlertTimeBadgeText}>{alert.time}</Text>
+                  <Text style={styles.fgAlertTimeBadgeText}>
+                    {alert.dayDiff === 0 ? alert.time : `ontem ${alert.time}`}
+                  </Text>
                 </View>
               </View>
               {alert.dose ? <Text style={styles.fgAlertDose}>{alert.dose}</Text> : null}
@@ -511,7 +580,7 @@ export default function HomeScreen() {
               style={styles.fgAlertNaoTomei}
               onPress={async () => {
                 await handlePuleiHome(alert);
-                dismissedAlertsRef.current.add(`${alert.id}_${todayDateStr()}_${alert.time}`);
+                dismissedAlertsRef.current.add(alertKey(alert));
                 setForegroundAlerts(prev => prev.filter(a => a.id !== alert.id));
               }}
             >
@@ -531,7 +600,7 @@ export default function HomeScreen() {
               style={styles.fgAlertTomei}
               onPress={async () => {
                 await handleTomeiHome(alert);
-                dismissedAlertsRef.current.add(`${alert.id}_${todayDateStr()}_${alert.time}`);
+                dismissedAlertsRef.current.add(alertKey(alert));
                 setForegroundAlerts(prev => prev.filter(a => a.id !== alert.id));
               }}
             >
@@ -649,9 +718,13 @@ export default function HomeScreen() {
                 onPress={async () => {
                   const item = fgHModalItem;
                   const customTime = new Date(); customTime.setHours(fgHModalHour, fgHModalMinute, 0, 0);
+                  // O picker só dá hora e minuto, e monta em cima de hoje. Num cartão de
+                  // ontem (dose tardia respondida de manhã), "tomei às 23:55" cairia hoje
+                  // às 23:55 — no futuro. Ninguém toma remédio no futuro: é ontem.
+                  if (customTime.getTime() > Date.now()) customTime.setDate(customTime.getDate() - 1);
                   setFgHModalItem(null);
                   await handleTomeiHome(item, customTime);
-                  dismissedAlertsRef.current.add(`${item.id}_${todayDateStr()}_${item.time}`);
+                  dismissedAlertsRef.current.add(alertKey(item));
                   setForegroundAlerts(prev => prev.filter(a => a.id !== item.id));
                 }}
               >
@@ -866,6 +939,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', borderRadius: 12, padding: 12,
     marginBottom: 10, borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
   },
+  stockWarnCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: '#fff', borderRadius: 12, padding: 12,
+    marginBottom: 10, borderWidth: 1.5, borderColor: '#E07B4F',
+  },
+  stockWarnTitle: { fontSize: 14, fontWeight: '700', color: '#E07B4F' },
+  stockWarnSub: { fontSize: 12, color: '#8A8F9D', marginTop: 1 },
   hintIcon: { fontSize: 22 },
   hintTitle: { fontSize: 14, fontWeight: '700', color: '#1A1F2E' },
   hintSub: { fontSize: 12, color: '#8A8F9D', marginTop: 1 },

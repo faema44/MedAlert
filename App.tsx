@@ -14,7 +14,7 @@ if (SENTRY_DSN) {
   });
 }
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { AppState, Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { Alert, AppState, Linking, Modal, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -45,6 +45,7 @@ import HistoryScreen from './src/screens/HistoryScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import LockScreenScreen from './src/screens/LockScreenScreen';
 import BackupScreen from './src/screens/BackupScreen';
+import CaregiverScreen from './src/screens/CaregiverScreen';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import {
   setupNotificationChannels, requestPermissions, setupReminderCategory,
@@ -54,7 +55,11 @@ import {
   snoozeActivityReminder, getLastResponse, notifyTreatmentEnded, notifyLowStock, cancelAllRemindersForMedication,
   resetEmergencySignature, updateEmergencyNotification,
 } from './src/services/notifications';
-import { getDb, getMedications, getMedicationById, updateMedicationStock, addActivityLog, getKV, setKV, addMedicationLog, addMedicationTreatmentEndedLog, upsertMedicationLogTaken, archiveMedication, getExpiredUnarchivedMedications, getRemindersForMedication, getMedicationLog, getProfile, reconcileMissedDoses, falhaDeBanco } from './src/database/db';
+import { getDb, getMedications, getMedicationById, updateMedicationStock, addActivityLog, getKV, setKV, addMedicationLog, addMedicationTreatmentEndedLog, upsertMedicationLogTaken, archiveMedication, getExpiredUnarchivedMedications, getRemindersForMedication, getMedicationLog, getProfile, reconcileMissedDoses, falhaDeBanco, getCaregiver, setCaregiver, setLogHook } from './src/database/db';
+import * as Notifications from 'expo-notifications';
+import {
+  parsePairingLink, ingestCaregiverPush, notifyCaregiver, syncCaregiverSchedule,
+} from './src/services/caregiver';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
 
 const Tab = createBottomTabNavigator();
@@ -71,6 +76,7 @@ const TITLES: Record<string, string> = {
   Settings: 'Configurações',
   LockScreen: 'Tela de Bloqueio',
   Backup: 'Backup',
+  Caregiver: 'Cuidador',
 };
 
 const TAB_ICONS: Record<string, { icon: string; activeIcon: string }> = {
@@ -367,6 +373,70 @@ function AppNavigator() {
     return () => { cleanupMed(); cleanupAct(); cleanupResponse(); };
   }, []);
 
+  // Toda resposta gravada no banco (por qualquer caminho) vira um aviso ao cuidador. O gancho é
+  // registrado uma vez e o db.ts o dispara de dentro — ver setLogHook em src/database/db.ts.
+  useEffect(() => {
+    setLogHook(e => { notifyCaregiver(e).catch(() => {}); });
+    // Rearma os alarmes do "sem resposta". O alarme exato não sobrevive a reboot nem a um
+    // medicamento novo/alterado — sem rearmar, o cuidador para de ser avisado EM SILÊNCIO.
+    syncCaregiverSchedule().catch(e => {
+      console.warn('[cuidador] falha ao armar a agenda de "sem resposta":', e?.code, e?.message);
+      Sentry.captureException(e);
+    });
+  }, []);
+
+  // Pareamento com o cuidador: ele manda um link (pelo WhatsApp dele, uma vez só) e o idoso
+  // toca. O link carrega o token de push e a chave de cifra — ver src/services/caregiver.ts.
+  // Cobre os dois caminhos: app fechado (getInitialURL) e app já aberto (evento 'url').
+  useEffect(() => {
+    async function pair(url: string | null) {
+      if (!url) return;
+      const cg = parsePairingLink(url);
+      if (!cg) return;
+      const anterior = await getCaregiver().catch(() => null);
+      const trocando = anterior && anterior.push_token !== cg.push_token;
+      await setCaregiver(cg).catch(() => {});
+      await syncCaregiverSchedule().catch(() => {});
+      Alert.alert(
+        'Cuidador conectado',
+        trocando
+          ? `${cg.name} agora acompanha seus avisos, no lugar de ${anterior!.name}.`
+          : `${cg.name} vai receber seus avisos de medicamentos e atividades.`
+      );
+    }
+    Linking.getInitialURL().then(pair).catch(() => {});
+    const sub = Linking.addEventListener('url', e => { pair(e.url); });
+    return () => sub.remove();
+  }, []);
+
+  // Este aparelho é o do CUIDADOR e chegou um aviso do idoso. O que o Android mostrou sozinho é
+  // genérico ("Novo aviso — toque para ver"); o conteúdo está cifrado em data.c. Decifra aqui,
+  // já que a chave nunca sai do aparelho. Dois caminhos: o cuidador tocou na notificação
+  // (response) ou o app dele já estava aberto quando ela chegou (received).
+  useEffect(() => {
+    async function ingest(data: unknown) {
+      try {
+        const texto = await ingestCaregiverPush(data);
+        if (texto) Alert.alert('Aviso recebido', texto);
+      } catch {
+        // Chave que não bate: a mensagem não veio de quem este aparelho acompanha, ou o
+        // pareamento foi refeito do outro lado. Silenciar seria pior — o cuidador ficaria
+        // achando que "nenhum aviso" significa "está tudo bem".
+        Alert.alert(
+          'Chegou um aviso que não foi possível abrir',
+          'O pareamento com quem você acompanha não está mais válido. Gere um convite novo.'
+        );
+      }
+    }
+    const rSub = Notifications.addNotificationResponseReceivedListener(r => {
+      ingest(r.notification.request.content.data);
+    });
+    const nSub = Notifications.addNotificationReceivedListener(n => {
+      ingest(n.request.content.data);
+    });
+    return () => { rSub.remove(); nSub.remove(); };
+  }, []);
+
   // When app returns from background and user is NOT on HomeScreen,
   // navigate to Home if there are overdue medications so the banner is visible.
   useEffect(() => {
@@ -467,6 +537,7 @@ function AppNavigator() {
           <Tab.Screen name="Help"          component={HelpScreen}          options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tab.Screen name="LockScreen"    component={LockScreenScreen}    options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tab.Screen name="Backup"        component={BackupScreen}        options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tab.Screen name="Caregiver"     component={CaregiverScreen}     options={{ tabBarItemStyle: { display: 'none' } }} />
         </Tab.Navigator>
       </NavigationContainer>
 
