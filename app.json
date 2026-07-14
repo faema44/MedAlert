@@ -11,7 +11,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.alertamedico.app",
       "infoPlist": {
-        "NSHealthShareUsageDescription": "O Alerta Médico usa dados de saúde para exibir informações de emergência."
+        "NSHealthShareUsageDescription": "O Alerta Médico usa dados de saúde para exibir informações de emergência.",
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
       }
     },
     "android": {

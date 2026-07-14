@@ -1044,6 +1044,11 @@ export async function getExpiredUnarchivedMedications(): Promise<Medication[]> {
 export interface Caregiver {
   name: string;
   push_token: string;   // ExpoPushToken do APARELHO do cuidador
+  // Identifica ESTE pareamento. Um cuidador pode acompanhar várias pessoas, e sem isto o
+  // medicamento de id 1 da Vovó e o de id 1 do Vô gerariam a MESMA chave de dose — confirmar a
+  // dose de um cancelaria o alerta do outro, em silêncio. Viaja em texto na push (é um id
+  // aleatório e opaco: não diz quem é ninguém) para o cuidador saber qual chave usar.
+  pid: string;
   key: string;          // XChaCha20-Poly1305, base64, gerada no pareamento
   // Como o cuidador chama o idoso ("Vovó", "Mãe"). É este apelido que viaja, NUNCA o nome do
   // perfil. Não é para o cuidador — ele já sabe quem é a pessoa. É defesa em profundidade: a

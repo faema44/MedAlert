@@ -8,20 +8,26 @@ import * as Sentry from '@sentry/react-native';
 import { getCaregiver, setCaregiver, clearCaregiver, getProfile, Caregiver } from '../database/db';
 import {
   createInvite, getInbox, InboxItem, notifyCaregiver, syncCaregiverSchedule,
+  getPatients, removePatient, Patient,
 } from '../services/caregiver';
 
 const TOLERANCIAS = [15, 30, 60, 120];
 
 export default function CaregiverScreen() {
   const [cuidador, setCuidador] = useState<Caregiver | null>(null);
+  const [pacientes, setPacientes] = useState<Patient[]>([]);
   const [inbox, setInbox] = useState<InboxItem[]>([]);
+  const [aberto, setAberto] = useState<string | null>(null); // pid cujo histórico está expandido
   const [gerando, setGerando] = useState(false);
   const [testando, setTestando] = useState(false);
 
   const load = useCallback(async () => {
-    const [c, i] = await Promise.all([getCaregiver(), getInbox()]);
+    const [c, ps, i] = await Promise.all([getCaregiver(), getPatients(), getInbox()]);
     setCuidador(c);
+    setPacientes(ps);
     setInbox(i);
+    // Com uma pessoa só, não faz sentido obrigar um toque para ver o histórico dela.
+    setAberto(prev => prev ?? (ps.length === 1 ? ps[0].pid : null));
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
@@ -62,6 +68,20 @@ export default function CaregiverScreen() {
     // mudar este número não muda nada no mundo real.
     await syncCaregiverSchedule().catch(() => {});
     setCuidador(novo);
+  }
+
+  function removerPaciente(p: Patient) {
+    Alert.alert(
+      `Parar de acompanhar ${p.nick || 'esta pessoa'}?`,
+      'O histórico dela some deste celular e os avisos param de chegar. Ela não é avisada disso.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Parar', style: 'destructive',
+          onPress: async () => { await removePatient(p.pid); load(); },
+        },
+      ]
+    );
   }
 
   async function salvarApelido() {
@@ -176,7 +196,7 @@ export default function CaregiverScreen() {
         <Text style={styles.cardTitle}>Eu cuido de alguém</Text>
         <Text style={styles.hint}>
           Gere um convite e mande para a pessoa (pelo WhatsApp, por exemplo). Basta ela tocar no
-          link uma vez: os avisos dela passam a chegar neste celular.
+          link uma vez. Você pode acompanhar mais de uma pessoa — gere um convite para cada.
         </Text>
         <TouchableOpacity style={styles.btnMain} onPress={convidar} disabled={gerando}>
           {gerando
@@ -185,21 +205,51 @@ export default function CaregiverScreen() {
         </TouchableOpacity>
       </View>
 
-      {inbox.length > 0 && (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Avisos recebidos</Text>
-          {inbox.map((item, i) => (
-            <View key={i} style={styles.inboxRow}>
-              <Text style={styles.inboxText}>{item.text}</Text>
-              <Text style={styles.inboxAt}>
-                {new Date(item.at).toLocaleString('pt-BR', {
-                  day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
-                })}
+      {pacientes.map(p => {
+        const historico = inbox.filter(i => i.pid === p.pid);
+        const expandido = aberto === p.pid;
+        // Convite gerado mas ainda não aceito: o apelido só chega na primeira mensagem dela.
+        const aguardando = !p.nick;
+        return (
+          <View key={p.pid} style={styles.card}>
+            <TouchableOpacity
+              style={styles.pacienteHeader}
+              activeOpacity={0.7}
+              onPress={() => setAberto(expandido ? null : p.pid)}
+              onLongPress={() => removerPaciente(p)}
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={styles.cardTitle}>
+                  {aguardando ? 'Convite enviado' : p.nick}
+                </Text>
+                <Text style={styles.hint}>
+                  {aguardando
+                    ? 'Aguardando a pessoa tocar no link. Nada chega até lá.'
+                    : `${historico.length} aviso${historico.length === 1 ? '' : 's'} · toque para ${expandido ? 'fechar' : 'ver'}`}
+                </Text>
+              </View>
+              {!aguardando && <Text style={styles.cardChevron}>{expandido ? '⌄' : '›'}</Text>}
+            </TouchableOpacity>
+
+            {expandido && historico.length === 0 && (
+              <Text style={[styles.hint, { marginTop: 8 }]}>
+                Nenhum aviso ainda. O histórico começa a partir do pareamento.
               </Text>
-            </View>
-          ))}
-        </View>
-      )}
+            )}
+
+            {expandido && historico.map((item, i) => (
+              <View key={i} style={styles.inboxRow}>
+                <Text style={styles.inboxText}>{item.text}</Text>
+                <Text style={styles.inboxAt}>
+                  {new Date(item.at).toLocaleString('pt-BR', {
+                    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
+                  })}
+                </Text>
+              </View>
+            ))}
+          </View>
+        );
+      })}
     </ScrollView>
   );
 }
@@ -240,6 +290,8 @@ const styles = StyleSheet.create({
   btnTestText: { color: '#1C3F7A', fontSize: 14, fontWeight: '700' },
   btnOut: { alignItems: 'center', paddingVertical: 10, marginTop: 2 },
   btnOutText: { color: '#8A8F9D', fontSize: 13, fontWeight: '600' },
+  pacienteHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  cardChevron: { fontSize: 22, color: '#C0C5D0', lineHeight: 24 },
   inboxRow: { paddingVertical: 8, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.06)' },
   inboxText: { fontSize: 13, color: '#1A1F2E' },
   inboxAt: { fontSize: 11, color: '#8A8F9D', marginTop: 2 },

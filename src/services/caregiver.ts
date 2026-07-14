@@ -44,9 +44,13 @@ const PAIR_SCHEME = 'alertamedico://cuidador';
 export const CAREGIVER_CHANNEL = 'caregiver_alerts';
 export const CAREGIVER_TASK = 'caregiver-push';
 
-const KV_MY_KEY = 'caregiver_my_key';   // a chave que EU gerei para cuidar de alguém
+// Quem EU acompanho. Um cuidador pode cuidar de várias pessoas — cada pareamento tem seu próprio
+// pid e sua própria chave, e é o pid que diz qual chave usar quando a push chega.
+const KV_PATIENTS = 'caregiver_patients';
 const KV_INBOX = 'caregiver_inbox';
 const HORIZONTE_DIAS = 3;
+
+export type Patient = { pid: string; key: string; nick: string };
 
 // ---------------------------------------------------------------------------
 // As duas mensagens que o idoso envia
@@ -82,12 +86,17 @@ export type CaregiverEvent = {
   medId?: number;
 };
 
-export type InboxItem = { text: string; at: string };
+export type InboxItem = { pid: string; text: string; at: string };
 
-/** Identidade da dose. Os dois lados calculam a MESMA string, senão o cancelamento não casa. */
-export function doseId(medId: number, slot: Date): string {
+/**
+ * Identidade da dose. Os dois lados calculam a MESMA string, senão o cancelamento não casa.
+ *
+ * O pid ENTRA na chave, e não é zelo: sem ele, o medicamento de id 1 da Vovó e o de id 1 do Vô
+ * dariam a mesma string, e confirmar a dose de um CANCELARIA o alerta do outro — em silêncio.
+ */
+export function doseId(pid: string, medId: number, slot: Date): string {
   const p = (n: number) => String(n).padStart(2, '0');
-  return `${medId}_${slot.getFullYear()}${p(slot.getMonth() + 1)}${p(slot.getDate())}_${p(slot.getHours())}${p(slot.getMinutes())}`;
+  return `${pid}_${medId}_${slot.getFullYear()}${p(slot.getMonth() + 1)}${p(slot.getDate())}_${p(slot.getHours())}${p(slot.getMinutes())}`;
 }
 
 function hora(iso: string): string {
@@ -124,7 +133,9 @@ async function enviar(cg: Caregiver, msg: Msg): Promise<boolean> {
       // NADA. Nem o remédio, nem a dose, nem o apelido. O conteúdo vai cifrado em data.c.
       title: 'Alerta Médico',
       body: 'Novo aviso — toque para ver',
-      data: { c: encrypt(JSON.stringify(msg), cg.key) },
+      // `p` vai em TEXTO porque o cuidador precisa saber qual chave usar antes de decifrar. É um
+      // id aleatório do pareamento — não diz quem é ninguém, nem qual remédio. O conteúdo é `c`.
+      data: { p: cg.pid, c: encrypt(JSON.stringify(msg), cg.key) },
       channelId: CAREGIVER_CHANNEL,
       priority: 'high',
       // Acorda o app do cuidador em segundo plano para ele CANCELAR a notificação local da dose.
@@ -150,7 +161,9 @@ export async function notifyCaregiver(e: CaregiverEvent): Promise<boolean> {
   const cg = await getCaregiver();
   if (!cg) return false;
 
-  const id = e.medId != null ? doseId(e.medId, new Date(e.at)) : `act_${e.at}`;
+  const id = e.medId != null
+    ? doseId(cg.pid, e.medId, new Date(e.at))
+    : `${cg.pid}_act_${e.at}`;
   return enviar(cg, {
     t: 'event', id, nick: apelido(cg),
     name: e.name, dose: e.dose, status: e.status, at: e.at, value: e.value,
@@ -209,22 +222,62 @@ function ocorreNoDia(period: string | undefined, d: Date): boolean {
 // ---------------------------------------------------------------------------
 // LADO DO CUIDADOR — recebe, agenda o alerta local, e o cancela na confirmação
 // ---------------------------------------------------------------------------
-export async function getMyCaregiverKey(): Promise<string | null> {
-  return getKV(KV_MY_KEY);
+export async function getPatients(): Promise<Patient[]> {
+  const raw = await getKV(KV_PATIENTS);
+  if (!raw) return [];
+  try { return JSON.parse(raw) as Patient[]; } catch { return []; }
 }
 
-export async function getInbox(): Promise<InboxItem[]> {
+async function savePatients(ps: Patient[]): Promise<void> {
+  await setKV(KV_PATIENTS, JSON.stringify(ps));
+}
+
+export async function getInbox(pid?: string): Promise<InboxItem[]> {
   const raw = await getKV(KV_INBOX);
   if (!raw) return [];
-  try { return JSON.parse(raw) as InboxItem[]; } catch { return []; }
+  try {
+    const todos = JSON.parse(raw) as InboxItem[];
+    return pid ? todos.filter(i => i.pid === pid) : todos;
+  } catch {
+    return [];
+  }
 }
 
-/** Monta o convite: gera a chave, guarda a MINHA cópia dela e devolve o link para compartilhar. */
+/** Remove uma pessoa acompanhada: a chave, o histórico dela e os alertas locais já marcados. */
+export async function removePatient(pid: string): Promise<void> {
+  await savePatients((await getPatients()).filter(p => p.pid !== pid));
+  await setKV(KV_INBOX, JSON.stringify((await getInbox()).filter(i => i.pid !== pid)));
+
+  // Sem isto, os alertas locais dela continuariam disparando para sempre — cobrando doses de
+  // alguém que o cuidador acabou de remover, e sem nenhuma forma de silenciá-los.
+  const marcados = await Notifications.getAllScheduledNotificationsAsync().catch(() => []);
+  for (const n of marcados) {
+    if (n.identifier.startsWith(LOCAL_PREFIX + pid + '_')) {
+      await Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {});
+    }
+  }
+}
+
+/**
+ * Monta um convite. Cada convite cria uma PESSOA nova: pid próprio e chave própria.
+ * Chamar de novo não substitui ninguém — o cuidador pode acompanhar várias pessoas.
+ */
 export async function createInvite(myName: string): Promise<string> {
-  const [pushToken, key] = await Promise.all([getMyPushToken(), Promise.resolve(newSharedKey())]);
-  await setKV(KV_MY_KEY, key);
-  const q = new URLSearchParams({ n: myName, t: pushToken, k: key });
+  const pushToken = await getMyPushToken();
+  const key = newSharedKey();
+  const pid = novoPid();
+
+  await savePatients([...(await getPatients()), { pid, key, nick: '' }]);
+
+  const q = new URLSearchParams({ n: myName, t: pushToken, k: key, p: pid });
   return `${PAIR_SCHEME}?${q.toString()}`;
+}
+
+// Id do pareamento: 12 caracteres aleatórios. Não é segredo (viaja em texto na push) e não
+// identifica ninguém — só diz "esta mensagem é da conversa nº tal".
+function novoPid(): string {
+  const b = newSharedKey().replace(/[^a-zA-Z0-9]/g, '');
+  return b.slice(0, 12);
 }
 
 export async function getMyPushToken(): Promise<string> {
@@ -242,10 +295,11 @@ export function parsePairingLink(url: string): Caregiver | null {
   const name = q.get('n');
   const push_token = q.get('t');
   const key = q.get('k');
-  if (!name || !push_token || !key) return null;
+  const pid = q.get('p');
+  if (!name || !push_token || !key || !pid) return null;
   return {
-    name, push_token, key,
-    nickname: '',            // o idoso escolhe depois; vazio = usa o nome do perfil
+    name, push_token, key, pid,
+    nickname: '',            // o idoso escolhe depois; vazio NÃO cai no nome do perfil
     delay_minutes: 30,
     paired_at: new Date().toISOString(),
   };
@@ -255,32 +309,41 @@ const LOCAL_PREFIX = 'cg_';
 
 /**
  * Processa uma push recebida NESTE aparelho (sou o cuidador). Devolve o texto quando é um evento,
- * null quando é a agenda (que não vira notificação, só reprograma os alertas) ou quando a push
- * não é de cuidador.
+ * null quando é a agenda (que só reprograma os alertas) ou quando a push não é de cuidador.
  *
  * Estoura se a chave não bater — não engula: significa que alguém está mandando lixo, ou que o
  * pareamento foi refeito do outro lado e este aparelho parou de entender o que recebe.
  */
 export async function ingestCaregiverPush(data: unknown): Promise<string | null> {
-  const sealed = (data as { c?: unknown })?.c;
-  if (typeof sealed !== 'string') return null;
+  const env = data as { p?: unknown; c?: unknown };
+  if (typeof env?.c !== 'string' || typeof env?.p !== 'string') return null;
 
-  const key = await getMyCaregiverKey();
-  if (!key) return null;
+  const pacientes = await getPatients();
+  const paciente = pacientes.find(p => p.pid === env.p);
+  if (!paciente) return null; // não é de ninguém que este aparelho acompanha
 
-  const msg = JSON.parse(decrypt(sealed, key)) as Msg;
+  const msg = JSON.parse(decrypt(env.c, paciente.key)) as Msg;
+
+  // O apelido chega em toda mensagem: é assim que o cuidador aprende como chamar a pessoa (o
+  // convite é gerado antes de saber quem vai aceitar) e acompanha se ela mudar de ideia.
+  if (msg.nick && msg.nick !== paciente.nick) {
+    await savePatients(pacientes.map(p => (p.pid === paciente.pid ? { ...p, nick: msg.nick } : p)));
+  }
 
   if (msg.t === 'schedule') {
-    await reprogramarAlertas(msg);
+    await reprogramarAlertas(paciente.pid, msg);
     return null;
   }
 
-  // Chegou a resposta: a dose foi confirmada, então o alerta local dela não deve mais disparar.
+  // Chegou a resposta: a dose foi confirmada, então o alerta local DELA não deve mais disparar.
   await Notifications.cancelScheduledNotificationAsync(LOCAL_PREFIX + msg.id).catch(() => {});
 
   const text = frase(msg);
   const atual = await getInbox();
-  await setKV(KV_INBOX, JSON.stringify([{ text, at: new Date().toISOString() }, ...atual].slice(0, 100)));
+  await setKV(
+    KV_INBOX,
+    JSON.stringify([{ pid: paciente.pid, text, at: new Date().toISOString() }, ...atual].slice(0, 300))
+  );
   return text;
 }
 
@@ -292,17 +355,20 @@ export async function ingestCaregiverPush(data: unknown): Promise<string | null>
  * O texto aqui é detalhado de propósito: esta notificação é local, nasce e morre no aparelho do
  * cuidador, e não passa por servidor nenhum.
  */
-// O iOS descarta silenciosamente qualquer notificação local além de 64 pendentes. Ficar abaixo
-// disso é obrigação, não zelo: passar do teto faria as últimas doses simplesmente não serem
-// cobradas, e ninguém saberia. Com 3 dias de horizonte, sobra folga para uma rotina pesada.
-const MAX_ALERTAS = 60;
+// O iOS descarta silenciosamente qualquer notificação local além de 64 PENDENTES NO APARELHO —
+// não por pessoa acompanhada. Passar do teto faria as últimas doses simplesmente não serem
+// cobradas, e ninguém saberia. Por isso o orçamento é DIVIDIDO entre as pessoas: cuidar de mais
+// gente reduz o horizonte de cada uma, nunca faz alguém deixar de ser coberto.
+const MAX_ALERTAS_APARELHO = 60;
 
-async function reprogramarAlertas(msg: Extract<Msg, { t: 'schedule' }>): Promise<void> {
-  // Limpa os alertas antigos antes de remarcar: sem isso, um medicamento removido ou um horário
-  // alterado continuaria cobrando para sempre uma dose que já não existe.
+async function reprogramarAlertas(pid: string, msg: Extract<Msg, { t: 'schedule' }>): Promise<void> {
+  // Limpa SÓ os alertas DESTA pessoa antes de remarcar. O prefixo tem que incluir o pid: apagar
+  // por `LOCAL_PREFIX` puro varreria também os alertas das OUTRAS pessoas acompanhadas, e elas
+  // deixariam de ser cobradas — em silêncio, e sem nada ligando a causa ao efeito.
+  const meu = LOCAL_PREFIX + pid + '_';
   const marcados = await Notifications.getAllScheduledNotificationsAsync().catch(() => []);
   for (const n of marcados) {
-    if (n.identifier.startsWith(LOCAL_PREFIX)) {
+    if (n.identifier.startsWith(meu)) {
       await Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {});
     }
   }
@@ -325,7 +391,7 @@ async function reprogramarAlertas(msg: Extract<Msg, { t: 'schedule' }>): Promise
         const oQue = med.d ? `${med.n} ${med.d}` : med.n;
         alertas.push({
           quando,
-          id: doseId(med.i, slot),
+          id: doseId(pid, med.i, slot),
           texto: `${msg.nick} não confirmou ${oQue} (${hhmm})`,
         });
       }
@@ -336,7 +402,10 @@ async function reprogramarAlertas(msg: Extract<Msg, { t: 'schedule' }>): Promise
   // será remarcada na próxima agenda que chegar.
   alertas.sort((a, b) => a.quando - b.quando);
 
-  for (const a of alertas.slice(0, MAX_ALERTAS)) {
+  const quantasPessoas = Math.max(1, (await getPatients()).length);
+  const cota = Math.floor(MAX_ALERTAS_APARELHO / quantasPessoas);
+
+  for (const a of alertas.slice(0, cota)) {
     await Notifications.scheduleNotificationAsync({
       identifier: LOCAL_PREFIX + a.id,
       content: { title: 'Alerta Médico', body: a.texto, data: { local: true } },
