@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { DrugInteraction } from '../types';
-import { isPhytotherapicInteraction, bulaUrlDoSlug } from '../utils/drugSearch';
+import { isPhytotherapicInteraction, bulaUrlDoSlug, InteracaoDoUsuario } from '../utils/drugSearch';
 import { useBulaViewer } from '../utils/useBulaViewer';
 import ReportarErroModal from './ReportarErroModal';
 
@@ -39,11 +39,35 @@ const RISCO = {
 };
 
 type Props = {
-  item: DrugInteraction;
+  /** No catálogo (Tabelas) vem sem meu1/meu2: ali não há "os remédios do usuário". */
+  item: InteracaoDoUsuario;
   /** Modal de detalhe abre tudo; a lista do catálogo abre ao toque. */
   aberto: boolean;
   onToggle?: () => void;
 };
+
+// 13% das entradas têm um RÓTULO DE CLASSE de um lado ("Captopril / Enalapril (IECA)"). O cartão
+// imprimia esse rótulo cru, e quem tomava só enalapril lia "Captopril" e ia procurar na caixa um
+// remédio que nunca tomou. O alerta estava certo e o app parecia errado — que é o pior dos casos,
+// porque queima a confiança nos alertas que importam. Agora o título é o nome DO USUÁRIO, e o
+// rótulo da classe desce para uma linha que explica POR QUE aquilo disparou.
+const igual = (a?: string, b?: string) =>
+  !!a && !!b && a.trim().toLowerCase() === b.trim().toLowerCase();
+
+// A fonte pode ser a bula de OUTRO medicamento: a interação IECA × AAS está documentada na bula
+// do captopril, e é dali que o alerta do enalapril vem; a de AAS × álcool veio de uma bula de
+// AAS + cafeína + paracetamol. As duas são fontes legítimas, mas tem que ser DITO — senão o
+// usuário toca em "Fonte" e cai numa bula que não é a dele. E o aviso não pode dizer "mesma
+// classe": um composto não é a classe do ingrediente puro. "Outro medicamento" é o que é
+// verdade nos dois casos.
+function fonteEhDoUsuario(item: InteracaoDoUsuario): boolean {
+  const ref = item.source_ref?.trim().toLowerCase();
+  if (!ref) return true;   // sem source_ref não há surpresa a avisar
+  return [item.meu1, item.meu2].some(meu => {
+    const m = meu?.trim().toLowerCase();
+    return !!m && (m.includes(ref) || ref.includes(m));
+  });
+}
 
 // O mecanismo de várias entradas REPETE o resumo: risk_description = "Hemorragia grave" e
 // mechanism = "Hemorragia grave. Conduta: Evitar." Mostrar os dois inteiros faz o usuário ler
@@ -66,7 +90,9 @@ function mecanismoUtil(resumo: string, mecanismo?: string): string | null {
 function textoDaFonte(item: DrugInteraction): string {
   const ref = item.source_ref;
   switch (item.source) {
-    case 'ANVISA':  return ref ? `Fonte: bula da ${ref} (ANVISA)` : 'Fonte: bula da ANVISA';
+    // "bula de X" e não "bula da X": o nome pode ser masculino (Captopril) ou feminino
+    // (Varfarina), e o app não tem como saber — "de" serve para os dois.
+    case 'ANVISA':  return ref ? `Fonte: bula de ${ref} (ANVISA)` : 'Fonte: bula da ANVISA';
     case 'FDA':     return ref ? `Fonte: bula do FDA — ${ref}` : 'Fonte: bulas do FDA';
     case undefined:
     case 'desconhecida': return 'Sem fonte verificada';
@@ -83,6 +109,14 @@ export default function CartaoInteracao({ item, aberto, onToggle }: Props) {
   const fundo = fito ? '#EAF4EC' : risco.fundo;
   const temFonte = !!item.source && item.source !== 'desconhecida';
   const mecanismo = mecanismoUtil(item.risk_description, item.mechanism);
+
+  // O que o usuário TOMA vai no título; o rótulo da base explica a regra logo abaixo.
+  const nome1 = item.meu1 ?? item.drug1;
+  const nome2 = item.meu2 ?? item.drug2;
+  const daBase = (!igual(nome1, item.drug1) || !igual(nome2, item.drug2))
+    ? `${item.drug1} + ${item.drug2}`
+    : null;
+  const fonteDeOutro = !!item.source_bula && !fonteEhDoUsuario(item);
 
   const Wrapper: any = onToggle ? TouchableOpacity : View;
 
@@ -102,10 +136,12 @@ export default function CartaoInteracao({ item, aberto, onToggle }: Props) {
       </View>
 
       <Text style={styles.par}>
-        <Text style={styles.nome}>{item.drug1}</Text>
+        <Text style={styles.nome}>{nome1}</Text>
         <Text style={[styles.mais, { color: cor }]}>{' + '}</Text>
-        <Text style={styles.nome}>{item.drug2}</Text>
+        <Text style={styles.nome}>{nome2}</Text>
       </Text>
+
+      {!!daBase && <Text style={styles.daBase}>Alerta da classe: {daBase}</Text>}
 
       <Text style={styles.resumo}>{item.risk_description}</Text>
 
@@ -131,7 +167,9 @@ export default function CartaoInteracao({ item, aberto, onToggle }: Props) {
                 activeOpacity={0.6}
               >
                 <Text style={styles.fonteLink}>{textoDaFonte(item)} ›</Text>
-                <Text style={styles.porIA}>apontado por IA</Text>
+                <Text style={styles.porIA}>
+                  {fonteDeOutro ? 'a bula é de outro medicamento · apontado por IA' : 'apontado por IA'}
+                </Text>
               </TouchableOpacity>
             ) : (
               <View style={styles.fonteBox}>
@@ -152,7 +190,7 @@ export default function CartaoInteracao({ item, aberto, onToggle }: Props) {
         visible={reportar}
         tipo="interacao"
         alvo={`${item.id} · ${item.drug1} × ${item.drug2}`}
-        titulo={`${item.drug1} + ${item.drug2}`}
+        titulo={`${nome1} + ${nome2}`}
         onClose={() => setReportar(false)}
       />
     </Wrapper>
@@ -178,6 +216,7 @@ const styles = StyleSheet.create({
   par: { fontSize: 14.5, marginTop: 8, lineHeight: 20 },
   nome: { fontWeight: '600', color: '#1A1F2E' },
   mais: { fontWeight: '700' },
+  daBase: { fontSize: 11, color: '#9CA3AF', marginTop: 2, lineHeight: 15 },
   resumo: { fontSize: 12, color: '#6B7280', fontStyle: 'italic', marginTop: 2 },
 
   caixa: { borderRadius: 8, padding: 10, marginTop: 10 },

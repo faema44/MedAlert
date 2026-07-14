@@ -573,11 +573,28 @@ function isAlcoholName(name: string): boolean {
   return ALCOHOL_TERMS.some(t => n.includes(t));
 }
 
-export function checkInteractions(newDrug: string, existingMedNames: string[]): DrugInteraction[] {
+// 351 das 2768 entradas (13%) têm de um lado um RÓTULO DE CLASSE, não um fármaco:
+// "Captopril / Enalapril (IECA)", "AINEs (Ibuprofeno, Diclofenaco, Naproxeno)". O cartão
+// imprimia esse rótulo cru, então quem tomava só enalapril lia "Captopril / Enalapril (IECA)"
+// e ia procurar captopril na sua caixa de remédios. O alerta estava CERTO e mesmo assim o app
+// parecia errado — o que é pior, porque queima a confiança nos alertas que importam.
+//
+// O motor sempre soube qual dos remédios DO USUÁRIO casou de cada lado: ele só jogava a
+// informação fora (`existingMedNames.some(...)`). Agora ela volta junto, e o cartão pode falar
+// no vocabulário do usuário — "Enalapril + Aspirina" — deixando o rótulo da classe como a
+// explicação de POR QUE aquilo disparou, não como o nome do que ele toma.
+export type InteracaoDoUsuario = DrugInteraction & {
+  /** Nome do remédio DO USUÁRIO que casou com drug1 (ausente quando o lado é álcool). */
+  meu1?: string;
+  /** Idem para drug2. */
+  meu2?: string;
+};
+
+export function checkInteractions(newDrug: string, existingMedNames: string[]): InteracaoDoUsuario[] {
   if (newDrug.trim().length < 3) return [];
 
   const seen = new Set<string>();
-  const results: DrugInteraction[] = [];
+  const results: InteracaoDoUsuario[] = [];
 
   for (let i = 0; i < ALL_INTERACTIONS.length; i++) {
     const interaction = ALL_INTERACTIONS[i];
@@ -585,10 +602,19 @@ export function checkInteractions(newDrug: string, existingMedNames: string[]): 
     const { tokens1, tokens2 } = INTERACTION_TOKENS[i] ?? { tokens1: [], tokens2: [] };
     const m1 = matchesSide(tokens1, interaction.drug1_rxcuis, newDrug);
     const m2 = m1 ? false : matchesSide(tokens2, interaction.drug2_rxcuis, newDrug);
-    if (m1 && (isAlcoholName(interaction.drug2) || existingMedNames.some(m => matchesSide(tokens2, interaction.drug2_rxcuis, m)))) {
-      seen.add(interaction.id); results.push(interaction);
-    } else if (m2 && (isAlcoholName(interaction.drug1) || existingMedNames.some(m => matchesSide(tokens1, interaction.drug1_rxcuis, m)))) {
-      seen.add(interaction.id); results.push(interaction);
+
+    if (m1) {
+      const parceiro = existingMedNames.find(m => matchesSide(tokens2, interaction.drug2_rxcuis, m));
+      if (parceiro || isAlcoholName(interaction.drug2)) {
+        seen.add(interaction.id);
+        results.push({ ...interaction, meu1: newDrug, meu2: parceiro });
+      }
+    } else if (m2) {
+      const parceiro = existingMedNames.find(m => matchesSide(tokens1, interaction.drug1_rxcuis, m));
+      if (parceiro || isAlcoholName(interaction.drug1)) {
+        seen.add(interaction.id);
+        results.push({ ...interaction, meu1: parceiro, meu2: newDrug });
+      }
     }
   }
 

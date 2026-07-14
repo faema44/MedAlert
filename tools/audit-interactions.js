@@ -178,8 +178,39 @@ if (permanentes.length) {
   console.log('✓ só o ÁLCOOL dispara sem o parceiro cadastrado');
 }
 
-if (GATE && (falsos.length || mortos.length || permanentes.length)) {
+// ── 4. FONTE QUE ABRE A BULA DE OUTRO MEDICAMENTO ────────────────────────────
+// O Fabio cadastrou enalapril, o cartão dizia "Captopril / Enalapril (IECA)" e o link da fonte
+// abria a bula do CAPTOPRIL. O título já foi consertado (o cartão passa a imprimir o nome que o
+// USUÁRIO cadastrou), mas a fonte continua podendo ser a bula de outro produto — e isso é
+// legítimo: a interação IECA × AINE está documentada na bula do captopril, e a de AAS × álcool
+// numa bula de AAS + cafeína + paracetamol. O cartão AVISA ("a bula é de outro medicamento").
+//
+// O que este teto impede é a coisa CRESCER na surdina. Se um lote novo de fontes dobrar esse
+// número, alguém tem que olhar antes de o usuário tropeçar.
+const TETO_FONTE_DE_OUTRO = 30;
+
+const normFonte = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+const fonteDeOutro = INTER.filter(i => {
+  if (!i.source_bula || !i.source_ref) return false;
+  const r = normFonte(i.source_ref);
+  return ![i.drug1, i.drug2].some(d => normFonte(d).includes(r));
+});
+
+if (fonteDeOutro.length > TETO_FONTE_DE_OUTRO) {
+  console.log(`
+🔵 FONTE DE OUTRO MEDICAMENTO (${fonteDeOutro.length}, teto ${TETO_FONTE_DE_OUTRO}) — o link da fonte abre a bula de um produto que não é nenhum dos dois lados`);
+  for (const i of fonteDeOutro.slice(0, 15)) {
+    console.log(`   ${i.id} · ${i.drug1} × ${i.drug2}  →  ${i.source_ref}`);
+  }
+} else {
+  console.log(`✓ fonte que abre a bula de outro medicamento: ${fonteDeOutro.length} (teto ${TETO_FONTE_DE_OUTRO})`);
+}
+
+const estouraTeto = fonteDeOutro.length > TETO_FONTE_DE_OUTRO;
+
+if (GATE && (falsos.length || mortos.length || permanentes.length || estouraTeto)) {
   console.error(`\nGATE: ${falsos.length} alarme(s) falso(s), ${mortos.length} alerta(s) morto(s), `
-    + `${permanentes.length} alerta(s) permanente(s) indevido(s).`);
+    + `${permanentes.length} alerta(s) permanente(s) indevido(s), `
+    + `${fonteDeOutro.length} fonte(s) de outro medicamento (teto ${TETO_FONTE_DE_OUTRO}).`);
   process.exit(1);
 }
