@@ -59,7 +59,7 @@ import { getDb, getMedications, getMedicationById, updateMedicationStock, addAct
 import * as Notifications from 'expo-notifications';
 import {
   parsePairingLink, ingestCaregiverPush, notifyCaregiver, syncCaregiverSchedule,
-  registerCaregiverTask, reconcileCaregiverMisses,
+  registerCaregiverTask, reconcileCaregiverMisses, getPatients,
 } from './src/services/caregiver';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
 
@@ -190,6 +190,11 @@ function AppNavigator() {
   const [dbReady, setDbReady] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [activityAlert, setActivityAlert] = useState<ActivityAlertPayload | null>(null);
+  // Este aparelho acompanha alguém? Controla o atalho de cuidador no cabeçalho.
+  const [hasPatients, setHasPatients] = useState(false);
+  const refreshHasPatients = () => {
+    getPatients().then(ps => setHasPatients(ps.length > 0)).catch(() => {});
+  };
 
   useEffect(() => {
     async function init() {
@@ -276,6 +281,7 @@ function AppNavigator() {
       reconcileMissedDoses().catch(falhaDeBanco('init:reconcileMissedDoses'));
       // Lado do cuidador: cobranças que dispararam com o app fechado viram aviso no histórico.
       reconcileCaregiverMisses().catch(e => { console.warn('[cuidador] reconcile misses:', e); });
+      refreshHasPatients();
     }
     init();
 
@@ -461,6 +467,7 @@ function AppNavigator() {
       dismissDuplicateReminders().catch(() => {});
       reconcileMissedDoses().catch(falhaDeBanco('foreground:reconcileMissedDoses'));
       reconcileCaregiverMisses().catch(e => { console.warn('[cuidador] reconcile misses:', e); });
+      refreshHasPatients();
       if (!navRef.isReady()) return;
       if (navRef.getCurrentRoute()?.name === 'Home') return;
       try {
@@ -504,7 +511,7 @@ function AppNavigator() {
 
   return (
     <>
-      <NavigationContainer ref={navRef}>
+      <NavigationContainer ref={navRef} onStateChange={refreshHasPatients}>
         <StatusBar style="light" />
         <Tab.Navigator
           screenOptions={({ route, navigation }) => ({
@@ -513,6 +520,16 @@ function AppNavigator() {
             headerTitle: () => <HeaderTitle route={route} />,
             headerRight: (route.name !== 'Help') ? () => (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginRight: 12 }}>
+                {hasPatients && route.name !== 'Caregiver' && (
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate('Caregiver' as never)}
+                    style={{ padding: 4 }}
+                    accessibilityLabel="Quem eu acompanho"
+                    accessibilityRole="button"
+                  >
+                    <Text style={{ fontSize: 20 }}>👥</Text>
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity
                   onPress={() => navigation.navigate('Help' as never)}
                   style={{ padding: 4 }}

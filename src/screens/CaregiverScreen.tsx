@@ -139,6 +139,9 @@ export default function CaregiverScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Quem cuida de mim (papel de idoso) some quando o aparelho já é cuidador: acompanhar
+          alguém e ser acompanhado ao mesmo tempo na mesma tela confunde. */}
+      {pacientes.length === 0 && (
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Quem cuida de mim</Text>
         {cuidador ? (
@@ -194,6 +197,7 @@ export default function CaregiverScreen() {
           </Text>
         )}
       </View>
+      )}
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Eu cuido de alguém</Text>
@@ -250,6 +254,14 @@ export default function CaregiverScreen() {
                 </Text>
               </View>
             ))}
+
+            {(expandido || aguardando) && (
+              <TouchableOpacity style={styles.btnApagar} onPress={() => removerPaciente(p)}>
+                <Text style={styles.btnApagarText}>
+                  Apagar {aguardando ? 'este convite' : p.nick}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         );
       })}
@@ -293,6 +305,11 @@ const styles = StyleSheet.create({
   btnTestText: { color: '#1C3F7A', fontSize: 14, fontWeight: '700' },
   btnOut: { alignItems: 'center', paddingVertical: 10, marginTop: 2 },
   btnOutText: { color: '#8A8F9D', fontSize: 13, fontWeight: '600' },
+  btnApagar: {
+    alignItems: 'center', paddingVertical: 10, marginTop: 10,
+    borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.06)',
+  },
+  btnApagarText: { color: '#C0392B', fontSize: 13, fontWeight: '600' },
   pacienteHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   cardChevron: { fontSize: 22, color: '#C0C5D0', lineHeight: 24 },
   inboxRow: { paddingVertical: 8, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.06)' },
