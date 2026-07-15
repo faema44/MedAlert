@@ -48,6 +48,11 @@ export const CAREGIVER_TASK = 'caregiver-push';
 // pid e sua própria chave, e é o pid que diz qual chave usar quando a push chega.
 const KV_PATIENTS = 'caregiver_patients';
 const KV_INBOX = 'caregiver_inbox';
+// Livro-razão das cobranças ("não confirmou") agendadas. O alerta é uma notificação LOCAL que
+// dispara mesmo com o app do cuidador FECHADO — e aí nenhum JS roda para registrá-lo no histórico.
+// Então gravamos aqui a cobrança futura; ao abrir o app, reconcileCaregiverMisses varre o que já
+// venceu e ainda está no livro (não foi confirmado) e passa para o histórico.
+const KV_MISSES = 'caregiver_misses';
 const HORIZONTE_DIAS = 3;
 
 export type Patient = { pid: string; key: string; nick: string };
@@ -86,7 +91,11 @@ export type CaregiverEvent = {
   medId?: number;
 };
 
-export type InboxItem = { pid: string; text: string; at: string };
+export type InboxItem = { pid: string; text: string; at: string; id?: string };
+
+// Uma cobrança agendada. `id` é o doseId (mesma chave que o cancelamento usa), `at` é quando ela
+// DISPARA (horário da dose + tolerância). Vira aviso de histórico se vencer sem ser confirmada.
+type Miss = { pid: string; id: string; at: string; text: string };
 
 /**
  * Identidade da dose. Os dois lados calculam a MESMA string, senão o cancelamento não casa.
@@ -256,10 +265,54 @@ function emitInbox(): void {
   inboxListeners.forEach(cb => { try { cb(); } catch {} });
 }
 
+async function getMisses(): Promise<Miss[]> {
+  const raw = await getKV(KV_MISSES);
+  if (!raw) return [];
+  try { return JSON.parse(raw) as Miss[]; } catch { return []; }
+}
+
+async function setMisses(m: Miss[]): Promise<void> {
+  await setKV(KV_MISSES, JSON.stringify(m.slice(0, 300)));
+}
+
+// O idoso confirmou (ou foi removido): a cobrança daquela dose não é mais uma falta.
+async function removeMiss(doseId: string): Promise<void> {
+  const livro = await getMisses();
+  if (livro.some(e => e.id === doseId)) {
+    await setMisses(livro.filter(e => e.id !== doseId));
+  }
+}
+
+// Varre o livro-razão: toda cobrança cujo horário já passou e que AINDA está lá (não foi
+// confirmada) virou uma falta real → entra no histórico do cuidador. Chamada ao abrir o app e ao
+// voltar do background — é o que registra a falta mesmo quando o alerta disparou com o app fechado.
+export async function reconcileCaregiverMisses(): Promise<number> {
+  const agora = Date.now();
+  const livro = await getMisses();
+  const vencidas = livro.filter(e => new Date(e.at).getTime() <= agora);
+  if (!vencidas.length) return 0;
+
+  const inbox = await getInbox();
+  const jaTem = new Set(inbox.map(i => i.id).filter(Boolean));
+  const novas = vencidas
+    .filter(e => !jaTem.has(e.id)) // dedup: já registrada numa reconciliação anterior
+    .map(e => ({ pid: e.pid, text: e.text, at: e.at, id: e.id }));
+
+  // Grava no histórico ANTES de tirar do livro: se algo falhar no meio, na pior das hipóteses a
+  // falta é reprocessada (o dedup por id evita duplicar) — nunca some em silêncio.
+  if (novas.length) {
+    await setKV(KV_INBOX, JSON.stringify([...novas, ...inbox].slice(0, 300)));
+  }
+  await setMisses(livro.filter(e => new Date(e.at).getTime() > agora));
+  if (novas.length) emitInbox();
+  return novas.length;
+}
+
 /** Remove uma pessoa acompanhada: a chave, o histórico dela e os alertas locais já marcados. */
 export async function removePatient(pid: string): Promise<void> {
   await savePatients((await getPatients()).filter(p => p.pid !== pid));
   await setKV(KV_INBOX, JSON.stringify((await getInbox()).filter(i => i.pid !== pid)));
+  await setMisses((await getMisses()).filter(e => e.pid !== pid));
 
   // Sem isto, os alertas locais dela continuariam disparando para sempre — cobrando doses de
   // alguém que o cuidador acabou de remover, e sem nenhuma forma de silenciá-los.
@@ -348,14 +401,16 @@ export async function ingestCaregiverPush(data: unknown): Promise<string | null>
     return null;
   }
 
-  // Chegou a resposta: a dose foi confirmada, então o alerta local DELA não deve mais disparar.
+  // Chegou a resposta: a dose foi confirmada, então o alerta local DELA não deve mais disparar,
+  // e ela deixa de ser uma cobrança pendente (senão a reconciliação a marcaria como falta).
   await Notifications.cancelScheduledNotificationAsync(LOCAL_PREFIX + msg.id).catch(() => {});
+  await removeMiss(msg.id);
 
   const text = frase(msg);
   const atual = await getInbox();
   await setKV(
     KV_INBOX,
-    JSON.stringify([{ pid: paciente.pid, text, at: new Date().toISOString() }, ...atual].slice(0, 300))
+    JSON.stringify([{ pid: paciente.pid, text, at: new Date().toISOString(), id: msg.id }, ...atual].slice(0, 300))
   );
   emitInbox(); // atualiza a tela do Cuidador ao vivo se ela estiver aberta
   return text;
@@ -390,6 +445,11 @@ async function reprogramarAlertas(pid: string, msg: Extract<Msg, { t: 'schedule'
   const agora = Date.now();
   const alertas: { quando: number; id: string; texto: string }[] = [];
 
+  // Doses que o idoso JÁ respondeu (tomou/não tomou) estão no histórico com seu doseId. Reenviar a
+  // agenda NÃO pode ressuscitar a cobrança delas: seria uma "não confirmou" contradizendo uma dose
+  // já respondida. O histórico é a memória do que já foi resolvido.
+  const respondidas = new Set((await getInbox()).map(i => i.id).filter(Boolean));
+
   for (const med of msg.meds) {
     for (let d = 0; d <= HORIZONTE_DIAS; d++) {
       const dia = new Date();
@@ -402,10 +462,13 @@ async function reprogramarAlertas(pid: string, msg: Extract<Msg, { t: 'schedule'
         const quando = slot.getTime() + msg.delayMin * 60_000;
         if (quando <= agora) continue;
 
+        const id = doseId(pid, med.i, slot);
+        if (respondidas.has(id)) continue; // já respondida — não cobrar de novo
+
         const oQue = med.d ? `${med.n} ${med.d}` : med.n;
         alertas.push({
           quando,
-          id: doseId(pid, med.i, slot),
+          id,
           texto: `${msg.nick} não confirmou ${oQue} (${hhmm})`,
         });
       }
@@ -419,7 +482,8 @@ async function reprogramarAlertas(pid: string, msg: Extract<Msg, { t: 'schedule'
   const quantasPessoas = Math.max(1, (await getPatients()).length);
   const cota = Math.floor(MAX_ALERTAS_APARELHO / quantasPessoas);
 
-  for (const a of alertas.slice(0, cota)) {
+  const agendados = alertas.slice(0, cota);
+  for (const a of agendados) {
     await Notifications.scheduleNotificationAsync({
       identifier: LOCAL_PREFIX + a.id,
       content: { title: 'Alerta Médico', body: a.texto, data: { local: true } },
@@ -430,6 +494,18 @@ async function reprogramarAlertas(pid: string, msg: Extract<Msg, { t: 'schedule'
       },
     }).catch(() => {});
   }
+
+  // Espelha as cobranças agendadas no livro-razão: troca as FUTURAS desta pessoa pelas recém-marcadas,
+  // mas preserva as já vencidas (podem aguardar reconciliação) e todas as de outras pessoas.
+  const agoraMs = Date.now();
+  const novos: Miss[] = agendados.map(a => ({
+    pid, id: a.id, at: new Date(a.quando).toISOString(), text: a.texto,
+  }));
+  const idsNovos = new Set(novos.map(n => n.id));
+  const preservados = (await getMisses()).filter(
+    e => e.id && !idsNovos.has(e.id) && (e.pid !== pid || new Date(e.at).getTime() <= agoraMs)
+  );
+  await setMisses([...preservados, ...novos]);
 }
 
 // A tarefa que acorda o app do cuidador quando a push chega com ele MORTO. É ela que cancela o

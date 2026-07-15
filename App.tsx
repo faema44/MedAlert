@@ -59,7 +59,7 @@ import { getDb, getMedications, getMedicationById, updateMedicationStock, addAct
 import * as Notifications from 'expo-notifications';
 import {
   parsePairingLink, ingestCaregiverPush, notifyCaregiver, syncCaregiverSchedule,
-  registerCaregiverTask,
+  registerCaregiverTask, reconcileCaregiverMisses,
 } from './src/services/caregiver';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
 
@@ -274,6 +274,8 @@ function AppNavigator() {
       // Doses que dispararam com o app morto não geraram linha no log (o listener JS não
       // rodou). Cria as faltantes como "Sem resposta" — sem isso a dose some do histórico.
       reconcileMissedDoses().catch(falhaDeBanco('init:reconcileMissedDoses'));
+      // Lado do cuidador: cobranças que dispararam com o app fechado viram aviso no histórico.
+      reconcileCaregiverMisses().catch(e => { console.warn('[cuidador] reconcile misses:', e); });
     }
     init();
 
@@ -458,6 +460,7 @@ function AppNavigator() {
       if (state !== 'active') return;
       dismissDuplicateReminders().catch(() => {});
       reconcileMissedDoses().catch(falhaDeBanco('foreground:reconcileMissedDoses'));
+      reconcileCaregiverMisses().catch(e => { console.warn('[cuidador] reconcile misses:', e); });
       if (!navRef.isReady()) return;
       if (navRef.getCurrentRoute()?.name === 'Home') return;
       try {
