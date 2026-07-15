@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Share, Alert, ActivityIndicator,
   TextInput,
@@ -8,7 +8,7 @@ import * as Sentry from '@sentry/react-native';
 import { getCaregiver, setCaregiver, clearCaregiver, getProfile, Caregiver } from '../database/db';
 import {
   createInvite, getInbox, InboxItem, notifyCaregiver, syncCaregiverSchedule,
-  getPatients, removePatient, Patient,
+  getPatients, removePatient, Patient, subscribeInbox,
 } from '../services/caregiver';
 
 const TOLERANCIAS = [15, 30, 60, 120];
@@ -31,6 +31,9 @@ export default function CaregiverScreen() {
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  // Atualiza ao vivo quando um aviso chega com esta tela aberta (app em primeiro plano).
+  useEffect(() => subscribeInbox(() => { load(); }), [load]);
 
   async function convidar() {
     setGerando(true);

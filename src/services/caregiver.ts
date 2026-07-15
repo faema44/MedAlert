@@ -243,6 +243,19 @@ export async function getInbox(pid?: string): Promise<InboxItem[]> {
   }
 }
 
+// Quem quer saber quando um aviso novo entra no inbox — a tela do Cuidador, para atualizar ao
+// vivo em vez de esperar o usuário sair e voltar. Só vale com o app em primeiro plano (o ingest
+// roda no mesmo contexto JS da UI); com o app fechado a tela nem está visível e recarrega ao abrir.
+type InboxListener = () => void;
+const inboxListeners = new Set<InboxListener>();
+export function subscribeInbox(cb: InboxListener): () => void {
+  inboxListeners.add(cb);
+  return () => { inboxListeners.delete(cb); };
+}
+function emitInbox(): void {
+  inboxListeners.forEach(cb => { try { cb(); } catch {} });
+}
+
 /** Remove uma pessoa acompanhada: a chave, o histórico dela e os alertas locais já marcados. */
 export async function removePatient(pid: string): Promise<void> {
   await savePatients((await getPatients()).filter(p => p.pid !== pid));
@@ -344,6 +357,7 @@ export async function ingestCaregiverPush(data: unknown): Promise<string | null>
     KV_INBOX,
     JSON.stringify([{ pid: paciente.pid, text, at: new Date().toISOString() }, ...atual].slice(0, 300))
   );
+  emitInbox(); // atualiza a tela do Cuidador ao vivo se ela estiver aberta
   return text;
 }
 
