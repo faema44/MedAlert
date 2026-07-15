@@ -8,7 +8,7 @@ import * as Sentry from '@sentry/react-native';
 import { getCaregiver, setCaregiver, clearCaregiver, getProfile, Caregiver } from '../database/db';
 import {
   createInvite, getInbox, InboxItem, notifyCaregiver, syncCaregiverSchedule,
-  getPatients, removePatient, Patient, subscribeInbox,
+  getPatients, removePatient, Patient, subscribeInbox, clearPatientInbox,
 } from '../services/caregiver';
 
 const TOLERANCIAS = [15, 30, 60, 120];
@@ -85,6 +85,27 @@ export default function CaregiverScreen() {
         },
       ]
     );
+  }
+
+  function limparAvisos(p: Patient) {
+    Alert.alert(
+      'Limpar avisos',
+      `Apagar todos os avisos de ${p.nick || 'este contato'}? O pareamento continua — novos avisos seguem chegando.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Limpar', style: 'destructive',
+          onPress: async () => { await clearPatientInbox(p.pid); load(); },
+        },
+      ]
+    );
+  }
+
+  // Cor e ícone por tipo de aviso, para diferenciar num relance.
+  function avisoEstilo(text: string): { emoji: string; color: string } {
+    if (text.includes('não confirmou')) return { emoji: '⏰', color: '#E07B4F' }; // silêncio (sem resposta)
+    if (text.includes('NÃO tomou'))     return { emoji: '⚠️', color: '#C0392B' }; // respondeu que não tomou
+    return { emoji: '✓', color: '#1a6b3a' };                                       // tomou / fez
   }
 
   async function salvarApelido() {
@@ -244,16 +265,28 @@ export default function CaregiverScreen() {
               </Text>
             )}
 
-            {expandido && historico.map((item, i) => (
-              <View key={i} style={styles.inboxRow}>
-                <Text style={styles.inboxText}>{item.text}</Text>
-                <Text style={styles.inboxAt}>
-                  {new Date(item.at).toLocaleString('pt-BR', {
-                    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
-                  })}
-                </Text>
-              </View>
-            ))}
+            {expandido && historico.map((item, i) => {
+              const est = avisoEstilo(item.text);
+              return (
+                <View key={i} style={styles.inboxRow}>
+                  <View style={styles.inboxLine}>
+                    <Text style={styles.inboxEmoji}>{est.emoji}</Text>
+                    <Text style={[styles.inboxText, { color: est.color }]}>{item.text}</Text>
+                  </View>
+                  <Text style={styles.inboxAt}>
+                    {new Date(item.at).toLocaleString('pt-BR', {
+                      day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
+                    })}
+                  </Text>
+                </View>
+              );
+            })}
+
+            {expandido && historico.length > 0 && (
+              <TouchableOpacity style={styles.btnLimpar} onPress={() => limparAvisos(p)}>
+                <Text style={styles.btnLimparText}>Limpar avisos</Text>
+              </TouchableOpacity>
+            )}
 
             {(expandido || aguardando) && (
               <TouchableOpacity style={styles.btnApagar} onPress={() => removerPaciente(p)}>
@@ -313,6 +346,10 @@ const styles = StyleSheet.create({
   pacienteHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   cardChevron: { fontSize: 22, color: '#C0C5D0', lineHeight: 24 },
   inboxRow: { paddingVertical: 8, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.06)' },
-  inboxText: { fontSize: 13, color: '#1A1F2E' },
-  inboxAt: { fontSize: 11, color: '#8A8F9D', marginTop: 2 },
+  inboxLine: { flexDirection: 'row', alignItems: 'flex-start', gap: 7 },
+  inboxEmoji: { fontSize: 13, lineHeight: 18 },
+  inboxText: { flex: 1, fontSize: 13, color: '#1A1F2E', fontWeight: '600', lineHeight: 18 },
+  inboxAt: { fontSize: 11, color: '#8A8F9D', marginTop: 2, marginLeft: 20 },
+  btnLimpar: { alignItems: 'center', paddingVertical: 10, marginTop: 8 },
+  btnLimparText: { color: '#8A8F9D', fontSize: 13, fontWeight: '600' },
 });

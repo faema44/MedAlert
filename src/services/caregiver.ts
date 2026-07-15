@@ -112,6 +112,9 @@ function hora(iso: string): string {
   return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 }
 
+// Primeira letra maiúscula — os nomes chegam como a pessoa digitou ("guard teste" → "Guard teste").
+const cap = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+
 // Apelido vazio NUNCA cai no nome do perfil — seria exatamente o que o apelido veio evitar.
 // O cuidador acompanha uma pessoa só; ele não precisa do nome para saber de quem se trata.
 function apelido(cg: Caregiver): string {
@@ -119,13 +122,14 @@ function apelido(cg: Caregiver): string {
 }
 
 function frase(m: Extract<Msg, { t: 'event' }>): string {
-  const oQue = m.dose ? `${m.name} ${m.dose}` : m.name;
+  const nome = cap(m.name);
+  const oQue = m.dose ? `${nome} ${m.dose}` : nome;
   switch (m.status) {
     case 'taken':   return `${m.nick} tomou ${oQue} (${hora(m.at)})`;
     case 'skipped': return `${m.nick} NÃO tomou ${oQue} (${hora(m.at)})`;
     case 'done':    return m.value
-      ? `${m.nick}: ${m.name} — ${m.value} (${hora(m.at)})`
-      : `${m.nick} fez: ${m.name} (${hora(m.at)})`;
+      ? `${m.nick}: ${nome} — ${m.value} (${hora(m.at)})`
+      : `${m.nick} fez: ${nome} (${hora(m.at)})`;
   }
 }
 
@@ -250,6 +254,12 @@ export async function getInbox(pid?: string): Promise<InboxItem[]> {
   } catch {
     return [];
   }
+}
+
+// Limpa os avisos de UMA pessoa (mantém o pareamento). Para arrumar a lista sem desconectar.
+export async function clearPatientInbox(pid: string): Promise<void> {
+  await setKV(KV_INBOX, JSON.stringify((await getInbox()).filter(i => i.pid !== pid)));
+  emitInbox();
 }
 
 // Quem quer saber quando um aviso novo entra no inbox — a tela do Cuidador, para atualizar ao
@@ -465,7 +475,8 @@ async function reprogramarAlertas(pid: string, msg: Extract<Msg, { t: 'schedule'
         const id = doseId(pid, med.i, slot);
         if (respondidas.has(id)) continue; // já respondida — não cobrar de novo
 
-        const oQue = med.d ? `${med.n} ${med.d}` : med.n;
+        const nome = cap(med.n);
+        const oQue = med.d ? `${nome} ${med.d}` : nome;
         alertas.push({
           quando,
           id,
