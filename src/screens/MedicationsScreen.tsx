@@ -1585,9 +1585,13 @@ export default function MedicationsScreen() {
             </View>
           </View>
         </KeyboardAvoidingView>
+        {/* No iOS só um Modal aparece por vez (apresentação por UIViewController): aberta de
+            dentro do wizard, a bula precisa ser filha DESTE Modal para vir por cima. Fora do
+            wizard, renderiza no root. As duas condições são mutuamente exclusivas — nunca monta duas. */}
+        {showModal && bulaModal}
       </Modal>
 
-      {bulaModal}
+      {!showModal && bulaModal}
 
       {/* Stock help modal */}
       <Modal visible={showStockHelp} animationType="slide" transparent onRequestClose={() => setShowStockHelp(false)}>

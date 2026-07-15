@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Linking, Alert } from 'react-native';
 
 const PRIVACY_URL = 'https://alertamedico.ia.br/privacy.html';
 const CARDIODF_URL = 'https://www.youtube.com/watch?v=lPaP_QgjEW4';
@@ -159,7 +159,9 @@ export default function HelpScreen() {
       </Section>
 
       {/* Vídeo educativo */}
-      <TouchableOpacity style={styles.videoCard} onPress={() => Linking.openURL(CARDIODF_URL)}>
+      <TouchableOpacity style={styles.videoCard} onPress={() => Linking.openURL(CARDIODF_URL).catch(() =>
+        Alert.alert('Não foi possível abrir', 'Tente novamente ou acesse o vídeo pelo YouTube.')
+      )}>
         <View style={styles.videoThumb}>
           <Text style={styles.videoPlay}>▶</Text>
         </View>
@@ -316,7 +318,9 @@ export default function HelpScreen() {
       </Section>
 
       {/* Política de Privacidade */}
-      <TouchableOpacity style={styles.privacyBtn} onPress={() => Linking.openURL(PRIVACY_URL)}>
+      <TouchableOpacity style={styles.privacyBtn} onPress={() => Linking.openURL(PRIVACY_URL).catch(() =>
+        Alert.alert('Não foi possível abrir', 'Tente novamente ou acesse alertamedico.ia.br/privacy.html no navegador.')
+      )}>
         <View style={{ flex: 1 }}>
           <Text style={styles.privacyBtnText}>🔐 Política de Privacidade</Text>
           <Text style={styles.privacyBtnSub}>Como tratamos seus dados de saúde</Text>
