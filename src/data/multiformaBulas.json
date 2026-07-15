@@ -1,0 +1,272 @@
+{
+  "aceclofenaco": [
+    "comprimido",
+    "creme"
+  ],
+  "acetilcisteina": [
+    "injetavel",
+    "po",
+    "xarope"
+  ],
+  "aciclovir": [
+    "comprimido",
+    "creme",
+    "injetavel"
+  ],
+  "acido-tranexamico": [
+    "comprimido",
+    "injetavel"
+  ],
+  "albendazol": [
+    "comprimido",
+    "suspensao"
+  ],
+  "ambroxol": [
+    "gotas",
+    "xarope"
+  ],
+  "aminofilina": [
+    "comprimido",
+    "injetavel"
+  ],
+  "amiodarona": [
+    "comprimido",
+    "injetavel"
+  ],
+  "amoxicilina": [
+    "capsula",
+    "comprimido",
+    "suspensao"
+  ],
+  "ampicilina": [
+    "capsula",
+    "comprimido"
+  ],
+  "azitromicina": [
+    "comprimido",
+    "suspensao"
+  ],
+  "betametasona": [
+    "creme",
+    "pomada",
+    "xarope"
+  ],
+  "bromoprida": [
+    "capsula",
+    "gotas",
+    "injetavel"
+  ],
+  "carbamazepina": [
+    "comprimido",
+    "suspensao"
+  ],
+  "cefalexina": [
+    "capsula",
+    "comprimido",
+    "suspensao"
+  ],
+  "cetoprofeno": [
+    "capsula",
+    "comprimido",
+    "gel",
+    "gotas",
+    "injetavel"
+  ],
+  "cetotifeno": [
+    "gotas",
+    "xarope"
+  ],
+  "cimetidina": [
+    "comprimido",
+    "injetavel"
+  ],
+  "ciprofloxacino": [
+    "comprimido",
+    "injetavel",
+    "ocular"
+  ],
+  "claritromicina": [
+    "comprimido",
+    "injetavel",
+    "suspensao"
+  ],
+  "clindamicina": [
+    "capsula",
+    "injetavel"
+  ],
+  "clobetasol": [
+    "creme",
+    "pomada"
+  ],
+  "clonazepam": [
+    "comprimido",
+    "gotas"
+  ],
+  "desloratadina": [
+    "comprimido",
+    "xarope"
+  ],
+  "dexametasona": [
+    "comprimido",
+    "creme",
+    "ocular",
+    "xarope"
+  ],
+  "dexclorfeniramina": [
+    "comprimido",
+    "creme",
+    "suspensao"
+  ],
+  "diazepam": [
+    "comprimido",
+    "injetavel"
+  ],
+  "dipirona": [
+    "comprimido",
+    "gotas",
+    "injetavel",
+    "suspensao"
+  ],
+  "domperidona": [
+    "comprimido",
+    "suspensao"
+  ],
+  "escitalopram": [
+    "comprimido",
+    "gotas"
+  ],
+  "fenobarbital": [
+    "comprimido",
+    "gotas"
+  ],
+  "furosemida": [
+    "comprimido",
+    "injetavel"
+  ],
+  "gabapentina": [
+    "capsula",
+    "comprimido"
+  ],
+  "haloperidol": [
+    "gotas",
+    "injetavel"
+  ],
+  "hidroxizina": [
+    "comprimido",
+    "suspensao"
+  ],
+  "ibuprofeno": [
+    "comprimido",
+    "gotas"
+  ],
+  "levofloxacino": [
+    "comprimido",
+    "injetavel"
+  ],
+  "lidocaina": [
+    "injetavel",
+    "pomada",
+    "spray"
+  ],
+  "linezolida": [
+    "comprimido",
+    "injetavel"
+  ],
+  "loratadina": [
+    "comprimido",
+    "xarope"
+  ],
+  "mebendazol": [
+    "comprimido",
+    "suspensao"
+  ],
+  "meloxicam": [
+    "comprimido",
+    "injetavel"
+  ],
+  "metoclopramida": [
+    "gotas",
+    "injetavel"
+  ],
+  "metronidazol": [
+    "comprimido",
+    "gel",
+    "injetavel"
+  ],
+  "midazolam": [
+    "comprimido",
+    "injetavel"
+  ],
+  "mometasona": [
+    "creme",
+    "pomada",
+    "spray"
+  ],
+  "morfina": [
+    "comprimido",
+    "injetavel"
+  ],
+  "nimesulida": [
+    "comprimido",
+    "gel",
+    "gotas"
+  ],
+  "nistatina": [
+    "creme",
+    "gotas"
+  ],
+  "nitazoxanida": [
+    "comprimido",
+    "suspensao"
+  ],
+  "omeprazol": [
+    "capsula",
+    "injetavel"
+  ],
+  "ondansetrona": [
+    "comprimido",
+    "injetavel"
+  ],
+  "piroxicam": [
+    "capsula",
+    "gel"
+  ],
+  "prednisolona": [
+    "comprimido",
+    "ocular"
+  ],
+  "ranitidina": [
+    "comprimido",
+    "injetavel",
+    "xarope"
+  ],
+  "risperidona": [
+    "comprimido",
+    "suspensao"
+  ],
+  "tacrolimo": [
+    "capsula",
+    "pomada"
+  ],
+  "tenoxicam": [
+    "comprimido",
+    "injetavel"
+  ],
+  "terbinafina": [
+    "comprimido",
+    "creme"
+  ],
+  "terbutalina": [
+    "injetavel",
+    "xarope"
+  ],
+  "tramadol": [
+    "capsula",
+    "gotas",
+    "injetavel"
+  ],
+  "voriconazol": [
+    "comprimido",
+    "injetavel"
+  ]
+}

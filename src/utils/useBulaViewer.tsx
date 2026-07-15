@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getKV, setKV } from '../database/db';
+import { bulaUrlDoSlug } from './drugSearch';
 import ReportarErroModal from '../components/ReportarErroModal';
 
 const ANVISA_BULARIO = 'https://consultas.anvisa.gov.br/#/bulario/';
@@ -27,6 +28,40 @@ function searchFallbackUrl(medName: string): string {
 }
 
 const slugDaUrl = (url: string) => url.split('/').pop()?.replace(/\.pdf$/i, '') ?? url;
+
+// Sais com bula POR FORMA farmacêutica: um princípio ativo (dexametasona) tem bulas
+// diferentes por apresentação (comprimido, creme, gotas, colírio...). Quando o slug base
+// tem ≥2 formas no acervo, o app PERGUNTA qual apresentação o usuário tem antes de abrir —
+// senão serviria uma forma qualquer (era como a dexametasona abria o creme no lugar do
+// comprimido). Chave = slug base; valor = sufixos de forma. Gerado de site/bulas.
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const MULTIFORMA_BULAS: Record<string, string[]> = require('../data/multiformaBulas.json');
+
+// sufixo do slug → como mostrar. A ordem das chaves é a de exibição (oral primeiro).
+const FORMA_INFO: Record<string, { label: string; icon: string }> = {
+  comprimido:  { label: 'Comprimido',                icon: '💊' },
+  capsula:     { label: 'Cápsula',                   icon: '💊' },
+  gotas:       { label: 'Gotas',                     icon: '💧' },
+  xarope:      { label: 'Xarope',                    icon: '🥄' },
+  suspensao:   { label: 'Suspensão oral',            icon: '🥤' },
+  po:          { label: 'Pó para solução/suspensão', icon: '🧂' },
+  creme:       { label: 'Creme',                     icon: '🧴' },
+  pomada:      { label: 'Pomada',                    icon: '🧴' },
+  gel:         { label: 'Gel',                       icon: '🧴' },
+  locao:       { label: 'Loção',                     icon: '🧴' },
+  ocular:      { label: 'Colírio (uso nos olhos)',   icon: '👁️' },
+  spray:       { label: 'Spray / aerossol',          icon: '💨' },
+  injetavel:   { label: 'Injetável',                 icon: '💉' },
+  supositorio: { label: 'Supositório',               icon: '🔵' },
+  adesivo:     { label: 'Adesivo',                   icon: '🩹' },
+};
+const FORMA_ORDER = Object.keys(FORMA_INFO);
+
+function ordenarFormas(sufs: string[]): string[] {
+  return sufs
+    .filter(s => FORMA_INFO[s])
+    .sort((a, b) => FORMA_ORDER.indexOf(a) - FORMA_ORDER.indexOf(b));
+}
 
 // Checagem rápida antes de abrir o viewer: evita montar o <Pdf> com uma URL que
 // vai falhar o download (bula não hospedada — boa parte dos medicamentos não tem
@@ -205,6 +240,57 @@ function BulaModal({ url, fallbackUrl, medName, onClose }: {
   );
 }
 
+// Escolha da forma farmacêutica antes de abrir a bula. Não há "não sei": abrir uma bula
+// qualquer é o erro que este seletor existe para evitar — se a pessoa não sabe a forma,
+// ela confere na caixa (ou volta). Escolher reescreve a URL para o slug da forma.
+function SeletorForma({
+  medName, formas, baseSlug, onEscolher, onCancelar,
+}: {
+  medName: string;
+  formas: string[];
+  baseSlug: string;
+  onEscolher: (url: string, medName: string) => void;
+  onCancelar: () => void;
+}) {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <Modal visible animationType="slide" transparent onRequestClose={onCancelar}>
+      <View style={styles.backdrop}>
+        <View style={[styles.sheet, { paddingBottom: insets.bottom + 14 }]}>
+          <Text style={styles.avisoTitulo}>Qual apresentação você usa?</Text>
+          <Text style={styles.avisoSub} numberOfLines={1}>{medName}</Text>
+          <Text style={styles.seletorInfo}>
+            Este remédio tem bulas diferentes por forma. Escolha a que está na sua caixa.
+          </Text>
+
+          <ScrollView style={styles.avisoScroll} contentContainerStyle={{ gap: 8, paddingVertical: 8 }}>
+            {ordenarFormas(formas).map(suf => {
+              const info = FORMA_INFO[suf];
+              return (
+                <TouchableOpacity
+                  key={suf}
+                  style={styles.formaRow}
+                  activeOpacity={0.7}
+                  onPress={() => onEscolher(bulaUrlDoSlug(`${baseSlug}-${suf}`), `${medName} · ${info.label}`)}
+                >
+                  <Text style={styles.itemIcon}>{info.icon}</Text>
+                  <Text style={styles.formaLabel}>{info.label}</Text>
+                  <Text style={styles.formaSeta}>›</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+
+          <TouchableOpacity style={styles.btnSec} onPress={onCancelar} activeOpacity={0.7}>
+            <Text style={styles.btnSecText}>Voltar</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 type Pendente = { url: string; medName: string };
 
 export function useBulaViewer() {
@@ -232,9 +318,25 @@ export function useBulaViewer() {
     else Linking.openURL(fallbackUrl).catch(() => {});
   }
 
+  // Interceptação por SLUG: se a URL pendente aponta para um sal com várias formas, pergunta
+  // a forma primeiro. Escolher troca a URL pendente pela do slug da forma — que já não é chave
+  // de MULTIFORMA_BULAS, então o próximo render cai direto no aviso (idempotente, sem estado extra).
+  const base = pendente ? slugDaUrl(pendente.url) : null;
+  const formas = base ? MULTIFORMA_BULAS[base] : undefined;
+  const precisaEscolherForma = !!formas && formas.length >= 2;
+
   const modal = (
     <>
-      {pendente && (
+      {pendente && precisaEscolherForma && (
+        <SeletorForma
+          medName={pendente.medName}
+          formas={formas!}
+          baseSlug={base!}
+          onEscolher={(url, medName) => setPendente({ url, medName })}
+          onCancelar={() => setPendente(null)}
+        />
+      )}
+      {pendente && !precisaEscolherForma && (
         <AvisoBula
           medName={pendente.medName}
           jaAceitou={jaAceitou}
@@ -291,6 +393,17 @@ const styles = StyleSheet.create({
   avisoTitulo: { fontSize: 18, fontWeight: '700', color: '#1C3F7A' },
   avisoSub: { fontSize: 13, color: '#6B7280', marginTop: 2 },
   avisoScroll: { flexGrow: 0 },
+
+  // seletor de forma
+  seletorInfo: { fontSize: 12.5, color: '#6B7280', lineHeight: 17, marginTop: 6 },
+  formaRow: {
+    backgroundColor: '#fff',
+    borderRadius: 12, borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
+    paddingVertical: 14, paddingHorizontal: 12,
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+  },
+  formaLabel: { flex: 1, fontSize: 14.5, fontWeight: '600', color: '#1A1F2E' },
+  formaSeta: { fontSize: 20, color: '#C0C5D0' },
 
   item: {
     backgroundColor: '#fff',
