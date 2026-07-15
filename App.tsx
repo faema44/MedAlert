@@ -46,6 +46,7 @@ import SettingsScreen from './src/screens/SettingsScreen';
 import LockScreenScreen from './src/screens/LockScreenScreen';
 import BackupScreen from './src/screens/BackupScreen';
 import CaregiverScreen from './src/screens/CaregiverScreen';
+import CaregiverHistoryScreen from './src/screens/CaregiverHistoryScreen';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import {
   setupNotificationChannels, requestPermissions, setupReminderCategory,
@@ -78,6 +79,7 @@ const TITLES: Record<string, string> = {
   LockScreen: 'Tela de Bloqueio',
   Backup: 'Backup',
   Caregiver: 'Cuidador',
+  CaregiverHistory: 'Histórico dos idosos',
 };
 
 const TAB_ICONS: Record<string, { icon: string; activeIcon: string }> = {
@@ -520,11 +522,11 @@ function AppNavigator() {
             headerTitle: () => <HeaderTitle route={route} />,
             headerRight: (route.name !== 'Help') ? () => (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginRight: 12 }}>
-                {hasPatients && route.name !== 'Caregiver' && (
+                {hasPatients && route.name !== 'Caregiver' && route.name !== 'CaregiverHistory' && (
                   <TouchableOpacity
-                    onPress={() => navigation.navigate('Caregiver' as never)}
+                    onPress={() => navigation.navigate('CaregiverHistory' as never)}
                     style={{ padding: 4 }}
-                    accessibilityLabel="Quem eu acompanho"
+                    accessibilityLabel="Histórico de quem eu acompanho"
                     accessibilityRole="button"
                   >
                     <Text style={{ fontSize: 20 }}>👥</Text>
@@ -572,6 +574,7 @@ function AppNavigator() {
           <Tab.Screen name="LockScreen"    component={LockScreenScreen}    options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tab.Screen name="Backup"        component={BackupScreen}        options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tab.Screen name="Caregiver"     component={CaregiverScreen}     options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tab.Screen name="CaregiverHistory" component={CaregiverHistoryScreen} options={{ tabBarItemStyle: { display: 'none' } }} />
         </Tab.Navigator>
       </NavigationContainer>
 

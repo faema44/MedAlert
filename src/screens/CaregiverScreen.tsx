@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Share, Alert, ActivityIndicator,
   TextInput,
@@ -7,8 +7,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import * as Sentry from '@sentry/react-native';
 import { getCaregiver, setCaregiver, clearCaregiver, getProfile, Caregiver } from '../database/db';
 import {
-  createInvite, getInbox, InboxItem, notifyCaregiver, syncCaregiverSchedule,
-  getPatients, removePatient, Patient, subscribeInbox, clearPatientInbox,
+  createInvite, notifyCaregiver, syncCaregiverSchedule,
+  getPatients, removePatient, Patient,
 } from '../services/caregiver';
 
 const TOLERANCIAS = [15, 30, 60, 120];
@@ -16,31 +16,26 @@ const TOLERANCIAS = [15, 30, 60, 120];
 export default function CaregiverScreen() {
   const [cuidador, setCuidador] = useState<Caregiver | null>(null);
   const [pacientes, setPacientes] = useState<Patient[]>([]);
-  const [inbox, setInbox] = useState<InboxItem[]>([]);
-  const [aberto, setAberto] = useState<string | null>(null); // pid cujo histórico está expandido
+  const [apelidoConvite, setApelidoConvite] = useState('');
   const [gerando, setGerando] = useState(false);
   const [testando, setTestando] = useState(false);
 
   const load = useCallback(async () => {
-    const [c, ps, i] = await Promise.all([getCaregiver(), getPatients(), getInbox()]);
+    const [c, ps] = await Promise.all([getCaregiver(), getPatients()]);
     setCuidador(c);
     setPacientes(ps);
-    setInbox(i);
-    // Com uma pessoa só, não faz sentido obrigar um toque para ver o histórico dela.
-    setAberto(prev => prev ?? (ps.length === 1 ? ps[0].pid : null));
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
-
-  // Atualiza ao vivo quando um aviso chega com esta tela aberta (app em primeiro plano).
-  useEffect(() => subscribeInbox(() => { load(); }), [load]);
 
   async function convidar() {
     setGerando(true);
     try {
       const perfil = await getProfile();
       const meuNome = perfil?.name?.trim() || 'Seu cuidador';
-      const link = await createInvite(meuNome);
+      const link = await createInvite(meuNome, apelidoConvite);
+      setApelidoConvite('');
+      await load();
       await Share.share({
         message:
           `Vou acompanhar seus remédios pelo Alerta Médico.\n\n` +
@@ -87,26 +82,6 @@ export default function CaregiverScreen() {
     );
   }
 
-  function limparAvisos(p: Patient) {
-    Alert.alert(
-      'Limpar avisos',
-      `Apagar todos os avisos de ${p.nick || 'este contato'}? O pareamento continua — novos avisos seguem chegando.`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Limpar', style: 'destructive',
-          onPress: async () => { await clearPatientInbox(p.pid); load(); },
-        },
-      ]
-    );
-  }
-
-  // Cor e ícone por tipo de aviso, para diferenciar num relance.
-  function avisoEstilo(text: string): { emoji: string; color: string } {
-    if (text.includes('não confirmou')) return { emoji: '⏰', color: '#E07B4F' }; // silêncio (sem resposta)
-    if (text.includes('NÃO tomou'))     return { emoji: '⚠️', color: '#C0392B' }; // respondeu que não tomou
-    return { emoji: '✓', color: '#1a6b3a' };                                       // tomou / fez
-  }
 
   async function salvarApelido() {
     if (!cuidador) return;
@@ -226,6 +201,18 @@ export default function CaregiverScreen() {
           Gere um convite e mande para a pessoa (pelo WhatsApp, por exemplo). Basta ela tocar no
           link uma vez. Você pode acompanhar mais de uma pessoa — gere um convite para cada.
         </Text>
+        <Text style={styles.label}>Quem você vai acompanhar?</Text>
+        <TextInput
+          style={styles.apelidoInput}
+          value={apelidoConvite}
+          onChangeText={setApelidoConvite}
+          placeholder="Vovó, Mãe, Seu João..."
+          placeholderTextColor="#B0B5C0"
+          maxLength={30}
+        />
+        <Text style={styles.hint}>
+          Só para você reconhecer o convite enquanto a pessoa não aceita.
+        </Text>
         <TouchableOpacity style={styles.btnMain} onPress={convidar} disabled={gerando}>
           {gerando
             ? <ActivityIndicator color="#fff" />
@@ -234,67 +221,23 @@ export default function CaregiverScreen() {
       </View>
 
       {pacientes.map(p => {
-        const historico = inbox.filter(i => i.pid === p.pid);
-        const expandido = aberto === p.pid;
-        // Convite gerado mas ainda não aceito: o apelido só chega na primeira mensagem dela.
+        // Convite gerado mas ainda não aceito: o nick (do idoso) só chega na 1ª mensagem dele.
+        // Até lá mostramos o `label` que o cuidador deu, para ele saber quem é.
         const aguardando = !p.nick;
+        const nome = p.nick || p.label;
         return (
           <View key={p.pid} style={styles.card}>
-            <TouchableOpacity
-              style={styles.pacienteHeader}
-              activeOpacity={0.7}
-              onPress={() => setAberto(expandido ? null : p.pid)}
-              onLongPress={() => removerPaciente(p)}
-            >
-              <View style={{ flex: 1 }}>
-                <Text style={styles.cardTitle}>
-                  {aguardando ? 'Convite enviado' : p.nick}
-                </Text>
-                <Text style={styles.hint}>
-                  {aguardando
-                    ? 'Aguardando a pessoa tocar no link. Nada chega até lá.'
-                    : `${historico.length} aviso${historico.length === 1 ? '' : 's'} · toque para ${expandido ? 'fechar' : 'ver'}`}
-                </Text>
-              </View>
-              {!aguardando && <Text style={styles.cardChevron}>{expandido ? '⌄' : '›'}</Text>}
-            </TouchableOpacity>
-
-            {expandido && historico.length === 0 && (
-              <Text style={[styles.hint, { marginTop: 8 }]}>
-                Nenhum aviso ainda. O histórico começa a partir do pareamento.
+            <Text style={styles.cardTitle}>{nome || 'Convite enviado'}</Text>
+            <Text style={styles.hint}>
+              {aguardando
+                ? 'Convite enviado — aguardando a pessoa tocar no link.'
+                : 'Acompanhando. O histórico fica no ícone 👥 no topo.'}
+            </Text>
+            <TouchableOpacity style={styles.btnApagar} onPress={() => removerPaciente(p)}>
+              <Text style={styles.btnApagarText}>
+                Apagar {aguardando ? 'este convite' : (nome || 'idoso')}
               </Text>
-            )}
-
-            {expandido && historico.map((item, i) => {
-              const est = avisoEstilo(item.text);
-              return (
-                <View key={i} style={styles.inboxRow}>
-                  <View style={styles.inboxLine}>
-                    <Text style={styles.inboxEmoji}>{est.emoji}</Text>
-                    <Text style={[styles.inboxText, { color: est.color }]}>{item.text}</Text>
-                  </View>
-                  <Text style={styles.inboxAt}>
-                    {new Date(item.at).toLocaleString('pt-BR', {
-                      day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
-                    })}
-                  </Text>
-                </View>
-              );
-            })}
-
-            {expandido && historico.length > 0 && (
-              <TouchableOpacity style={styles.btnLimpar} onPress={() => limparAvisos(p)}>
-                <Text style={styles.btnLimparText}>Limpar avisos</Text>
-              </TouchableOpacity>
-            )}
-
-            {(expandido || aguardando) && (
-              <TouchableOpacity style={styles.btnApagar} onPress={() => removerPaciente(p)}>
-                <Text style={styles.btnApagarText}>
-                  Apagar {aguardando ? 'este convite' : p.nick}
-                </Text>
-              </TouchableOpacity>
-            )}
+            </TouchableOpacity>
           </View>
         );
       })}

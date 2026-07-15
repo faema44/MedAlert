@@ -55,7 +55,9 @@ const KV_INBOX = 'caregiver_inbox';
 const KV_MISSES = 'caregiver_misses';
 const HORIZONTE_DIAS = 3;
 
-export type Patient = { pid: string; key: string; nick: string };
+// `nick` vem do idoso (na 1ª mensagem dele). `label` é o apelido que o CUIDADOR deu ao gerar o
+// convite — serve pra ele saber quem é enquanto o convite ainda não foi aceito (nick vazio).
+export type Patient = { pid: string; key: string; nick: string; label?: string };
 
 // ---------------------------------------------------------------------------
 // As duas mensagens que o idoso envia
@@ -256,9 +258,15 @@ export async function getInbox(pid?: string): Promise<InboxItem[]> {
   }
 }
 
-// Limpa os avisos de UMA pessoa (mantém o pareamento). Para arrumar a lista sem desconectar.
-export async function clearPatientInbox(pid: string): Promise<void> {
-  await setKV(KV_INBOX, JSON.stringify((await getInbox()).filter(i => i.pid !== pid)));
+// Mantém só os avisos das últimas `horas` de UMA pessoa e apaga os mais antigos (o pareamento e
+// os avisos das outras pessoas ficam intactos). Para arrumar a lista sem desconectar.
+export async function clearOldInbox(pid: string, horas = 24): Promise<void> {
+  const limite = Date.now() - horas * 3600_000;
+  const todos = await getInbox();
+  await setKV(
+    KV_INBOX,
+    JSON.stringify(todos.filter(i => i.pid !== pid || new Date(i.at).getTime() >= limite))
+  );
   emitInbox();
 }
 
@@ -338,12 +346,12 @@ export async function removePatient(pid: string): Promise<void> {
  * Monta um convite. Cada convite cria uma PESSOA nova: pid próprio e chave própria.
  * Chamar de novo não substitui ninguém — o cuidador pode acompanhar várias pessoas.
  */
-export async function createInvite(myName: string): Promise<string> {
+export async function createInvite(myName: string, label = ''): Promise<string> {
   const pushToken = await getMyPushToken();
   const key = newSharedKey();
   const pid = novoPid();
 
-  await savePatients([...(await getPatients()), { pid, key, nick: '' }]);
+  await savePatients([...(await getPatients()), { pid, key, nick: '', label: label.trim() }]);
 
   const q = new URLSearchParams({ n: myName, t: pushToken, k: key, p: pid });
   return `${PAIR_SCHEME}?${q.toString()}`;
