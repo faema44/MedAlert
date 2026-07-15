@@ -2,7 +2,7 @@
   "expo": {
     "name": "Alerta Médico",
     "slug": "alerta-medico",
-    "version": "1.5.3",
+    "version": "1.5.4",
     "scheme": "alertamedico",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -11,7 +11,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.alertamedico.app",
       "infoPlist": {
-        "NSHealthShareUsageDescription": "O Alerta Médico usa dados de saúde para exibir informações de emergência.",
+        "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": [
           "remote-notification"
         ]
