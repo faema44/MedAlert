@@ -13,7 +13,21 @@ let dbInitPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 // numa promise sem dono. Falhava CALADO: 9 eventos no Sentry, em 3 aparelhos reais.
 //
 // Aqui o handle morto é reconhecido e o banco reaberto — uma vez só, para não virar laço.
-const HANDLE_MORTO = /already released|shared object/i;
+//
+// O handle morto chega em DOIS sabores, e por muito tempo só o primeiro era reconhecido:
+//   1. o registro do JS já perdeu o objeto → o Expo barra antes do nativo, com a mensagem
+//      "shared object ... already released";
+//   2. o registro do JS ainda alcança o objeto, mas o C++ por baixo já foi destruído
+//      (NativeDatabase.close() → mHybridData.resetNative()) → a chamada chega no JNI e volta
+//      "NativeDatabase.prepareAsync has been rejected → Caused by: NullPointerException".
+// O sabor 2 não casava com o regex: o erro subia, o banco NUNCA reabria e a Home ficava
+// falhando de 60 em 60 s até o app ser reiniciado.
+//
+// Exigir a NPE é o que mantém o padrão estreito: erro de SQL de verdade também vem embrulhado
+// em "has been rejected", mas como SQLiteErrorException (ERR_INTERNAL_SQLITE_ERROR), nunca como
+// NullPointerException. Casar com "has been rejected" sozinho reabriria o banco e REPETIRIA a
+// escrita em cima de um erro legítimo.
+const HANDLE_MORTO = /already released|shared object|NativeDatabase\.\w+' has been rejected[\s\S]*NullPointerException/i;
 const OPERACOES = ['runAsync', 'execAsync', 'getAllAsync', 'getFirstAsync'] as const;
 type Operacao = (typeof OPERACOES)[number];
 
@@ -23,7 +37,10 @@ const ORIGINAIS = new WeakMap<SQLite.SQLiteDatabase, Record<Operacao, Function>>
 // aplicaria o resto num banco novo e deixaria os dados pela metade. Ali a falha tem que subir.
 let emTransacao = false;
 
-function ehHandleMorto(erro: unknown): boolean {
+// Exportado só para o gate (tests/sqlite-handle-guard.js) poder exercitar o padrão contra as
+// mensagens reais de produção — foi um regex que não casava com a realidade, calado, que deixou
+// o sabor 2 passar por duas semanas.
+export function ehHandleMorto(erro: unknown): boolean {
   return HANDLE_MORTO.test(String((erro as { message?: string })?.message ?? erro));
 }
 

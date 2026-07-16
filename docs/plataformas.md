@@ -69,6 +69,7 @@ npm run test:bulas
 npm run test:bula-slug
 npm run test:dbsync
 npm run test:signature
+npm run test:sqlite-handle
 ```
 
 ### 2. APK novo no aparelho real
