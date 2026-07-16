@@ -1,4 +1,5 @@
 import * as Notifications from 'expo-notifications';
+import * as Sentry from '@sentry/react-native';
 import { Platform } from 'react-native';
 import { Profile, Medication, MedicationReminder, ActivityReminder } from '../types';
 import { postMedNotification, cancelMedNotification, isEmergencyActive, setNextMedSchedule, cancelNextMedBanner } from './medNotification';
@@ -26,6 +27,25 @@ const MED_SILENT_HEADSUP_CHANNEL = 'medalert_med_silent_headsup_v1';
 const ACTIVITY_SOUND_CHANNEL = 'medalert_activity_sound_v3';
 const APPT_SOUND_CHANNEL = 'medalert_appt_sound_v2';
 const HERBAL_SOUND_CHANNEL = 'medalert_herbal_sound_v1';
+
+// O Android toca o som do CANAL e ignora content.sound. O iOS não tem canal: o som vem em
+// cada notificação, pelo nome do arquivo com extensão — sem isto TODO lembrete sai mudo lá.
+// O mesmo nome serve às duas plataformas: o SoundResolver do Android tira a extensão antes
+// de procurar em res/raw. Os arquivos vivem em assets/sounds/ e o plugin expo-notifications
+// os copia para as duas (ver app.json) — não voltar a guardá-los só em android/, que é
+// descartável. Silêncio (canal silencioso) = ausência no mapa = sem som no iOS também.
+const CHANNEL_SOUND: Record<string, string> = {
+  [MED_SOUND_CHANNEL]: 'med_reminder.wav',
+  [HERBAL_SOUND_CHANNEL]: 'herbal_reminder.wav',
+  [ACTIVITY_SOUND_CHANNEL]: 'activity_reminder.wav',
+  [APPT_SOUND_CHANNEL]: 'appt_reminder.wav',
+};
+
+function soundFor(channelId: string): { sound?: string } {
+  if (Platform.OS !== 'ios') return {};
+  const file = CHANNEL_SOUND[channelId];
+  return file ? { sound: file } : {};
+}
 
 const MED_ACTION_CATEGORY = 'med_action';
 const ACTIVITY_MEASURE_CATEGORY = 'activity_measure_action';
@@ -524,7 +544,7 @@ export function initReminderListeners(
   return () => sub.remove();
 }
 
-function reminderContent(medicationName: string, dose: string, medicationId: number, repeatInterval = 0, stockWarning?: string, mainNotifId?: string) {
+function reminderContent(medicationName: string, dose: string, medicationId: number, channelId: string, repeatInterval = 0, stockWarning?: string, mainNotifId?: string) {
   const bodyBase = dose || 'Hora de tomar o medicamento';
   return {
     title: medicationName,
@@ -532,6 +552,7 @@ function reminderContent(medicationName: string, dose: string, medicationId: num
     data: { type: 'reminder', medicationId, name: medicationName, dose, repeatInterval, ...(mainNotifId ? { mainNotifId } : {}) },
     sticky: true,
     categoryIdentifier: MED_ACTION_CATEGORY,
+    ...soundFor(channelId),
   };
 }
 
@@ -584,7 +605,7 @@ async function scheduleRepeatSeries(
     if (prev && (prev.trigger as any)?.value === fireMs && (prev.trigger as any)?.channelId === channelId) continue;
     await Notifications.scheduleNotificationAsync({
       identifier: id,
-      content: reminderContent(medicationName, dose, medicationId, 0, undefined, mainNotifId),
+      content: reminderContent(medicationName, dose, medicationId, channelId, 0, undefined, mainNotifId),
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DATE,
         date: fireMs,
@@ -621,7 +642,7 @@ export async function scheduleReminder(
   const tp = timePart(hour, minute);
   const id = `reminder_${medicationId}_${tp}`;
   const channelId = medChannel(withSound, homeReminder, isHerbal);
-  const content = reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning);
+  const content = reminderContent(medicationName, dose, medicationId, channelId, repeatInterval, stockWarning);
   if (!sameScheduled(existing?.get(id), content, channelId)) {
     await Notifications.scheduleNotificationAsync({
       identifier: id,
@@ -655,7 +676,7 @@ export async function scheduleReminderWeekly(
 ): Promise<void> {
   const tp = timePart(hour, minute);
   const channelId = medChannel(withSound, homeReminder, isHerbal);
-  const content = reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning);
+  const content = reminderContent(medicationName, dose, medicationId, channelId, repeatInterval, stockWarning);
   const now = new Date();
   const todayWd = now.getDay() + 1; // 1=Dom…7=Sáb
   let nearest: { ms: number; wd: number } | null = null;
@@ -700,7 +721,7 @@ export async function scheduleReminderMonthly(
 ): Promise<void> {
   const tp = timePart(hour, minute);
   const channelId = medChannel(withSound, homeReminder, isHerbal);
-  const content = reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning);
+  const content = reminderContent(medicationName, dose, medicationId, channelId, repeatInterval, stockWarning);
   const now = new Date();
   let nearest: { ms: number; day: number } | null = null;
   for (const day of days) {
@@ -745,7 +766,7 @@ export async function scheduleReminderEveryNMonths(
 ): Promise<void> {
   const tp = timePart(hour, minute);
   const channelId = medChannel(withSound, homeReminder, isHerbal);
-  const content = reminderContent(medicationName, dose, medicationId, repeatInterval, stockWarning);
+  const content = reminderContent(medicationName, dose, medicationId, channelId, repeatInterval, stockWarning);
   const now = new Date();
   let next = new Date(now.getFullYear(), now.getMonth(), dayOfMonth, hour, minute, 0, 0);
   if (next <= now) next.setMonth(next.getMonth() + intervalMonths);
@@ -871,6 +892,7 @@ export async function scheduleActivityReminder(
 ): Promise<void> {
   const tp = timePart(hour, minute);
   const isMeasure = MEASURE_ACTIVITY_TYPES.includes(activityType);
+  const channelId = withSound ? ACTIVITY_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL;
   await Notifications.scheduleNotificationAsync({
     identifier: `activity_${activityId}_${tp}`,
     content: {
@@ -878,12 +900,13 @@ export async function scheduleActivityReminder(
       body: isMeasure ? 'Hora de medir' : 'Hora da sua atividade',
       data: { type: 'activity', activityId, activityName, activityType },
       categoryIdentifier: isMeasure ? ACTIVITY_MEASURE_CATEGORY : ACTIVITY_BASIC_CATEGORY,
+      ...soundFor(channelId),
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
       hour,
       minute,
-      channelId: withSound ? ACTIVITY_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+      channelId,
     },
   });
 }
@@ -899,6 +922,7 @@ export async function scheduleActivityReminderWeekly(
 ): Promise<void> {
   const tp = timePart(hour, minute);
   const isMeasure = MEASURE_ACTIVITY_TYPES.includes(activityType);
+  const channelId = withSound ? ACTIVITY_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL;
   for (const wd of weekdays) {
     await Notifications.scheduleNotificationAsync({
       identifier: `activity_${activityId}_w${wd}_${tp}`,
@@ -907,13 +931,14 @@ export async function scheduleActivityReminderWeekly(
         body: isMeasure ? 'Hora de medir' : 'Hora da sua atividade',
         data: { type: 'activity', activityId, activityName, activityType },
         categoryIdentifier: isMeasure ? ACTIVITY_MEASURE_CATEGORY : ACTIVITY_BASIC_CATEGORY,
+        ...soundFor(channelId),
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
         weekday: wd,
         hour,
         minute,
-        channelId: withSound ? ACTIVITY_SOUND_CHANNEL : REMINDER_SILENT_CHANNEL,
+        channelId,
       },
     });
   }
@@ -933,6 +958,7 @@ export async function snoozeActivityReminder(
       body: 'Lembrete adiado',
       data: { type: 'activity', activityId, activityName, activityType },
       categoryIdentifier: isMeasureSnooze ? ACTIVITY_MEASURE_CATEGORY : ACTIVITY_BASIC_CATEGORY,
+      ...soundFor(ACTIVITY_SOUND_CHANNEL),
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
@@ -972,6 +998,7 @@ export async function scheduleAppointmentReminders(
         title: `Consulta amanhã às ${time}`,
         body: `Dr(a). ${doctorName}`,
         data: { type: 'appointment', appointmentId },
+        ...soundFor(APPT_SOUND_CHANNEL),
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
@@ -994,6 +1021,7 @@ export async function scheduleAppointmentReminders(
         title: `Consulta em 1 hora`,
         body: `Dr(a). ${doctorName} às ${time}`,
         data: { type: 'appointment', appointmentId },
+        ...soundFor(APPT_SOUND_CHANNEL),
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
@@ -1042,6 +1070,25 @@ export async function rescheduleRemindersForMedication(
   }
 }
 
+// O iOS guarda no máximo 64 notificações locais PENDENTES e descarta o excedente sozinho —
+// sem erro e sem log, então o sintoma chega como "às vezes não avisa". Com a repetição ligada
+// são 7 requests por horário (1 base + REPEAT_COUNT nags), e 4 medicamentos 2x/dia já encostam
+// no teto. Quem sobra e quem morre é escolha do sistema, não nossa: um nag das 08:05 pode
+// derrubar a dose das 20:00. Rateio próprio é decisão de produto (o que sacrificar) e está em
+// aberto — isto aqui só torna o estouro VISÍVEL. Nota: quando o iOS já descartou, o getAll não
+// enxerga o que foi perdido; o sinal detectável é encostar no teto, não o tamanho do excesso.
+const IOS_NOTIF_LIMIT = 64;
+
+async function reportIOSNotificationBudget(): Promise<void> {
+  if (Platform.OS !== 'ios') return;
+  const pending = await Notifications.getAllScheduledNotificationsAsync().catch(() => null);
+  if (!pending || pending.length < IOS_NOTIF_LIMIT) return;
+  Sentry.captureMessage(
+    `[ios] teto de notificações encostado: ${pending.length}/${IOS_NOTIF_LIMIT} pendentes — o sistema pode estar descartando lembretes`,
+    'warning',
+  );
+}
+
 export async function rescheduleAllActiveNotifications(): Promise<void> {
   try {
     // Snapshot dos agendamentos atuais: lembrete já agendado e sem mudança não é
@@ -1067,6 +1114,7 @@ export async function rescheduleAllActiveNotifications(): Promise<void> {
       const reminders = await getRemindersForActivity(act.id).catch(() => []);
       await rescheduleRemindersForActivity(act.id, act.name, reminders);
     }));
+    await reportIOSNotificationBudget().catch(() => {});
   } catch {}
 }
 

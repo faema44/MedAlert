@@ -10,6 +10,8 @@ import { getContacts, addContact, updateContact, deleteContact, getMedications, 
 import { updateEmergencyNotification } from '../services/notifications';
 import { EmergencyContact, Medication } from '../types';
 
+const IS_IOS = Platform.OS === 'ios';
+
 const EMPTY: Omit<EmergencyContact, 'id'> = {
   name: '', phone: '', relationship: '', is_primary: false, is_doctor: false, show_on_lock: false,
 };
@@ -187,7 +189,9 @@ export default function ContactsScreen() {
                       <Text style={styles.doctorBadgeText}>Médico</Text>
                     </View>
                   )}
-                  {item.show_on_lock && (
+                  {/* !IS_IOS: um backup restaurado do Android traz show_on_lock=1, e o cadeado
+                      prometeria no iPhone uma ficha que não existe lá. */}
+                  {item.show_on_lock && !IS_IOS && (
                     <Text style={styles.lockBadge}>🔒</Text>
                   )}
                 </View>
@@ -226,7 +230,9 @@ export default function ContactsScreen() {
           <ScrollView ref={contactScrollRef} style={styles.modalBox} contentContainerStyle={{ paddingBottom: insets.bottom + 32 }} keyboardShouldPersistTaps="handled">
             <Text style={styles.modalTitle}>{editingId !== null ? 'Editar Contato' : 'Contato de Emergência'}</Text>
             {editingId === null && (
-              <Text style={styles.modalSubtitle}>Aparecerá na tela de bloqueio — acesso sem senha</Text>
+              <Text style={styles.modalSubtitle}>{IS_IOS
+                ? 'Guardado no app para acionar rápido — na tela de bloqueio quem aparece é o contato da Ficha Médica (app Saúde)'
+                : 'Aparecerá na tela de bloqueio — acesso sem senha'}</Text>
             )}
 
             <Text style={styles.fieldLabel}>Nome *</Text>
@@ -275,17 +281,21 @@ export default function ContactsScreen() {
               />
             </View>
 
-            <View style={styles.primaryRow}>
-              <View style={{ flex: 1, marginRight: 8 }}>
-                <Text style={styles.primaryLabel}>Exibir na tela de bloqueio 🔒</Text>
-                <Text style={styles.lockHint}>Nome e telefone aparecem sem desbloquear o celular</Text>
+            {/* Só o card de emergência do Android lê show_on_lock. No iPhone o controle não teria
+                efeito nenhum — a ficha da tela de bloqueio é a da Apple, que nenhum app escreve. */}
+            {!IS_IOS && (
+              <View style={styles.primaryRow}>
+                <View style={{ flex: 1, marginRight: 8 }}>
+                  <Text style={styles.primaryLabel}>Exibir na tela de bloqueio 🔒</Text>
+                  <Text style={styles.lockHint}>Nome e telefone aparecem sem desbloquear o celular</Text>
+                </View>
+                <Switch
+                  value={form.show_on_lock}
+                  onValueChange={v => setForm(f => ({ ...f, show_on_lock: v }))}
+                  trackColor={{ true: '#1C3F7A', false: '#ccc' }}
+                />
               </View>
-              <Switch
-                value={form.show_on_lock}
-                onValueChange={v => setForm(f => ({ ...f, show_on_lock: v }))}
-                trackColor={{ true: '#1C3F7A', false: '#ccc' }}
-              />
-            </View>
+            )}
 
             <View style={styles.modalActions}>
               <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowModal(false)}>

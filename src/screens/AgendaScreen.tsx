@@ -3,8 +3,7 @@ import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
   Modal, TextInput, Alert, ScrollView, KeyboardAvoidingView, Platform,
 } from 'react-native';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { DATE_DISPLAY, TIME_DISPLAY } from '../utils/datePickerDisplay';
+import PickerDataHora from '../components/PickerDataHora';
 import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -1012,20 +1011,17 @@ export default function AgendaScreen() {
                   />
 
                   {showCycleDatePicker && (
-                    <DateTimePicker
-                      value={cyclePickerDate}
-                      mode="date"
-                      display={DATE_DISPLAY}
-                      onChange={(e: DateTimePickerEvent, date?: Date) => {
+                    <PickerDataHora
+                      valor={cyclePickerDate}
+                      modo="date"
+                      onConfirmar={(date) => {
                         setShowCycleDatePicker(false);
-                        if (e.type === 'set' && date) {
-                          const d = String(date.getDate()).padStart(2, '0');
-                          const mo = String(date.getMonth() + 1).padStart(2, '0');
-                          const y = date.getFullYear();
-                          setCycleStartDateBR(`${d}/${mo}/${y}`);
-                          setCyclePickerDate(date);
-                        }
+                        const d = String(date.getDate()).padStart(2, '0');
+                        const mo = String(date.getMonth() + 1).padStart(2, '0');
+                        setCycleStartDateBR(`${d}/${mo}/${date.getFullYear()}`);
+                        setCyclePickerDate(date);
                       }}
+                      onCancelar={() => setShowCycleDatePicker(false)}
                     />
                   )}
                 </>
@@ -1038,14 +1034,13 @@ export default function AgendaScreen() {
                     </TouchableOpacity>
                   </View>
                   {showActTimePicker && (
-                    <DateTimePicker
-                      value={(() => { const d = new Date(); const p = parseTime(actTimeStr); d.setHours(p?.hour ?? 8, p?.minute ?? 0, 0, 0); return d; })()}
-                      mode="time"
-                      is24Hour={true}
-                      onChange={(e, d) => {
+                    <PickerDataHora
+                      valor={(() => { const d = new Date(); const p = parseTime(actTimeStr); d.setHours(p?.hour ?? 8, p?.minute ?? 0, 0, 0); return d; })()}
+                      onConfirmar={(d) => {
                         setShowActTimePicker(false);
-                        if (e.type === 'set' && d) setActTimeStr(fmtHM(d.getHours(), d.getMinutes()));
+                        setActTimeStr(fmtHM(d.getHours(), d.getMinutes()));
                       }}
+                      onCancelar={() => setShowActTimePicker(false)}
                     />
                   )}
 
@@ -1081,14 +1076,13 @@ export default function AgendaScreen() {
                     </View>
                   )}
                   {showToTimePicker && (
-                    <DateTimePicker
-                      value={(() => { const d = new Date(); const p = parseTime(actToStr); d.setHours(p?.hour ?? 20, p?.minute ?? 0, 0, 0); return d; })()}
-                      mode="time"
-                      is24Hour={true}
-                      onChange={(e, d) => {
+                    <PickerDataHora
+                      valor={(() => { const d = new Date(); const p = parseTime(actToStr); d.setHours(p?.hour ?? 20, p?.minute ?? 0, 0, 0); return d; })()}
+                      onConfirmar={(d) => {
                         setShowToTimePicker(false);
-                        if (e.type === 'set' && d) setActToStr(fmtHM(d.getHours(), d.getMinutes()));
+                        setActToStr(fmtHM(d.getHours(), d.getMinutes()));
                       }}
+                      onCancelar={() => setShowToTimePicker(false)}
                     />
                   )}
 
@@ -1180,6 +1174,22 @@ export default function AgendaScreen() {
                 </Text>
                 <Text style={styles.pickerBtnIcon}>📅</Text>
               </TouchableOpacity>
+              {/* Tem que ficar DENTRO do Modal: no iOS o picker é uma view inline, e fora
+                  daqui ele nascia atrás do modal — o botão Data não abria nada. */}
+              {showDatePicker && (
+                <PickerDataHora
+                  valor={pickerDate}
+                  modo="date"
+                  onConfirmar={(date) => {
+                    setShowDatePicker(false);
+                    const d = String(date.getDate()).padStart(2, '0');
+                    const mo = String(date.getMonth() + 1).padStart(2, '0');
+                    setApptForm(f => ({ ...f, date: `${d}/${mo}/${date.getFullYear()}` }));
+                    setPickerDate(date);
+                  }}
+                  onCancelar={() => setShowDatePicker(false)}
+                />
+              )}
 
               <Text style={styles.fieldLabel}>Horário *</Text>
               <TouchableOpacity
@@ -1190,15 +1200,13 @@ export default function AgendaScreen() {
                 <Text style={styles.pickerBtnIcon}>🕐</Text>
               </TouchableOpacity>
               {showApptTimePicker && (
-                <DateTimePicker
-                  value={(() => { const d = new Date(); d.setHours(apptH, apptM, 0, 0); return d; })()}
-                  mode="time"
-                  is24Hour={true}
-                  display={TIME_DISPLAY}
-                  onChange={(e: DateTimePickerEvent, date?: Date) => {
+                <PickerDataHora
+                  valor={(() => { const d = new Date(); d.setHours(apptH, apptM, 0, 0); return d; })()}
+                  onConfirmar={(date) => {
                     setShowApptTimePicker(false);
-                    if (e.type === 'set' && date) { setApptH(date.getHours()); setApptM(date.getMinutes()); }
+                    setApptH(date.getHours()); setApptM(date.getMinutes());
                   }}
+                  onCancelar={() => setShowApptTimePicker(false)}
                 />
               )}
 
@@ -1240,23 +1248,6 @@ export default function AgendaScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {showDatePicker && (
-        <DateTimePicker
-          value={pickerDate}
-          mode="date"
-          display={DATE_DISPLAY}
-          onChange={(e: DateTimePickerEvent, date?: Date) => {
-            setShowDatePicker(false);
-            if (e.type === 'set' && date) {
-              const d = String(date.getDate()).padStart(2, '0');
-              const mo = String(date.getMonth() + 1).padStart(2, '0');
-              const y = date.getFullYear();
-              setApptForm(f => ({ ...f, date: `${d}/${mo}/${y}` }));
-              setPickerDate(date);
-            }
-          }}
-        />
-      )}
 
     </View>
   );

@@ -2,8 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ScrollView, Modal,
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { TIME_DISPLAY } from '../utils/datePickerDisplay';
+import PickerDataHora from '../components/PickerDataHora';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -403,15 +402,13 @@ export default function HistoryScreen() {
                 </Text>
               </TouchableOpacity>
               {showEditTimePicker && (
-                <DateTimePicker
-                  value={(() => { const d = new Date(); d.setHours(editHour, editMinute, 0, 0); return d; })()}
-                  mode="time"
-                  is24Hour={true}
-                  display={TIME_DISPLAY}
-                  onChange={(e, date) => {
+                <PickerDataHora
+                  valor={(() => { const d = new Date(); d.setHours(editHour, editMinute, 0, 0); return d; })()}
+                  onConfirmar={(date) => {
                     setShowEditTimePicker(false);
-                    if (e.type === 'set' && date) { setEditHour(date.getHours()); setEditMinute(date.getMinutes()); }
+                    setEditHour(date.getHours()); setEditMinute(date.getMinutes());
                   }}
+                  onCancelar={() => setShowEditTimePicker(false)}
                 />
               )}
               <TouchableOpacity style={styles.editSaveBtn} onPress={saveEditLog}>

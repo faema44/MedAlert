@@ -10,6 +10,8 @@ import { getProfile, saveProfile, getMedications } from '../database/db';
 import { updateEmergencyNotification, calculateAge } from '../services/notifications';
 import { Profile, BLOOD_TYPES } from '../types';
 
+const IS_IOS = Platform.OS === 'ios';
+
 export default function ProfileScreen() {
   const navigation = useNavigation();
   const route = useRoute();
@@ -88,20 +90,24 @@ export default function ProfileScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <ScrollView ref={profileScrollRef} style={styles.container} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]} keyboardShouldPersistTaps="handled">
-        <View style={styles.previewSection}>
-          <Text style={styles.previewLabel}>PRÉ-VISUALIZAÇÃO — TELA DE BLOQUEIO</Text>
-          <View style={styles.previewNotif}>
-            <View style={styles.previewIconBox}>
-              <Text style={styles.previewIconCross}>✚</Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.previewTitle} numberOfLines={1}>Informações Médicas</Text>
-              {previewLines.map((line, i) => (
-                <Text key={i} style={styles.previewLine} numberOfLines={1}>{line}</Text>
-              ))}
+        {/* A prévia imita o card de emergência do Android. No iPhone esse card não existe —
+            mostrá-la seria prometer uma tela de bloqueio que o app nunca vai desenhar. */}
+        {!IS_IOS && (
+          <View style={styles.previewSection}>
+            <Text style={styles.previewLabel}>PRÉ-VISUALIZAÇÃO — TELA DE BLOQUEIO</Text>
+            <View style={styles.previewNotif}>
+              <View style={styles.previewIconBox}>
+                <Text style={styles.previewIconCross}>✚</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.previewTitle} numberOfLines={1}>Informações Médicas</Text>
+                {previewLines.map((line, i) => (
+                  <Text key={i} style={styles.previewLine} numberOfLines={1}>{line}</Text>
+                ))}
+              </View>
             </View>
           </View>
-        </View>
+        )}
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Identificação</Text>
@@ -219,8 +225,9 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.infoBox}>
-          <Text style={styles.infoText}>
-            ℹ️  Estas informações serão exibidas na tela de bloqueio para socorristas. Salvar atualiza automaticamente o alerta de emergência.
+          <Text style={styles.infoText}>{IS_IOS
+            ? 'ℹ️  Estas informações ficam guardadas no app. Para que socorristas as vejam na tela de bloqueio do iPhone, preencha também nome, tipo sanguíneo e alergias na Ficha Médica, no app Saúde da Apple — nenhum app pode fazer isso por você.'
+            : 'ℹ️  Estas informações serão exibidas na tela de bloqueio para socorristas. Salvar atualiza automaticamente o alerta de emergência.'}
           </Text>
         </View>
 

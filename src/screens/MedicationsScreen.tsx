@@ -5,7 +5,7 @@ import {
   KeyboardAvoidingView, Platform, ActivityIndicator, Keyboard,
   InteractionManager,
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import PickerDataHora from '../components/PickerDataHora';
 import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -30,6 +30,8 @@ import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, isPhytothe
 import { useBulaViewer } from '../utils/useBulaViewer';
 import { reportMissingDrug } from '../services/reportMissing';
 // ──────────────────────────────────────────────────────────────────────────────
+
+const IS_IOS = Platform.OS === 'ios';
 
 const EMPTY_MED: Omit<Medication, 'id'> = {
   generic_name: '', commercial_name: '', dose: '', frequency: '', is_critical: false, notes: '',
@@ -327,7 +329,9 @@ export default function MedicationsScreen() {
     const name = form.commercial_name.trim() || form.generic_name.trim();
     Alert.alert(
       'Colocar em stand-by',
-      `"${name}" ficará pausado: sem alarmes, fora da tela de bloqueio e da ficha de emergência. O setup fica guardado para quando você retomar.`,
+      IS_IOS
+        ? `"${name}" ficará pausado: sem alarmes e fora da lista da Ficha Médica. O setup fica guardado para quando você retomar.`
+        : `"${name}" ficará pausado: sem alarmes, fora da tela de bloqueio e da ficha de emergência. O setup fica guardado para quando você retomar.`,
       [
         { text: 'Cancelar', style: 'cancel' },
         {
@@ -754,7 +758,8 @@ export default function MedicationsScreen() {
       const times = customTimes.trim()
         ? customTimes.trim().split(/\s+/).filter(t => /^\d{1,2}:\d{2}$/.test(t))
         : (pickerDisplay ? computeTimes(startTime, timesPerDay) : []);
-      return times.length > 0 ? `Diário · ${times.join(' · ')}` : 'Sem lembrete — só tela de bloqueio';
+      if (times.length > 0) return `Diário · ${times.join(' · ')}`;
+      return IS_IOS ? 'Sem lembrete — só na Ficha Médica' : 'Sem lembrete — só tela de bloqueio';
     })();
     const deadlineDays = parseInt(durationDays, 10);
     return [
@@ -935,11 +940,15 @@ export default function MedicationsScreen() {
               style={[styles.lockOnlyBtn, editingId !== null && !homeReminderEnabled && styles.lockOnlyBtnActive]}
               onPress={() => { lockOnlyRef.current = true; homeReminderRef.current = false; handleSave(); }}
             >
-              <Text style={[styles.lockOnlyBtnText, editingId !== null && !homeReminderEnabled && styles.lockOnlyBtnTextActive]}>🔒 Apenas Tela de Bloqueio</Text>
+              <Text style={[styles.lockOnlyBtnText, editingId !== null && !homeReminderEnabled && styles.lockOnlyBtnTextActive]}>
+                {IS_IOS ? '🍎 Apenas na Ficha Médica' : '🔒 Apenas Tela de Bloqueio'}
+              </Text>
             </TouchableOpacity>
-            <Text style={styles.lockOnlyHint}>
-              Apenas Tela de Bloqueio: o medicamento só aparece na ficha médica para socorristas —
-              sem alarme e sem registro no Histórico.
+            {/* Um medicamento lock-only não fica suspended, então continua entrando no
+                buildMedListText — no iPhone a opção segue útil, só muda o nome do destino. */}
+            <Text style={styles.lockOnlyHint}>{IS_IOS
+              ? 'Apenas na Ficha Médica: o medicamento só entra na lista que você copia para a Ficha Médica do app Saúde — sem alarme e sem registro no Histórico.'
+              : 'Apenas Tela de Bloqueio: o medicamento só aparece na ficha médica para socorristas — sem alarme e sem registro no Histórico.'}
             </Text>
           </>
         );
@@ -970,19 +979,18 @@ export default function MedicationsScreen() {
                     <Text style={styles.wizTimePickerHint}>{item.value ? 'Toque para alterar' : 'Toque para definir'}</Text>
                   </TouchableOpacity>
                   {mealPickerTarget === idx && (
-                    <DateTimePicker
-                      value={(() => {
+                    <PickerDataHora
+                      valor={(() => {
                         const d = new Date();
                         if (item.value) { const [h, m] = item.value.split(':').map(Number); d.setHours(h, m, 0, 0); }
                         else d.setHours(item.defaultH, 0, 0, 0);
                         return d;
                       })()}
-                      mode="time"
-                      is24Hour={true}
-                      onChange={(e, d) => {
+                      onConfirmar={(d) => {
                         setMealPickerTarget(null);
-                        if (e.type === 'set' && d) item.setter(fmtHM(d.getHours(), d.getMinutes()));
+                        item.setter(fmtHM(d.getHours(), d.getMinutes()));
                       }}
+                      onCancelar={() => setMealPickerTarget(null)}
                     />
                   )}
                 </View>
@@ -1123,32 +1131,29 @@ export default function MedicationsScreen() {
               </Text>
             )}
             {showHorarioPicker && (
-              <DateTimePicker
-                value={(() => { const d = new Date(); d.setHours(pickerH ?? 8, pickerM ?? 0, 0, 0); return d; })()}
-                mode="time"
-                is24Hour={true}
-                onChange={(e, d) => {
+              <PickerDataHora
+                valor={(() => { const d = new Date(); d.setHours(pickerH ?? 8, pickerM ?? 0, 0, 0); return d; })()}
+                onConfirmar={(d) => {
                   setShowHorarioPicker(false);
-                  if (e.type === 'set' && d) {
-                    setPickerH(d.getHours()); setPickerM(d.getMinutes());
-                    // Edição com vários horários/dia: customTimes guarda os horários antigos
-                    // e vence no doSaveWizard — sem isto, o horário novo era ignorado.
-                    // Desloca todos mantendo os intervalos (08:00/20:00 → 09:00/21:00).
-                    if (customTimes.trim()) {
-                      const times = customTimes.trim().split(/[\s,]+/).filter(t => /^\d{1,2}:\d{2}$/.test(t)).sort();
-                      if (times.length > 0) {
-                        const [oh, om] = times[0].split(':').map(Number);
-                        const delta = (d.getHours() * 60 + d.getMinutes()) - (oh * 60 + om);
-                        const shifted = times.map(t => {
-                          const [h, m] = t.split(':').map(Number);
-                          const total = ((h * 60 + m + delta) % 1440 + 1440) % 1440;
-                          return fmtHM(Math.floor(total / 60), total % 60);
-                        });
-                        setCustomTimes(shifted.join(' '));
-                      }
+                  setPickerH(d.getHours()); setPickerM(d.getMinutes());
+                  // Edição com vários horários/dia: customTimes guarda os horários antigos
+                  // e vence no doSaveWizard — sem isto, o horário novo era ignorado.
+                  // Desloca todos mantendo os intervalos (08:00/20:00 → 09:00/21:00).
+                  if (customTimes.trim()) {
+                    const times = customTimes.trim().split(/[\s,]+/).filter(t => /^\d{1,2}:\d{2}$/.test(t)).sort();
+                    if (times.length > 0) {
+                      const [oh, om] = times[0].split(':').map(Number);
+                      const delta = (d.getHours() * 60 + d.getMinutes()) - (oh * 60 + om);
+                      const shifted = times.map(t => {
+                        const [h, m] = t.split(':').map(Number);
+                        const total = ((h * 60 + m + delta) % 1440 + 1440) % 1440;
+                        return fmtHM(Math.floor(total / 60), total % 60);
+                      });
+                      setCustomTimes(shifted.join(' '));
                     }
                   }
                 }}
+                onCancelar={() => setShowHorarioPicker(false)}
               />
             )}
           </>
@@ -1294,7 +1299,9 @@ export default function MedicationsScreen() {
             {editingId !== null && !medications.find(m => m.id === editingId)?.suspended && (
               <TouchableOpacity style={styles.suspendBtn} onPress={handleSuspend}>
                 <Text style={styles.suspendBtnText}>⏸ Colocar em stand-by</Text>
-                <Text style={styles.suspendBtnHint}>Pausa alarmes e tela de bloqueio sem perder o setup</Text>
+                <Text style={styles.suspendBtnHint}>{IS_IOS
+                  ? 'Pausa alarmes e sai da Ficha Médica sem perder o setup'
+                  : 'Pausa alarmes e tela de bloqueio sem perder o setup'}</Text>
               </TouchableOpacity>
             )}
           </>
@@ -1433,7 +1440,9 @@ export default function MedicationsScreen() {
               )}
               {item.notes ? <Text style={styles.medNotes}>📝 {item.notes}</Text> : null}
               {times.length === 0 && hasAnyInfo && (
-                <Text style={styles.medNoReminderHint}>🔒 Sem lembrete nem histórico — aparece só na ficha da tela de bloqueio</Text>
+                <Text style={styles.medNoReminderHint}>{IS_IOS
+                  ? '🍎 Sem lembrete nem histórico — aparece só na lista da Ficha Médica'
+                  : '🔒 Sem lembrete nem histórico — aparece só na ficha da tela de bloqueio'}</Text>
               )}
               {!hasAnyInfo && <Text style={styles.medEditHint}>Toque para configurar →</Text>}
             </View>
