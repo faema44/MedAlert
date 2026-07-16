@@ -1289,12 +1289,18 @@ export async function dismissDuplicateReminders(): Promise<void> {
   await Promise.all(toRemove.map(id => Notifications.dismissNotificationAsync(id).catch(() => {})));
 }
 
+// Com o app ABERTO é este handler que decide o som — o canal (Android) e o content.sound
+// (iOS) só valem com o app fora da tela. Logo, tipo com melodia própria tem que estar nos
+// dois lugares: aqui e em CHANNEL_SOUND. A lista já ficou para trás uma vez — a consulta
+// tem melodia desde sempre e mesmo assim chegava muda quando o app estava aberto.
+const TIPOS_COM_SOM = ['reminder', 'activity', 'appointment'];
+
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
     const t = notification.request.content.data?.type;
     return {
       shouldShowBanner: true,
-      shouldPlaySound: t === 'reminder' || t === 'activity',
+      shouldPlaySound: TIPOS_COM_SOM.includes(t as string),
       shouldSetBadge: false,
       shouldShowList: true,
     };
