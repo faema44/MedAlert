@@ -190,6 +190,11 @@ export default function AgendaScreen() {
   const scrollToEndSoon = (ref: React.RefObject<ScrollView | null>) => {
     setTimeout(() => ref.current?.scrollToEnd({ animated: true }), 250);
   };
+  // No iOS o picker é view inline: abrir empurra a roda e o Confirmar para fora da tela.
+  // No Android é diálogo flutuante — nada é empurrado e rolar seria um pulo à toa.
+  const revelarPicker = (ref: React.RefObject<ScrollView | null>) => {
+    if (Platform.OS === 'ios') scrollToEndSoon(ref);
+  };
 
   // Activities state
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -982,6 +987,7 @@ export default function AgendaScreen() {
                       const iso = parseDateBR(cycleStartDateBR);
                       setCyclePickerDate(iso ? new Date(iso + 'T00:00:00') : new Date());
                       setShowCycleDatePicker(true);
+                      revelarPicker(activityScrollRef);
                     }}
                   >
                     <Text style={cycleStartDateBR ? styles.pickerBtnText : styles.pickerBtnPlaceholder}>
@@ -1029,7 +1035,7 @@ export default function AgendaScreen() {
                 <>
                   <View style={styles.actTimeRow}>
                     <Text style={styles.actTimeLabel}>Horário da Atividade</Text>
-                    <TouchableOpacity onPress={() => setShowActTimePicker(true)}>
+                    <TouchableOpacity onPress={() => { setShowActTimePicker(true); revelarPicker(activityScrollRef); }}>
                       <Text style={styles.actTimeDisplay}>{actTimeStr || '08:00'}</Text>
                     </TouchableOpacity>
                   </View>
@@ -1070,7 +1076,7 @@ export default function AgendaScreen() {
                         keyboardType="numeric"
                       />
                       <Text style={styles.repeatInlineText}>h  das {actTimeStr}  às </Text>
-                      <TouchableOpacity onPress={() => setShowToTimePicker(true)}>
+                      <TouchableOpacity onPress={() => { setShowToTimePicker(true); revelarPicker(activityScrollRef); }}>
                         <Text style={styles.repeatTimeDisplay}>{actToStr || '20:00'}</Text>
                       </TouchableOpacity>
                     </View>
@@ -1167,6 +1173,7 @@ export default function AgendaScreen() {
                 onPress={() => {
                   setPickerDate(formToDate(apptForm.date, fmtHM(apptH, apptM)));
                   setShowDatePicker(true);
+                  revelarPicker(apptScrollRef);
                 }}
               >
                 <Text style={apptForm.date ? styles.pickerBtnText : styles.pickerBtnPlaceholder}>
@@ -1194,7 +1201,7 @@ export default function AgendaScreen() {
               <Text style={styles.fieldLabel}>Horário *</Text>
               <TouchableOpacity
                 style={[styles.fieldInput, styles.pickerBtn]}
-                onPress={() => setShowApptTimePicker(true)}
+                onPress={() => { setShowApptTimePicker(true); revelarPicker(apptScrollRef); }}
               >
                 <Text style={styles.pickerBtnText}>{fmtHM(apptH, apptM)}</Text>
                 <Text style={styles.pickerBtnIcon}>🕐</Text>

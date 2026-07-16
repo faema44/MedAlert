@@ -146,6 +146,16 @@ export default function MedicationsScreen() {
   const lockOnlyRef = useRef(false);
   const wizStepScrollRef = useRef<ScrollView>(null);
 
+  // No iOS o picker é uma view INLINE: abrir empurra a roda (~216px) e o Confirmar para
+  // baixo do footer, fora da tela — a pessoa gira a hora e fica presa sem ver o botão.
+  // No Android é diálogo flutuante e nada é empurrado, então não há o que revelar.
+  // O atraso espera o picker montar e o ScrollView remedir; sem ele o scroll vai para o
+  // fim ANTIGO, de antes da roda existir.
+  function revelarPicker() {
+    if (!IS_IOS) return;
+    setTimeout(() => wizStepScrollRef.current?.scrollToEnd({ animated: true }), 100);
+  }
+
   // Wizard
   const [wizardStep, setWizardStep] = useState<WizardStep>('name');
 
@@ -973,7 +983,7 @@ export default function MedicationsScreen() {
                   </Text>
                   <TouchableOpacity
                     style={[styles.wizTimePicker, { padding: 16, marginTop: 6 }]}
-                    onPress={() => setMealPickerTarget(idx)}
+                    onPress={() => { setMealPickerTarget(idx); revelarPicker(); }}
                   >
                     <Text style={[styles.wizTimePickerText, { fontSize: 36 }]}>{item.value || '——:——'}</Text>
                     <Text style={styles.wizTimePickerHint}>{item.value ? 'Toque para alterar' : 'Toque para definir'}</Text>
@@ -1121,7 +1131,7 @@ export default function MedicationsScreen() {
           <>
             <Text style={styles.wizLabel}>Horário do primeiro aviso</Text>
             <Text style={styles.wizHint}>Obrigatório — toque no relógio para definir</Text>
-            <TouchableOpacity style={styles.wizTimePicker} onPress={() => setShowHorarioPicker(true)}>
+            <TouchableOpacity style={styles.wizTimePicker} onPress={() => { setShowHorarioPicker(true); revelarPicker(); }}>
               <Text style={styles.wizTimePickerText}>{pickerDisplay || '——:——'}</Text>
               <Text style={styles.wizTimePickerHint}>{pickerDisplay ? 'Toque para alterar' : 'Toque para definir o horário'}</Text>
             </TouchableOpacity>
