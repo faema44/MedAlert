@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/react-native';
 import { Platform } from 'react-native';
 import { Profile, Medication, MedicationReminder, ActivityReminder } from '../types';
 import { postMedNotification, cancelMedNotification, isEmergencyActive, setNextMedSchedule, cancelNextMedBanner } from './medNotification';
-import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity, getContacts, getKV, setKV, addMedicationLowStockLog } from '../database/db';
+import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity, getAppointments, getContacts, getKV, setKV, addMedicationLowStockLog } from '../database/db';
 import { isPhytotherapic } from '../utils/drugSearch';
 import { CAREGIVER_CHANNEL } from './caregiver';
 
@@ -586,6 +586,50 @@ function sameScheduled(
 // (cancelRepeatAlarm); rearmadas para a ocorrência seguinte a cada abertura do app.
 const REPEAT_COUNT = 6;
 
+// ─── Teto de 64 notificações pendentes do iOS ────────────────────────────────
+//
+// O iOS guarda no máximo 64 notificações locais pendentes e joga fora o excesso
+// SOZINHO, sem erro e sem log. Com a repetição ligada são 7 requests por horário
+// (1 dose + REPEAT_COUNT cobranças), então ~8 horários já estouram.
+//
+// O problema não é estourar: é QUEM o iOS mata. Ele guarda as 64 mais PRÓXIMAS, e
+// isso é o avesso do que importa — uma cobrança das 08:05 derruba a DOSE das 20:00.
+// Ninguém perde remédio por falta de insistência; perde por falta do aviso.
+//
+// Então a dose é intocável e a cobrança é o amortecedor: contamos as doses primeiro
+// e as cobranças ficam com o que sobra, divididas por igual. Cabendo tudo, nada muda
+// (6 cobranças = 30 min). Apertando, cada lembrete perde cobrança junto — nunca um
+// lembrete inteiro, e nunca só o de um medicamento.
+const TETO_IOS = 64;
+// Avulsas que não passam por aqui e precisam de espaço: medid_update (fica 30 min
+// pendente), estoque baixo, fim de tratamento, cuidador.
+const RESERVA_AVULSOS = 4;
+
+// Quantas notificações-base UM lembrete ocupa. O iOS conta por REQUEST agendado, e
+// semanal/mensal viram um request por dia escolhido — "seg, qua e sex" são 3, não 1.
+export function basesDoPeriodo(period?: string): number {
+  const p = period || 'day';
+  if (p.startsWith('week:') || p.startsWith('month:')) {
+    return p.split(':')[1].split(',').filter(Boolean).length || 1;
+  }
+  return 1; // day, nmonths
+}
+
+export function calcularNagsPorLembrete(
+  bases: number,
+  lembretesComRepeticao: number,
+  consultasFuturas: number,
+): number {
+  if (lembretesComRepeticao <= 0) return REPEAT_COUNT;
+  const sobra = TETO_IOS - RESERVA_AVULSOS - bases - consultasFuturas * 2;
+  return Math.max(0, Math.min(REPEAT_COUNT, Math.floor(sobra / lembretesComRepeticao)));
+}
+
+// Estado de módulo de propósito: o teto é do APARELHO, não da chamada. Passar como
+// parâmetro fingiria que cada lembrete tem orçamento próprio. Recalculado a cada
+// passada completa (rescheduleAllActiveNotifications). Fora do iOS nunca muda.
+let nagsPorLembrete = REPEAT_COUNT;
+
 async function scheduleRepeatSeries(
   medicationId: number,
   medicationName: string,
@@ -597,7 +641,7 @@ async function scheduleRepeatSeries(
   channelId: string,
   existing?: ExistingMap,
 ): Promise<void> {
-  for (let i = 1; i <= REPEAT_COUNT; i++) {
+  for (let i = 1; i <= nagsPorLembrete; i++) {
     const id = `reminder_repeat_${medicationId}_${tp}_${i}`;
     const fireMs = occurrenceMs + i * intervalMinutes * 60 * 1000;
     if (fireMs <= Date.now()) continue;
@@ -612,6 +656,12 @@ async function scheduleRepeatSeries(
         channelId,
       } as any,
     }).catch(() => {});
+  }
+  // O orçamento encolhe quando a pessoa cadastra mais remédio. Sem apagar o excedente
+  // de uma passada anterior, o corte não libera vaga nenhuma — as cobranças 5 e 6
+  // continuariam pendentes ocupando o teto que acabamos de tentar respeitar.
+  for (let i = nagsPorLembrete + 1; i <= REPEAT_COUNT; i++) {
+    await Notifications.cancelScheduledNotificationAsync(`reminder_repeat_${medicationId}_${tp}_${i}`).catch(() => {});
   }
 }
 
@@ -1097,9 +1147,38 @@ export async function rescheduleAllActiveNotifications(): Promise<void> {
       (await Notifications.getAllScheduledNotificationsAsync().catch(() => [] as Notifications.NotificationRequest[]))
         .map(n => [n.identifier, n])
     );
-    const [meds, acts] = await Promise.all([getMedications(), getActivities()]);
-    await Promise.all(meds.map(async med => {
-      const reminders = await getRemindersForMedication(med.id).catch(() => [] as MedicationReminder[]);
+    const [meds, acts, appts] = await Promise.all([getMedications(), getActivities(), getAppointments()]);
+    // Carrega TUDO antes de agendar: no iOS o orçamento de cobranças depende do total
+    // de doses, então não dá para decidir olhando um medicamento de cada vez.
+    const medRs = await Promise.all(
+      meds.map(m => getRemindersForMedication(m.id).catch(() => [] as MedicationReminder[])),
+    );
+    const actRs = await Promise.all(
+      acts.map(a => getRemindersForActivity(a.id).catch(() => [] as ActivityReminder[])),
+    );
+
+    if (Platform.OS === 'ios') {
+      let bases = 0;
+      let comRepeticao = 0;
+      for (const rs of medRs) for (const r of rs) {
+        if (!r.is_active) continue;
+        bases += basesDoPeriodo(r.period);
+        if ((r.repeat_interval ?? 0) > 0) comRepeticao++;
+      }
+      for (const rs of actRs) for (const r of rs) {
+        if (!r.is_active) continue;
+        bases += basesDoPeriodo(r.period);
+      }
+      const agora = Date.now();
+      const futuras = appts.filter(a => {
+        const t = new Date(`${a.date}T${a.time || '00:00'}:00`).getTime();
+        return !isNaN(t) && t > agora;
+      }).length;
+      nagsPorLembrete = calcularNagsPorLembrete(bases, comRepeticao, futuras);
+    }
+
+    await Promise.all(meds.map(async (med, i) => {
+      const reminders = medRs[i];
       let stockWarning: string | undefined;
       if (med.stock_quantity != null) {
         const activeDoses = reminders.filter(r => r.is_active).length || 1;
@@ -1110,9 +1189,8 @@ export async function rescheduleAllActiveNotifications(): Promise<void> {
       }
       await rescheduleRemindersForMedication(med, reminders, stockWarning, existing);
     }));
-    await Promise.all(acts.map(async act => {
-      const reminders = await getRemindersForActivity(act.id).catch(() => []);
-      await rescheduleRemindersForActivity(act.id, act.name, reminders);
+    await Promise.all(acts.map(async (act, i) => {
+      await rescheduleRemindersForActivity(act.id, act.name, actRs[i]);
     }));
     await reportIOSNotificationBudget().catch(() => {});
   } catch {}
