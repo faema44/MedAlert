@@ -23,6 +23,12 @@ interface Props {
   modo?: 'time' | 'date';
   onConfirmar: (d: Date) => void;
   onCancelar: () => void;
+  // Só iOS. Avisa em que altura o picker nasceu, para quem tem o ScrollView rolar até
+  // ELE — e não até o fim do formulário: onde o picker fica no meio (data e horário da
+  // consulta), rolar ao fim joga o picker para cima, fora da tela. Vem do onLayout, que
+  // dispara quando o picker JÁ tem posição — não precisa adivinhar um atraso.
+  // No Android nunca é chamado: lá o picker é diálogo flutuante e não empurra nada.
+  aoAparecer?: (y: number) => void;
 }
 
 export default function PickerDataHora(props: Props) {
@@ -44,11 +50,11 @@ function PickerAndroid({ valor, modo = 'time', onConfirmar, onCancelar }: Props)
   );
 }
 
-function PickerIOS({ valor, modo = 'time', onConfirmar, onCancelar }: Props) {
+function PickerIOS({ valor, modo = 'time', onConfirmar, onCancelar, aoAparecer }: Props) {
   const [rascunho, setRascunho] = useState(valor);
 
   return (
-    <View style={styles.caixa}>
+    <View style={styles.caixa} onLayout={e => aoAparecer?.(e.nativeEvent.layout.y)}>
       <DateTimePicker
         value={rascunho}
         mode={modo}

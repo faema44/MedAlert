@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
-  Modal, TextInput, Alert, ScrollView, KeyboardAvoidingView, Platform,
+  Modal, TextInput, Alert, ScrollView, KeyboardAvoidingView,
 } from 'react-native';
 import PickerDataHora from '../components/PickerDataHora';
 import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -190,10 +190,13 @@ export default function AgendaScreen() {
   const scrollToEndSoon = (ref: React.RefObject<ScrollView | null>) => {
     setTimeout(() => ref.current?.scrollToEnd({ animated: true }), 250);
   };
-  // No iOS o picker é view inline: abrir empurra a roda e o Confirmar para fora da tela.
-  // No Android é diálogo flutuante — nada é empurrado e rolar seria um pulo à toa.
-  const revelarPicker = (ref: React.RefObject<ScrollView | null>) => {
-    if (Platform.OS === 'ios') scrollToEndSoon(ref);
+  // No iOS o picker é view inline e pode nascer fora da tela. Rola até ELE, não até o fim
+  // do formulário: aqui a data e o horário ficam no MEIO (embaixo ainda vêm local,
+  // observações e os botões), e rolar ao fim jogava o picker para cima, fora da tela —
+  // a pessoa tinha que arrastar de volta. A folga de 100px mantém à vista o campo que ela
+  // acabou de tocar, senão o picker aparece colado no topo, sem contexto.
+  const revelarPicker = (ref: React.RefObject<ScrollView | null>) => (y: number) => {
+    ref.current?.scrollTo({ y: Math.max(0, y - 100), animated: true });
   };
 
   // Activities state
@@ -989,7 +992,6 @@ export default function AgendaScreen() {
                       const iso = parseDateBR(cycleStartDateBR);
                       setCyclePickerDate(iso ? new Date(iso + 'T00:00:00') : new Date());
                       setShowCycleDatePicker(true);
-                      revelarPicker(activityScrollRef);
                     }}
                   >
                     <Text style={cycleStartDateBR ? styles.pickerBtnText : styles.pickerBtnPlaceholder}>
@@ -1020,6 +1022,7 @@ export default function AgendaScreen() {
 
                   {showCycleDatePicker && (
                     <PickerDataHora
+                      aoAparecer={revelarPicker(activityScrollRef)}
                       valor={cyclePickerDate}
                       modo="date"
                       onConfirmar={(date) => {
@@ -1037,12 +1040,13 @@ export default function AgendaScreen() {
                 <>
                   <View style={styles.actTimeRow}>
                     <Text style={styles.actTimeLabel}>Horário da Atividade</Text>
-                    <TouchableOpacity onPress={() => { setShowActTimePicker(true); revelarPicker(activityScrollRef); }}>
+                    <TouchableOpacity onPress={() => setShowActTimePicker(true)}>
                       <Text style={styles.actTimeDisplay}>{actTimeStr || '08:00'}</Text>
                     </TouchableOpacity>
                   </View>
                   {showActTimePicker && (
                     <PickerDataHora
+                      aoAparecer={revelarPicker(activityScrollRef)}
                       valor={(() => { const d = new Date(); const p = parseTime(actTimeStr); d.setHours(p?.hour ?? 8, p?.minute ?? 0, 0, 0); return d; })()}
                       onConfirmar={(d) => {
                         setShowActTimePicker(false);
@@ -1078,13 +1082,14 @@ export default function AgendaScreen() {
                         keyboardType="numeric"
                       />
                       <Text style={styles.repeatInlineText}>h  das {actTimeStr}  às </Text>
-                      <TouchableOpacity onPress={() => { setShowToTimePicker(true); revelarPicker(activityScrollRef); }}>
+                      <TouchableOpacity onPress={() => setShowToTimePicker(true)}>
                         <Text style={styles.repeatTimeDisplay}>{actToStr || '20:00'}</Text>
                       </TouchableOpacity>
                     </View>
                   )}
                   {showToTimePicker && (
                     <PickerDataHora
+                      aoAparecer={revelarPicker(activityScrollRef)}
                       valor={(() => { const d = new Date(); const p = parseTime(actToStr); d.setHours(p?.hour ?? 20, p?.minute ?? 0, 0, 0); return d; })()}
                       onConfirmar={(d) => {
                         setShowToTimePicker(false);
@@ -1177,7 +1182,6 @@ export default function AgendaScreen() {
                 onPress={() => {
                   setPickerDate(formToDate(apptForm.date, fmtHM(apptH, apptM)));
                   setShowDatePicker(true);
-                  revelarPicker(apptScrollRef);
                 }}
               >
                 <Text style={apptForm.date ? styles.pickerBtnText : styles.pickerBtnPlaceholder}>
@@ -1189,6 +1193,7 @@ export default function AgendaScreen() {
                   daqui ele nascia atrás do modal — o botão Data não abria nada. */}
               {showDatePicker && (
                 <PickerDataHora
+                  aoAparecer={revelarPicker(apptScrollRef)}
                   valor={pickerDate}
                   modo="date"
                   onConfirmar={(date) => {
@@ -1205,13 +1210,14 @@ export default function AgendaScreen() {
               <Text style={styles.fieldLabel}>Horário *</Text>
               <TouchableOpacity
                 style={[styles.fieldInput, styles.pickerBtn]}
-                onPress={() => { setShowApptTimePicker(true); revelarPicker(apptScrollRef); }}
+                onPress={() => setShowApptTimePicker(true)}
               >
                 <Text style={styles.pickerBtnText}>{fmtHM(apptH, apptM)}</Text>
                 <Text style={styles.pickerBtnIcon}>🕐</Text>
               </TouchableOpacity>
               {showApptTimePicker && (
                 <PickerDataHora
+                  aoAparecer={revelarPicker(apptScrollRef)}
                   valor={(() => { const d = new Date(); d.setHours(apptH, apptM, 0, 0); return d; })()}
                   onConfirmar={(date) => {
                     setShowApptTimePicker(false);
