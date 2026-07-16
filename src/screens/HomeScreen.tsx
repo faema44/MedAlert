@@ -1,9 +1,8 @@
 import React, { useCallback, useState, useMemo, useRef, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, Alert, AppState, Platform,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Alert, AppState, Platform,
 } from 'react-native';
 import PickerDataHora from '../components/PickerDataHora';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation, NavigationProp } from '@react-navigation/native';
 import {
   getProfile, getMedications, getKV, setKV, getContacts,
@@ -149,12 +148,10 @@ function alertKey(item: UnifiedItem): string {
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp<RootTabs>>();
-  const insets = useSafeAreaInsets();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [medications, setMedications] = useState<Medication[]>([]);
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([]);
   const [notifActive, setNotifActive] = useState(false);
-  const [showPhoneConfigModal, setShowPhoneConfigModal] = useState(false);
   const [unifiedItems, setUnifiedItems] = useState<UnifiedItem[]>([]);
   const [emergencyReady, setEmergencyReady] = useState(false);
   const [medsHintDismissedAt, setMedsHintDismissedAt] = useState<string | null>(null);
@@ -737,119 +734,6 @@ export default function HomeScreen() {
         </Modal>
       )}
 
-      {/* Phone configuration modal */}
-      <Modal visible={showPhoneConfigModal} animationType="slide" transparent onRequestClose={() => setShowPhoneConfigModal(false)}>
-        <View style={styles.intModalOverlay}>
-          <ScrollView style={styles.phoneModalBox} contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}>
-            <Text style={styles.phoneModalTitle}>📱 Configure seu telefone</Text>
-            <Text style={styles.phoneModalSub}>Siga os passos abaixo para garantir que os alertas funcionem corretamente</Text>
-
-            {/* Passo 1 — Notificações */}
-            <View style={styles.phoneStep}>
-              <View style={styles.phoneStepHeader}>
-                <View style={styles.phoneStepNum}><Text style={styles.phoneStepNumText}>1</Text></View>
-                <Text style={styles.phoneStepTitle}>Ative as notificações do app</Text>
-              </View>
-              <Text style={styles.phoneStepPath}>Configurações → Aplicativos → Alerta Médico → Notificações</Text>
-              <View style={styles.settingsMock}>
-                <View style={styles.settingsMockRow}>
-                  <Text style={styles.settingsMockLabel}>Mostrar notificações</Text>
-                  <View style={styles.settingsMockToggleOn}><Text style={styles.settingsMockToggleText}>✓</Text></View>
-                </View>
-                <View style={[styles.settingsMockRow, { borderTopWidth: 0.5, borderTopColor: '#eee' }]}>
-                  <Text style={styles.settingsMockLabel}>Lembrete de Medicamento</Text>
-                  <View style={styles.settingsMockToggleOn}><Text style={styles.settingsMockToggleText}>✓</Text></View>
-                </View>
-                <View style={[styles.settingsMockRow, { borderTopWidth: 0.5, borderTopColor: '#eee' }]}>
-                  <Text style={styles.settingsMockLabel}>Lembrete de Atividade</Text>
-                  <View style={styles.settingsMockToggleOn}><Text style={styles.settingsMockToggleText}>✓</Text></View>
-                </View>
-                <View style={[styles.settingsMockRow, { borderTopWidth: 0.5, borderTopColor: '#eee' }]}>
-                  <Text style={styles.settingsMockLabel}>Lembrete de Consulta</Text>
-                  <View style={styles.settingsMockToggleOn}><Text style={styles.settingsMockToggleText}>✓</Text></View>
-                </View>
-              </View>
-              <TouchableOpacity style={styles.phoneSettingsBtn} onPress={() => Linking.openSettings()}>
-                <Text style={styles.phoneSettingsBtnText}>⚙️  Abrir configurações do app</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Passo 2 — Tela de bloqueio */}
-            <View style={styles.phoneStep}>
-              <View style={styles.phoneStepHeader}>
-                <View style={styles.phoneStepNum}><Text style={styles.phoneStepNumText}>2</Text></View>
-                <Text style={styles.phoneStepTitle}>Mostre o conteúdo na Tela de Bloqueio</Text>
-              </View>
-              <Text style={styles.phoneStepPath}>Configurações → Notificações → Privacidade (ou Tela de Bloqueio)</Text>
-              <View style={styles.settingsMock}>
-                <View style={styles.settingsMockRow}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.settingsMockLabel}>Notificações na tela de bloqueio</Text>
-                    <Text style={styles.settingsMockSub}>Selecione: Mostrar todo o conteúdo</Text>
-                  </View>
-                  <Text style={styles.settingsMockChevron}>›</Text>
-                </View>
-              </View>
-              <View style={styles.phoneTipBox}>
-                <Text style={styles.phoneTipText}>
-                  <Text style={styles.phoneTipBrand}>Samsung: </Text>Configurações → Tela de bloqueio → Notificações → Detalhes{'\n'}
-                  <Text style={styles.phoneTipBrand}>Motorola: </Text>Configurações → Notificações → Privacidade de notificações{'\n'}
-                  <Text style={styles.phoneTipBrand}>Xiaomi: </Text>Configurações → Notificações e barra de status → Notificações na tela de bloqueio
-                </Text>
-              </View>
-            </View>
-
-            {/* Passo 3 — Bateria */}
-            <View style={styles.phoneStep}>
-              <View style={styles.phoneStepHeader}>
-                <View style={styles.phoneStepNum}><Text style={styles.phoneStepNumText}>3</Text></View>
-                <Text style={styles.phoneStepTitle}>Libere o app na bateria (mais importante)</Text>
-              </View>
-              <Text style={styles.phoneStepPath}>Configurações → Aplicativos → Alerta Médico → Bateria</Text>
-              <View style={styles.settingsMock}>
-                <View style={styles.settingsMockRow}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.settingsMockLabel, { color: '#ccc' }]}>Otimizada (padrão)</Text>
-                    <Text style={styles.settingsMockSub}>Pode bloquear alarmes em segundo plano</Text>
-                  </View>
-                  <View style={styles.settingsMockToggleOff} />
-                </View>
-                <View style={[styles.settingsMockRow, { borderTopWidth: 0.5, borderTopColor: '#eee', backgroundColor: '#f0fff4' }]}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.settingsMockLabel, { color: '#1a6b3a' }]}>Sem restrições ← selecione este</Text>
-                    <Text style={styles.settingsMockSub}>Garante que os alarmes sempre disparem</Text>
-                  </View>
-                  <View style={styles.settingsMockToggleOn}><Text style={styles.settingsMockToggleText}>✓</Text></View>
-                </View>
-              </View>
-              <View style={styles.phoneTipBox}>
-                <Text style={styles.phoneTipText}>
-                  <Text style={styles.phoneTipBrand}>Samsung: </Text>Configurações → Bateria → Limites de uso em segundo plano → Nunca adormecer{'\n'}
-                  <Text style={styles.phoneTipBrand}>Xiaomi/MIUI: </Text>Configurações → Apps → Gerenciar apps → Alerta Médico → Economia de bateria → Sem restrições
-                </Text>
-              </View>
-            </View>
-
-            {/* Passo 4 — Não perturbe */}
-            <View style={styles.phoneStep}>
-              <View style={styles.phoneStepHeader}>
-                <View style={styles.phoneStepNum}><Text style={styles.phoneStepNumText}>4</Text></View>
-                <Text style={styles.phoneStepTitle}>Modo "Não perturbe" (se usar)</Text>
-              </View>
-              <Text style={styles.phoneStepBody}>
-                Se o celular estiver no modo "Não perturbe" (lua ou sino cortado), os alarmes do Alerta Médico podem ser silenciados.
-                Para excepcionar o app:
-              </Text>
-              <Text style={styles.phoneStepPath}>Configurações → Som → Não perturbe → Exceções de apps → adicione Alerta Médico</Text>
-            </View>
-
-            <TouchableOpacity style={styles.intModalClose} onPress={() => setShowPhoneConfigModal(false)}>
-              <Text style={styles.intModalCloseText}>Entendi</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </View>
-      </Modal>
-
     </ScrollView>
   );
 }
@@ -974,59 +858,8 @@ const styles = StyleSheet.create({
 
   // Herdados do modal de interações (suspenso — ver docs/interacoes-suspensas.md); o modal de
   // configuração do telefone reaproveita estes três.
-  intModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  intModalClose: {
-    marginTop: 12, backgroundColor: '#1C3F7A', borderRadius: 10, padding: 14, alignItems: 'center',
-  },
-  intModalCloseText: { fontSize: 15, color: '#fff', fontWeight: '700' },
 
   // Phone config modal
-  phoneModalBox: {
-    backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20,
-    padding: 20, maxHeight: '92%',
-  },
-  phoneModalTitle: { fontSize: 17, fontWeight: '700', color: '#1C3F7A', marginBottom: 4 },
-  phoneModalSub: { fontSize: 13, color: '#666', marginBottom: 18, lineHeight: 18 },
-  phoneStep: {
-    backgroundColor: '#F2F4F8', borderRadius: 12, padding: 14, marginBottom: 14,
-  },
-  phoneStepHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  phoneStepNum: {
-    width: 24, height: 24, borderRadius: 12, backgroundColor: '#1C3F7A',
-    alignItems: 'center', justifyContent: 'center', marginRight: 10, flexShrink: 0,
-  },
-  phoneStepNumText: { color: '#fff', fontWeight: '700', fontSize: 12 },
-  phoneStepTitle: { fontSize: 14, fontWeight: '700', color: '#1A1F2E', flex: 1 },
-  phoneStepPath: { fontSize: 11, color: '#888', fontStyle: 'italic', marginBottom: 10, lineHeight: 16 },
-  phoneStepBody: { fontSize: 13, color: '#444', lineHeight: 19, marginBottom: 8 },
-  settingsMock: {
-    backgroundColor: '#fff', borderRadius: 10, overflow: 'hidden',
-    borderWidth: 0.5, borderColor: '#dde3f0', marginBottom: 10,
-  },
-  settingsMockRow: {
-    flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 11,
-  },
-  settingsMockLabel: { fontSize: 13, color: '#222', flex: 1 },
-  settingsMockSub: { fontSize: 11, color: '#888', marginTop: 2 },
-  settingsMockChevron: { fontSize: 18, color: '#C0C5D0' },
-  settingsMockToggleOn: {
-    width: 22, height: 22, borderRadius: 11, backgroundColor: '#1C3F7A',
-    alignItems: 'center', justifyContent: 'center',
-  },
-  settingsMockToggleText: { color: '#fff', fontSize: 11, fontWeight: '700' },
-  settingsMockToggleOff: {
-    width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: '#ccc',
-  },
-  phoneTipBox: {
-    backgroundColor: '#fff8f0', borderRadius: 8, padding: 10, borderLeftWidth: 3, borderLeftColor: '#E07B4F',
-  },
-  phoneTipText: { fontSize: 12, color: '#555', lineHeight: 19 },
-  phoneTipBrand: { fontWeight: '700', color: '#E07B4F' },
-  phoneSettingsBtn: {
-    backgroundColor: '#1C3F7A', borderRadius: 8, paddingVertical: 10,
-    alignItems: 'center',
-  },
-  phoneSettingsBtnText: { color: '#fff', fontWeight: '600', fontSize: 13 },
 
   overdueOverlay: {
     flex: 1, backgroundColor: 'rgba(0,0,0,0.55)',
