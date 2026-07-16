@@ -75,9 +75,18 @@ export async function isMedicalIdPending(meds?: Medication[]): Promise<boolean> 
   return medListSignature(list) !== ack;
 }
 
+// A notificação é o empurrão de FORA — quem está com o app aberto já tem o aviso na tela.
+// Com trigger: null ela disparava na hora, um segundo depois da pessoa salvar o remédio e
+// com ela ainda dentro do app: cadastrar 5 remédios rendia 5 avisos seguidos mandando sair
+// para o app Saúde. Era o "cada medicamento adicionado aparece notificação" relatado no
+// iPhone. O atraso resolve a rajada de graça: o identifier é fixo, e reagendar com o mesmo
+// identifier substitui o pendente — 5 cadastros seguidos viram UM aviso, 30 min após o
+// último. TIME_INTERVAL conta a partir do agendamento, que é o que se quer aqui.
+const NOTIF_DELAY_S = 30 * 60;
+
 // Chamado depois de qualquer mudança na lista de remédios. Se opt-in e a lista mudou, dispara
 // UMA notificação por assinatura nova (não re-dispara a cada abertura). O aviso na tela é o
-// sinal durável; a notificação é só o empurrão de fora.
+// sinal durável.
 export async function syncMedicalIdReminder(meds?: Medication[]): Promise<void> {
   if (Platform.OS !== 'ios') return;
   if (!(await getMedIdOptIn())) return;
@@ -93,7 +102,11 @@ export async function syncMedicalIdReminder(meds?: Medication[]): Promise<void> 
         title: 'Atualize sua Ficha Médica',
         body: 'Seus remédios mudaram. Abra o app Saúde e atualize os medicamentos da Ficha Médica (Medical ID) do iPhone.',
       },
-      trigger: null, // imediato
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: NOTIF_DELAY_S,
+        repeats: false,
+      },
     });
     await setKV(KV_NOTIF_SIG, sig);
   } catch (e) {
