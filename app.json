@@ -56,7 +56,14 @@
           ]
         }
       ],
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "@sentry/react-native/expo",
+        {
+          "organization": "alerta-medico",
+          "project": "react-native"
+        }
+      ]
     ],
     "extra": {
       "eas": {
