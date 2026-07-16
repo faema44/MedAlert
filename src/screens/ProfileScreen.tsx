@@ -119,6 +119,8 @@ export default function ProfileScreen() {
             onChangeText={setName}
             placeholder="Seu nome completo"
             autoCapitalize="words"
+            autoCorrect={false}
+            spellCheck={false}
           />
 
           <Text style={styles.label}>Data de nascimento</Text>

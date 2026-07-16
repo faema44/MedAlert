@@ -242,6 +242,8 @@ export default function ContactsScreen() {
               onChangeText={v => setForm(f => ({ ...f, name: v }))}
               placeholder="Ex: Maria (mãe)"
               autoCapitalize="words"
+              autoCorrect={false}
+              spellCheck={false}
             />
 
             <Text style={styles.fieldLabel}>Telefone *</Text>

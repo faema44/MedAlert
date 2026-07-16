@@ -976,6 +976,8 @@ export default function AgendaScreen() {
                 onChangeText={v => setActForm(f => ({ ...f, name: v }))}
                 placeholder="Ex: Tomar água"
                 autoCapitalize="sentences"
+                autoCorrect={false}
+                spellCheck={false}
               />
 
               {actForm.type === 'cycle' ? (
@@ -1156,6 +1158,8 @@ export default function AgendaScreen() {
                 onChangeText={v => setApptForm(f => ({ ...f, doctor_name: v }))}
                 placeholder="Ex: Dr. Carlos Silva"
                 autoCapitalize="words"
+                autoCorrect={false}
+                spellCheck={false}
               />
 
               <Text style={styles.fieldLabel}>Especialidade</Text>

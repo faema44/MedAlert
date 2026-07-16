@@ -156,6 +156,8 @@ export default function CaregiverScreen() {
               onBlur={salvarApelido}
               placeholder="Vovó, Mãe, Seu João..."
               placeholderTextColor="#B0B5C0"
+              autoCorrect={false}
+              spellCheck={false}
               maxLength={30}
             />
             <Text style={styles.hint}>
@@ -208,6 +210,8 @@ export default function CaregiverScreen() {
           onChangeText={setApelidoConvite}
           placeholder="Vovó, Mãe, Seu João..."
           placeholderTextColor="#B0B5C0"
+          autoCorrect={false}
+          spellCheck={false}
           maxLength={30}
         />
         <Text style={styles.hint}>
