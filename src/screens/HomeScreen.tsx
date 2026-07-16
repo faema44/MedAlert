@@ -148,26 +148,6 @@ function alertKey(item: UnifiedItem): string {
   return `${item.id}_${ymd(new Date(item.slotMs!))}_${item.time}`;
 }
 
-function nextDailyInfo(reminders: ActivityReminder[]): { label: string; sortMs: number } | null {
-  const now = new Date();
-  let bestMs = Infinity;
-  for (const r of reminders) {
-    if (!r.is_active) continue;
-    const [h, m] = r.time.split(':').map(Number);
-    if (isNaN(h) || isNaN(m)) continue;
-    const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
-    const pick = t > now ? t.getTime() : new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, h, m).getTime();
-    if (pick < bestMs) bestMs = pick;
-  }
-  if (!isFinite(bestMs)) return null;
-  const best = new Date(bestMs);
-  const hh = String(best.getHours()).padStart(2, '0');
-  const mm = String(best.getMinutes()).padStart(2, '0');
-  const today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const diffDays = Math.round((new Date(best.getFullYear(), best.getMonth(), best.getDate()).getTime() - today0) / 86400000);
-  return { label: `${diffDays === 0 ? 'hoje' : 'amanhã'} às ${hh}:${mm}`, sortMs: bestMs };
-}
-
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp<RootTabs>>();
   const insets = useSafeAreaInsets();
@@ -271,7 +251,7 @@ export default function HomeScreen() {
       if (reminders.length === 0) return;
       const activeReminders = reminders.filter(r => r.is_active);
       const isMuted = activeReminders.length > 0 && activeReminders.every(r => !r.with_sound);
-      const info = nextDailyInfo(reminders);
+      const info = nextReminderInfo(reminders);
       if (!info) return;
       const { time: actTime, dayDiff: actDayDiff } = extractTimeDayDiff(info.sortMs);
       items.push({

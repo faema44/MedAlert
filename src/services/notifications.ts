@@ -195,7 +195,14 @@ export interface ReminderInfo {
   sortMs: number;  // epoch ms — used for sorting
 }
 
-export function nextReminderInfo(reminders: MedicationReminder[]): ReminderInfo | null {
+// Aceita lembrete de medicamento OU de atividade: só o horário e a recorrência importam.
+export interface SchedulableReminder {
+  is_active: boolean;
+  time: string;
+  period?: string;
+}
+
+export function nextReminderInfo(reminders: SchedulableReminder[]): ReminderInfo | null {
   const now = new Date();
   let bestMs = Infinity;
 
