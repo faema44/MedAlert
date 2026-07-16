@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useMemo, useRef, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, Alert, AppState,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, Alert, AppState, Platform,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,7 +12,10 @@ import {
   getAppointments, resolveMedicationLogSlot, updateMedicationStock, getMedicationLog,
 } from '../database/db';
 import EmergencyChecklist from '../components/EmergencyChecklist';
+import { getMedIdOptIn } from '../services/medicalId';
 import { getCyclePhase, CyclePhaseInfo } from '../utils/cyclePhase';
+
+const IS_IOS = Platform.OS === 'ios';
 
 type RootTabs = {
   Home: undefined; Profile: undefined; Medications: undefined;
@@ -195,7 +198,11 @@ export default function HomeScreen() {
     setEmergencyContacts(contacts);
     setNotifActive(alertActive === '1' && !!p?.name);
 
-    const ready = !!p?.name && contacts.length > 0 && alertActive === '1';
+    // iOS: a emergência é a Ficha Médica da Apple — "pronto" = usuário marcou que a usa.
+    // Android: perfil + contato + alerta na tela de bloqueio.
+    const ready = IS_IOS
+      ? await getMedIdOptIn()
+      : (!!p?.name && contacts.length > 0 && alertActive === '1');
     setEmergencyReady(ready);
     // Uma vez que o usuário complete os 3 itens (ou adicione um medicamento), o
     // lembrete correspondente é dispensado para sempre — não volta a incomodar
@@ -506,20 +513,34 @@ export default function HomeScreen() {
             <View style={styles.hintEmergencyIconBox}>
               <Text style={styles.hintEmergencyIconText}>+</Text>
             </View>
-            <Text style={styles.hintExpandedTitle}>Configurar emergência</Text>
+            <Text style={styles.hintExpandedTitle}>{IS_IOS ? 'Configurar Ficha Médica' : 'Configurar emergência'}</Text>
             <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={dismissEmergencyHint} accessibilityLabel="Dispensar aviso de configuração" accessibilityRole="button">
               <Text style={styles.hintClose}>✕</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.hintExpandedList}>
-            <EmergencyChecklist
-              profile={profile}
-              contacts={emergencyContacts}
-              notifActive={notifActive}
-              onPressProfile={() => navigation.navigate('Profile')}
-              onPressContacts={() => navigation.navigate('Contacts')}
-              onPressAlert={() => navigation.navigate('LockScreen', { openAlert: true })}
-            />
+            {IS_IOS ? (
+              <TouchableOpacity
+                style={styles.medIdNudge}
+                activeOpacity={0.7}
+                onPress={() => navigation.navigate('LockScreen')}
+              >
+                <Text style={styles.medIdNudgeText}>
+                  No iPhone, suas informações de emergência ficam na Ficha Médica (Medical ID) da
+                  Apple, na tela de bloqueio. Toque para ver como preencher e manter atualizada.
+                </Text>
+                <Text style={styles.medIdNudgeChevron}>›</Text>
+              </TouchableOpacity>
+            ) : (
+              <EmergencyChecklist
+                profile={profile}
+                contacts={emergencyContacts}
+                notifActive={notifActive}
+                onPressProfile={() => navigation.navigate('Profile')}
+                onPressContacts={() => navigation.navigate('Contacts')}
+                onPressAlert={() => navigation.navigate('LockScreen', { openAlert: true })}
+              />
+            )}
           </View>
         </View>
       )}
@@ -966,6 +987,12 @@ const styles = StyleSheet.create({
   hintEmergencyIconText: { color: '#fff', fontSize: 15, fontWeight: '800', lineHeight: 17 },
   hintExpandedTitle: { fontSize: 15, fontWeight: '700', color: '#1A1F2E', flex: 1 },
   hintExpandedList: { gap: 8 },
+  medIdNudge: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: '#F2F4F8', borderRadius: 10, padding: 12,
+  },
+  medIdNudgeText: { flex: 1, fontSize: 13, color: '#1A1F2E', lineHeight: 19 },
+  medIdNudgeChevron: { fontSize: 22, color: '#C0C5D0', lineHeight: 24 },
 
   // Herdados do modal de interações (suspenso — ver docs/interacoes-suspensas.md); o modal de
   // configuração do telefone reaproveita estes três.

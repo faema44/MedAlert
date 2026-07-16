@@ -35,12 +35,10 @@ const TREATMENT_ENDED_CHANNEL = 'medalert_treatment_ended_v1';
 const TREATMENT_ENDED_CATEGORY = 'treatment_ended_action';
 const LOW_STOCK_CATEGORY = 'low_stock_action';
 
-// iOS não tem notificação "ongoing" (fixa, não descartável) como o Android — em vez
-// disso, reenvia o cartão de emergência periodicamente. Mesmo se o usuário descartar,
-// a próxima da série aparece no horário seguinte. Renovada a cada abertura do app
-// (updateEmergencyNotification é chamado no load() do HomeScreen).
-const EMERGENCY_IOS_REPOST_MIN = 30;
-const EMERGENCY_IOS_REPOST_COUNT = 16; // ~8h de cobertura
+// Versões antigas do iOS agendavam uma série de reposts do cartão de emergência (sem
+// "ongoing" nativo como o Android). Isso empilhava notificações e foi abandonado em favor
+// da Ficha Médica da Apple. O contador continua só para LIMPAR a série de quem atualiza.
+const EMERGENCY_IOS_REPOST_COUNT = 16;
 
 export async function setupReminderCategory(): Promise<void> {
   // Categories don't work in Expo Go (SDK 53+); work normally in production APK/AAB.
@@ -282,31 +280,6 @@ async function cancelEmergencyRepostSeriesIOS(): Promise<void> {
   }
 }
 
-// Reagenda a série inteira com o conteúdo atual — chamado a cada abertura do app,
-// então não há checagem de assinatura aqui (diferente do Android): sem "ongoing"
-// nativo, a série precisa ser renovada mesmo quando o conteúdo não mudou, senão
-// esvazia depois de ~8h e o cartão para de reaparecer.
-async function scheduleEmergencyRepostSeriesIOS(title: string, bigText: string): Promise<void> {
-  await cancelEmergencyRepostSeriesIOS();
-  const body = bigText || 'Toque para ver informações médicas';
-  for (let i = 1; i <= EMERGENCY_IOS_REPOST_COUNT; i++) {
-    await Notifications.scheduleNotificationAsync({
-      identifier: `emergency_ios_${i}`,
-      content: {
-        title,
-        body,
-        data: { type: 'emergency' },
-        sound: false,
-      },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-        seconds: i * EMERGENCY_IOS_REPOST_MIN * 60,
-        repeats: false,
-      } as any,
-    }).catch(() => {});
-  }
-}
-
 // Todos os horários futuros dos lembretes de um medicamento dentro da janela. Diferente de
 // nextReminderInfo (que dá só a próxima ocorrência), aqui expandimos cada dose para o banner
 // poder AVANÇAR sozinho. nmonths (a cada N meses) fica de fora do banner — é raro e a cadência
@@ -425,6 +398,14 @@ export async function updateEmergencyNotification(
   profile: Profile | null,
   medications: Medication[]
 ): Promise<void> {
+  // iOS: a ficha de emergência é a Ficha Médica (Medical ID) da Apple — nenhum app pode
+  // preenchê-la, e a antiga série de reposts locais só empilhava notificações (ver
+  // IOSMedicalIdScreen). O app não posta nada aqui; só limpamos a série de quem atualizou
+  // de uma versão que ainda a agendava.
+  if (Platform.OS === 'ios') {
+    await cancelEmergencyRepostSeriesIOS();
+    return;
+  }
   if (!profile?.name) {
     await clearEmergency();
     await setKV(EMERGENCY_SIGNATURE_KV, '').catch(() => {});
@@ -477,12 +458,6 @@ export async function updateEmergencyNotification(
   // "já alertou" e faria o banner heads-up reaparecer a cada repost.
   const bigText = lines.join('\n');
   const signature = `${title}|${contentText}|${bigText}`;
-
-  if (Platform.OS === 'ios') {
-    await scheduleEmergencyRepostSeriesIOS(title, bigText);
-    await setKV(EMERGENCY_SIGNATURE_KV, signature).catch(() => {});
-    return;
-  }
 
   // Só pula o repost quando o conteúdo é o mesmo E o card ainda está de fato na tela.
   // O Samsung remove notificações ongoing ao chegar um heads-up de lembrete; sem a

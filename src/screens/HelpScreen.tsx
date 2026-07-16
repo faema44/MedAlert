@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Linking, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Linking, Alert, Platform } from 'react-native';
 
 const PRIVACY_URL = 'https://alertamedico.ia.br/privacy.html';
 const CARDIODF_URL = 'https://www.youtube.com/watch?v=lPaP_QgjEW4';
+const IS_IOS = Platform.OS === 'ios';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -43,8 +44,10 @@ export default function HelpScreen() {
 
         <View style={styles.heroFeatures}>
           <View style={styles.heroFeatureRow}>
-            <Text style={styles.heroFeatureIcon}>🔒</Text>
-            <Text style={styles.heroFeatureText}>Exibe seus medicamentos e condição de saúde na tela de bloqueio para socorristas</Text>
+            <Text style={styles.heroFeatureIcon}>{IS_IOS ? '🍎' : '🔒'}</Text>
+            <Text style={styles.heroFeatureText}>{IS_IOS
+              ? 'Ajuda a manter sua Ficha Médica (Medical ID) da Apple atualizada — os socorristas a veem na tela de bloqueio'
+              : 'Exibe seus medicamentos e condição de saúde na tela de bloqueio para socorristas'}</Text>
           </View>
           <View style={styles.heroFeatureRow}>
             <Text style={styles.heroFeatureIcon}>⚡</Text>
@@ -67,55 +70,86 @@ export default function HelpScreen() {
           quais medicamentos você toma antes de aplicar qualquer tratamento — certos remédios
           podem interagir perigosamente com anestesias, contrastes e procedimentos de urgência.
         </Text>
-        <Text style={styles.heroText}>
-          O Alerta Médico mantém essas informações visíveis na tela de bloqueio do celular,
-          acessíveis sem precisar desbloqueá-lo, mesmo que você esteja inconsciente.
-        </Text>
+        <Text style={styles.heroText}>{IS_IOS
+          ? 'No iPhone, essas informações ficam na Ficha Médica (Medical ID) da Apple, acessível na tela de bloqueio em Emergência — sem desbloquear o aparelho. O Alerta Médico ajuda você a preenchê-la e a mantê-la atualizada.'
+          : 'O Alerta Médico mantém essas informações visíveis na tela de bloqueio do celular, acessíveis sem precisar desbloqueá-lo, mesmo que você esteja inconsciente.'}</Text>
       </View>
 
       {/* Como usar */}
       <Section title="Como usar — passo a passo">
-        <Step number="1" text="Abra Configurações → Tela de Bloqueio, preencha o Perfil Médico (nome, tipo sanguíneo, alergias) e ative o alerta. O contato de emergência é opcional." />
+        <Step number="1" text={IS_IOS
+          ? "Abra Configurações → Ficha Médica (Apple). O app mostra sua lista de medicamentos pronta para copiar e ensina a colá-la na Ficha Médica (Medical ID) do app Saúde da Apple."
+          : "Abra Configurações → Tela de Bloqueio, preencha o Perfil Médico (nome, tipo sanguíneo, alergias) e ative o alerta. O contato de emergência é opcional."} />
         <Step number="2" text="Cadastre os medicamentos que você usa na aba Medicamentos, tocando em +. O assistente pergunta nome, dose, horários, prazo e estoque — um passo de cada vez." />
         <Step number="3" text="Use a aba Atividades para registrar atividades físicas, medições (pressão, glicose, peso) e consultas médicas — lembretes são criados automaticamente." />
         <Step number="4" text="Acompanhe na aba Histórico as doses que você tomou ou pulou e as atividades realizadas." />
-        <Step number="5" text="Com o alerta ativo, sua ficha médica fica visível na tela de bloqueio imediatamente — sem precisar desbloquear o celular." />
+        <Step number="5" text={IS_IOS
+          ? "Com a Ficha Médica preenchida no app Saúde, os socorristas a veem na tela de bloqueio em Emergência — sem desbloquear o iPhone."
+          : "Com o alerta ativo, sua ficha médica fica visível na tela de bloqueio imediatamente — sem precisar desbloquear o celular."} />
         <Text style={styles.tip}>
           💡 Após configurar lembretes, a tela Início exibe um card "Próximos lembretes" com o horário mais próximo de cada medicamento (ex.: Zyloric hoje às 14:00 · Glifage amanhã às 08:00). Toque no card para ir à lista de medicamentos.
         </Text>
       </Section>
 
-      {/* Tela de bloqueio */}
-      <Section title="🔒 Ícone na tela de bloqueio">
-        <Text style={styles.bodyText}>
-          Quando o alerta está ativo, uma notificação permanente aparece na tela de bloqueio
-          do Android. Ao expandir (deslizando para baixo), o socorrista vê:
-        </Text>
-        <Bullet text="Seu nome e tipo sanguíneo" />
-        <Bullet text="Todos os medicamentos cadastrados (com dose)" />
-        <Bullet text="Medicamentos críticos sinalizados com ⚠️" />
-        <Bullet text="Alergias e observações médicas" />
-        <Bullet text="Contatos de emergência" />
-        <Bullet text="Próximo lembrete do dia (ex.: 🔔 Zyloric hoje às 14:00)" />
-        <Text style={styles.tip}>
-          💡 Nenhum desbloqueio é necessário. O socorrista vê tudo na própria tela de bloqueio.
-        </Text>
-      </Section>
+      {/* Tela de bloqueio / Ficha Médica */}
+      {IS_IOS ? (
+        <Section title="🍎 Ficha Médica do iPhone (Medical ID)">
+          <Text style={styles.bodyText}>
+            No iPhone, as informações de emergência ficam na Ficha Médica (Medical ID) da Apple —
+            um recurso do próprio sistema, visível na tela de bloqueio em Emergência, sem
+            desbloquear o aparelho. Socorristas são treinados a procurar ali.
+          </Text>
+          <Text style={styles.bodyText}>
+            Nenhum app pode preencher ou ler a Ficha Médica por você — quem preenche é você
+            mesmo, no app Saúde da Apple. O Alerta Médico só ajuda:
+          </Text>
+          <Bullet text="Monta a lista dos seus medicamentos pronta para copiar e colar" />
+          <Bullet text="Lembra você de atualizar a Ficha Médica quando os remédios mudam" />
+          <Text style={styles.bodyText}>
+            Em Configurações → Ficha Médica (Apple), ative os lembretes e siga o passo a passo.
+            Como não temos como conferir o que está na Ficha Médica, o app nunca diz que está feito.
+          </Text>
+          <Text style={styles.tip}>
+            💡 Preencha também nome, tipo sanguíneo, alergias e contatos de emergência direto no
+            app Saúde → Ficha Médica. E marque "Mostrar Quando Bloqueado" para aparecer na
+            tela de bloqueio.
+          </Text>
+        </Section>
+      ) : (
+        <>
+          {/* Tela de bloqueio */}
+          <Section title="🔒 Ícone na tela de bloqueio">
+            <Text style={styles.bodyText}>
+              Quando o alerta está ativo, uma notificação permanente aparece na tela de bloqueio
+              do Android. Ao expandir (deslizando para baixo), o socorrista vê:
+            </Text>
+            <Bullet text="Seu nome e tipo sanguíneo" />
+            <Bullet text="Todos os medicamentos cadastrados (com dose)" />
+            <Bullet text="Medicamentos críticos sinalizados com ⚠️" />
+            <Bullet text="Alergias e observações médicas" />
+            <Bullet text="Contatos de emergência" />
+            <Bullet text="Próximo lembrete do dia (ex.: 🔔 Zyloric hoje às 14:00)" />
+            <Text style={styles.tip}>
+              💡 Nenhum desbloqueio é necessário. O socorrista vê tudo na própria tela de bloqueio.
+            </Text>
+          </Section>
 
-      {/* Configurar tela de bloqueio */}
-      <Section title="⚙️ Como liberar a notificação na tela de bloqueio">
-        <Text style={styles.bodyText}>
-          Para que o conteúdo da notificação apareça na tela de bloqueio (e não apenas um ícone),
-          é necessário ajustar as configurações do Android:
-        </Text>
-        <Step number="1" text='Abra as Configurações do celular' />
-        <Step number="2" text='Vá em Notificações (ou Aplicativos → Alerta Médico → Notificações)' />
-        <Step number="3" text='Em Tela de Bloqueio, selecione "Mostrar todo o conteúdo"' />
-        <Step number="4" text='Confirme que as notificações do Alerta Médico estão ativadas' />
-        <Text style={styles.tip}>
-          💡 O caminho exato varia por fabricante. Em Samsung: Configurações → Notificações → Configurações avançadas → Mostrar na tela de bloqueio. Em Motorola: Configurações → Notificações → Privacidade de notificações.
-        </Text>
-      </Section>
+          {/* Configurar tela de bloqueio */}
+          <Section title="⚙️ Como liberar a notificação na tela de bloqueio">
+            <Text style={styles.bodyText}>
+              Para que o conteúdo da notificação apareça na tela de bloqueio (e não apenas um ícone),
+              é necessário ajustar as configurações do Android:
+            </Text>
+            <Step number="1" text='Abra as Configurações do celular' />
+            <Step number="2" text='Vá em Notificações (ou Aplicativos → Alerta Médico → Notificações)' />
+            <Step number="3" text='Em Tela de Bloqueio, selecione "Mostrar todo o conteúdo"' />
+            <Step number="4" text='Confirme que as notificações do Alerta Médico estão ativadas' />
+            <Text style={styles.tip}>
+              💡 O caminho exato varia por fabricante. Em Samsung: Configurações → Notificações → Configurações avançadas → Mostrar na tela de bloqueio. Em Motorola: Configurações → Notificações → Privacidade de notificações.
+            </Text>
+          </Section>
+        </>
+      )}
 
       {/* Interações */}
       <Section title="⚡ Interações medicamentosas">
@@ -239,31 +273,37 @@ export default function HelpScreen() {
         </Text>
       </Section>
 
-      {/* Bateria Samsung */}
-      <Section title="🔋 Lembretes não tocam? Veja como corrigir">
-        <Text style={styles.bodyText}>
-          Samsung e outros fabricantes bloqueiam alarmes de apps em segundo plano por padrão.
-          Para os lembretes funcionarem mesmo com o celular na tela de bloqueio:
-        </Text>
-        <Step number="1" text="Configurações → Apps → Alerta Médico → Bateria" />
-        <Step number="2" text='Selecione "Sem restrições" (em vez de "Otimizada")' />
-        <TouchableOpacity style={styles.settingsBtn} onPress={() => Linking.openSettings()}>
-          <Text style={styles.settingsBtnText}>⚙️  Abrir configurações do Alerta Médico</Text>
-        </TouchableOpacity>
-        <Text style={styles.tip}>
-          💡 Em Samsung: Configurações → Bateria → Limites de uso em segundo plano → adicione Alerta Médico em "Apps que nunca adormecem".
-        </Text>
-      </Section>
+      {/* Bateria Samsung — só Android */}
+      {!IS_IOS && (
+        <Section title="🔋 Lembretes não tocam? Veja como corrigir">
+          <Text style={styles.bodyText}>
+            Samsung e outros fabricantes bloqueiam alarmes de apps em segundo plano por padrão.
+            Para os lembretes funcionarem mesmo com o celular na tela de bloqueio:
+          </Text>
+          <Step number="1" text="Configurações → Apps → Alerta Médico → Bateria" />
+          <Step number="2" text='Selecione "Sem restrições" (em vez de "Otimizada")' />
+          <TouchableOpacity style={styles.settingsBtn} onPress={() => Linking.openSettings()}>
+            <Text style={styles.settingsBtnText}>⚙️  Abrir configurações do Alerta Médico</Text>
+          </TouchableOpacity>
+          <Text style={styles.tip}>
+            💡 Em Samsung: Configurações → Bateria → Limites de uso em segundo plano → adicione Alerta Médico em "Apps que nunca adormecem".
+          </Text>
+        </Section>
+      )}
 
       {/* Backup */}
       <Section title="💾 Backup dos seus dados">
         <Text style={styles.bodyText}>
           Seus dados são protegidos de duas formas:
         </Text>
-        <Bullet text="Automático — com o backup do Android ativo (Configurações → Google → Backup), uma cópia criptografada vai para sua conta Google e é restaurada sozinha ao trocar de celular ou reinstalar o app" />
-        <Bullet text="Manual — em Configurações → Backup, salve um arquivo no celular (ex.: pasta Downloads) ou compartilhe por WhatsApp/e-mail, e restaure quando precisar" />
+        <Bullet text={IS_IOS
+          ? "Automático — com o backup do iCloud ativo (Ajustes → [seu nome] → iCloud), uma cópia dos dados do app é guardada na sua conta e restaurada ao trocar de iPhone ou reinstalar o app"
+          : "Automático — com o backup do Android ativo (Configurações → Google → Backup), uma cópia criptografada vai para sua conta Google e é restaurada sozinha ao trocar de celular ou reinstalar o app"} />
+        <Bullet text="Manual — em Configurações → Backup, salve um arquivo no celular ou compartilhe por WhatsApp/e-mail, e restaure quando precisar" />
         <Text style={styles.tip}>
-          💡 O backup automático depende do backup do Google estar ativado no aparelho. O arquivo manual é uma garantia extra — guarde-o fora do celular.
+          {IS_IOS
+            ? '💡 O backup automático depende do iCloud estar ativado. O arquivo manual é uma garantia extra — guarde-o fora do celular.'
+            : '💡 O backup automático depende do backup do Google estar ativado no aparelho. O arquivo manual é uma garantia extra — guarde-o fora do celular.'}
         </Text>
       </Section>
 
@@ -273,16 +313,18 @@ export default function HelpScreen() {
           Seus dados de saúde (nome, tipo sanguíneo, medicamentos, contatos) ficam armazenados no seu celular. A Lei Geral de Proteção de Dados (Lei 13.709/2018) classifica dados de saúde como dados sensíveis — e o Alerta Médico respeita essa exigência.
         </Text>
         <Text style={styles.bodyText}>
-          Se o backup do Android estiver ativo na sua conta Google (Configurações → Google → Backup), uma cópia criptografada dos dados do app é guardada no Google Drive e restaurada automaticamente ao reinstalar o app ou trocar de celular com a mesma conta.
+          {IS_IOS
+            ? 'Se o backup do iCloud estiver ativo (Ajustes → [seu nome] → iCloud), uma cópia dos dados do app é guardada na sua conta e restaurada automaticamente ao reinstalar o app ou trocar de iPhone com a mesma conta.'
+            : 'Se o backup do Android estiver ativo na sua conta Google (Configurações → Google → Backup), uma cópia criptografada dos dados do app é guardada no Google Drive e restaurada automaticamente ao reinstalar o app ou trocar de celular com a mesma conta.'}
         </Text>
         <Text style={styles.bodyText}>
           A única exceção é o recurso opcional "Reportar medicamento em falta": ao usá-lo, o
           nome do medicamento é enviado anonimamente — sem qualquer dado pessoal.
         </Text>
         <Text style={styles.bodyText}>
-          A notificação da tela de bloqueio é visível por qualquer pessoa com acesso físico ao
-          aparelho — isso é intencional para emergências. Desative o alerta se não quiser que
-          terceiros vejam suas informações médicas.
+          {IS_IOS
+            ? 'Sua Ficha Médica (Medical ID) da Apple é visível na tela de bloqueio por qualquer pessoa com acesso físico ao iPhone, se você marcar "Mostrar Quando Bloqueado" — isso é intencional para emergências. O ajuste fica no app Saúde.'
+            : 'A notificação da tela de bloqueio é visível por qualquer pessoa com acesso físico ao aparelho — isso é intencional para emergências. Desative o alerta se não quiser que terceiros vejam suas informações médicas.'}
         </Text>
       </Section>
 
@@ -310,10 +352,9 @@ export default function HelpScreen() {
 
         <Text style={styles.warningLabel}>Funcionamento depende do seu celular</Text>
         <Text style={styles.bodyText}>
-          A exibição na tela de bloqueio, os lembretes e as notificações dependem das
-          configurações do seu dispositivo. O comportamento pode variar conforme o fabricante,
-          modelo e versão do Android. O Alerta Médico não garante funcionamento idêntico em todos
-          os aparelhos.
+          {IS_IOS
+            ? 'Os lembretes e as notificações dependem das configurações do seu iPhone (permissão de notificações, Foco/Não Perturbe). A Ficha Médica na tela de bloqueio é um recurso da Apple, preenchido por você no app Saúde. O Alerta Médico não garante funcionamento idêntico em todos os aparelhos.'
+            : 'A exibição na tela de bloqueio, os lembretes e as notificações dependem das configurações do seu dispositivo. O comportamento pode variar conforme o fabricante, modelo e versão do Android. O Alerta Médico não garante funcionamento idêntico em todos os aparelhos.'}
         </Text>
       </Section>
 
