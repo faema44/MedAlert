@@ -12,6 +12,16 @@ import { ActivityLog } from '../database/db';
 
 type Tab = 'medications' | 'activities';
 
+// 'pendente' = a dose disparou e ninguém respondeu (status null). É a fila que o usuário
+// precisa limpar — e era a mais difícil de achar, porque o único filtro era por nome.
+type StatusFiltro = 'todos' | 'pendente' | 'skipped' | 'taken';
+const STATUS_FILTROS: { id: StatusFiltro; label: string }[] = [
+  { id: 'todos',    label: 'Todos' },
+  { id: 'pendente', label: 'Sem resposta' },
+  { id: 'skipped',  label: '✗ Não tomei' },
+  { id: 'taken',    label: '✓ Tomei' },
+];
+
 const LOG_ICONS: Record<string, string> = {
   water: '💧', walk: '🚶', physio: '🏋️', bp: '❤️', glucose: '🩸', weight: '⚖️', cycle: '🌸', custom: '📌',
 };
@@ -49,6 +59,7 @@ export default function HistoryScreen() {
   // Medication log state
   const [medLogs, setMedLogs] = useState<MedicationLogEntry[]>([]);
   const [medFilter, setMedFilter] = useState<string | null>(null);
+  const [statusFiltro, setStatusFiltro] = useState<StatusFiltro>('todos');
 
   // Edit modal state
   const [editingLog, setEditingLog] = useState<MedicationLogEntry | null>(null);
@@ -86,9 +97,16 @@ export default function HistoryScreen() {
 
   // Filtered medication logs
   const filteredMedLogs = useMemo(() => {
-    if (!medFilter) return medLogs;
-    return medLogs.filter(l => l.medication_name === medFilter);
-  }, [medLogs, medFilter]);
+    return medLogs.filter(l => {
+      if (medFilter && l.medication_name !== medFilter) return false;
+      if (statusFiltro === 'todos') return true;
+      const s = logStatus(l);
+      // Os avulsos (encerrado, estoque baixo, dispensado) não são dose respondida:
+      // caem fora de qualquer filtro de status, e só aparecem em "Todos".
+      if (statusFiltro === 'pendente') return s === null;
+      return s === statusFiltro;
+    });
+  }, [medLogs, medFilter, statusFiltro]);
 
   // Grouped by day
   const groupedMedLogs = useMemo(() => {
@@ -150,16 +168,40 @@ export default function HistoryScreen() {
     setEditStatus(status === 'skipped' ? 'skipped' : 'taken');
     setEditHour(d.getHours());
     setEditMinute(d.getMinutes());
-    setEditingLog(log);
+    setShowEditTimePicker(false); // o "próximo" reusa o modal aberto: sem isto o picker
+    setEditingLog(log);           // do item anterior viria junto para o seguinte
+  }
+
+  async function gravarEdicao(log: MedicationLogEntry) {
+    const d = parseDate(log.scheduled_at);
+    d.setHours(editHour, editMinute, 0, 0);
+    await updateMedicationLogEntry(log.id, editStatus, d.toISOString());
   }
 
   async function saveEditLog() {
     if (!editingLog) return;
-    const d = parseDate(editingLog.scheduled_at);
-    d.setHours(editHour, editMinute, 0, 0);
-    await updateMedicationLogEntry(editingLog.id, editStatus, d.toISOString());
+    await gravarEdicao(editingLog);
     setEditingLog(null);
     loadMedLogs();
+  }
+
+  // O próximo da fila JÁ filtrada, calculado antes de gravar: assim que o registro é
+  // respondido ele sai do filtro "Sem resposta", e procurar depois não acharia nada.
+  const proximoDaFila = useMemo(() => {
+    if (!editingLog) return null;
+    const i = filteredMedLogs.findIndex(l => l.id === editingLog.id);
+    return i >= 0 ? filteredMedLogs[i + 1] ?? null : null;
+  }, [editingLog, filteredMedLogs]);
+
+  async function salvarEProximo() {
+    if (!editingLog) return;
+    const prox = proximoDaFila;
+    await gravarEdicao(editingLog);
+    await loadMedLogs();
+    // Troca o CONTEÚDO do modal em vez de fechar e reabrir: fechar+abrir no mesmo tique
+    // é o gotcha de Modal do iOS, e piscaria a tela a cada item.
+    if (prox) openEditLog(prox);
+    else setEditingLog(null);
   }
 
   function handleDeleteMedLogs() {
@@ -228,6 +270,21 @@ export default function HistoryScreen() {
             </ScrollView>
           )}
 
+          {/* Filtro por status — o de nome não ajuda a achar a fila pendente */}
+          <View style={styles.statusFiltroRow}>
+            {STATUS_FILTROS.map(f => (
+              <TouchableOpacity
+                key={f.id}
+                style={[styles.statusChip, statusFiltro === f.id && styles.statusChipActive]}
+                onPress={() => setStatusFiltro(f.id)}
+              >
+                <Text style={[styles.statusChipText, statusFiltro === f.id && styles.statusChipTextActive]} numberOfLines={1}>
+                  {f.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
           {/* Header row */}
           <View style={styles.histHeader}>
             <Text style={styles.histCount}>{filteredMedLogs.length} registro(s)</Text>
@@ -242,11 +299,25 @@ export default function HistoryScreen() {
             style={{ flex: 1 }}
             contentContainerStyle={styles.list}
             ListEmptyComponent={
-              <View style={styles.empty}>
-                <Text style={styles.emptyIcon}>💊</Text>
-                <Text style={styles.emptyText}>Nenhum registro ainda.</Text>
-                <Text style={styles.emptyHint}>Os lembretes de medicamentos aparecerão aqui.</Text>
-              </View>
+              // Com filtro ativo, "nenhum registro ainda" seria mentira — e em "Sem
+              // resposta" a lista vazia é a boa notícia, não a ausência de dados.
+              medFilter || statusFiltro !== 'todos' ? (
+                <View style={styles.empty}>
+                  <Text style={styles.emptyIcon}>{statusFiltro === 'pendente' ? '✅' : '🔍'}</Text>
+                  <Text style={styles.emptyText}>
+                    {statusFiltro === 'pendente' ? 'Nenhuma dose sem resposta.' : 'Nada com este filtro.'}
+                  </Text>
+                  <Text style={styles.emptyHint}>
+                    {statusFiltro === 'pendente' ? 'Sua fila está limpa.' : 'Toque em "Todos" para ver tudo.'}
+                  </Text>
+                </View>
+              ) : (
+                <View style={styles.empty}>
+                  <Text style={styles.emptyIcon}>💊</Text>
+                  <Text style={styles.emptyText}>Nenhum registro ainda.</Text>
+                  <Text style={styles.emptyHint}>Os lembretes de medicamentos aparecerão aqui.</Text>
+                </View>
+              )
             }
             renderItem={({ item }) => {
               if (item.type === 'header') {
@@ -414,6 +485,14 @@ export default function HistoryScreen() {
               <TouchableOpacity style={styles.editSaveBtn} onPress={saveEditLog}>
                 <Text style={styles.editSaveBtnText}>Salvar</Text>
               </TouchableOpacity>
+              {/* Só em "Não tomei": aí o horário não quer dizer nada (não houve dose), então
+                  o registro está completo e dá para emendar no próximo com um toque. Em
+                  "Tomei" o horário importa, e emendar gravaria a hora prevista por engano. */}
+              {editStatus === 'skipped' && proximoDaFila && (
+                <TouchableOpacity style={styles.editNextBtn} onPress={salvarEProximo}>
+                  <Text style={styles.editNextBtnText}>Salvar e próximo ›</Text>
+                </TouchableOpacity>
+              )}
               <TouchableOpacity style={styles.editCancelBtn} onPress={() => setEditingLog(null)}>
                 <Text style={styles.editCancelBtnText}>Cancelar</Text>
               </TouchableOpacity>
@@ -450,6 +529,15 @@ const styles = StyleSheet.create({
   filterChipText: { fontSize: 13, color: '#444', fontWeight: '600' },
   filterChipTextActive: { color: '#fff' },
   filterSep: { width: 1, height: 24, backgroundColor: 'rgba(0,0,0,0.1)', marginHorizontal: 4 },
+
+  statusFiltroRow: { flexDirection: 'row', gap: 6, paddingHorizontal: 14, paddingBottom: 8 },
+  statusChip: {
+    flex: 1, backgroundColor: '#fff', borderRadius: 8, paddingVertical: 7, paddingHorizontal: 4,
+    borderWidth: 1, borderColor: '#C8CDD8', alignItems: 'center',
+  },
+  statusChipActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
+  statusChipText: { fontSize: 11.5, color: '#444', fontWeight: '600' },
+  statusChipTextActive: { color: '#fff' },
 
   histHeader: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
@@ -525,6 +613,11 @@ const styles = StyleSheet.create({
   editTimeInputText: { fontSize: 20, fontWeight: '700', color: '#1C3F7A' },
   editSaveBtn: { backgroundColor: '#1C3F7A', borderRadius: 10, paddingVertical: 12, alignItems: 'center' },
   editSaveBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  editNextBtn: {
+    backgroundColor: '#E07B4F', borderRadius: 10, paddingVertical: 12,
+    alignItems: 'center', marginTop: 8,
+  },
+  editNextBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
   editCancelBtn: { paddingVertical: 12, alignItems: 'center' },
   editCancelBtnText: { color: '#999', fontSize: 14, fontWeight: '600' },
 });
