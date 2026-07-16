@@ -13,6 +13,7 @@
     },
     "production": {
       "autoIncrement": true,
+      "environment": "production",
       "env": {
         "SENTRY_ALLOW_FAILURE": "true"
       }
