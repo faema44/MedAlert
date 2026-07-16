@@ -11,7 +11,7 @@ import {
   getAppointments, resolveMedicationLogSlot, updateMedicationStock, getMedicationLog,
 } from '../database/db';
 import EmergencyChecklist from '../components/EmergencyChecklist';
-import { getMedIdOptIn } from '../services/medicalId';
+import { getMedIdOptIn, isMedicalIdPending } from '../services/medicalId';
 import { getCyclePhase, CyclePhaseInfo } from '../utils/cyclePhase';
 
 const IS_IOS = Platform.OS === 'ios';
@@ -158,6 +158,7 @@ export default function HomeScreen() {
   const [emergencyHintDismissedAt, setEmergencyHintDismissedAt] = useState<string | null>(null);
   const [foregroundAlerts, setForegroundAlerts] = useState<UnifiedItem[]>([]);
   const [staleStockDoses, setStaleStockDoses] = useState(0);
+  const [medIdPending, setMedIdPending] = useState(false);
   const [cycleStatus, setCycleStatus] = useState<{ activityId: number; name: string; phase: CyclePhaseInfo; cycleLength: number } | null>(null);
   const [fgHModalItem, setFgHModalItem] = useState<UnifiedItem | null>(null);
   const [fgHModalHour, setFgHModalHour] = useState(0);
@@ -181,6 +182,12 @@ export default function HomeScreen() {
       ? await getMedIdOptIn()
       : (!!p?.name && contacts.length > 0 && alertActive === '1');
     setEmergencyReady(ready);
+    // A notificação do Medical ID é o empurrão de FORA e some sozinha (ou é empurrada
+    // por outra que chegue depois). O sinal durável vivia só dentro de Configurações →
+    // Ficha Médica, a dois toques daqui — e o card de setup some assim que a pessoa liga
+    // o opt-in. Ou seja, quem já usa o recurso não tinha NADA na Home avisando que a
+    // ficha ficou velha. Uma ficha desatualizada é mais perigosa que uma vazia.
+    setMedIdPending(ready && IS_IOS ? await isMedicalIdPending(m).catch(() => false) : false);
     // Uma vez que o usuário complete os 3 itens (ou adicione um medicamento), o
     // lembrete correspondente é dispensado para sempre — não volta a incomodar
     // mesmo se o usuário desfizer a configuração depois.
@@ -522,6 +529,26 @@ export default function HomeScreen() {
         </View>
       )}
 
+      {/* Fica até ser RESOLVIDO (o "Já atualizei" da tela da Ficha Médica), não até ser
+          dispensado: dispensar não atualiza a ficha que o socorrista vai ler. Primeiro da
+          tela porque é o único item aqui que é segurança, não organização. */}
+      {medIdPending && (
+        <TouchableOpacity
+          style={styles.medIdPendingCard}
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('LockScreen')}
+        >
+          <Text style={styles.hintIcon}>🍎</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.medIdPendingTitle}>Ficha Médica desatualizada</Text>
+            <Text style={styles.medIdPendingSub}>
+              Seus remédios mudaram. Toque para copiar a lista e atualizar no app Saúde.
+            </Text>
+          </View>
+          <Text style={styles.cardChevron}>›</Text>
+        </TouchableOpacity>
+      )}
+
       {cycleStatus && (
         <TouchableOpacity
           style={styles.cycleCard}
@@ -829,6 +856,13 @@ const styles = StyleSheet.create({
   },
   stockWarnTitle: { fontSize: 14, fontWeight: '700', color: '#E07B4F' },
   stockWarnSub: { fontSize: 12, color: '#8A8F9D', marginTop: 1 },
+  medIdPendingCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: '#fff', borderRadius: 12, padding: 12,
+    marginBottom: 10, borderWidth: 1.5, borderColor: '#E07B4F',
+  },
+  medIdPendingTitle: { fontSize: 14, fontWeight: '700', color: '#E07B4F' },
+  medIdPendingSub: { fontSize: 12, color: '#8A8F9D', marginTop: 1 },
   hintIcon: { fontSize: 22 },
   hintTitle: { fontSize: 14, fontWeight: '700', color: '#1A1F2E' },
   hintSub: { fontSize: 12, color: '#8A8F9D', marginTop: 1 },
