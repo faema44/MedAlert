@@ -830,11 +830,18 @@ export default function MedicationsScreen() {
                 <ActivityIndicator size="small" color="#1C3F7A" style={{ marginLeft: 2, marginRight: 6 }} />
               )}
             </View>
+            {/* autoCorrect OFF não é preferência: nome de remédio nunca está no dicionário, então
+                o corretor do iOS só pode errar. E ele corrompia em silêncio — o Keyboard.dismiss()
+                do applySuggestion CONFIRMA a correção pendente, que dispara onChangeText por cima
+                do nome que a sugestão acabou de gravar (digitar "dexa" + tocar em "Dexametasona"
+                salvava "deixa"). Ver applySuggestion. */}
             <TextInput
               style={[styles.fieldInput, styles.wizBigInput]}
               value={form.generic_name}
               onChangeText={handleGenericNameChange}
               autoCapitalize="words"
+              autoCorrect={false}
+              spellCheck={false}
               placeholder={entryType === 'fitoterapico' ? 'Ex: Ginkgo Biloba...' : 'Ex: Losartana...'}
               placeholderTextColor="#bbb"
             />

@@ -203,11 +203,15 @@ export default function ProfileScreen() {
           <Text style={styles.sectionTitle}>Informações Médicas</Text>
 
           <Text style={styles.label}>Alergias</Text>
+          {/* Nome de remédio não está no dicionário: o corretor só pode estragar, e aqui
+              o estrago vai para a ficha que o socorrista lê. */}
           <TextInput
             style={[styles.input, styles.inputMultiline]}
             value={allergies}
             onChangeText={setAllergies}
             placeholder="Ex: Penicilina, Dipirona, látex..."
+            autoCorrect={false}
+            spellCheck={false}
             multiline
             numberOfLines={3}
           />

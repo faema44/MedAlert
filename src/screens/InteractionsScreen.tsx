@@ -183,6 +183,8 @@ export default function InteractionsScreen() {
                   onChangeText={setSearch}
                   placeholder="Buscar interação..."
                   placeholderTextColor="#9CA3AF"
+                  autoCorrect={false}
+                  spellCheck={false}
                   clearButtonMode="while-editing"
                 />
               </View>
@@ -257,6 +259,8 @@ export default function InteractionsScreen() {
                 onChangeText={setMedSearch}
                 placeholder="Buscar medicamento..."
                 placeholderTextColor="#9CA3AF"
+                autoCorrect={false}
+                spellCheck={false}
                 clearButtonMode="while-editing"
               />
             </View>
@@ -288,6 +292,8 @@ export default function InteractionsScreen() {
                 onChangeText={setPhytoSearch}
                 placeholder="Buscar fitoterápico..."
                 placeholderTextColor="#9CA3AF"
+                autoCorrect={false}
+                spellCheck={false}
                 clearButtonMode="while-editing"
               />
             </View>
