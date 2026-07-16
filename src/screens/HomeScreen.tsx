@@ -157,7 +157,7 @@ export default function HomeScreen() {
   const [medsHintDismissedAt, setMedsHintDismissedAt] = useState<string | null>(null);
   const [emergencyHintDismissedAt, setEmergencyHintDismissedAt] = useState<string | null>(null);
   const [foregroundAlerts, setForegroundAlerts] = useState<UnifiedItem[]>([]);
-  const [staleStockDoses, setStaleStockDoses] = useState(0);
+  const [staleStockMeds, setStaleStockMeds] = useState(0);
   const [medIdPending, setMedIdPending] = useState(false);
   const [cycleStatus, setCycleStatus] = useState<{ activityId: number; name: string; phase: CyclePhaseInfo; cycleLength: number } | null>(null);
   const [fgHModalItem, setFgHModalItem] = useState<UnifiedItem | null>(null);
@@ -305,11 +305,18 @@ export default function HomeScreen() {
     const today0 = new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate()).getTime();
 
     const overdue: UnifiedItem[] = [];
-    // Doses sem resposta cujo cartão já expirou, em medicamentos COM controle de estoque:
-    // o app descontou nada e nunca mais vai perguntar, então o estoque só volta a bater se
-    // o usuário ajustar o registro no Histórico. Janela de 7 dias, a mesma de
+    // Medicamentos COM controle de estoque que têm dose sem resposta cujo cartão já expirou:
+    // o app não descontou nada e nunca mais vai perguntar, então o estoque só volta a bater
+    // se o usuário ajustar o registro no Histórico. Janela de 7 dias, a mesma de
     // reconcileMissedDoses() — o que é mais velho que isso não tem log criado nem conserto.
-    let staleStockDoses = 0;
+    //
+    // Conta MEDICAMENTO, não dose, e o motivo não é só texto: estoque é por medicamento, e
+    // um remédio 3x/dia esquecido um dia rende 3 doses de UM estoque errado. Contar dose
+    // ainda convidava a uma comparação que não existe — o Histórico lista as pendentes de
+    // TODOS os remédios, e aqui só entram os que têm estoque cadastrado (sem estoque não há
+    // estoque para errar). Os números nunca batiam, e o usuário concluía, com razão, que um
+    // dos dois estava mentindo.
+    const staleStockMeds = new Set<number>();
 
     m.forEach((med, idx) => {
       const active = (medReminders[idx] ?? []).filter(r => r.is_active);
@@ -326,7 +333,7 @@ export default function HomeScreen() {
       const live: MedSlot[] = [];
       for (const s of pending) {
         if (nowMs < alertExpiryMs(s, allSlots)) live.push(s);
-        else if (med.stock_quantity != null && med.save_history !== 0) staleStockDoses++;
+        else if (med.stock_quantity != null && med.save_history !== 0) staleStockMeds.add(med.id);
       }
 
       // Um cartão por medicamento: a dose vencida mais antiga ainda dentro da janela.
@@ -351,7 +358,7 @@ export default function HomeScreen() {
       });
     });
     setForegroundAlerts(overdue);
-    setStaleStockDoses(staleStockDoses);
+    setStaleStockMeds(staleStockMeds.size);
   }, []);
 
   useFocusEffect(useCallback(() => { load(); clearBadge(); }, [load]));
@@ -566,15 +573,15 @@ export default function HomeScreen() {
         </TouchableOpacity>
       )}
 
-      {staleStockDoses > 0 && (
+      {staleStockMeds > 0 && (
         <TouchableOpacity style={styles.stockWarnCard} activeOpacity={0.8} onPress={() => navigation.navigate('History')}>
           <Text style={styles.hintIcon}>📦</Text>
           <View style={{ flex: 1 }}>
             <Text style={styles.stockWarnTitle}>Estoque pode estar desatualizado</Text>
             <Text style={styles.stockWarnSub}>
-              {staleStockDoses === 1
-                ? '1 dose ficou sem resposta e saiu da tela. Ajuste no Histórico para o estoque ficar correto.'
-                : `${staleStockDoses} doses ficaram sem resposta e saíram da tela. Ajuste no Histórico para o estoque ficar correto.`}
+              {staleStockMeds === 1
+                ? '1 medicamento teve dose sem resposta — o estoque dele pode estar errado. Ajuste no Histórico.'
+                : `${staleStockMeds} medicamentos tiveram doses sem resposta — o estoque deles pode estar errado. Ajuste no Histórico.`}
             </Text>
           </View>
           <Text style={styles.cardChevron}>›</Text>
