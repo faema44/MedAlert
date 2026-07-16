@@ -580,8 +580,8 @@ export default function HomeScreen() {
             <Text style={styles.stockWarnTitle}>Estoque pode estar desatualizado</Text>
             <Text style={styles.stockWarnSub}>
               {staleStockMeds === 1
-                ? '1 medicamento teve dose sem resposta — o estoque dele pode estar errado. Ajuste no Histórico.'
-                : `${staleStockMeds} medicamentos tiveram doses sem resposta — o estoque deles pode estar errado. Ajuste no Histórico.`}
+                ? '1 medicamento teve dose sem resposta. Ajuste no Histórico para o estoque ficar correto.'
+                : `${staleStockMeds} medicamentos tiveram doses sem resposta. Ajuste no Histórico para o estoque ficar correto.`}
             </Text>
           </View>
           <Text style={styles.cardChevron}>›</Text>
