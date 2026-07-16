@@ -150,6 +150,24 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
 
 const navRef = createNavigationContainerRef<any>();
 
+// Toque em notificação com o app MORTO chega ANTES de existir para onde navegar: o
+// NavigationContainer só monta depois do dbReady, e até lá navRef.isReady() é falso.
+// Um `if (isReady) navigate()` seco perderia o toque calado — justamente no caso mais
+// comum, que é o app fechado quando o aviso chega. Aqui a intenção fica guardada e é
+// gasta no onReady do container.
+let rotaPendente: { rota: string; params?: object } | null = null;
+
+function navegarQuandoPuder(rota: string, params?: object) {
+  if (navRef.isReady()) navRef.navigate(rota, params);
+  else rotaPendente = { rota, params };
+}
+
+function gastarRotaPendente() {
+  const p = rotaPendente;
+  rotaPendente = null;
+  if (p && navRef.isReady()) navRef.navigate(p.rota, p.params);
+}
+
 async function checkLowStockAndNotify(medicationId: number, medName: string, newStock: number) {
   const [reminders, med] = await Promise.all([
     getRemindersForMedication(medicationId).catch(() => []),
@@ -379,6 +397,7 @@ function AppNavigator() {
       onTreatmentEndedOk: async (medicationId) => {
         await archiveMedication(medicationId).catch(() => {});
       },
+      onMedicalIdTap: () => navegarQuandoPuder('LockScreen'),
     });
 
     return () => { cleanupMed(); cleanupAct(); cleanupResponse(); };
@@ -513,7 +532,7 @@ function AppNavigator() {
 
   return (
     <>
-      <NavigationContainer ref={navRef} onStateChange={refreshHasPatients}>
+      <NavigationContainer ref={navRef} onReady={gastarRotaPendente} onStateChange={refreshHasPatients}>
         <StatusBar style="light" />
         <Tab.Navigator
           screenOptions={({ route, navigation }) => ({

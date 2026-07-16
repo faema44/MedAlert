@@ -1225,6 +1225,7 @@ export interface NotificationResponseHandlers {
   onActivityMeasure:   (activityId: number, notifId: string) => void;
   onActivityDefault:   (payload: ActivityAlertPayload) => void;
   onTreatmentEndedOk:  (medicationId: number) => void;
+  onMedicalIdTap:      () => void;
 }
 
 export function initResponseListeners(handlers: NotificationResponseHandlers): () => void {
@@ -1282,6 +1283,12 @@ export function initResponseListeners(handlers: NotificationResponseHandlers): (
     // Aviso de estoque baixo é sticky — só o OK (ou toque) remove
     if (data?.type === 'low_stock') {
       dismissNotification(notifId).catch(() => {});
+    }
+
+    // "Atualize sua Ficha Médica": abrir na Home deixava a pessoa a dois toques da
+    // lista que a própria notificação mandou copiar.
+    if (data?.type === 'medid') {
+      handlers.onMedicalIdTap();
     }
   });
   return () => sub.remove();

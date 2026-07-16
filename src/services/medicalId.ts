@@ -101,6 +101,9 @@ export async function syncMedicalIdReminder(meds?: Medication[]): Promise<void> 
       content: {
         title: 'Atualize sua Ficha Médica',
         body: 'Seus remédios mudaram. Abra o app Saúde e atualize os medicamentos da Ficha Médica (Medical ID) do iPhone.',
+        // Sem type o toque não tem como ser roteado e o app abre na Home — longe da
+        // lista que esta mesma notificação está mandando a pessoa copiar.
+        data: { type: 'medid' },
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
