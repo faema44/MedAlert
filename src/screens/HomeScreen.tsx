@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Linking, Alert, AppState, Platform,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { TIME_DISPLAY } from '../utils/datePickerDisplay';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation, NavigationProp } from '@react-navigation/native';
 import {
@@ -727,7 +728,7 @@ export default function HomeScreen() {
                   value={(() => { const d = new Date(); d.setHours(fgHModalHour, fgHModalMinute, 0, 0); return d; })()}
                   mode="time"
                   is24Hour={true}
-                  display="clock"
+                  display={TIME_DISPLAY}
                   onChange={(e, date) => {
                     setShowFgHTimePicker(false);
                     if (e.type === 'set' && date) { setFgHModalHour(date.getHours()); setFgHModalMinute(date.getMinutes()); }

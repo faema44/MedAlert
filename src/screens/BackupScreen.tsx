@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { File, Paths } from 'expo-file-system';
 import { StorageAccessFramework, writeAsStringAsync } from 'expo-file-system/legacy';
@@ -9,10 +9,15 @@ import { exportBackup, importBackup, getAppointments } from '../database/db';
 import { rescheduleAllActiveNotifications, scheduleAppointmentReminders } from '../services/notifications';
 import * as Notifications from 'expo-notifications';
 
+const IS_IOS = Platform.OS === 'ios';
+
 export default function BackupScreen() {
   const insets = useSafeAreaInsets();
 
   async function handleExport() {
+    // O Storage Access Framework é só do Android. No iOS não há pasta a escolher: o
+    // "Salvar em Arquivos" já vem dentro da própria folha de compartilhamento.
+    if (IS_IOS) { exportViaShare(); return; }
     Alert.alert('Exportar backup', 'Onde deseja guardar o arquivo?', [
       { text: 'Cancelar', style: 'cancel' },
       { text: 'Compartilhar', onPress: exportViaShare },
@@ -89,7 +94,9 @@ export default function BackupScreen() {
     <ScrollView style={styles.container} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Backup de Dados</Text>
-        <Text style={styles.backupHint}>Salve seus medicamentos, contatos e atividades em um arquivo no celular (ex.: pasta Downloads) ou compartilhe para nuvem/WhatsApp. Útil ao trocar de celular.</Text>
+        <Text style={styles.backupHint}>{IS_IOS
+          ? 'Salve seus medicamentos, contatos e atividades em um arquivo e guarde no Arquivos/iCloud ou compartilhe por WhatsApp. Útil ao trocar de celular.'
+          : 'Salve seus medicamentos, contatos e atividades em um arquivo no celular (ex.: pasta Downloads) ou compartilhe para nuvem/WhatsApp. Útil ao trocar de celular.'}</Text>
         <TouchableOpacity style={styles.backupBtn} onPress={handleExport}>
           <Text style={styles.backupBtnText}>Exportar backup</Text>
         </TouchableOpacity>
@@ -100,7 +107,9 @@ export default function BackupScreen() {
 
       <View style={styles.infoBox}>
         <Text style={styles.infoText}>
-          ℹ️  O backup automático do Android (Configurações → Google → Backup) já protege seus dados na nuvem. Este backup manual é uma garantia extra — guarde o arquivo fora do celular.
+          ℹ️  {IS_IOS
+            ? 'O backup do iCloud (Ajustes → [seu nome] → iCloud) já protege seus dados na nuvem. Este backup manual é uma garantia extra — guarde o arquivo fora do celular.'
+            : 'O backup automático do Android (Configurações → Google → Backup) já protege seus dados na nuvem. Este backup manual é uma garantia extra — guarde o arquivo fora do celular.'}
         </Text>
       </View>
     </ScrollView>

@@ -4,6 +4,7 @@ import {
   Modal, TextInput, Alert, ScrollView, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { DATE_DISPLAY, TIME_DISPLAY } from '../utils/datePickerDisplay';
 import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -1014,7 +1015,7 @@ export default function AgendaScreen() {
                     <DateTimePicker
                       value={cyclePickerDate}
                       mode="date"
-                      display="calendar"
+                      display={DATE_DISPLAY}
                       onChange={(e: DateTimePickerEvent, date?: Date) => {
                         setShowCycleDatePicker(false);
                         if (e.type === 'set' && date) {
@@ -1193,7 +1194,7 @@ export default function AgendaScreen() {
                   value={(() => { const d = new Date(); d.setHours(apptH, apptM, 0, 0); return d; })()}
                   mode="time"
                   is24Hour={true}
-                  display="clock"
+                  display={TIME_DISPLAY}
                   onChange={(e: DateTimePickerEvent, date?: Date) => {
                     setShowApptTimePicker(false);
                     if (e.type === 'set' && date) { setApptH(date.getHours()); setApptM(date.getMinutes()); }
@@ -1243,7 +1244,7 @@ export default function AgendaScreen() {
         <DateTimePicker
           value={pickerDate}
           mode="date"
-          display="calendar"
+          display={DATE_DISPLAY}
           onChange={(e: DateTimePickerEvent, date?: Date) => {
             setShowDatePicker(false);
             if (e.type === 'set' && date) {

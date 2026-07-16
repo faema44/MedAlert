@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ScrollView, Modal,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { TIME_DISPLAY } from '../utils/datePickerDisplay';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -406,7 +407,7 @@ export default function HistoryScreen() {
                   value={(() => { const d = new Date(); d.setHours(editHour, editMinute, 0, 0); return d; })()}
                   mode="time"
                   is24Hour={true}
-                  display="clock"
+                  display={TIME_DISPLAY}
                   onChange={(e, date) => {
                     setShowEditTimePicker(false);
                     if (e.type === 'set' && date) { setEditHour(date.getHours()); setEditMinute(date.getMinutes()); }
