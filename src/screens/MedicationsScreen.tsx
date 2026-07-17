@@ -398,7 +398,7 @@ export default function MedicationsScreen() {
     setMealMode(false); setMealCafe(''); setMealAlmoco(''); setMealJanta(''); setMealPickerTarget(null);
   }
 
-  function populatePickerFromReminders(rs: MedicationReminder[]) {
+  function populatePickerFromReminders(rs: MedicationReminder[], mealModeSalvo = false) {
     const active = rs.filter(r => r.is_active);
     const first = active[0] ?? rs[0];
     if (!first) { resetPickerState(); return; }
@@ -412,7 +412,10 @@ export default function MedicationsScreen() {
       setTimesPerDay(dayRs.length || 1);
       setTimesPerDayTouched(true);
       const dayTimes = dayRs.map(r => r.time.substring(0, 5));
-      // Pre-populate meal fields by time-of-day so "Usar horários das refeições" shows saved times
+      // Distribui os horários salvos nos campos de refeição pela hora do dia. Isto é
+      // PALPITE (não dá para saber se 08:00 é café ou só "de 8 em 8h"), e por isso não
+      // decide nada sozinho: quem diz que este remédio é de refeição é o meal_mode
+      // gravado. O palpite só preenche os campos para eles não aparecerem vazios.
       setMealCafe(''); setMealAlmoco(''); setMealJanta('');
       for (const t of dayTimes) {
         const hh = parseInt(t.split(':')[0], 10);
@@ -420,6 +423,9 @@ export default function MedicationsScreen() {
         else if (hh < 15) setMealAlmoco(t);
         else setMealJanta(t);
       }
+      // Abre direto na tela das refeições, em vez de em "Vezes por dia" — onde qualquer
+      // toque recalculava horários que a pessoa tinha escolhido um a um.
+      setMealMode(mealModeSalvo);
       if (dayRs.length > 1) {
         setCustomTimes(dayTimes.join(' '));
         setPickerH(null); setPickerM(null);
@@ -519,6 +525,9 @@ export default function MedicationsScreen() {
         end_date: endDate,
         home_reminder: homeReminderRef.current ? 1 : 0,
         save_history: 1,
+        // Só vale para o esquema diário: "refeições" não existe em semanal/mensal, e
+        // guardar 1 ali faria a edição abrir na tela errada.
+        meal_mode: mealMode && reminderPeriod === 'day' ? 1 : 0,
       };
 
       let savedMedId: number;
@@ -640,7 +649,7 @@ export default function MedicationsScreen() {
     setShowModal(true);
     getRemindersForMedication(item.id).then(rs => {
       setReminders(rs);
-      if (rs.length > 0) populatePickerFromReminders(rs);
+      if (rs.length > 0) populatePickerFromReminders(rs, item.meal_mode === 1);
     }).catch(() => {});
   }
 
@@ -769,7 +778,9 @@ export default function MedicationsScreen() {
       const times = customTimes.trim()
         ? customTimes.trim().split(/\s+/).filter(t => /^\d{1,2}:\d{2}$/.test(t))
         : (pickerDisplay ? computeTimes(startTime, timesPerDay) : []);
-      if (times.length > 0) return `Diário · ${times.join(' · ')}`;
+      // "Refeições" só é dito quando o meal_mode foi GRAVADO. Não se deduz da hora:
+      // 07:00/12:00/19:00 e 08:00/14:00/20:00 são indistinguíveis pelo relógio.
+      if (times.length > 0) return `${mealMode ? '🍽 Refeições' : 'Diário'} · ${times.join(' · ')}`;
       return IS_IOS ? 'Sem lembrete — só na Ficha Médica' : 'Sem lembrete — só tela de bloqueio';
     })();
     const deadlineDays = parseInt(durationDays, 10);

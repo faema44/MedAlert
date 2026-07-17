@@ -22,6 +22,7 @@ export interface Medication {
   home_reminder?: number; // 1 = show overdue banner on HomeScreen (default), 0 = off
   save_history?: number; // 1 = pergunta Tomei/Não tomei e salva no histórico (default), 0 = só alerta 15min
   suspended?: number; // 1 = stand-by: sem alarmes/tela de bloqueio, setup preservado (default 0)
+  meal_mode?: number; // 1 = os horários do dia vieram das refeições, não de "Nx por dia" (default 0)
 }
 
 export interface EmergencyContact {
