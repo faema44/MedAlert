@@ -130,6 +130,9 @@ export default function MedicationsScreen() {
   // Interações aguardando o aceite do termo. O detalhe só abre depois do consentimento.
   const [stockInput, setStockInput] = useState('');
   const [unitsPerDoseInput, setUnitsPerDoseInput] = useState('1');
+  // Dose em "cáps" já é a contagem por dose. Enquanto o usuário não ajustar este campo
+  // à mão, ele segue a dose; depois de tocado, a dose não sobrescreve mais.
+  const [unitsPerDoseTouched, setUnitsPerDoseTouched] = useState(false);
   const [durationDays, setDurationDays] = useState('');
   const [hasDeadline, setHasDeadline] = useState(false);
   // No cadastro novo os botões Sim/Não só acendem depois que o usuário toca
@@ -609,7 +612,7 @@ export default function MedicationsScreen() {
     setSuggestions([]); setCommercialSuggestions([]);
     setEntryType('medicamento'); setKnownDrug(false); setCustomNameConfirmed(false);
     setReminders([]); setStockInput(''); setUnitsPerDoseInput('1'); setDurationDays(''); setHasDeadline(false);
-    setDeadlineTouched(false); setSoundTouched(false); setRepeatTouched(false);
+    setDeadlineTouched(false); setSoundTouched(false); setRepeatTouched(false); setUnitsPerDoseTouched(false);
     homeReminderRef.current = true; setHomeReminderEnabled(true);
     lockOnlyRef.current = false;
     resetPickerState();
@@ -634,6 +637,9 @@ export default function MedicationsScreen() {
     setDoseValue(parsed.value); setDoseUnit(parsed.unit); setDoseUnitTouched(!!item.dose);
     setStockInput(item.stock_quantity != null ? String(item.stock_quantity) : '');
     setUnitsPerDoseInput(String(item.units_per_dose ?? 1));
+    // Diferente dos outros "touched": 1 é o default de quem nunca respondeu, então
+    // um cadastro antigo com dose "4 cáps" e 1 aqui ainda aceita o preenchimento pela dose.
+    setUnitsPerDoseTouched((item.units_per_dose ?? 1) > 1);
     setDurationDays(item.end_date ? String(Math.max(0, daysRemaining(item.end_date))) : '');
     setHasDeadline(!!item.end_date);
     // Edição: botões refletem o que está salvo, então já entram acesos
@@ -763,7 +769,7 @@ export default function MedicationsScreen() {
     }
   }
 
-  function computeSummaryRows(): { icon: string; label: string; value: string; step: WizardStep }[] {
+  function computeSummaryRows(): { icon: string; label: string; value: string; step: WizardStep; warn?: string }[] {
     const schedText = (() => {
       if (reminderPeriod === 'week' && selectedWeekdays.length > 0) {
         const days = selectedWeekdays.slice().sort((a, b) => a - b).map(v => WEEKDAYS.find(w => w.value === v)?.label).filter(Boolean).join(', ');
@@ -784,13 +790,22 @@ export default function MedicationsScreen() {
       return IS_IOS ? 'Sem lembrete — só na Ficha Médica' : 'Sem lembrete — só tela de bloqueio';
     })();
     const deadlineDays = parseInt(durationDays, 10);
+    // Rede de segurança pro cadastro salvo antes disto existir: dose em cáps e o estoque
+    // ainda no default 1 que ninguém respondeu. Não bloqueia o Salvar, só mostra a
+    // contradição no item que a resolve. Quem respondeu outro número respondeu de propósito
+    // — avisar aí seria um alarme que o usuário não tem como calar.
+    const doseCaps = doseUnit === 'cáps' ? parseInt(doseValue.trim(), 10) : NaN;
+    const units = parseInt(unitsPerDoseInput.trim(), 10) || 1;
+    const stockWarn = !!stockInput.trim() && doseCaps > 1 && units === 1
+      ? `A dose diz ${doseCaps} cáps, mas o estoque desconta 1 por vez.`
+      : undefined;
     return [
       { icon: '💊', label: 'Nome', value: form.commercial_name.trim() ? `${form.commercial_name.trim()} — ${form.generic_name}` : form.generic_name, step: 'name' },
       { icon: '⚖️', label: 'Dose e observações', value: [form.dose, form.notes].filter(Boolean).join('  ·  ') || 'Não informada', step: 'dose' },
       { icon: '🗓', label: 'Frequência e horários', value: schedText, step: 'period' },
       { icon: '📅', label: 'Prazo do tratamento', value: hasDeadline && !isNaN(deadlineDays) ? `${deadlineDays} dia${deadlineDays !== 1 ? 's' : ''} · termina ${formatEndDate(addDays(deadlineDays))}` : 'Sem prazo', step: 'deadline' },
       { icon: withSound ? '🔔' : '🔕', label: 'Alarme', value: `${withSound ? 'Sim' : 'Não'}  ·  Repete: ${repeatInterval > 0 ? 'Sim' : 'Não'}`, step: 'sound' },
-      { icon: '📦', label: 'Estoque', value: stockInput.trim() ? `${stockInput.trim()} restantes  ·  1 dose = ${unitsPerDoseInput.trim() || '1'}` : 'Sem controle de estoque', step: 'stock' },
+      { icon: '📦', label: 'Estoque', value: stockInput.trim() ? `${stockInput.trim()} restantes  ·  1 dose = ${unitsPerDoseInput.trim() || '1'}` : 'Sem controle de estoque', step: 'stock', warn: stockWarn },
     ];
   }
 
@@ -803,6 +818,16 @@ export default function MedicationsScreen() {
     setEditSnapshot(snap);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reminders]);
+
+  // "4 cáps" na dose já respondeu quantas unidades saem do estoque por vez — perguntar de
+  // novo aqui é o que deixava a dose dizendo 4 e o estoque descontando 1. Só vale pra "cáps":
+  // "500 mg" pode ser 1 comprimido de 500 ou 2 de 250, e aí a pergunta continua necessária.
+  useEffect(() => {
+    if (wizardStep !== 'stock' || unitsPerDoseTouched || doseUnit !== 'cáps') return;
+    const n = parseInt(doseValue.trim(), 10);
+    if (n >= 1) setUnitsPerDoseInput(String(n));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wizardStep]);
 
   function renderWizardStep() {
     switch (wizardStep) {
@@ -1312,19 +1337,26 @@ export default function MedicationsScreen() {
               Deixe em branco para não controlar o estoque
             </Text>
             {!!stockInput.trim() && (
-              <View style={styles.unitsPerDoseRow}>
-                <Text style={styles.unitsPerDoseText}>1 dose =</Text>
-                <TextInput
-                  style={styles.unitsPerDoseInput}
-                  value={unitsPerDoseInput}
-                  onChangeText={v => setUnitsPerDoseInput(v.replace(/\D/g, ''))}
-                  keyboardType="number-pad"
-                  selectTextOnFocus
-                />
-                <Text style={styles.unitsPerDoseText}>
-                  {(parseInt(unitsPerDoseInput, 10) || 1) === 1 ? 'cápsula/comprimido' : 'cápsulas/comprimidos'}
-                </Text>
-              </View>
+              <>
+                <View style={styles.unitsPerDoseRow}>
+                  <Text style={styles.unitsPerDoseText}>1 dose =</Text>
+                  <TextInput
+                    style={styles.unitsPerDoseInput}
+                    value={unitsPerDoseInput}
+                    onChangeText={v => { setUnitsPerDoseInput(v.replace(/\D/g, '')); setUnitsPerDoseTouched(true); }}
+                    keyboardType="number-pad"
+                    selectTextOnFocus
+                  />
+                  <Text style={styles.unitsPerDoseText}>
+                    {(parseInt(unitsPerDoseInput, 10) || 1) === 1 ? 'cápsula/comprimido' : 'cápsulas/comprimidos'}
+                  </Text>
+                </View>
+                {!unitsPerDoseTouched && doseUnit === 'cáps' && parseInt(doseValue.trim(), 10) >= 1 && (
+                  <Text style={{ fontSize: 12, color: '#999', marginTop: 6, marginLeft: 2 }}>
+                    Pela dose que você informou ({form.dose}). Pode corrigir se não for isso.
+                  </Text>
+                )}
+              </>
             )}
           </>
         );
@@ -1344,6 +1376,7 @@ export default function MedicationsScreen() {
                     <View style={{ flex: 1 }}>
                       <Text style={styles.sumLabel}>{r.label}</Text>
                       <Text style={styles.sumValue} numberOfLines={3}>{r.value}</Text>
+                      {!!r.warn && <Text style={styles.sumWarn}>⚠️ {r.warn} Toque para conferir.</Text>}
                     </View>
                     <Text style={styles.sumChevron}>›</Text>
                   </TouchableOpacity>
@@ -1934,6 +1967,7 @@ const styles = StyleSheet.create({
   sumLabel: { fontSize: 11, color: '#8A8F9D', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.4 },
   sumValue: { fontSize: 14, color: '#1A1F2E', fontWeight: '600', marginTop: 2 },
   sumChevron: { fontSize: 22, color: '#C0C5D0' },
+  sumWarn: { fontSize: 12, color: '#E07B4F', fontWeight: '600', marginTop: 4 },
   // Stand-by
   suspendBtn: {
     marginTop: 6, borderRadius: 12, padding: 14, alignItems: 'center',
