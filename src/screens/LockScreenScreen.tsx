@@ -66,8 +66,10 @@ function AndroidLockScreen() {
       await setKV(KV_ALERT_ACTIVE, '0');
       setNotifActive(false);
     } else {
-      await updateEmergencyNotification(profile, medications);
+      // O KV vem ANTES: updateEmergencyNotification só publica a ficha se o alerta já
+      // estiver ligado, senão limpa e volta.
       await setKV(KV_ALERT_ACTIVE, '1');
+      await updateEmergencyNotification(profile, medications);
       setNotifActive(true);
     }
   }

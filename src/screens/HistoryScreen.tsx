@@ -471,6 +471,9 @@ export default function HistoryScreen() {
           <View style={styles.editOverlay}>
             <View style={styles.editBox}>
               <Text style={styles.editTitle} numberOfLines={1}>{editingLog.medication_name}</Text>
+              {/* A data é o que o "Salvar e próximo" troca a cada item — sem ela, quem tem
+                  dias acumulados responde sem saber de qual dose está falando. */}
+              <Text style={styles.editSubtitle}>{dayLabel(parseDate(editingLog.scheduled_at))}</Text>
               <View style={styles.editStatusRow}>
                 <TouchableOpacity
                   style={[styles.editStatusBtn, editStatus === 'taken' && styles.editStatusBtnTakenActive]}
@@ -616,7 +619,8 @@ const styles = StyleSheet.create({
 
   editOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 24 },
   editBox: { backgroundColor: '#fff', borderRadius: 16, padding: 20, width: '100%' },
-  editTitle: { fontSize: 16, fontWeight: '700', color: '#1C3F7A', marginBottom: 14, textAlign: 'center' },
+  editTitle: { fontSize: 16, fontWeight: '700', color: '#1C3F7A', marginBottom: 2, textAlign: 'center' },
+  editSubtitle: { fontSize: 13, color: '#8A8F9D', marginBottom: 14, textAlign: 'center' },
   editStatusRow: { flexDirection: 'row', gap: 8, marginBottom: 14 },
   editStatusBtn: {
     flex: 1, borderRadius: 8, paddingVertical: 10, alignItems: 'center',

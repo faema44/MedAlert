@@ -10,6 +10,7 @@ import { CAREGIVER_CHANNEL } from './caregiver';
 const CHANNEL_ID = 'medalert_emergency_v5';
 const NOTIF_ID = 'emergency';
 const EMERGENCY_SIGNATURE_KV = 'emergency_notif_signature';
+const KV_ALERT_ACTIVE = 'alert_active';
 const NEXT_MED_CHANNEL = 'medalert_next_med_v1';
 // Notificação nativa (NotificationManager.notify), não Expo — precisa de id numérico
 const NEXT_MED_NATIVE_ID = 1002;
@@ -433,7 +434,14 @@ export async function updateEmergencyNotification(
     await cancelEmergencyRepostSeriesIOS();
     return;
   }
-  if (!profile?.name) {
+  // Sem nome não há ficha para montar; e a ficha só vai para a tela de bloqueio se o usuário
+  // tiver LIGADO o alerta. Sem a segunda guarda, salvar o perfil (ou um contato, ou um
+  // remédio) publicava a ficha de quem nunca a ativou — expondo remédios e alergias na tela
+  // de bloqueio, armando o keepalive e o BootReceiver, com o app ainda dizendo "Alerta
+  // desativado". Quem já checa isto na chamada (HomeScreen) segue correto; os demais
+  // dependiam desta guarda não existir.
+  const alertActive = await getKV(KV_ALERT_ACTIVE).catch(() => null);
+  if (!profile?.name || alertActive !== '1') {
     await clearEmergency();
     await setKV(EMERGENCY_SIGNATURE_KV, '').catch(() => {});
     await setKV(NEXT_MED_SIGNATURE_KV, '').catch(() => {});

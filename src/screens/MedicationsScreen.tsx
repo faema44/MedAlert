@@ -740,6 +740,17 @@ export default function MedicationsScreen() {
       Alert.alert('Obrigatório', 'Defina o horário do primeiro aviso.');
       return;
     }
+    // Passar batido aqui deixava o remédio SEM repetição — o padrão mais arriscado sendo o
+    // resultado de não escolher nada. Repete só se pergunta quando há som ("Não" no som já
+    // zera o intervalo e desliga o botão).
+    if (wizardStep === 'sound' && !soundTouched) {
+      Alert.alert('Obrigatório', 'Escolha se o lembrete toca alarme sonoro.');
+      return;
+    }
+    if (wizardStep === 'sound' && withSound && !repeatTouched) {
+      Alert.alert('Obrigatório', 'Escolha se o alarme repete até você responder.');
+      return;
+    }
 
     if (!isNew) {
       setWizardStep(editNextStep(wizardStep, p));
