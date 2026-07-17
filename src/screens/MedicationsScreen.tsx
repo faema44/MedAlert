@@ -145,6 +145,8 @@ export default function MedicationsScreen() {
   const homeReminderRef = useRef(true);
   const lockOnlyRef = useRef(false);
   const wizStepScrollRef = useRef<ScrollView>(null);
+  // Horários de quando o picker de horário abriu — âncora fixa do deslocamento.
+  const horariosAoAbrirRef = useRef('');
 
   // No iOS o picker é uma view INLINE: abrir empurra a roda (~216px) e o Confirmar para
   // baixo do footer, fora da tela — a pessoa gira a hora e fica presa sem ver o botão.
@@ -989,7 +991,7 @@ export default function MedicationsScreen() {
                   </Text>
                   <TouchableOpacity
                     style={[styles.wizTimePicker, { padding: 16, marginTop: 6 }]}
-                    onPress={() => setMealPickerTarget(idx)}
+                    onPress={() => setMealPickerTarget(mealPickerTarget === idx ? null : idx)}
                   >
                     <Text style={[styles.wizTimePickerText, { fontSize: 36 }]}>{item.value || '——:——'}</Text>
                     <Text style={styles.wizTimePickerHint}>{item.value ? 'Toque para alterar' : 'Toque para definir'}</Text>
@@ -1003,11 +1005,8 @@ export default function MedicationsScreen() {
                         else d.setHours(item.defaultH, 0, 0, 0);
                         return d;
                       })()}
-                      onConfirmar={(d) => {
-                        setMealPickerTarget(null);
-                        item.setter(fmtHM(d.getHours(), d.getMinutes()));
-                      }}
-                      onCancelar={() => setMealPickerTarget(null)}
+                      onMudar={(d) => item.setter(fmtHM(d.getHours(), d.getMinutes()))}
+                      onFechar={() => setMealPickerTarget(null)}
                     />
                   )}
                 </View>
@@ -1138,7 +1137,17 @@ export default function MedicationsScreen() {
           <>
             <Text style={styles.wizLabel}>Horário do primeiro aviso</Text>
             <Text style={styles.wizHint}>Obrigatório — toque no relógio para definir</Text>
-            <TouchableOpacity style={styles.wizTimePicker} onPress={() => setShowHorarioPicker(true)}>
+            <TouchableOpacity
+              style={styles.wizTimePicker}
+              onPress={() => {
+                // Ancora os horários ANTES de abrir: o deslocamento abaixo passou a rodar a
+                // cada giro da roda, e precisa medir sempre a partir dos MESMOS horários
+                // originais. Medindo do customTimes vivo, cada giro deslocaria o já
+                // deslocado e o erro se acumularia.
+                horariosAoAbrirRef.current = customTimes;
+                setShowHorarioPicker(v => !v);
+              }}
+            >
               <Text style={styles.wizTimePickerText}>{pickerDisplay || '——:——'}</Text>
               <Text style={styles.wizTimePickerHint}>{pickerDisplay ? 'Toque para alterar' : 'Toque para definir o horário'}</Text>
             </TouchableOpacity>
@@ -1151,14 +1160,19 @@ export default function MedicationsScreen() {
               <PickerDataHora
                 aoAparecer={revelarPicker}
                 valor={(() => { const d = new Date(); d.setHours(pickerH ?? 8, pickerM ?? 0, 0, 0); return d; })()}
-                onConfirmar={(d) => {
-                  setShowHorarioPicker(false);
+                onMudar={(d) => {
                   setPickerH(d.getHours()); setPickerM(d.getMinutes());
                   // Edição com vários horários/dia: customTimes guarda os horários antigos
                   // e vence no doSaveWizard — sem isto, o horário novo era ignorado.
                   // Desloca todos mantendo os intervalos (08:00/20:00 → 09:00/21:00).
-                  if (customTimes.trim()) {
-                    const times = customTimes.trim().split(/[\s,]+/).filter(t => /^\d{1,2}:\d{2}$/.test(t)).sort();
+                  //
+                  // Mede SEMPRE a partir dos horários de quando o picker abriu (a âncora),
+                  // nunca do customTimes vivo: como isto roda a cada giro da roda, medir do
+                  // vivo deslocaria o já deslocado e o erro se acumularia a cada minuto
+                  // passado. Com a âncora fixa, rodar 1 ou 60 vezes dá o mesmo resultado.
+                  const base = horariosAoAbrirRef.current;
+                  if (base.trim()) {
+                    const times = base.trim().split(/[\s,]+/).filter(t => /^\d{1,2}:\d{2}$/.test(t)).sort();
                     if (times.length > 0) {
                       const [oh, om] = times[0].split(':').map(Number);
                       const delta = (d.getHours() * 60 + d.getMinutes()) - (oh * 60 + om);
@@ -1171,7 +1185,7 @@ export default function MedicationsScreen() {
                     }
                   }
                 }}
-                onCancelar={() => setShowHorarioPicker(false)}
+                onFechar={() => setShowHorarioPicker(false)}
               />
             )}
           </>

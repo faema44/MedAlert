@@ -1,33 +1,42 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { DATE_DISPLAY, TIME_DISPLAY } from '../utils/datePickerDisplay';
 
 // As duas plataformas entregam o picker por caminhos incompatíveis, e tratá-las igual
 // quebra o iPhone em silêncio:
 //
-// Android — diálogo nativo. onChange dispara UMA vez, com 'set' (escolheu) ou 'dismissed'
-// (cancelou), e o diálogo se fecha sozinho. Fechar no onChange é o certo.
+// Android — diálogo flutuante. onChange dispara UMA vez, com 'set' (escolheu) ou
+// 'dismissed' (cancelou), e o diálogo se fecha sozinho. Não ocupa espaço no formulário.
 //
-// iOS — não há diálogo: o picker é uma view inline na árvore. No spinner, onChange dispara
-// a CADA giro da roda, sempre com type 'set'. Fechar no primeiro onChange fazia o picker
-// sumir no primeiro movimento gravando o valor de passagem. Por isso o iOS mantém um
-// rascunho local e só devolve o valor no Confirmar.
+// iOS — não há diálogo: o picker é uma view inline que EMPURRA o formulário. No spinner,
+// onChange dispara a CADA giro da roda, sempre com type 'set'.
 //
-// Renderize condicionalmente ({mostrar && <PickerDataHora .../>}): o rascunho do iOS nasce
-// de `valor` na montagem. E nada de Modal aqui — estes pickers já vivem DENTRO de modais,
-// e o iOS não empilha dois.
+// Por que existe rascunho no iOS: a roda é controlada por `value`. Se o valor do PAI
+// mudasse a cada giro, o `value` mudaria embaixo do dedo e a roda saltaria de volta,
+// brigando com quem está girando. O rascunho segura a roda; onMudar avisa o pai em
+// paralelo. Ou seja, o rascunho existe pela roda, não para ter botão de confirmar.
+//
+// Sem botões de propósito: quem confirma é o Salvar do formulário, e quem descarta é o
+// Cancelar dele. Um par de Cancelar/Confirmar aqui dentro só duplicava o par de fora e
+// confundia. O valor aparece ao vivo no campo enquanto se gira.
+//
+// Renderize condicionalmente ({mostrar && <PickerDataHora .../>}): o rascunho do iOS
+// nasce de `valor` na montagem. E nada de Modal aqui — estes pickers já vivem DENTRO de
+// modais, e o iOS não empilha dois.
 
 interface Props {
   valor: Date;
   modo?: 'time' | 'date';
-  onConfirmar: (d: Date) => void;
-  onCancelar: () => void;
+  // Valor novo. No iOS dispara a cada giro; no Android, uma vez, ao escolher.
+  onMudar: (d: Date) => void;
+  // Só o Android chama: o diálogo saiu de cena (escolheu ou cancelou) e o pai precisa
+  // baixar a flag. No iOS o picker é inline e quem fecha é o toque no campo de novo.
+  onFechar: () => void;
   // Só iOS. Avisa em que altura o picker nasceu, para quem tem o ScrollView rolar até
   // ELE — e não até o fim do formulário: onde o picker fica no meio (data e horário da
   // consulta), rolar ao fim joga o picker para cima, fora da tela. Vem do onLayout, que
   // dispara quando o picker JÁ tem posição — não precisa adivinhar um atraso.
-  // No Android nunca é chamado: lá o picker é diálogo flutuante e não empurra nada.
   aoAparecer?: (y: number) => void;
 }
 
@@ -35,7 +44,7 @@ export default function PickerDataHora(props: Props) {
   return Platform.OS === 'ios' ? <PickerIOS {...props} /> : <PickerAndroid {...props} />;
 }
 
-function PickerAndroid({ valor, modo = 'time', onConfirmar, onCancelar }: Props) {
+function PickerAndroid({ valor, modo = 'time', onMudar, onFechar }: Props) {
   return (
     <DateTimePicker
       value={valor}
@@ -43,14 +52,14 @@ function PickerAndroid({ valor, modo = 'time', onConfirmar, onCancelar }: Props)
       is24Hour={true}
       display={modo === 'date' ? DATE_DISPLAY : TIME_DISPLAY}
       onChange={(e, d) => {
-        if (e.type === 'set' && d) onConfirmar(d);
-        else onCancelar();
+        if (e.type === 'set' && d) onMudar(d);
+        onFechar(); // o diálogo já se fechou; a flag do pai tem de acompanhar
       }}
     />
   );
 }
 
-function PickerIOS({ valor, modo = 'time', onConfirmar, onCancelar, aoAparecer }: Props) {
+function PickerIOS({ valor, modo = 'time', onMudar, aoAparecer }: Props) {
   const [rascunho, setRascunho] = useState(valor);
 
   return (
@@ -60,17 +69,9 @@ function PickerIOS({ valor, modo = 'time', onConfirmar, onCancelar, aoAparecer }
         mode={modo}
         is24Hour={true}
         display={modo === 'date' ? DATE_DISPLAY : TIME_DISPLAY}
-        onChange={(_, d) => { if (d) setRascunho(d); }}
+        onChange={(_, d) => { if (d) { setRascunho(d); onMudar(d); } }}
         style={styles.picker}
       />
-      <View style={styles.acoes}>
-        <TouchableOpacity style={styles.btnSec} onPress={onCancelar} activeOpacity={0.7}>
-          <Text style={styles.btnSecText}>Cancelar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.btnPri} onPress={() => onConfirmar(rascunho)} activeOpacity={0.8}>
-          <Text style={styles.btnPriText}>Confirmar</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
@@ -82,16 +83,4 @@ const styles = StyleSheet.create({
     padding: 8, marginTop: 8,
   },
   picker: { alignSelf: 'stretch' },
-  acoes: { flexDirection: 'row', gap: 8, marginTop: 4 },
-  btnSec: {
-    flex: 1, backgroundColor: '#fff',
-    borderRadius: 12, paddingVertical: 13, alignItems: 'center',
-    borderWidth: 0.5, borderColor: '#D0D5E8',
-  },
-  btnSecText: { color: '#6B7280', fontSize: 14, fontWeight: '600' },
-  btnPri: {
-    flex: 1, backgroundColor: '#1C3F7A',
-    borderRadius: 12, paddingVertical: 13, alignItems: 'center',
-  },
-  btnPriText: { color: '#fff', fontSize: 14, fontWeight: '700' },
 });

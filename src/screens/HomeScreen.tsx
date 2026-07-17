@@ -728,7 +728,7 @@ export default function HomeScreen() {
             <View style={styles.overdueBox}>
               <Text style={[styles.overdueName, { fontSize: 16, marginBottom: 4 }]}>Informe o horário em que tomou o medicamento</Text>
               <Text style={styles.overdueTime}>{fgHModalItem.name}</Text>
-              <TouchableOpacity style={styles.hTimeInput} onPress={() => setShowFgHTimePicker(true)}>
+              <TouchableOpacity style={styles.hTimeInput} onPress={() => setShowFgHTimePicker(v => !v)}>
                 <Text style={styles.hTimeInputText}>
                   {String(fgHModalHour).padStart(2, '0')}:{String(fgHModalMinute).padStart(2, '0')}
                 </Text>
@@ -736,11 +736,8 @@ export default function HomeScreen() {
               {showFgHTimePicker && (
                 <PickerDataHora
                   valor={(() => { const d = new Date(); d.setHours(fgHModalHour, fgHModalMinute, 0, 0); return d; })()}
-                  onConfirmar={(date) => {
-                    setShowFgHTimePicker(false);
-                    setFgHModalHour(date.getHours()); setFgHModalMinute(date.getMinutes());
-                  }}
-                  onCancelar={() => setShowFgHTimePicker(false)}
+                  onMudar={(date) => { setFgHModalHour(date.getHours()); setFgHModalMinute(date.getMinutes()); }}
+                  onFechar={() => setShowFgHTimePicker(false)}
                 />
               )}
               <TouchableOpacity

@@ -467,7 +467,7 @@ export default function HistoryScreen() {
                   <Text style={[styles.editStatusBtnText, editStatus === 'skipped' && styles.editStatusBtnTextActive]}>✗ Não tomei</Text>
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity style={styles.editTimeInput} onPress={() => setShowEditTimePicker(true)}>
+              <TouchableOpacity style={styles.editTimeInput} onPress={() => setShowEditTimePicker(v => !v)}>
                 <Text style={styles.editTimeInputText}>
                   {String(editHour).padStart(2, '0')}:{String(editMinute).padStart(2, '0')}
                 </Text>
@@ -475,11 +475,8 @@ export default function HistoryScreen() {
               {showEditTimePicker && (
                 <PickerDataHora
                   valor={(() => { const d = new Date(); d.setHours(editHour, editMinute, 0, 0); return d; })()}
-                  onConfirmar={(date) => {
-                    setShowEditTimePicker(false);
-                    setEditHour(date.getHours()); setEditMinute(date.getMinutes());
-                  }}
-                  onCancelar={() => setShowEditTimePicker(false)}
+                  onMudar={(date) => { setEditHour(date.getHours()); setEditMinute(date.getMinutes()); }}
+                  onFechar={() => setShowEditTimePicker(false)}
                 />
               )}
               <TouchableOpacity style={styles.editSaveBtn} onPress={saveEditLog}>

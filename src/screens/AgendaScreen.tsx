@@ -991,7 +991,7 @@ export default function AgendaScreen() {
                     onPress={() => {
                       const iso = parseDateBR(cycleStartDateBR);
                       setCyclePickerDate(iso ? new Date(iso + 'T00:00:00') : new Date());
-                      setShowCycleDatePicker(true);
+                      setShowCycleDatePicker(v => !v);
                     }}
                   >
                     <Text style={cycleStartDateBR ? styles.pickerBtnText : styles.pickerBtnPlaceholder}>
@@ -1025,14 +1025,13 @@ export default function AgendaScreen() {
                       aoAparecer={revelarPicker(activityScrollRef)}
                       valor={cyclePickerDate}
                       modo="date"
-                      onConfirmar={(date) => {
-                        setShowCycleDatePicker(false);
+                      onMudar={(date) => {
                         const d = String(date.getDate()).padStart(2, '0');
                         const mo = String(date.getMonth() + 1).padStart(2, '0');
                         setCycleStartDateBR(`${d}/${mo}/${date.getFullYear()}`);
                         setCyclePickerDate(date);
                       }}
-                      onCancelar={() => setShowCycleDatePicker(false)}
+                      onFechar={() => setShowCycleDatePicker(false)}
                     />
                   )}
                 </>
@@ -1040,7 +1039,7 @@ export default function AgendaScreen() {
                 <>
                   <View style={styles.actTimeRow}>
                     <Text style={styles.actTimeLabel}>Horário da Atividade</Text>
-                    <TouchableOpacity onPress={() => setShowActTimePicker(true)}>
+                    <TouchableOpacity onPress={() => setShowActTimePicker(v => !v)}>
                       <Text style={styles.actTimeDisplay}>{actTimeStr || '08:00'}</Text>
                     </TouchableOpacity>
                   </View>
@@ -1048,11 +1047,8 @@ export default function AgendaScreen() {
                     <PickerDataHora
                       aoAparecer={revelarPicker(activityScrollRef)}
                       valor={(() => { const d = new Date(); const p = parseTime(actTimeStr); d.setHours(p?.hour ?? 8, p?.minute ?? 0, 0, 0); return d; })()}
-                      onConfirmar={(d) => {
-                        setShowActTimePicker(false);
-                        setActTimeStr(fmtHM(d.getHours(), d.getMinutes()));
-                      }}
-                      onCancelar={() => setShowActTimePicker(false)}
+                      onMudar={(d) => setActTimeStr(fmtHM(d.getHours(), d.getMinutes()))}
+                      onFechar={() => setShowActTimePicker(false)}
                     />
                   )}
 
@@ -1082,7 +1078,7 @@ export default function AgendaScreen() {
                         keyboardType="numeric"
                       />
                       <Text style={styles.repeatInlineText}>h  das {actTimeStr}  às </Text>
-                      <TouchableOpacity onPress={() => setShowToTimePicker(true)}>
+                      <TouchableOpacity onPress={() => setShowToTimePicker(v => !v)}>
                         <Text style={styles.repeatTimeDisplay}>{actToStr || '20:00'}</Text>
                       </TouchableOpacity>
                     </View>
@@ -1091,11 +1087,8 @@ export default function AgendaScreen() {
                     <PickerDataHora
                       aoAparecer={revelarPicker(activityScrollRef)}
                       valor={(() => { const d = new Date(); const p = parseTime(actToStr); d.setHours(p?.hour ?? 20, p?.minute ?? 0, 0, 0); return d; })()}
-                      onConfirmar={(d) => {
-                        setShowToTimePicker(false);
-                        setActToStr(fmtHM(d.getHours(), d.getMinutes()));
-                      }}
-                      onCancelar={() => setShowToTimePicker(false)}
+                      onMudar={(d) => setActToStr(fmtHM(d.getHours(), d.getMinutes()))}
+                      onFechar={() => setShowToTimePicker(false)}
                     />
                   )}
 
@@ -1181,7 +1174,7 @@ export default function AgendaScreen() {
                 style={[styles.fieldInput, styles.pickerBtn]}
                 onPress={() => {
                   setPickerDate(formToDate(apptForm.date, fmtHM(apptH, apptM)));
-                  setShowDatePicker(true);
+                  setShowDatePicker(v => !v);
                 }}
               >
                 <Text style={apptForm.date ? styles.pickerBtnText : styles.pickerBtnPlaceholder}>
@@ -1196,21 +1189,20 @@ export default function AgendaScreen() {
                   aoAparecer={revelarPicker(apptScrollRef)}
                   valor={pickerDate}
                   modo="date"
-                  onConfirmar={(date) => {
-                    setShowDatePicker(false);
+                  onMudar={(date) => {
                     const d = String(date.getDate()).padStart(2, '0');
                     const mo = String(date.getMonth() + 1).padStart(2, '0');
                     setApptForm(f => ({ ...f, date: `${d}/${mo}/${date.getFullYear()}` }));
                     setPickerDate(date);
                   }}
-                  onCancelar={() => setShowDatePicker(false)}
+                  onFechar={() => setShowDatePicker(false)}
                 />
               )}
 
               <Text style={styles.fieldLabel}>Horário *</Text>
               <TouchableOpacity
                 style={[styles.fieldInput, styles.pickerBtn]}
-                onPress={() => setShowApptTimePicker(true)}
+                onPress={() => setShowApptTimePicker(v => !v)}
               >
                 <Text style={styles.pickerBtnText}>{fmtHM(apptH, apptM)}</Text>
                 <Text style={styles.pickerBtnIcon}>🕐</Text>
@@ -1219,11 +1211,8 @@ export default function AgendaScreen() {
                 <PickerDataHora
                   aoAparecer={revelarPicker(apptScrollRef)}
                   valor={(() => { const d = new Date(); d.setHours(apptH, apptM, 0, 0); return d; })()}
-                  onConfirmar={(date) => {
-                    setShowApptTimePicker(false);
-                    setApptH(date.getHours()); setApptM(date.getMinutes());
-                  }}
-                  onCancelar={() => setShowApptTimePicker(false)}
+                  onMudar={(date) => { setApptH(date.getHours()); setApptM(date.getMinutes()); }}
+                  onFechar={() => setShowApptTimePicker(false)}
                 />
               )}
 
