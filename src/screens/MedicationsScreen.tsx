@@ -1040,7 +1040,18 @@ export default function MedicationsScreen() {
                   <TouchableOpacity
                     key={n}
                     style={[styles.timesBtn, active && styles.timesBtnActive]}
-                    onPress={() => { setTimesPerDay(n); setTimesPerDayTouched(true); setCustomTimes(''); setSpecificModeActive(false); wizGoNext(); }}
+                    onPress={() => {
+                      // Só descarta os horários quando a QUANTIDADE muda: aí eles serão
+                      // recalculados espaçados por igual, e os antigos não servem mais.
+                      // Tocando no número que já está valendo, a pessoa está confirmando,
+                      // não pedindo para refazer — e limpar ali apagava horários que ela
+                      // escolheu um a um (o caso das refeições: 07:00/12:00/19:00 não é
+                      // "de 8 em 8h", e recalcular destruía a escolha em silêncio).
+                      if (n !== timesPerDay) { setCustomTimes(''); setSpecificModeActive(false); }
+                      setTimesPerDay(n);
+                      setTimesPerDayTouched(true);
+                      wizGoNext();
+                    }}
                   >
                     <Text style={[styles.timesBtnText, active && styles.timesBtnTextActive]}>{n}x</Text>
                     {n > 1 && (
