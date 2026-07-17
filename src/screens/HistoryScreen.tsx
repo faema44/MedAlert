@@ -1,9 +1,9 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ScrollView, Modal,
 } from 'react-native';
 import PickerDataHora from '../components/PickerDataHora';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute, RouteProp, NavigationProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   getMedicationLog, deleteMedicationLog, updateMedicationLogEntry, getActivityLogs, MedicationLogEntry,
@@ -15,6 +15,7 @@ type Tab = 'medications' | 'activities';
 // 'pendente' = a dose disparou e ninguém respondeu (status null). É a fila que o usuário
 // precisa limpar — e era a mais difícil de achar, porque o único filtro era por nome.
 type StatusFiltro = 'todos' | 'pendente' | 'skipped' | 'taken';
+type HistoryParams = { History: { filtro?: StatusFiltro } | undefined };
 const STATUS_FILTROS: { id: StatusFiltro; label: string }[] = [
   { id: 'todos',    label: 'Todos' },
   { id: 'pendente', label: 'Sem resposta' },
@@ -54,12 +55,26 @@ function logStatus(log: MedicationLogEntry): 'taken' | 'skipped' | 'treatment_en
 
 export default function HistoryScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<NavigationProp<HistoryParams>>();
+  const route = useRoute<RouteProp<HistoryParams, 'History'>>();
   const [tab, setTab] = useState<Tab>('medications');
 
   // Medication log state
   const [medLogs, setMedLogs] = useState<MedicationLogEntry[]>([]);
   const [medFilter, setMedFilter] = useState<string | null>(null);
   const [statusFiltro, setStatusFiltro] = useState<StatusFiltro>('todos');
+
+  // O aviso de estoque na Home chega aqui pedindo a fila pendente já filtrada. O parâmetro
+  // é consumido e apagado: a aba fica montada, e sem isto ele reaplicaria o filtro toda vez
+  // que o usuário voltasse ao Histórico, desfazendo a escolha que ele tivesse feito à mão.
+  const filtroPedido = route.params?.filtro;
+  useEffect(() => {
+    if (!filtroPedido) return;
+    setTab('medications');
+    setStatusFiltro(filtroPedido);
+    setMedFilter(null); // um chip de nome ativo esconderia parte da fila
+    navigation.setParams({ filtro: undefined });
+  }, [filtroPedido]);
 
   // Edit modal state
   const [editingLog, setEditingLog] = useState<MedicationLogEntry | null>(null);

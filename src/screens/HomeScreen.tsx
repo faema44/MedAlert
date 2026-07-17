@@ -18,7 +18,8 @@ const IS_IOS = Platform.OS === 'ios';
 
 type RootTabs = {
   Home: undefined; Profile: undefined; Medications: undefined;
-  Contacts: undefined; Agenda: undefined; Interactions: undefined; History: undefined;
+  Contacts: undefined; Agenda: undefined; Interactions: undefined;
+  History: { filtro?: 'pendente' } | undefined;
   Settings: undefined; LockScreen: { openAlert?: boolean } | undefined;
 };
 
@@ -574,7 +575,7 @@ export default function HomeScreen() {
       )}
 
       {staleStockMeds > 0 && (
-        <TouchableOpacity style={styles.stockWarnCard} activeOpacity={0.8} onPress={() => navigation.navigate('History')}>
+        <TouchableOpacity style={styles.stockWarnCard} activeOpacity={0.8} onPress={() => navigation.navigate('History', { filtro: 'pendente' })}>
           <Text style={styles.hintIcon}>📦</Text>
           <View style={{ flex: 1 }}>
             <Text style={styles.stockWarnTitle}>Estoque pode estar desatualizado</Text>
