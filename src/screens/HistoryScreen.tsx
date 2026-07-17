@@ -78,7 +78,9 @@ export default function HistoryScreen() {
 
   // Edit modal state
   const [editingLog, setEditingLog] = useState<MedicationLogEntry | null>(null);
-  const [editStatus, setEditStatus] = useState<'taken' | 'skipped'>('taken');
+  // null = "Sem resposta" aberto sem ninguém ter escolhido ainda: nada pré-marcado, para
+  // que um "Salvar" no automático não grave "tomei" que o usuário nunca afirmou.
+  const [editStatus, setEditStatus] = useState<'taken' | 'skipped' | null>(null);
   const [editHour, setEditHour] = useState(0);
   const [editMinute, setEditMinute] = useState(0);
   const [showEditTimePicker, setShowEditTimePicker] = useState(false);
@@ -180,7 +182,7 @@ export default function HistoryScreen() {
     // "Sem resposta" (null) também é editável — o usuário informa depois se tomou
     if (status !== 'taken' && status !== 'skipped' && status !== null) return;
     const d = parseDate(log.taken_at ?? log.scheduled_at);
-    setEditStatus(status === 'skipped' ? 'skipped' : 'taken');
+    setEditStatus(status);
     setEditHour(d.getHours());
     setEditMinute(d.getMinutes());
     setShowEditTimePicker(false); // o "próximo" reusa o modal aberto: sem isto o picker
@@ -188,6 +190,7 @@ export default function HistoryScreen() {
   }
 
   async function gravarEdicao(log: MedicationLogEntry) {
+    if (!editStatus) return;
     const d = parseDate(log.scheduled_at);
     d.setHours(editHour, editMinute, 0, 0);
     await updateMedicationLogEntry(log.id, editStatus, d.toISOString());
@@ -494,14 +497,19 @@ export default function HistoryScreen() {
                   onFechar={() => setShowEditTimePicker(false)}
                 />
               )}
-              <TouchableOpacity style={styles.editSaveBtn} onPress={saveEditLog}>
+              <TouchableOpacity
+                style={[styles.editSaveBtn, !editStatus && styles.btnDesabilitado]}
+                onPress={saveEditLog}
+                disabled={!editStatus}
+              >
                 <Text style={styles.editSaveBtnText}>Salvar</Text>
               </TouchableOpacity>
-              {/* Só em "Não tomei": aí o horário não quer dizer nada (não houve dose), então
-                  o registro está completo e dá para emendar no próximo com um toque. Em
-                  "Tomei" o horário importa, e emendar gravaria a hora prevista por engano. */}
-              {editStatus === 'skipped' && proximoDaFila && (
-                <TouchableOpacity style={styles.editNextBtn} onPress={salvarEProximo}>
+              {proximoDaFila && (
+                <TouchableOpacity
+                  style={[styles.editNextBtn, !editStatus && styles.btnDesabilitado]}
+                  onPress={salvarEProximo}
+                  disabled={!editStatus}
+                >
                   <Text style={styles.editNextBtnText}>Salvar e próximo ›</Text>
                 </TouchableOpacity>
               )}
@@ -630,6 +638,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', marginTop: 8,
   },
   editNextBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  btnDesabilitado: { opacity: 0.35 },
   editCancelBtn: { paddingVertical: 12, alignItems: 'center' },
   editCancelBtnText: { color: '#999', fontSize: 14, fontWeight: '600' },
 });
