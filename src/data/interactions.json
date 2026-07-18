@@ -2922,8 +2922,8 @@
     "drug1": "Alopurinol",
     "drug2": "Azatioprina",
     "risk_level": "critical",
-    "risk_description": "Aumento do risco de toxicidade hematológica",
-    "mechanism": "Aumento do risco de toxicidade hematológica. Conduta: Ajustar dose de azatioprina.",
+    "risk_description": "Aplasia de medula óssea potencialmente fatal",
+    "mechanism": "O alopurinol bloqueia a xantina oxidase, enzima que destrói a azatioprina. Sem ela, o medicamento acumula em níveis tóxicos e pode destruir a medula óssea. Conduta: a dose da azatioprina precisa ser reduzida a cerca de 1/4 da habitual pelo médico — apenas monitorar NÃO basta.",
     "drug1_rxcuis": [
       "519"
     ],
@@ -3087,9 +3087,9 @@
     "source": "desconhecida",
     "drug1": "Amisulprida",
     "drug2": "Metoclopramida",
-    "risk_level": "critical",
-    "risk_description": "Aumento risco de efeitos extrapiramidais",
-    "mechanism": "Aumento risco de efeitos extrapiramidais. Conduta: Monitorar e ajustar doses.",
+    "risk_level": "high",
+    "risk_description": "Efeitos extrapiramidais somados (rigidez, tremor, inquietação)",
+    "mechanism": "A metoclopramida e a amisulprida bloqueiam os mesmos receptores de dopamina; juntas, aumentam muito a chance de rigidez, tremor, inquietação motora e, raramente, síndrome neuroléptica maligna. Conduta: evitar o uso conjunto prolongado; avisar o médico se surgir rigidez ou febre.",
     "drug1_rxcuis": [
       "46303"
     ],
@@ -5813,8 +5813,8 @@
     "drug1": "Ergotamina",
     "drug2": "Cloranfenicol",
     "risk_level": "critical",
-    "risk_description": "Crise hipertensiva grave",
-    "mechanism": "Crise hipertensiva grave. Conduta: Contraindicado.",
+    "risk_description": "Ergotismo — vasoespasmo com risco de isquemia de extremidades",
+    "mechanism": "O cloranfenicol inibe o citocromo P450 e faz a ergotamina acumular. O quadro é ergotismo (vasoespasmo intenso, dor e palidez nas extremidades, risco de isquemia), não crise hipertensiva. Conduta: não associar.",
     "drug1_rxcuis": [
       "4025"
     ],
@@ -5896,8 +5896,8 @@
     "drug1": "Ertapeném",
     "drug2": "Valproato de sódio",
     "risk_level": "critical",
-    "risk_description": "Redução da eficácia do valproato",
-    "mechanism": "Redução da eficácia do valproato. Conduta: Monitorar níveis de valproato.",
+    "risk_description": "Queda rápida do valproato no sangue — risco de convulsões",
+    "mechanism": "O ertapeném derruba a concentração de valproato em 1 a 2 dias, a ponto de reativar crises convulsivas, e aumentar a dose do valproato não compensa. Conduta: evitar a associação — o médico deve escolher outro antibiótico ou outro anticonvulsivante.",
     "drug1_rxcuis": [
       "325642"
     ],
@@ -7935,8 +7935,8 @@
     "drug1": "Meropeném",
     "drug2": "Valproato de sódio",
     "risk_level": "critical",
-    "risk_description": "Redução da concentração de valproato no sangue, levando a convulsões",
-    "mechanism": "Redução da concentração de valproato no sangue, levando a convulsões. Conduta: Monitorar níveis de valproato e ajustar dose.",
+    "risk_description": "Queda rápida do valproato no sangue — risco de convulsões",
+    "mechanism": "O meropeném derruba a concentração de valproato em 1 a 2 dias, a ponto de reativar crises convulsivas, e aumentar a dose do valproato não compensa. Conduta: evitar a associação — o médico deve escolher outro antibiótico ou outro anticonvulsivante.",
     "drug1_rxcuis": [
       "29561"
     ],
@@ -9218,8 +9218,8 @@
     "drug1": "Perfenazina",
     "drug2": "Levodopa",
     "risk_level": "critical",
-    "risk_description": "Aumento do risco de discinesia tardia",
-    "mechanism": "Aumento do risco de discinesia tardia. Conduta: Evitar combinação.",
+    "risk_description": "Bloqueio do efeito da levodopa — piora do parkinsonismo",
+    "mechanism": "A perfenazina bloqueia os receptores D2 que a levodopa depende para agir: o efeito antiparkinsoniano é anulado e o quadro motor pode piorar de forma acentuada. Conduta: evitar a associação — se um antipsicótico for necessário no parkinsonismo, discutir alternativa com o médico.",
     "drug1_rxcuis": [
       "8076"
     ],
@@ -9232,9 +9232,9 @@
     "source": "desconhecida",
     "drug1": "Perfenazina",
     "drug2": "Metoclopramida",
-    "risk_level": "critical",
-    "risk_description": "Aumento do risco de efeitos extrapiramidais",
-    "mechanism": "Aumento do risco de efeitos extrapiramidais. Conduta: Monitorar e ajustar doses.",
+    "risk_level": "high",
+    "risk_description": "Efeitos extrapiramidais somados (rigidez, tremor, inquietação)",
+    "mechanism": "A metoclopramida e a perfenazina bloqueiam os mesmos receptores de dopamina; juntas, aumentam muito a chance de rigidez, tremor, inquietação motora e, raramente, síndrome neuroléptica maligna. Conduta: evitar o uso conjunto prolongado; avisar o médico se surgir rigidez ou febre.",
     "drug1_rxcuis": [
       "8076"
     ],
@@ -10530,8 +10530,8 @@
     "drug1": "Sofosbuvir",
     "drug2": "Amiodarona",
     "risk_level": "critical",
-    "risk_description": "Aumento do risco de arritmia fatal (torsades de pointes)",
-    "mechanism": "Aumento do risco de arritmia fatal (torsades de pointes). Conduta: Contraindicado.",
+    "risk_description": "Bradicardia grave — há relato de parada cardíaca fatal",
+    "mechanism": "Comunicado de segurança do FDA (2015): sofosbuvir com amiodarona causou bradicardia sintomática grave, incluindo uma parada cardíaca fatal e casos que exigiram marca-passo. Não é torsades de pointes. Surge de horas a 2 semanas após iniciar o antiviral. Conduta: não usar juntos; se inevitável, monitorização cardíaca hospitalar por 48h e vigilância diária por 2 semanas.",
     "drug1_rxcuis": [
       "1484911"
     ],
@@ -10607,8 +10607,8 @@
     "drug1": "Sulpirida",
     "drug2": "Levodopa",
     "risk_level": "critical",
-    "risk_description": "Aumento do risco de discinesia",
-    "mechanism": "Aumento do risco de discinesia. Conduta: Monitorar e ajustar doses.",
+    "risk_description": "Bloqueio do efeito da levodopa — piora do parkinsonismo",
+    "mechanism": "A sulpirida bloqueia os receptores D2 que a levodopa depende para agir: o efeito antiparkinsoniano é anulado e o quadro motor pode piorar de forma acentuada. Conduta: evitar a associação — se um antipsicótico for necessário no parkinsonismo, discutir alternativa com o médico.",
     "drug1_rxcuis": [
       "10239"
     ],
@@ -12295,8 +12295,8 @@
     "drug1": "Alopurinol",
     "drug2": "Mercaptopurina",
     "risk_level": "critical",
-    "risk_description": "Aumento do risco de toxicidade hematológica",
-    "mechanism": "Aumento do risco de toxicidade hematológica. Conduta: Ajustar dose de mercaptopurina.",
+    "risk_description": "Aplasia de medula óssea potencialmente fatal",
+    "mechanism": "O alopurinol bloqueia a xantina oxidase, enzima que destrói a mercaptopurina. Sem ela, o medicamento acumula em níveis tóxicos e pode destruir a medula óssea. Conduta: a dose da mercaptopurina precisa ser reduzida a cerca de 1/4 da habitual pelo médico — apenas monitorar NÃO basta.",
     "drug1_rxcuis": [
       "519"
     ],
@@ -12325,9 +12325,9 @@
     "source": "desconhecida",
     "drug1": "Amantadina",
     "drug2": "Triptofano",
-    "risk_level": "critical",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Monitorar sinais de síndrome serotoninérgica.",
+    "risk_level": "moderate",
+    "risk_description": "Risco teórico de excesso de serotonina (evidência fraca)",
+    "mechanism": "A amantadina age na dopamina e no receptor NMDA — ela NÃO é serotoninérgica. O risco com o triptofano é teórico, baseado em relatos isolados. Conduta: atenção a agitação, tremor e febre; não é contraindicação.",
     "drug1_rxcuis": [
       "620"
     ],
@@ -12529,9 +12529,9 @@
     "source": "desconhecida",
     "drug1": "Asenapina",
     "drug2": "Inibidores da MAO",
-    "risk_level": "critical",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar combinação.",
+    "risk_level": "high",
+    "risk_description": "Hipotensão, sedação e risco de crise hipertensiva",
+    "mechanism": "A asenapina é antagonista de receptores de serotonina e dopamina — não aumenta a serotonina, então não é síndrome serotoninérgica. O risco real de somar antipsicótico com IMAO é hipotensão grave, sedação intensa e instabilidade da pressão. Conduta: evitar a associação.",
     "drug1_rxcuis": [
       "784649"
     ]
@@ -21973,7 +21973,7 @@
     "drug2": "Buprenorfina",
     "risk_level": "critical",
     "risk_description": "Risco de depressão respiratória e sedação, às vezes resultando em morte.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar sinais de depressão do SNC, como sonolência, sedação e depressão respiratória."
+    "mechanism": "A gabapentina soma seu efeito depressor ao da buprenorfina, e o FDA relata depressão respiratória com desfecho fatal. O risco é maior em idosos, em doença pulmonar e no início do tratamento. Conduta: evitar a associação; se for indispensável, o médico usa a menor dose e vigia a respiração e a sonolência."
   },
   {
     "id": "int_1885",
@@ -21983,7 +21983,7 @@
     "drug2": "Hidrocodona",
     "risk_level": "critical",
     "risk_description": "Risco de depressão respiratória e sedação, às vezes resultando em morte.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar sinais de depressão do SNC, como sonolência, sedação e depressão respiratória."
+    "mechanism": "A gabapentina soma seu efeito depressor ao da hidrocodona, e o FDA relata depressão respiratória com desfecho fatal. O risco é maior em idosos, em doença pulmonar e no início do tratamento. Conduta: evitar a associação; se for indispensável, o médico usa a menor dose e vigia a respiração e a sonolência."
   },
   {
     "id": "int_1886",
@@ -21993,7 +21993,7 @@
     "drug2": "Oxicodona",
     "risk_level": "critical",
     "risk_description": "Risco de depressão respiratória e sedação, às vezes resultando em morte.",
-    "mechanism": "Mecanismo não especificado no texto. Conduta: monitorar sinais de depressão do SNC, como sonolência, sedação e depressão respiratória."
+    "mechanism": "A gabapentina soma seu efeito depressor ao da oxicodona, e o FDA relata depressão respiratória com desfecho fatal. O risco é maior em idosos, em doença pulmonar e no início do tratamento. Conduta: evitar a associação; se for indispensável, o médico usa a menor dose e vigia a respiração e a sonolência."
   },
   {
     "id": "int_1887",
