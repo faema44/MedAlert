@@ -164,9 +164,12 @@ async function enviar(cg: Caregiver, msg: Msg): Promise<boolean> {
   // indicava o motivo. Quem chama PRECISA saber que o cuidador ficou sem ser avisado.
   const json = await res.json().catch(() => null);
   if (!res.ok || json?.data?.status !== 'ok') {
-    throw new Error(
-      `Expo recusou a mensagem (HTTP ${res.status}): ${JSON.stringify(json?.data ?? json?.errors ?? json)}`
-    );
+    // A resposta de erro do Expo repete o push token do cuidador (ex.: "ExponentPushToken[…]
+    // is not a registered push notification recipient"). Este erro sobe até o Sentry
+    // (MedicationsScreen captura) — o token é identificador de dispositivo e não pode ir junto.
+    const resumo = JSON.stringify(json?.data ?? json?.errors ?? json)
+      ?.replace(/Expo(nent)?PushToken\[[^\]]*\]/g, 'PushToken[…]');
+    throw new Error(`Expo recusou a mensagem (HTTP ${res.status}): ${resumo}`);
   }
   return true;
 }

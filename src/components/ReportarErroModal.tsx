@@ -128,6 +128,10 @@ export default function ReportarErroModal({ visible, tipo, alvo, titulo, onClose
                 multiline
                 maxLength={400}
               />
+              <Text style={styles.hint}>
+                Não escreva dados pessoais (nome, telefone, endereço) — o relato é enviado sem
+                identificação, e queremos que continue assim.
+              </Text>
 
               <View style={styles.acoes}>
                 <TouchableOpacity style={styles.btnVoltar} onPress={fechar} activeOpacity={0.7}>
@@ -194,6 +198,7 @@ const styles = StyleSheet.create({
     fontSize: 13.5, color: '#1A1F2E',
     minHeight: 64, textAlignVertical: 'top',
   },
+  hint: { fontSize: 11.5, color: '#6B7280', marginTop: 5, lineHeight: 15.5, paddingHorizontal: 2 },
 
   acoes: { flexDirection: 'row', gap: 8, marginTop: 12 },
   btnVoltar: {
