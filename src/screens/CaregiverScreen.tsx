@@ -1,8 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Share, Alert, ActivityIndicator,
-  TextInput,
+  TextInput, Modal,
 } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Sentry from '@sentry/react-native';
 import { getCaregiver, setCaregiver, clearCaregiver, getProfile, Caregiver } from '../database/db';
@@ -19,6 +20,10 @@ export default function CaregiverScreen() {
   const [apelidoConvite, setApelidoConvite] = useState('');
   const [gerando, setGerando] = useState(false);
   const [testando, setTestando] = useState(false);
+  // Link do convite recém-gerado, mostrado como QR code. O QR vai de tela a câmera, sem passar
+  // por servidor nenhum — a CHAVE de criptografia está dentro do link, e mandá-la pelo WhatsApp
+  // entrega o segredo ao canal. Por isso o QR é o caminho principal e o link, o de longe.
+  const [convite, setConvite] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [c, ps] = await Promise.all([getCaregiver(), getPatients()]);
@@ -36,11 +41,7 @@ export default function CaregiverScreen() {
       const link = await createInvite(meuNome, apelidoConvite);
       setApelidoConvite('');
       await load();
-      await Share.share({
-        message:
-          `Vou acompanhar seus remédios pelo Alerta Médico.\n\n` +
-          `Toque neste link no seu celular para me conectar:\n${link}`,
-      });
+      setConvite(link);
     } catch (e: any) {
       // O texto amigável não pode ser o ÚNICO destino do erro: sem a causa técnica em algum
       // lugar, um pareamento que falha vira "tente de novo" para sempre, e ninguém descobre
@@ -56,6 +57,17 @@ export default function CaregiverScreen() {
     } finally {
       setGerando(false);
     }
+  }
+
+  // Caminho para quando a pessoa está longe. O link viaja pelo aplicativo que o usuário
+  // escolher — e o segredo junto. Continua existindo porque cuidador a distância é caso real.
+  async function compartilharConvite() {
+    if (!convite) return;
+    await Share.share({
+      message:
+        `Vou acompanhar seus remédios pelo Alerta Médico.\n\n` +
+        `Toque neste link no seu celular para me conectar:\n${convite}`,
+    }).catch(() => {});
   }
 
   async function alterarTolerancia(min: number) {
@@ -200,8 +212,8 @@ export default function CaregiverScreen() {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Eu cuido de alguém</Text>
         <Text style={styles.hint}>
-          Gere um convite e mande para a pessoa (pelo WhatsApp, por exemplo). Basta ela tocar no
-          link uma vez. Você pode acompanhar mais de uma pessoa — gere um convite para cada.
+          Gere um convite e mostre o código na tela para a pessoa apontar a câmera do celular
+          dela. Você pode acompanhar mais de uma pessoa — gere um convite para cada.
         </Text>
         <Text style={styles.label}>Quem você vai acompanhar?</Text>
         <TextInput
@@ -234,7 +246,7 @@ export default function CaregiverScreen() {
             <Text style={styles.cardTitle}>{nome || 'Convite enviado'}</Text>
             <Text style={styles.hint}>
               {aguardando
-                ? 'Convite enviado — aguardando a pessoa tocar no link.'
+                ? 'Convite gerado — aguardando a pessoa aceitar.'
                 : 'Acompanhando. O histórico fica no ícone 👥 no topo.'}
             </Text>
             <TouchableOpacity style={styles.btnApagar} onPress={() => removerPaciente(p)}>
@@ -245,6 +257,35 @@ export default function CaregiverScreen() {
           </View>
         );
       })}
+
+      {/* O QR é o link de pareamento inteiro — quem escaneia com a câmera do celular abre o
+          app direto no fluxo de aceite que já existe (deep link). Nada viaja por rede. */}
+      <Modal visible={convite != null} animationType="slide" transparent onRequestClose={() => setConvite(null)}>
+        <View style={styles.qrBackdrop}>
+          <View style={styles.qrCard}>
+            <Text style={styles.qrTitulo}>Convite pronto</Text>
+            <Text style={styles.qrPasso}>
+              Peça para a pessoa <Text style={styles.qrBold}>apontar a câmera do celular dela</Text>{' '}
+              para o código e tocar no aviso que aparecer.
+            </Text>
+            {convite != null && (
+              <View style={styles.qrBox}>
+                <QRCode value={convite} size={220} />
+              </View>
+            )}
+            <Text style={styles.qrHint}>
+              Pelo código, o convite vai direto de um celular ao outro — não passa por nenhum
+              aplicativo ou servidor.
+            </Text>
+            <TouchableOpacity style={styles.qrBtnLink} onPress={compartilharConvite} activeOpacity={0.7}>
+              <Text style={styles.qrBtnLinkText}>A pessoa está longe? Enviar por link</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.qrBtnFechar} onPress={() => setConvite(null)} activeOpacity={0.8}>
+              <Text style={styles.qrBtnFecharText}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -299,4 +340,30 @@ const styles = StyleSheet.create({
   inboxAt: { fontSize: 11, color: '#8A8F9D', marginTop: 2, marginLeft: 20 },
   btnLimpar: { alignItems: 'center', paddingVertical: 10, marginTop: 8 },
   btnLimparText: { color: '#8A8F9D', fontSize: 13, fontWeight: '600' },
+
+  qrBackdrop: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center', padding: 20,
+  },
+  qrCard: {
+    backgroundColor: '#fff', borderRadius: 12, padding: 18,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
+    alignItems: 'center',
+  },
+  qrTitulo: { fontSize: 17, fontWeight: '700', color: '#1C3F7A', alignSelf: 'flex-start' },
+  qrPasso: {
+    fontSize: 14, color: '#1A1F2E', lineHeight: 20,
+    alignSelf: 'flex-start', marginTop: 6,
+  },
+  qrBold: { fontWeight: '700' },
+  // Padding branco em volta do QR: é a "zona quieta" que os leitores de câmera exigem.
+  qrBox: { backgroundColor: '#fff', padding: 14, marginTop: 12 },
+  qrHint: { fontSize: 12, color: '#8A8F9D', lineHeight: 17, marginTop: 10 },
+  qrBtnLink: { alignItems: 'center', paddingVertical: 12, marginTop: 8, alignSelf: 'stretch' },
+  qrBtnLinkText: { color: '#1C3F7A', fontSize: 14, fontWeight: '700' },
+  qrBtnFechar: {
+    backgroundColor: '#1C3F7A', borderRadius: 10, paddingVertical: 12,
+    alignItems: 'center', alignSelf: 'stretch', marginTop: 2,
+  },
+  qrBtnFecharText: { color: '#fff', fontSize: 14, fontWeight: '700' },
 });
