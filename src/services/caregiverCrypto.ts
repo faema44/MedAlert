@@ -31,7 +31,7 @@ const KEY_BYTES = 32;
 // a cifra e o gerador aleatório.
 const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
-function toB64(bytes: Uint8Array): string {
+export function toB64(bytes: Uint8Array): string {
   let out = '';
   for (let i = 0; i < bytes.length; i += 3) {
     const a = bytes[i], b = bytes[i + 1], c = bytes[i + 2];
@@ -43,7 +43,7 @@ function toB64(bytes: Uint8Array): string {
   return out;
 }
 
-function fromB64(b64: string): Uint8Array {
+export function fromB64(b64: string): Uint8Array {
   const limpo = b64.replace(/=+$/, '');
   const out = new Uint8Array((limpo.length * 3) >> 2);
   let bits = 0, acc = 0, n = 0;

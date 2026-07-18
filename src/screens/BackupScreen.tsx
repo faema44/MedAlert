@@ -1,62 +1,98 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Platform } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Platform, Modal, TextInput,
+  ActivityIndicator,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { File, Paths } from 'expo-file-system';
 import { StorageAccessFramework, writeAsStringAsync } from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
 import { exportBackup, importBackup, getAppointments } from '../database/db';
+import { encryptBackup, decryptBackup, isEncryptedBackup } from '../services/backupCrypto';
 import { rescheduleAllActiveNotifications, scheduleAppointmentReminders } from '../services/notifications';
 import * as Notifications from 'expo-notifications';
 
 const IS_IOS = Platform.OS === 'ios';
 
+// O modal de senha serve aos dois fluxos. 'criar' = exportando (senha + confirmação — um erro
+// de digitação aqui produz um arquivo que NUNCA mais abre, por isso os dois campos);
+// 'abrir' = restaurando um arquivo cifrado (uma tentativa por vez, erro vira "senha incorreta").
+type PedidoSenha =
+  | { modo: 'criar'; destino: 'share' | 'pasta' }
+  | { modo: 'abrir'; json: string };
+
 export default function BackupScreen() {
   const insets = useSafeAreaInsets();
+  const [pedido, setPedido] = useState<PedidoSenha | null>(null);
+  const [senha, setSenha] = useState('');
+  const [senha2, setSenha2] = useState('');
+  const [erroSenha, setErroSenha] = useState<string | null>(null);
+  const [processando, setProcessando] = useState(false);
 
-  async function handleExport() {
+  function fecharModal() {
+    setPedido(null);
+    setSenha('');
+    setSenha2('');
+    setErroSenha(null);
+    setProcessando(false);
+  }
+
+  function handleExport() {
     // O Storage Access Framework é só do Android. No iOS não há pasta a escolher: o
     // "Salvar em Arquivos" já vem dentro da própria folha de compartilhamento.
-    if (IS_IOS) { exportViaShare(); return; }
+    if (IS_IOS) { setPedido({ modo: 'criar', destino: 'share' }); return; }
     Alert.alert('Exportar backup', 'Onde deseja guardar o arquivo?', [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Compartilhar', onPress: exportViaShare },
-      { text: 'Salvar no celular', onPress: exportToFolder },
+      { text: 'Compartilhar', onPress: () => setPedido({ modo: 'criar', destino: 'share' }) },
+      { text: 'Salvar no celular', onPress: () => setPedido({ modo: 'criar', destino: 'pasta' }) },
     ]);
   }
 
   // Salva numa pasta escolhida pelo usuário (ex.: Downloads) — o arquivo fica
   // visível no gerenciador de arquivos do próprio celular.
-  async function exportToFolder() {
+  async function exportToFolder(conteudo: string) {
     try {
       const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
       if (!permissions.granted) return;
-      const json = await exportBackup();
       const date = new Date().toISOString().slice(0, 10);
       // Sem extensão no nome: o Android acrescenta .json a partir do MIME
       const uri = await StorageAccessFramework.createFileAsync(
         permissions.directoryUri, `medalert_backup_${date}`, 'application/json'
       );
-      await writeAsStringAsync(uri, json);
-      Alert.alert('Backup salvo', 'Arquivo salvo na pasta escolhida. Para restaurar em outro celular, copie o arquivo e use "Restaurar backup".');
+      await writeAsStringAsync(uri, conteudo);
+      Alert.alert('Backup salvo', 'Arquivo salvo na pasta escolhida. Para restaurar em outro celular, copie o arquivo, use "Restaurar backup" e digite a mesma senha.');
     } catch {
       Alert.alert('Erro', 'Não foi possível salvar o backup.');
     }
   }
 
-  async function exportViaShare() {
+  async function exportViaShare(conteudo: string) {
     try {
-      const json = await exportBackup();
       const date = new Date().toISOString().slice(0, 10);
       const file = new File(Paths.document, `medalert_backup_${date}.json`);
-      file.write(json);
+      file.write(conteudo);
       await Sharing.shareAsync(file.uri, { mimeType: 'application/json', dialogTitle: 'Exportar backup MedAlert' });
     } catch {
       Alert.alert('Erro', 'Não foi possível exportar o backup.');
     }
   }
 
-  async function handleImport() {
+  // Tudo o que acontece DEPOIS de ter o JSON em claro — comum ao arquivo cifrado e ao legado.
+  async function restaurar(json: string) {
+    await importBackup(json);
+    // Reagenda tudo na hora — sem exigir reinício do app.
+    // Cancela agendamentos dos dados antigos (substituídos pelo import) e recria dos novos.
+    await Notifications.cancelAllScheduledNotificationsAsync().catch(() => {});
+    await rescheduleAllActiveNotifications().catch(() => {});
+    const appts = await getAppointments().catch(() => []);
+    for (const a of appts) {
+      await scheduleAppointmentReminders(a.id, a.doctor_name, a.date, a.time).catch(() => {});
+    }
+    Alert.alert('Backup restaurado', 'Dados e lembretes restaurados com sucesso.');
+  }
+
+  function handleImport() {
     Alert.alert(
       'Restaurar backup',
       'Restaurar o backup apagará os dados atuais deste aparelho — medicamentos, contatos, atividades, consultas e o histórico de doses — e colocará os do arquivo no lugar. Deseja restaurar assim mesmo?',
@@ -71,16 +107,12 @@ export default function BackupScreen() {
               const result = await DocumentPicker.getDocumentAsync({ type: '*/*', copyToCacheDirectory: true });
               if (result.canceled || !result.assets?.length) return;
               const json = await new File(result.assets[0].uri).text();
-              await importBackup(json);
-              // Reagenda tudo na hora — sem exigir reinício do app.
-              // Cancela agendamentos dos dados antigos (substituídos pelo import) e recria dos novos.
-              await Notifications.cancelAllScheduledNotificationsAsync().catch(() => {});
-              await rescheduleAllActiveNotifications().catch(() => {});
-              const appts = await getAppointments().catch(() => []);
-              for (const a of appts) {
-                await scheduleAppointmentReminders(a.id, a.doctor_name, a.date, a.time).catch(() => {});
+              // Backup antigo (em claro) continua restaurável — só o cifrado pede senha.
+              if (isEncryptedBackup(json)) {
+                setPedido({ modo: 'abrir', json });
+                return;
               }
-              Alert.alert('Backup restaurado', 'Dados e lembretes restaurados com sucesso.');
+              await restaurar(json);
             } catch (e: any) {
               Alert.alert('Erro ao restaurar', e?.message ?? 'Arquivo inválido ou corrompido.');
             }
@@ -90,13 +122,52 @@ export default function BackupScreen() {
     );
   }
 
+  async function confirmarSenha() {
+    if (!pedido) return;
+    const p = pedido;
+    const s = senha.trim();
+    if (p.modo === 'criar') {
+      if (s.length < 4) { setErroSenha('A senha precisa de pelo menos 4 caracteres.'); return; }
+      if (s !== senha2.trim()) { setErroSenha('As duas senhas não são iguais.'); return; }
+    } else if (!s) {
+      setErroSenha('Digite a senha deste backup.');
+      return;
+    }
+
+    setErroSenha(null);
+    setProcessando(true);
+    try {
+      if (p.modo === 'criar') {
+        const cifrado = await encryptBackup(await exportBackup(), s);
+        fecharModal();
+        if (p.destino === 'share') await exportViaShare(cifrado);
+        else await exportToFolder(cifrado);
+      } else {
+        let claro: string;
+        try {
+          claro = await decryptBackup(p.json, s);
+        } catch {
+          // Poly1305 estourou: senha errada OU arquivo adulterado — para quem digita, dá no mesmo.
+          setErroSenha('Senha incorreta para este arquivo.');
+          setProcessando(false);
+          return;
+        }
+        fecharModal();
+        await restaurar(claro);
+      }
+    } catch (e: any) {
+      fecharModal();
+      Alert.alert('Erro', e?.message ?? 'Não foi possível concluir a operação.');
+    }
+  }
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Backup de Dados</Text>
         <Text style={styles.backupHint}>{IS_IOS
-          ? 'Salve seus medicamentos, contatos e atividades em um arquivo e guarde no Arquivos/iCloud ou compartilhe por WhatsApp. Útil ao trocar de celular.'
-          : 'Salve seus medicamentos, contatos e atividades em um arquivo no celular (ex.: pasta Downloads) ou compartilhe para nuvem/WhatsApp. Útil ao trocar de celular.'}</Text>
+          ? 'Salve seus medicamentos, contatos e atividades em um arquivo protegido por senha e guarde no Arquivos/iCloud ou compartilhe por WhatsApp. Útil ao trocar de celular.'
+          : 'Salve seus medicamentos, contatos e atividades em um arquivo protegido por senha, no celular (ex.: pasta Downloads) ou na nuvem/WhatsApp. Útil ao trocar de celular.'}</Text>
         <TouchableOpacity style={styles.backupBtn} onPress={handleExport}>
           <Text style={styles.backupBtnText}>Exportar backup</Text>
         </TouchableOpacity>
@@ -112,6 +183,60 @@ export default function BackupScreen() {
             : 'O backup automático do Android (Configurações → Google → Backup) já protege seus dados na nuvem. Este backup manual é uma garantia extra — guarde o arquivo fora do celular.'}
         </Text>
       </View>
+
+      <Modal visible={pedido != null} animationType="slide" transparent onRequestClose={fecharModal}>
+        <View style={styles.senhaBackdrop}>
+          <View style={styles.senhaCard}>
+            <Text style={styles.senhaTitulo}>
+              {pedido?.modo === 'criar' ? 'Proteja o backup com uma senha' : 'Este backup tem senha'}
+            </Text>
+            <Text style={styles.senhaTexto}>
+              {pedido?.modo === 'criar'
+                ? 'O arquivo só abre com esta senha. Anote em lugar seguro: sem ela, o backup não pode ser restaurado — por ninguém.'
+                : 'Digite a senha escolhida quando este backup foi exportado.'}
+            </Text>
+
+            <TextInput
+              style={styles.senhaInput}
+              value={senha}
+              onChangeText={setSenha}
+              placeholder="Senha"
+              placeholderTextColor="#B0B5C0"
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!processando}
+            />
+            {pedido?.modo === 'criar' && (
+              <TextInput
+                style={styles.senhaInput}
+                value={senha2}
+                onChangeText={setSenha2}
+                placeholder="Repita a senha"
+                placeholderTextColor="#B0B5C0"
+                secureTextEntry
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={!processando}
+              />
+            )}
+            {erroSenha != null && <Text style={styles.senhaErro}>{erroSenha}</Text>}
+
+            <TouchableOpacity
+              style={[styles.backupBtn, styles.senhaBtnOk, processando && styles.senhaBtnOff]}
+              onPress={confirmarSenha}
+              disabled={processando}
+            >
+              {processando
+                ? <ActivityIndicator color="#fff" />
+                : <Text style={styles.backupBtnText}>{pedido?.modo === 'criar' ? 'Exportar' : 'Restaurar'}</Text>}
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.senhaBtnCancelar} onPress={fecharModal} disabled={processando}>
+              <Text style={styles.senhaBtnCancelarText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -133,4 +258,25 @@ const styles = StyleSheet.create({
   backupBtnTextImport: { color: '#1C3F7A' },
   infoBox: { backgroundColor: '#e8f4fd', borderRadius: 10, padding: 12 },
   infoText: { fontSize: 13, color: '#0066cc', lineHeight: 18 },
+
+  senhaBackdrop: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center', padding: 20,
+  },
+  senhaCard: {
+    backgroundColor: '#fff', borderRadius: 12, padding: 18,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
+  },
+  senhaTitulo: { fontSize: 16, fontWeight: '700', color: '#1C3F7A' },
+  senhaTexto: { fontSize: 13, color: '#666', lineHeight: 18, marginTop: 6, marginBottom: 12 },
+  senhaInput: {
+    borderWidth: 1, borderColor: '#C8CDD8', borderRadius: 10,
+    paddingHorizontal: 12, paddingVertical: 10, fontSize: 15, color: '#1A1F2E',
+    marginBottom: 8,
+  },
+  senhaErro: { fontSize: 12.5, color: '#C0392B', marginBottom: 6 },
+  senhaBtnOk: { marginTop: 4, marginBottom: 0 },
+  senhaBtnOff: { opacity: 0.6 },
+  senhaBtnCancelar: { alignItems: 'center', paddingVertical: 11, marginTop: 4 },
+  senhaBtnCancelarText: { color: '#8A8F9D', fontSize: 13, fontWeight: '600' },
 });
