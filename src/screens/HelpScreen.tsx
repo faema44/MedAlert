@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Linking, Alert, Platform } from 'react-native';
 
-const PRIVACY_URL = 'https://alertamedico.ia.br/privacy.html';
+const PRIVACY_URL = 'https://www.alertamedico.ia.br/privacy.html';
 const CARDIODF_URL = 'https://www.youtube.com/watch?v=lPaP_QgjEW4';
 const IS_IOS = Platform.OS === 'ios';
 
