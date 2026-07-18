@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated,
-  useWindowDimensions, NativeSyntheticEvent, NativeScrollEvent,
+  useWindowDimensions, NativeSyntheticEvent, NativeScrollEvent, Linking,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -81,8 +81,10 @@ export default function OnboardingScreen({ onFinish }: { onFinish: () => void })
 
   return (
     <View style={[styles.root, { paddingTop: insets.top, paddingBottom: insets.bottom + 16 }]}>
+      {/* "Pular" leva ao ÚLTIMO slide, não ao fim: é lá que mora o aceite dos termos, e
+          onFinish é o registro do aceite — não pode existir caminho que o contorne. */}
       {!isLast && (
-        <TouchableOpacity style={styles.skip} onPress={onFinish} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+        <TouchableOpacity style={styles.skip} onPress={() => goTo(SLIDES.length - 1)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
           <Text style={styles.skipText}>Pular</Text>
         </TouchableOpacity>
       )}
@@ -118,9 +120,27 @@ export default function OnboardingScreen({ onFinish }: { onFinish: () => void })
 
       <View style={styles.footer}>
         {isLast ? (
-          <TouchableOpacity style={styles.ctaButton} onPress={onFinish} activeOpacity={0.85}>
-            <Text style={styles.ctaText}>Vamos começar! 🎉</Text>
-          </TouchableOpacity>
+          <>
+            <Text style={styles.termos}>
+              Ao continuar, você declara que leu e aceita os{' '}
+              <Text
+                style={styles.termosLink}
+                onPress={() => Linking.openURL('https://www.alertamedico.ia.br/termos.html').catch(() => {})}
+              >
+                Termos de Uso
+              </Text>
+              {' '}e a{' '}
+              <Text
+                style={styles.termosLink}
+                onPress={() => Linking.openURL('https://www.alertamedico.ia.br/privacy.html').catch(() => {})}
+              >
+                Política de Privacidade
+              </Text>.
+            </Text>
+            <TouchableOpacity style={styles.ctaButton} onPress={onFinish} activeOpacity={0.85}>
+              <Text style={styles.ctaText}>Li e aceito — vamos começar! 🎉</Text>
+            </TouchableOpacity>
+          </>
         ) : (
           <TouchableOpacity style={styles.nextButton} onPress={() => goTo(index + 1)} activeOpacity={0.85}>
             <Text style={styles.nextText}>Próximo</Text>
@@ -159,6 +179,10 @@ const styles = StyleSheet.create({
     borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
   },
   nextText: { color: PRIMARY, fontSize: 16, fontWeight: '700' },
+  termos: {
+    fontSize: 12.5, color: '#5B6472', textAlign: 'center', lineHeight: 18, marginBottom: 12,
+  },
+  termosLink: { color: PRIMARY, fontWeight: '700', textDecorationLine: 'underline' },
   ctaButton: {
     backgroundColor: ACCENT, borderRadius: 14, paddingVertical: 16, alignItems: 'center',
   },

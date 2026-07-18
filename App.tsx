@@ -205,6 +205,11 @@ function scheduledTimeFromNotificationId(notificationId: string): string {
   return new Date(now.getFullYear(), now.getMonth(), now.getDate(), Number(m[1]), Number(m[2]), 0).toISOString();
 }
 
+// Versão dos Termos de Uso (alertamedico.ia.br/termos.html). Subir este número faz o app
+// pedir novo aceite a TODOS os usuários no próximo boot — é o mecanismo de re-aceite; só
+// mudar quando os termos mudarem de forma relevante.
+const TERMOS_VERSION = 1;
+
 function AppNavigator() {
   const insets = useSafeAreaInsets();
   const [dbReady, setDbReady] = useState(false);
@@ -223,7 +228,15 @@ function AppNavigator() {
       // emergência seja repostado neste boot do app — ver resetEmergencySignature.
       await resetEmergencySignature();
       const onboardingSeen = await getKV('onboarding_seen').catch(() => null);
-      if (!onboardingSeen) setShowOnboarding(true);
+      // O aceite dos termos mora no fim do onboarding. Usuário antigo (onboarding visto,
+      // termos nunca aceitos — ou aceitos numa versão anterior) revê o onboarding uma vez,
+      // que termina no aceite. O registro guarda versão e data: é ele que prova o aceite.
+      let aceiteOk = false;
+      try {
+        const aceite = await getKV('termos_aceite');
+        aceiteOk = aceite != null && JSON.parse(aceite)?.v >= TERMOS_VERSION;
+      } catch {}
+      if (!onboardingSeen || !aceiteOk) setShowOnboarding(true);
       setDbReady(true);
 
       // Check for medications with expired treatment date
@@ -524,6 +537,10 @@ function AppNavigator() {
       <OnboardingScreen
         onFinish={() => {
           setKV('onboarding_seen', '1').catch(() => {});
+          // Se a gravação falhar, o boot seguinte pede o aceite de novo — errar para o lado
+          // de re-perguntar, nunca para o de dar o aceite como feito.
+          setKV('termos_aceite', JSON.stringify({ v: TERMOS_VERSION, at: new Date().toISOString() }))
+            .catch(() => {});
           setShowOnboarding(false);
         }}
       />
