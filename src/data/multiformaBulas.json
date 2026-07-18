@@ -210,6 +210,10 @@
     "comprimido",
     "injetavel"
   ],
+  "moxifloxacino": [
+    "comprimido",
+    "ocular"
+  ],
   "nimesulida": [
     "comprimido",
     "gel",
@@ -247,6 +251,10 @@
   "risperidona": [
     "comprimido",
     "suspensao"
+  ],
+  "salbutamol": [
+    "injetavel",
+    "xarope"
   ],
   "tacrolimo": [
     "capsula",
