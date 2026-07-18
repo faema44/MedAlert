@@ -4949,9 +4949,9 @@
     "source_bula": "dabigatrana",
     "drug1": "Dabigatrana",
     "drug2": "Ritonavir",
-    "risk_level": "moderate",
+    "risk_level": "high",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Contraindicado.",
+    "mechanism": "O ritonavir inibe a glicoproteína-P e aumenta a exposição à dabigatrana, com risco de sangramento maior — sobretudo se a função renal estiver reduzida. Conduta: evitar a combinação (não recomendada na bula europeia do Pradaxa); se inevitável, vigiar sinais de sangramento.",
     "drug1_rxcuis": [
       "1546356"
     ],
@@ -6752,9 +6752,9 @@
     "source_ref": "Golimumabe",
     "drug1": "Golimumabe",
     "drug2": "Rituximabe",
-    "risk_level": "moderate",
-    "risk_description": "supressão medular grave",
-    "mechanism": "supressão medular grave. Conduta: Contraindicado.",
+    "risk_level": "high",
+    "risk_description": "Risco aumentado de infecções graves",
+    "mechanism": "Somar imunossupressores biológicos aumenta o risco de infecções graves sem ganho de eficácia demonstrado. Conduta: combinação não recomendada (bula do Simponi, FDA).",
     "drug1_rxcuis": [
       "819300"
     ],
@@ -6764,18 +6764,19 @@
   },
   {
     "id": "int_460",
-    "source": "desconhecida",
+    "source": "FDA",
     "drug1": "Golimumabe",
     "drug2": "Tocilizumabe",
-    "risk_level": "moderate",
-    "risk_description": "supressão medular grave",
-    "mechanism": "supressão medular grave. Conduta: Contraindicado.",
+    "risk_level": "high",
+    "risk_description": "Risco aumentado de infecções graves",
+    "mechanism": "Somar imunossupressores biológicos aumenta o risco de infecções graves sem ganho de eficácia demonstrado. Conduta: combinação não recomendada (bula do Simponi, FDA).",
     "drug1_rxcuis": [
       "819300"
     ],
     "drug2_rxcuis": [
       "612865"
-    ]
+    ],
+    "source_ref": "Golimumabe"
   },
   {
     "id": "int_461",
@@ -7402,21 +7403,6 @@
     ],
     "drug2_rxcuis": [
       "32968"
-    ]
-  },
-  {
-    "id": "int_500",
-    "source": "desconhecida",
-    "drug1": "Lasmiditan",
-    "drug2": "Ergotamina",
-    "risk_level": "moderate",
-    "risk_description": "Crise hipertensiva grave",
-    "mechanism": "Crise hipertensiva grave. Conduta: Contraindicado.",
-    "drug1_rxcuis": [
-      "2256930"
-    ],
-    "drug2_rxcuis": [
-      "4025"
     ]
   },
   {
@@ -8139,8 +8125,8 @@
   {
     "id": "int_546",
     "source": "ANVISA",
-    "source_ref": "Gatifloxacino + Prednisolona",
-    "source_bula": "gatifloxacino-prednisolona",
+    "source_ref": "Ciclosporina",
+    "source_bula": "ciclosporina",
     "drug1": "Metilprednisolona",
     "drug2": "Ciclosporina",
     "risk_level": "high",
@@ -8335,9 +8321,8 @@
   },
   {
     "id": "int_559",
-    "source": "ANVISA",
+    "source": "FDA",
     "source_ref": "Mirtazapina",
-    "source_bula": "mirtazapina",
     "drug1": "Mirtazapina",
     "drug2": "Linezolida",
     "risk_level": "critical",
@@ -8352,9 +8337,8 @@
   },
   {
     "id": "int_560",
-    "source": "ANVISA",
+    "source": "FDA",
     "source_ref": "Mirtazapina",
-    "source_bula": "mirtazapina",
     "drug1": "Mirtazapina",
     "drug2": "Tramadol",
     "risk_level": "high",
@@ -9939,8 +9923,8 @@
     "drug1": "Risperidona",
     "drug2": "Cetoconazol",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de arritmia fatal (torsades de pointes)",
-    "mechanism": "Aumento do risco de arritmia fatal (torsades de pointes). Conduta: Evitar.",
+    "risk_description": "Aumento dos níveis de risperidona, com risco de prolongamento do intervalo QT",
+    "mechanism": "O cetoconazol inibe o CYP3A4 e eleva os níveis de risperidona; pode haver prolongamento do QT. Conduta: evitar ou monitorar — a bula não contraindica.",
     "drug1_rxcuis": [
       "35636"
     ],
@@ -10065,8 +10049,8 @@
     "drug1": "Rivaroxabana",
     "drug2": "Tacrolimo",
     "risk_level": "moderate",
-    "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Contraindicado.",
+    "risk_description": "Aumento do risco de sangramento",
+    "mechanism": "O tacrolimo inibe fracamente o CYP3A4 e a glicoproteína-P, podendo elevar a exposição à rivaroxabana. Conduta: monitorar sinais de sangramento — a combinação não é formalmente contraindicada.",
     "drug1_rxcuis": [
       "1114195"
     ],
@@ -11187,7 +11171,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de hepatotoxicidade",
-    "mechanism": "Aumento do risco de hepatotoxicidade. Conduta: Contraindicado.",
+    "mechanism": "A ciclosporina inibe a glicoproteína-P e aumenta a exposição à tolvaptana. Conduta: reduzir a dose de tolvaptana conforme a bula e monitorar a função hepática.",
     "drug1_rxcuis": [
       "358257"
     ],
@@ -12294,8 +12278,8 @@
     "drug1": "Almotriptano",
     "drug2": "Clorfeniramina",
     "risk_level": "moderate",
-    "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "risk_description": "Risco de síndrome serotoninérgica (raro)",
+    "mechanism": "A clorfeniramina tem atividade serotoninérgica fraca; com triptano há risco teórico e raro de síndrome serotoninérgica. Conduta: atenção a agitação, tremor e febre — não é contraindicação formal.",
     "drug1_rxcuis": [
       "279645"
     ],
@@ -27671,9 +27655,9 @@
     "source_ref": "Riociguate",
     "drug1": "Riociguate",
     "drug2": "Teofilina",
-    "risk_level": "moderate",
-    "risk_description": "Risco de hipotensão.",
-    "mechanism": "Interação farmacodinâmica. Conduta: coadministração é contraindicada."
+    "risk_level": "critical",
+    "risk_description": "Hipotensão grave — a bula do Adempas (riociguate) contraindica o uso com teofilina",
+    "mechanism": "Os dois relaxam os vasos pelo mesmo caminho (NO–GMPc): o efeito soma e a pressão pode cair perigosamente. Conduta: coadministração contraindicada pela bula do Adempas (FDA)."
   },
   {
     "id": "int_2588",
