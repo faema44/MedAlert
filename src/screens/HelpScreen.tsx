@@ -51,7 +51,7 @@ export default function HelpScreen() {
           </View>
           <View style={styles.heroFeatureRow}>
             <Text style={styles.heroFeatureIcon}>⚡</Text>
-            <Text style={styles.heroFeatureText}>Detecta interações perigosas entre seus medicamentos</Text>
+            <Text style={styles.heroFeatureText}>Tabela de consulta com interações perigosas entre medicamentos e fitoterápicos</Text>
           </View>
           <View style={styles.heroFeatureRow}>
             <Text style={styles.heroFeatureIcon}>🔔</Text>
@@ -60,6 +60,10 @@ export default function HelpScreen() {
           <View style={styles.heroFeatureRow}>
             <Text style={styles.heroFeatureIcon}>📅</Text>
             <Text style={styles.heroFeatureText}>Agenda de atividades físicas e consultas médicas com lembretes automáticos</Text>
+          </View>
+          <View style={styles.heroFeatureRow}>
+            <Text style={styles.heroFeatureIcon}>👥</Text>
+            <Text style={styles.heroFeatureText}>Avisa uma pessoa de confiança se você não confirmar uma dose</Text>
           </View>
         </View>
 
@@ -83,7 +87,8 @@ export default function HelpScreen() {
         <Step number="2" text="Cadastre os medicamentos que você usa na aba Medicamentos, tocando em +. O assistente pergunta nome, dose, horários, prazo e estoque — um passo de cada vez." />
         <Step number="3" text="Use a aba Atividades para registrar atividades físicas, medições (pressão, glicose, peso) e consultas médicas — lembretes são criados automaticamente." />
         <Step number="4" text="Acompanhe na aba Histórico as doses que você tomou ou pulou e as atividades realizadas." />
-        <Step number="5" text={IS_IOS
+        <Step number="5" text="Se quiser, conecte a aba Cuidador a uma pessoa de confiança — ela é avisada se você não confirmar uma dose." />
+        <Step number="6" text={IS_IOS
           ? "Com a Ficha Médica preenchida no app Saúde, os socorristas a veem na tela de bloqueio em Emergência — sem desbloquear o iPhone."
           : "Com o alerta ativo, sua ficha médica fica visível na tela de bloqueio imediatamente — sem precisar desbloquear o celular."} />
         <Text style={styles.tip}>
@@ -154,8 +159,10 @@ export default function HelpScreen() {
       {/* Interações */}
       <Section title="⚡ Interações medicamentosas">
         <Text style={styles.bodyText}>
-          O app verifica automaticamente combinações perigosas entre os seus medicamentos.
-          Alertas aparecem diretamente nos cartões da lista e são classificados em três níveis:
+          O app traz uma tabela de consulta com combinações perigosas já catalogadas,
+          classificadas em três níveis de risco. Não é uma verificação automática dos remédios
+          que você cadastrou — é uma referência que você consulta quando quiser, em
+          Configurações → Tabelas.
         </Text>
         <View style={styles.riskRow}>
           <View style={[styles.riskBadge, { backgroundColor: '#fff0f0', borderLeftColor: '#CC0000' }]}>
@@ -188,7 +195,7 @@ export default function HelpScreen() {
           </Text>
         </View>
         <Text style={styles.tip}>
-          💡 Toque em Configurações → Tabelas para ver todas as interações da base (mais de 2.800), com busca e filtros por risco, além das listas completas de medicamentos e fitoterápicos.
+          💡 Na tela Tabelas você tem busca e filtros por risco, além das listas completas de medicamentos e fitoterápicos cadastrados na base (mais de 2.800 interações).
         </Text>
       </Section>
 
@@ -221,6 +228,27 @@ export default function HelpScreen() {
         <Bullet text="Stand-by (⏸) — suspenda um medicamento sem apagar: ele sai dos alarmes, da tela de bloqueio e das interações, e volta com um toque em Retomar" />
         <Text style={styles.tip}>
           💡 O ícone 🔔 / 🔕 no cartão do medicamento silencia ou reativa o som do lembrete sem apagá-lo. Lembretes funcionam offline — nenhuma conexão é necessária.
+        </Text>
+      </Section>
+
+      {/* Cuidador */}
+      <Section title="👥 Cuidador — alguém sabe se você não responder">
+        <Text style={styles.bodyText}>
+          Na aba Cuidador você conecta seu celular ao de uma pessoa de confiança — filho, cônjuge,
+          vizinho. Cada lado tem um papel:
+        </Text>
+        <Text style={[styles.bodyText, styles.bold, { color: '#1A1F2E' }]}>Se alguém cuida de você:</Text>
+        <Bullet text="Peça para essa pessoa abrir o Alerta Médico dela, ir em Cuidador → Eu cuido de alguém, e mandar o convite" />
+        <Bullet text="Toque no link que ela mandar para conectar — sem criar conta nem digitar nada" />
+        <Bullet text="Escolha um apelido para você e o prazo de tolerância (15 min a 2h) antes dela ser avisada" />
+        <Text style={[styles.bodyText, styles.bold, { color: '#1A1F2E', marginTop: 10 }]}>Se você cuida de alguém:</Text>
+        <Bullet text="Em Cuidador → Eu cuido de alguém, gere um convite e mande pelo WhatsApp — a pessoa só precisa tocar no link" />
+        <Bullet text="Você pode acompanhar mais de uma pessoa, cada uma com seu próprio histórico (ícone 👥 no topo)" />
+        <Text style={[styles.bodyText, styles.bold, { color: '#1A1F2E', marginTop: 10 }]}>Como funciona o aviso:</Text>
+        <Bullet text="Um aviso a cada dose tomada ou pulada — e um aviso separado se a pessoa NÃO responder no prazo combinado, mesmo com o celular dela desligado ou sem internet" />
+        <Bullet text="O conteúdo é cifrado; chegam só o nome do remédio, a dose e o horário — nunca o resto do perfil médico (alergias, contatos, tipo sanguíneo)" />
+        <Text style={styles.tip}>
+          💡 Use "Enviar um aviso de teste" na aba Cuidador para confirmar que o pareamento está funcionando antes de contar com ele de verdade.
         </Text>
       </Section>
 
