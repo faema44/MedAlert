@@ -134,6 +134,27 @@ const QUALIFICADORES = [
   'succinato', 'tartarato',
 ];
 
+// Sinônimos de SUBSTÂNCIA (nunca de marca): a bula certa escreve o mesmo fármaco com
+// outra grafia ou DCB. Cada entrada nasceu de um falso positivo revisado na mão
+// (bulas-revisadas.json) — marca (Invokana↔canagliflozina) NÃO entra aqui: aceitar
+// marca como sinônimo esconderia justamente o composto-em-slug-puro que o intruso pega.
+// Espelha SINONIMOS em site/bulas/download_bulas.py — divergir = gate aprova o que a
+// auditoria reprova (conferido por _crosscheck.py).
+const SINONIMOS = {
+  'metimazol':       ['tiamazol'],              // DCB brasileira do mesmo fármaco
+  'amisulprida':     ['amissulprida'],          // grafia com dois esses
+  'dimetilfumarato': ['fumarato de dimetila'],  // ordem invertida
+  'remdesivir':      ['rendesivir'],            // adaptação PT
+  'canacinumabe':    ['canaquinumabe'],
+  'alemtuzumabe':    ['alentuzumabe'],
+  'alglucosidase':   ['alglicosidase'],         // biológico: alfa-alglicosidase
+  'eritropoietina':  ['alfaepoetina', 'epoetina'],
+  'vitamina d':      ['colecalciferol'],
+  'vitamina d3':     ['colecalciferol'],
+  'vitamina k':      ['fitomenadiona'],
+};
+const expandir = lista => lista.flatMap(x => [x, ...(SINONIMOS[x] || [])]);
+
 // raiz do nome, pra casar "bupropiona" com "cloridrato de bupropiona" e plurais/sais
 const raiz = n => n.replace(/[aeo]$/, '');
 const mencionado = (texto, ing) => texto.includes(raiz(ing));
@@ -170,7 +191,9 @@ for (const [slug, meds] of porSlug) {
     // ("Interferon beta-1a" → "betainterferona 1a", "Epoetina alfa" → "alfaepoetina"),
     // então o nome inteiro nunca casa, mas "interferon"/"epoetina" casa dentro da palavra colada.
     const tokens = tokensDe(med.genericName);
-    const citado = esperados.some(e => mencionado(texto, e)) || tokens.some(t => em(t, texto));
+    const esperadosExp = expandir(esperados);
+    const tokensExp = expandir(tokens);
+    const citado = esperadosExp.some(e => mencionado(texto, e)) || tokensExp.some(t => em(t, texto));
 
     if (!citado) {
       erradas.push({ slug, generico: med.genericName, ident: ident.slice(0, 110), motivo: 'não cita o princípio ativo' });
@@ -191,8 +214,8 @@ for (const [slug, meds] of porSlug) {
     // Compartilhar o radical com o esperado ⇒ é o mesmo fármaco com outro nome, não intruso.
     const intrusos = VOCAB.filter(v =>
       mencionado(ident, v) &&
-      !esperados.some(e => v.includes(raiz(e)) || raiz(e).includes(raiz(v))) &&
-      !tokens.some(t => em(t, v)));
+      !esperadosExp.some(e => v.includes(raiz(e)) || raiz(e).includes(raiz(v))) &&
+      !tokensExp.some(t => em(t, v)));
     // NÃO deduzir "é composto" de um "+" no texto: lá ele também significa "pó + diluente"
     // e reprovaria ~30 bulas corretas. Composto com ativo fora do banco é barrado na origem,
     // pelo NOME do produto no catálogo do fabricante (ver corrigir_bulas_sara.py).
