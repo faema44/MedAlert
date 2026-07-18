@@ -2640,7 +2640,7 @@
     "drug2": "Metotrexato",
     "risk_level": "critical",
     "risk_description": "Toxicidade grave",
-    "mechanism": "Toxicidade grave. Conduta: Evitar.",
+    "mechanism": "O AAS (Ácido Acetilsalicílico) reduz a eliminação do metotrexato pelos rins, e ele se acumula. Metotrexato em excesso ataca a medula óssea e as mucosas: feridas na boca, queda das defesas, anemia e sangramento — mesmo nas doses semanais baixas usadas para artrite. Conduta: Evitar.",
     "drug1_rxcuis": [
       "1191"
     ],
@@ -2861,7 +2861,7 @@
     "drug2": "Fenelzina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A fenelzina bloqueia a enzima que destrói a serotonina no cérebro, e o almotriptano aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "279645"
     ],
@@ -2876,7 +2876,7 @@
     "drug2": "Selegilina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A selegilina bloqueia a enzima que destrói a serotonina no cérebro, e o almotriptano aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "279645"
     ],
@@ -2891,7 +2891,7 @@
     "drug2": "Rasagilina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A rasagilina bloqueia a enzima que destrói a serotonina no cérebro, e o almotriptano aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "279645"
     ],
@@ -2906,7 +2906,7 @@
     "drug2": "Linezolida",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A linezolida bloqueia a enzima que destrói a serotonina no cérebro, e o almotriptano aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "279645"
     ],
@@ -3040,7 +3040,7 @@
     "drug2": "Propafenona",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias",
-    "mechanism": "Aumento do risco de arritmias. Conduta: Monitorar ECG.",
+    "mechanism": "A amiodarona e a propafenona alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Monitorar ECG.",
     "drug1_rxcuis": [
       "703"
     ],
@@ -3105,7 +3105,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento risco de arritmias fatais",
-    "mechanism": "Aumento risco de arritmias fatais. Conduta: Contraindicado.",
+    "mechanism": "A amisulprida e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "46303"
     ],
@@ -3121,7 +3121,7 @@
     "drug2": "Selegilina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A selegilina bloqueia a enzima que destrói a serotonina no cérebro, e a amitriptilina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "704"
     ],
@@ -3137,7 +3137,7 @@
     "drug2": "Rasagilina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A rasagilina bloqueia a enzima que destrói a serotonina no cérebro, e a amitriptilina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "704"
     ],
@@ -3153,7 +3153,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias fatais",
-    "mechanism": "Aumento do risco de arritmias fatais. Conduta: Contraindicado.",
+    "mechanism": "A amitriptilina e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "704"
     ],
@@ -3169,7 +3169,7 @@
     "drug2": "Tioridazina",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias fatais",
-    "mechanism": "Aumento do risco de arritmias fatais. Conduta: Contraindicado.",
+    "mechanism": "A amitriptilina e a tioridazina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "704"
     ],
@@ -3237,7 +3237,7 @@
     "drug2": "Posaconazol",
     "risk_level": "critical",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Contraindicado.",
+    "mechanism": "O posaconazol bloqueia as vias que eliminam a apixabana do organismo, e o anticoagulante se acumula acima da dose segura. O resultado é risco de sangramento que não estanca — no aparelho digestivo ou no cérebro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "1364430"
     ],
@@ -3254,7 +3254,7 @@
     "drug2": "Voriconazol",
     "risk_level": "critical",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Contraindicado.",
+    "mechanism": "O voriconazol bloqueia as vias que eliminam a apixabana do organismo, e o anticoagulante se acumula acima da dose segura. O resultado é risco de sangramento que não estanca — no aparelho digestivo ou no cérebro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "1364430"
     ],
@@ -3271,7 +3271,7 @@
     "drug2": "Ritonavir",
     "risk_level": "critical",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Contraindicado.",
+    "mechanism": "O ritonavir bloqueia as vias que eliminam a apixabana do organismo, e o anticoagulante se acumula acima da dose segura. O resultado é risco de sangramento que não estanca — no aparelho digestivo ou no cérebro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "1364430"
     ],
@@ -3445,7 +3445,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Contraindicado.",
+    "mechanism": "A asenapina e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "784649"
     ],
@@ -3492,7 +3492,7 @@
     "drug2": "Tioridazina",
     "risk_level": "critical",
     "risk_description": "Aumento risco de arritmia",
-    "mechanism": "Aumento risco de arritmia. Conduta: Contraindicado.",
+    "mechanism": "A atomoxetina e a tioridazina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "38400"
     ],
@@ -3641,7 +3641,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Contraindicado.",
+    "mechanism": "A azitromicina e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "18631"
     ],
@@ -3786,7 +3786,7 @@
     "drug2": "Eritromicina",
     "risk_level": "critical",
     "risk_description": "Aumento risco de arritmia grave",
-    "mechanism": "Aumento risco de arritmia grave. Conduta: Evitar combinação.",
+    "mechanism": "A bromoprida e a eritromicina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "19768"
     ],
@@ -4067,7 +4067,7 @@
     "drug2": "Lovastatina",
     "risk_level": "critical",
     "risk_description": "miopatia grave",
-    "mechanism": "miopatia grave. Conduta: Contraindicado.",
+    "mechanism": "O cetoconazol bloqueia a enzima do fígado que elimina a lovastatina, que então se acumula no sangue. Em excesso, a estatina destrói fibras musculares (rabdomiólise): dor muscular intensa, fraqueza, urina escura — e os resíduos do músculo podem levar os rins à falência. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "6135"
     ],
@@ -4350,7 +4350,7 @@
     "drug2": "Tioridazina",
     "risk_level": "critical",
     "risk_description": "Aumento risco de arritmias graves",
-    "mechanism": "Aumento risco de arritmias graves. Conduta: Contraindicado.",
+    "mechanism": "O citalopram e a tioridazina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "2556"
     ],
@@ -4367,7 +4367,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmia fatal (torsades de pointes)",
-    "mechanism": "Aumento do risco de arritmia fatal (torsades de pointes). Conduta: Contraindicado.",
+    "mechanism": "A claritromicina e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "21212"
     ],
@@ -4384,7 +4384,7 @@
     "drug2": "Ergotamina",
     "risk_level": "critical",
     "risk_description": "Risco de ergotismo grave",
-    "mechanism": "Risco de ergotismo grave. Conduta: Contraindicado.",
+    "mechanism": "A claritromicina bloqueia a enzima do fígado que elimina a ergotamina, que se acumula. O excesso contrai os vasos com força: dor, palidez e frio nas mãos e nos pés, podendo chegar a isquemia (falta de sangue no tecido). Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "21212"
     ],
@@ -4400,7 +4400,7 @@
     "drug2": "Dihidroergotamina",
     "risk_level": "critical",
     "risk_description": "Risco de ergotismo grave",
-    "mechanism": "Risco de ergotismo grave. Conduta: Contraindicado.",
+    "mechanism": "A claritromicina bloqueia a enzima do fígado que elimina a dihidroergotamina, que se acumula. O excesso contrai os vasos com força: dor, palidez e frio nas mãos e nos pés, podendo chegar a isquemia (falta de sangue no tecido). Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "21212"
     ],
@@ -4510,7 +4510,7 @@
     "drug2": "Selegilina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A selegilina bloqueia a enzima que destrói a serotonina no cérebro, e a clomipramina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "2597"
     ],
@@ -4526,7 +4526,7 @@
     "drug2": "Rasagilina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A rasagilina bloqueia a enzima que destrói a serotonina no cérebro, e a clomipramina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "2597"
     ],
@@ -4674,7 +4674,7 @@
     "drug2": "Eritromicina",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de toxicidade cardíaca",
-    "mechanism": "Aumento do risco de toxicidade cardíaca. Conduta: Evitar combinação.",
+    "mechanism": "A cloroquina e a eritromicina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "2393"
     ],
@@ -4705,7 +4705,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Contraindicado.",
+    "mechanism": "A clorpromazina e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "2403"
     ],
@@ -4720,7 +4720,7 @@
     "drug2": "Lítio",
     "risk_level": "critical",
     "risk_description": "Toxicidade por lítio",
-    "mechanism": "Toxicidade por lítio. Conduta: Evitar combinação.",
+    "mechanism": "A clortalidona faz o rim reter lítio em vez de eliminá-lo, e o nível no sangue sobe. O lítio tem margem estreita: em excesso causa tremor grosseiro, vômitos, confusão, fala arrastada e, em casos graves, convulsão. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "2409"
     ],
@@ -4801,7 +4801,7 @@
     "drug2": "Citalopram",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "mechanism": "A codeína e o citalopram elevam a serotonina no cérebro por caminhos diferentes. Somados, ela pode chegar a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — a síndrome serotoninérgica, que exige atendimento de urgência. Conduta: Evitar.",
     "drug1_rxcuis": [
       "2670"
     ],
@@ -4883,7 +4883,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "critical",
     "risk_description": "neuropatia grave",
-    "mechanism": "neuropatia grave. Conduta: Evitar.",
+    "mechanism": "A ciclosporina bloqueia as vias que eliminam a colchicina, que tem margem de segurança estreita e passa a se acumular. O excesso causa dor e fraqueza muscular, formigamento nas mãos e nos pés e lesão da medula óssea. Conduta: Evitar.",
     "drug2_rxcuis": [
       "3008"
     ],
@@ -4900,7 +4900,7 @@
     "drug2": "Eritromicina",
     "risk_level": "critical",
     "risk_description": "neuropatia grave",
-    "mechanism": "neuropatia grave. Conduta: Evitar.",
+    "mechanism": "A eritromicina bloqueia as vias que eliminam a colchicina, que tem margem de segurança estreita e passa a se acumular. O excesso causa dor e fraqueza muscular, formigamento nas mãos e nos pés e lesão da medula óssea. Conduta: Evitar.",
     "drug2_rxcuis": [
       "4053"
     ],
@@ -4917,7 +4917,7 @@
     "drug2": "Claritromicina",
     "risk_level": "critical",
     "risk_description": "neuropatia grave",
-    "mechanism": "neuropatia grave. Conduta: Evitar.",
+    "mechanism": "A claritromicina bloqueia as vias que eliminam a colchicina, que tem margem de segurança estreita e passa a se acumular. O excesso causa dor e fraqueza muscular, formigamento nas mãos e nos pés e lesão da medula óssea. Conduta: Evitar.",
     "drug2_rxcuis": [
       "21212"
     ],
@@ -4985,7 +4985,7 @@
     "drug2": "Itraconazol",
     "risk_level": "critical",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Contraindicado.",
+    "mechanism": "O itraconazol bloqueia as vias que eliminam a dabigatrana do organismo, e o anticoagulante se acumula acima da dose segura. O resultado é risco de sangramento que não estanca — no aparelho digestivo ou no cérebro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "1546356"
     ],
@@ -5001,7 +5001,7 @@
     "drug2": "Voriconazol",
     "risk_level": "critical",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Contraindicado.",
+    "mechanism": "O voriconazol bloqueia as vias que eliminam a dabigatrana do organismo, e o anticoagulante se acumula acima da dose segura. O resultado é risco de sangramento que não estanca — no aparelho digestivo ou no cérebro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "1546356"
     ],
@@ -5099,7 +5099,7 @@
     "drug2": "Linezolida",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A linezolida bloqueia a enzima que destrói a serotonina no cérebro, e a desvenlafaxina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "734064"
     ],
@@ -5199,7 +5199,7 @@
     "drug2": "Oxicodona",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Contraindicado.",
+    "mechanism": "A oxicodona reduz o estímulo que o cérebro manda para respirar, e a difenidramina aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "3498"
     ],
@@ -5451,7 +5451,7 @@
     "drug2": "Eritromicina",
     "risk_level": "critical",
     "risk_description": "Aumento risco de arritmias graves",
-    "mechanism": "Aumento risco de arritmias graves. Conduta: Evitar uso concomitante.",
+    "mechanism": "A domperidona e a eritromicina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
       "3626"
     ],
@@ -5468,7 +5468,7 @@
     "drug2": "Claritromicina",
     "risk_level": "critical",
     "risk_description": "Aumento risco de arritmias graves",
-    "mechanism": "Aumento risco de arritmias graves. Conduta: Evitar uso concomitante.",
+    "mechanism": "A domperidona e a claritromicina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
       "3626"
     ],
@@ -5483,7 +5483,7 @@
     "drug2": "Clorpromazina",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Evitar.",
+    "mechanism": "A doxepina e a clorpromazina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Evitar.",
     "drug1_rxcuis": [
       "3638"
     ],
@@ -5608,7 +5608,7 @@
     "drug2": "Eritromicina",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de toxicidade cardíaca",
-    "mechanism": "Aumento do risco de toxicidade cardíaca. Conduta: Contraindicado.",
+    "mechanism": "A dronedarona e a eritromicina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "233698"
     ],
@@ -5624,7 +5624,7 @@
     "drug2": "Voriconazol",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de toxicidade cardíaca",
-    "mechanism": "Aumento do risco de toxicidade cardíaca. Conduta: Contraindicado.",
+    "mechanism": "A dronedarona e o voriconazol alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "233698"
     ],
@@ -5799,7 +5799,7 @@
     "drug2": "Eritromicina",
     "risk_level": "critical",
     "risk_description": "Crise hipertensiva grave",
-    "mechanism": "Crise hipertensiva grave. Conduta: Contraindicado.",
+    "mechanism": "A eritromicina bloqueia a enzima do fígado que elimina a ergotamina, que se acumula. O excesso contrai os vasos com força: dor, palidez e frio nas mãos e nos pés, podendo chegar a isquemia (falta de sangue no tecido). Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "4025"
     ],
@@ -5830,7 +5830,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmia fatal (torsades de pointes)",
-    "mechanism": "Aumento do risco de arritmia fatal (torsades de pointes). Conduta: Contraindicado.",
+    "mechanism": "A eritromicina e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "4053"
     ],
@@ -5914,7 +5914,7 @@
     "drug2": "Linezolida",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A linezolida bloqueia a enzima que destrói a serotonina no cérebro, e o escitalopram aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "321988"
     ],
@@ -6158,7 +6158,7 @@
     "drug2": "Pseudoefedrina",
     "risk_level": "critical",
     "risk_description": "crise hipertensiva",
-    "mechanism": "crise hipertensiva. Conduta: Contraindicado.",
+    "mechanism": "A fenelzina impede a destruição da noradrenalina, que se acumula nos nervos. A pseudoefedrina então descarrega tudo de uma vez: a pressão dispara de forma abrupta, com dor de cabeça intensa, e há risco de derrame cerebral. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "8123"
     ],
@@ -6174,7 +6174,7 @@
     "drug2": "Dextrometorfano",
     "risk_level": "critical",
     "risk_description": "síndrome serotoninérgica",
-    "mechanism": "síndrome serotoninérgica. Conduta: Evitar.",
+    "mechanism": "A fenelzina bloqueia a enzima que destrói a serotonina no cérebro, e o dextrometorfano aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Evitar.",
     "drug1_rxcuis": [
       "8123"
     ],
@@ -6257,7 +6257,7 @@
     "drug2": "Alprazolam",
     "risk_level": "critical",
     "risk_description": "depressão respiratória grave",
-    "mechanism": "depressão respiratória grave. Conduta: Evitar.",
+    "mechanism": "A fentanila reduz o estímulo que o cérebro manda para respirar, e o alprazolam aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar.",
     "drug1_rxcuis": [
       "4337"
     ],
@@ -6289,7 +6289,7 @@
     "drug2": "Diazepam",
     "risk_level": "critical",
     "risk_description": "depressão respiratória grave",
-    "mechanism": "depressão respiratória grave. Conduta: Evitar.",
+    "mechanism": "A fentanila reduz o estímulo que o cérebro manda para respirar, e o diazepam aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar.",
     "drug1_rxcuis": [
       "4337"
     ],
@@ -6305,7 +6305,7 @@
     "drug2": "Lorazepam",
     "risk_level": "critical",
     "risk_description": "depressão respiratória grave",
-    "mechanism": "depressão respiratória grave. Conduta: Evitar.",
+    "mechanism": "A fentanila reduz o estímulo que o cérebro manda para respirar, e o lorazepam aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar.",
     "drug1_rxcuis": [
       "4337"
     ],
@@ -6322,7 +6322,7 @@
     "drug2": "Midazolam",
     "risk_level": "critical",
     "risk_description": "depressão respiratória grave",
-    "mechanism": "depressão respiratória grave. Conduta: Evitar.",
+    "mechanism": "A fentanila reduz o estímulo que o cérebro manda para respirar, e o midazolam aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar.",
     "drug1_rxcuis": [
       "4337"
     ],
@@ -6338,7 +6338,7 @@
     "drug2": "Oxazepam",
     "risk_level": "critical",
     "risk_description": "depressão respiratória grave",
-    "mechanism": "depressão respiratória grave. Conduta: Evitar.",
+    "mechanism": "A fentanila reduz o estímulo que o cérebro manda para respirar, e o oxazepam aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar.",
     "drug1_rxcuis": [
       "4337"
     ],
@@ -6354,7 +6354,7 @@
     "drug2": "Triazolam",
     "risk_level": "critical",
     "risk_description": "depressão respiratória grave",
-    "mechanism": "depressão respiratória grave. Conduta: Evitar.",
+    "mechanism": "A fentanila reduz o estímulo que o cérebro manda para respirar, e o triazolam aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar.",
     "drug1_rxcuis": [
       "4337"
     ],
@@ -6404,7 +6404,7 @@
     "drug2": "Ritonavir",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Evitar a combinação.",
+    "mechanism": "A flecainida e o ritonavir alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "4441"
     ],
@@ -6421,7 +6421,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmia fatal (torsades de pointes)",
-    "mechanism": "Aumento do risco de arritmia fatal (torsades de pointes). Conduta: Contraindicado.",
+    "mechanism": "O fluconazol e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "4450"
     ],
@@ -6484,7 +6484,7 @@
     "drug2": "Tioridazina",
     "risk_level": "critical",
     "risk_description": "Aumento risco de arritmia fatal",
-    "mechanism": "Aumento risco de arritmia fatal. Conduta: Contraindicado.",
+    "mechanism": "A fluoxetina e a tioridazina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "4493"
     ],
@@ -6501,7 +6501,7 @@
     "drug2": "Linezolida",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A linezolida bloqueia a enzima que destrói a serotonina no cérebro, e a fluoxetina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "4493"
     ],
@@ -6535,7 +6535,7 @@
     "drug2": "Tioridazina",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmia fatal (torsades de pointes)",
-    "mechanism": "Aumento do risco de arritmia fatal (torsades de pointes). Conduta: Contraindicado.",
+    "mechanism": "A fluvoxamina e a tioridazina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "42355"
     ],
@@ -6552,7 +6552,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmia fatal (torsades de pointes)",
-    "mechanism": "Aumento do risco de arritmia fatal (torsades de pointes). Conduta: Contraindicado.",
+    "mechanism": "A fluvoxamina e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "42355"
     ],
@@ -6915,7 +6915,7 @@
     "drug2": "Fluoxetina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "mechanism": "A hidrocodona e a fluoxetina elevam a serotonina no cérebro por caminhos diferentes. Somados, ela pode chegar a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — a síndrome serotoninérgica, que exige atendimento de urgência. Conduta: Evitar.",
     "drug1_rxcuis": [
       "5489"
     ],
@@ -7029,7 +7029,7 @@
     "drug2": "Eritromicina",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Evitar a combinação.",
+    "mechanism": "A hidroxicloroquina e a eritromicina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "5521"
     ],
@@ -7058,7 +7058,7 @@
     "drug2": "Lítio",
     "risk_level": "critical",
     "risk_description": "Toxicidade por lítio",
-    "mechanism": "Toxicidade por lítio. Conduta: Monitorar níveis de lítio.",
+    "mechanism": "O ibuprofeno faz o rim reter lítio em vez de eliminá-lo, e o nível no sangue sobe. O lítio tem margem estreita: em excesso causa tremor grosseiro, vômitos, confusão, fala arrastada e, em casos graves, convulsão. Conduta: Monitorar níveis de lítio.",
     "drug1_rxcuis": [
       "5640"
     ],
@@ -7140,7 +7140,7 @@
     "drug2": "Selegilina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A selegilina bloqueia a enzima que destrói a serotonina no cérebro, e a imipramina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "5691"
     ],
@@ -7156,7 +7156,7 @@
     "drug2": "Fenelzina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A fenelzina bloqueia a enzima que destrói a serotonina no cérebro, e a imipramina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "5691"
     ],
@@ -7172,7 +7172,7 @@
     "drug2": "Tramadol",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "mechanism": "A imipramina e o tramadol elevam a serotonina no cérebro por caminhos diferentes. Somados, ela pode chegar a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — a síndrome serotoninérgica, que exige atendimento de urgência. Conduta: Evitar.",
     "drug1_rxcuis": [
       "5691"
     ],
@@ -7236,7 +7236,7 @@
     "drug2": "Metotrexato",
     "risk_level": "critical",
     "risk_description": "Toxicidade por metotrexato",
-    "mechanism": "Toxicidade por metotrexato. Conduta: Evitar.",
+    "mechanism": "A indometacina reduz a eliminação do metotrexato pelos rins, e ele se acumula. Metotrexato em excesso ataca a medula óssea e as mucosas: feridas na boca, queda das defesas, anemia e sangramento — mesmo nas doses semanais baixas usadas para artrite. Conduta: Evitar.",
     "drug1_rxcuis": [
       "5781"
     ],
@@ -7283,7 +7283,7 @@
     "drug2": "Ergotamina",
     "risk_level": "critical",
     "risk_description": "Risco de ergotismo grave",
-    "mechanism": "Risco de ergotismo grave. Conduta: Contraindicado.",
+    "mechanism": "O isavuconazol bloqueia a enzima do fígado que elimina a ergotamina, que se acumula. O excesso contrai os vasos com força: dor, palidez e frio nas mãos e nos pés, podendo chegar a isquemia (falta de sangue no tecido). Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "1720882"
     ],
@@ -7315,7 +7315,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Risco de arritmia grave",
-    "mechanism": "Risco de arritmia grave. Conduta: Contraindicado.",
+    "mechanism": "O isavuconazol e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "1720882"
     ],
@@ -7347,7 +7347,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmia fatal (torsades de pointes)",
-    "mechanism": "Aumento do risco de arritmia fatal (torsades de pointes). Conduta: Contraindicado.",
+    "mechanism": "O itraconazol e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "28031"
     ],
@@ -7464,7 +7464,7 @@
     "drug2": "Clorpromazina",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Evitar a combinação.",
+    "mechanism": "A levomepromazina e a clorpromazina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "6852"
     ],
@@ -7496,7 +7496,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Evitar a combinação.",
+    "mechanism": "A levomepromazina e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "6852"
     ],
@@ -7528,7 +7528,7 @@
     "drug2": "Tioridazina",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Evitar a combinação.",
+    "mechanism": "A levomepromazina e a tioridazina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "6852"
     ],
@@ -7544,7 +7544,7 @@
     "drug2": "Linezolida",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A linezolida bloqueia a enzima que destrói a serotonina no cérebro, e a levomilnaciprana aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "1433212"
     ],
@@ -7561,7 +7561,7 @@
     "drug2": "Pseudoefedrina",
     "risk_level": "critical",
     "risk_description": "crise hipertensiva",
-    "mechanism": "crise hipertensiva. Conduta: Evitar.",
+    "mechanism": "A linezolida impede a destruição da noradrenalina, que se acumula nos nervos. A pseudoefedrina então descarrega tudo de uma vez: a pressão dispara de forma abrupta, com dor de cabeça intensa, e há risco de derrame cerebral. Conduta: Evitar.",
     "drug1_rxcuis": [
       "190376"
     ],
@@ -7576,7 +7576,7 @@
     "drug2": "Sibutramina",
     "risk_level": "critical",
     "risk_description": "crise hipertensiva",
-    "mechanism": "crise hipertensiva. Conduta: Evitar.",
+    "mechanism": "A linezolida impede a destruição da noradrenalina, que se acumula nos nervos. A sibutramina então descarrega tudo de uma vez: a pressão dispara de forma abrupta, com dor de cabeça intensa, e há risco de derrame cerebral. Conduta: Evitar.",
     "drug1_rxcuis": [
       "190376"
     ],
@@ -7675,7 +7675,7 @@
     "drug2": "Lítio",
     "risk_level": "critical",
     "risk_description": "Toxicidade por lítio",
-    "mechanism": "Toxicidade por lítio. Conduta: Monitorar níveis de lítio.",
+    "mechanism": "O lornoxicam faz o rim reter lítio em vez de eliminá-lo, e o nível no sangue sobe. O lítio tem margem estreita: em excesso causa tremor grosseiro, vômitos, confusão, fala arrastada e, em casos graves, convulsão. Conduta: Monitorar níveis de lítio.",
     "drug1_rxcuis": [
       "20890"
     ],
@@ -7692,7 +7692,7 @@
     "drug2": "Metotrexato",
     "risk_level": "critical",
     "risk_description": "Toxicidade por metotrexato",
-    "mechanism": "Toxicidade por metotrexato. Conduta: Evitar combinação.",
+    "mechanism": "O lornoxicam reduz a eliminação do metotrexato pelos rins, e ele se acumula. Metotrexato em excesso ataca a medula óssea e as mucosas: feridas na boca, queda das defesas, anemia e sangramento — mesmo nas doses semanais baixas usadas para artrite. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "20890"
     ],
@@ -7742,7 +7742,7 @@
     "drug2": "Eritromicina",
     "risk_level": "critical",
     "risk_description": "Risco de rabdomiólise",
-    "mechanism": "Risco de rabdomiólise. Conduta: Contraindicado.",
+    "mechanism": "A eritromicina bloqueia a enzima do fígado que elimina a lovastatina, que então se acumula no sangue. Em excesso, a estatina destrói fibras musculares (rabdomiólise): dor muscular intensa, fraqueza, urina escura — e os resíduos do músculo podem levar os rins à falência. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "6472"
     ],
@@ -7759,7 +7759,7 @@
     "drug2": "Claritromicina",
     "risk_level": "critical",
     "risk_description": "Risco de rabdomiólise",
-    "mechanism": "Risco de rabdomiólise. Conduta: Contraindicado.",
+    "mechanism": "A claritromicina bloqueia a enzima do fígado que elimina a lovastatina, que então se acumula no sangue. Em excesso, a estatina destrói fibras musculares (rabdomiólise): dor muscular intensa, fraqueza, urina escura — e os resíduos do músculo podem levar os rins à falência. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "6472"
     ],
@@ -7776,7 +7776,7 @@
     "drug2": "Itraconazol",
     "risk_level": "critical",
     "risk_description": "Risco de rabdomiólise",
-    "mechanism": "Risco de rabdomiólise. Conduta: Contraindicado.",
+    "mechanism": "O itraconazol bloqueia a enzima do fígado que elimina a lovastatina, que então se acumula no sangue. Em excesso, a estatina destrói fibras musculares (rabdomiólise): dor muscular intensa, fraqueza, urina escura — e os resíduos do músculo podem levar os rins à falência. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "6472"
     ],
@@ -7792,7 +7792,7 @@
     "drug2": "Posaconazol",
     "risk_level": "critical",
     "risk_description": "Risco de rabdomiólise",
-    "mechanism": "Risco de rabdomiólise. Conduta: Contraindicado.",
+    "mechanism": "O posaconazol bloqueia a enzima do fígado que elimina a lovastatina, que então se acumula no sangue. Em excesso, a estatina destrói fibras musculares (rabdomiólise): dor muscular intensa, fraqueza, urina escura — e os resíduos do músculo podem levar os rins à falência. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "6472"
     ],
@@ -7808,7 +7808,7 @@
     "drug2": "Voriconazol",
     "risk_level": "critical",
     "risk_description": "Risco de rabdomiólise",
-    "mechanism": "Risco de rabdomiólise. Conduta: Contraindicado.",
+    "mechanism": "O voriconazol bloqueia a enzima do fígado que elimina a lovastatina, que então se acumula no sangue. Em excesso, a estatina destrói fibras musculares (rabdomiólise): dor muscular intensa, fraqueza, urina escura — e os resíduos do músculo podem levar os rins à falência. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "6472"
     ],
@@ -7824,7 +7824,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias fatais",
-    "mechanism": "Aumento do risco de arritmias fatais. Conduta: Contraindicado.",
+    "mechanism": "A maprotilina e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "6646"
     ],
@@ -7904,7 +7904,7 @@
     "drug2": "Eritromicina",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Evitar a combinação.",
+    "mechanism": "A mequitazina e a eritromicina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "29528"
     ],
@@ -7952,7 +7952,7 @@
     "drug2": "Alprazolam",
     "risk_level": "critical",
     "risk_description": "Sedação respiratória grave",
-    "mechanism": "Sedação respiratória grave. Conduta: Evitar.",
+    "mechanism": "A metadona reduz o estímulo que o cérebro manda para respirar, e o alprazolam aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar.",
     "drug1_rxcuis": [
       "6813"
     ],
@@ -8000,7 +8000,7 @@
     "drug2": "Diazepam",
     "risk_level": "critical",
     "risk_description": "Sedação respiratória grave",
-    "mechanism": "Sedação respiratória grave. Conduta: Evitar.",
+    "mechanism": "A metadona reduz o estímulo que o cérebro manda para respirar, e o diazepam aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar.",
     "drug1_rxcuis": [
       "6813"
     ],
@@ -8049,7 +8049,7 @@
     "drug2": "Lorazepam",
     "risk_level": "critical",
     "risk_description": "Sedação respiratória grave",
-    "mechanism": "Sedação respiratória grave. Conduta: Evitar.",
+    "mechanism": "A metadona reduz o estímulo que o cérebro manda para respirar, e o lorazepam aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar.",
     "drug1_rxcuis": [
       "6813"
     ],
@@ -8065,7 +8065,7 @@
     "drug2": "Midazolam",
     "risk_level": "critical",
     "risk_description": "Sedação respiratória grave",
-    "mechanism": "Sedação respiratória grave. Conduta: Evitar.",
+    "mechanism": "A metadona reduz o estímulo que o cérebro manda para respirar, e o midazolam aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar.",
     "drug1_rxcuis": [
       "6813"
     ],
@@ -8081,7 +8081,7 @@
     "drug2": "Paroxetina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "mechanism": "A metadona e a paroxetina elevam a serotonina no cérebro por caminhos diferentes. Somados, ela pode chegar a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — a síndrome serotoninérgica, que exige atendimento de urgência. Conduta: Evitar.",
     "drug1_rxcuis": [
       "6813"
     ],
@@ -8246,7 +8246,7 @@
     "drug2": "Trimetoprima/Sulfametoxazol",
     "risk_level": "critical",
     "risk_description": "Toxicidade por metotrexato",
-    "mechanism": "Toxicidade por metotrexato. Conduta: Evitar combinação.",
+    "mechanism": "O trimetoprima/Sulfametoxazol reduz a eliminação do metotrexato pelos rins, e ele se acumula. Metotrexato em excesso ataca a medula óssea e as mucosas: feridas na boca, queda das defesas, anemia e sangramento — mesmo nas doses semanais baixas usadas para artrite. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "6851"
     ],
@@ -8327,7 +8327,7 @@
     "drug2": "Linezolida",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A linezolida bloqueia a enzima que destrói a serotonina no cérebro, e a mirtazapina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "15996"
     ],
@@ -8360,7 +8360,7 @@
     "drug2": "Tadalafila",
     "risk_level": "critical",
     "risk_description": "Hipotensão grave",
-    "mechanism": "Hipotensão grave. Conduta: Contraindicado.",
+    "mechanism": "O mononitrato de Isossorbida e a tadalafila relaxam os vasos pela mesma via química (óxido nítrico–GMPc). O efeito se multiplica em vez de somar: a pressão pode despencar de forma súbita, com desmaio e risco de infarto por queda do fluxo nas coronárias. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "28004"
     ],
@@ -8377,7 +8377,7 @@
     "drug2": "Vardenafila",
     "risk_level": "critical",
     "risk_description": "Hipotensão grave",
-    "mechanism": "Hipotensão grave. Conduta: Contraindicado.",
+    "mechanism": "O mononitrato de Isossorbida e a vardenafila relaxam os vasos pela mesma via química (óxido nítrico–GMPc). O efeito se multiplica em vez de somar: a pressão pode despencar de forma súbita, com desmaio e risco de infarto por queda do fluxo nas coronárias. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "28004"
     ],
@@ -8489,7 +8489,7 @@
     "drug2": "Metadona",
     "risk_level": "critical",
     "risk_description": "Síndrome de abstinência grave",
-    "mechanism": "Síndrome de abstinência grave. Conduta: Evitar uso concomitante.",
+    "mechanism": "A naltrexona expulsa a metadona dos receptores de uma só vez. Em quem usa o opioide continuamente, isso precipita uma abstinência aguda e intensa — dor, agitação, vômitos, diarreia e taquicardia — que pode exigir hospital. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
       "7243"
     ],
@@ -8506,7 +8506,7 @@
     "drug2": "Buprenorfina",
     "risk_level": "critical",
     "risk_description": "Síndrome de abstinência grave",
-    "mechanism": "Síndrome de abstinência grave. Conduta: Evitar uso concomitante.",
+    "mechanism": "A naltrexona expulsa a buprenorfina dos receptores de uma só vez. Em quem usa o opioide continuamente, isso precipita uma abstinência aguda e intensa — dor, agitação, vômitos, diarreia e taquicardia — que pode exigir hospital. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
       "7243"
     ],
@@ -8572,7 +8572,7 @@
     "drug2": "Rasagilina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A rasagilina bloqueia a enzima que destrói a serotonina no cérebro, e o naratriptano aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "141366"
     ],
@@ -8705,7 +8705,7 @@
     "drug2": "Tadalafila",
     "risk_level": "critical",
     "risk_description": "Hipotensão grave",
-    "mechanism": "Hipotensão grave. Conduta: Contraindicado.",
+    "mechanism": "A nitroglicerina e a tadalafila relaxam os vasos pela mesma via química (óxido nítrico–GMPc). O efeito se multiplica em vez de somar: a pressão pode despencar de forma súbita, com desmaio e risco de infarto por queda do fluxo nas coronárias. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "4917"
     ],
@@ -8722,7 +8722,7 @@
     "drug2": "Vardenafila",
     "risk_level": "critical",
     "risk_description": "Hipotensão grave",
-    "mechanism": "Hipotensão grave. Conduta: Contraindicado.",
+    "mechanism": "A nitroglicerina e a vardenafila relaxam os vasos pela mesma via química (óxido nítrico–GMPc). O efeito se multiplica em vez de somar: a pressão pode despencar de forma súbita, com desmaio e risco de infarto por queda do fluxo nas coronárias. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "4917"
     ],
@@ -8772,7 +8772,7 @@
     "drug2": "Selegilina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A selegilina bloqueia a enzima que destrói a serotonina no cérebro, e a nortriptilina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "7531"
     ],
@@ -8788,7 +8788,7 @@
     "drug2": "Fenelzina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A fenelzina bloqueia a enzima que destrói a serotonina no cérebro, e a nortriptilina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "7531"
     ],
@@ -9074,7 +9074,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Evitar combinação.",
+    "mechanism": "A paliperidona e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "679314"
     ],
@@ -9089,7 +9089,7 @@
     "drug2": "Tioridazina",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Evitar combinação.",
+    "mechanism": "A paliperidona e a tioridazina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "679314"
     ],
@@ -9155,7 +9155,7 @@
     "drug2": "Linezolida",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A linezolida bloqueia a enzima que destrói a serotonina no cérebro, e a paroxetina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "32937"
     ],
@@ -9249,7 +9249,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias cardíacas",
-    "mechanism": "Aumento do risco de arritmias cardíacas. Conduta: Contraindicado.",
+    "mechanism": "A perfenazina e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "8076"
     ],
@@ -9387,7 +9387,7 @@
     "drug2": "Metotrexato",
     "risk_level": "critical",
     "risk_description": "Toxicidade por metotrexato",
-    "mechanism": "Toxicidade por metotrexato. Conduta: Evitar.",
+    "mechanism": "O piroxicam reduz a eliminação do metotrexato pelos rins, e ele se acumula. Metotrexato em excesso ataca a medula óssea e as mucosas: feridas na boca, queda das defesas, anemia e sangramento — mesmo nas doses semanais baixas usadas para artrite. Conduta: Evitar.",
     "drug1_rxcuis": [
       "8356"
     ],
@@ -9437,7 +9437,7 @@
     "drug2": "Ergotamina",
     "risk_level": "critical",
     "risk_description": "Crise hipertensiva grave",
-    "mechanism": "Crise hipertensiva grave. Conduta: Contraindicado.",
+    "mechanism": "O posaconazol bloqueia a enzima do fígado que elimina a ergotamina, que se acumula. O excesso contrai os vasos com força: dor, palidez e frio nas mãos e nos pés, podendo chegar a isquemia (falta de sangue no tecido). Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "282446"
     ],
@@ -9453,7 +9453,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmia grave",
-    "mechanism": "Aumento do risco de arritmia grave. Conduta: Contraindicado.",
+    "mechanism": "O posaconazol e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "282446"
     ],
@@ -9633,7 +9633,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmia fatal (torsades de pointes)",
-    "mechanism": "Aumento do risco de arritmia fatal (torsades de pointes). Conduta: Contraindicado.",
+    "mechanism": "A propafenona e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "8754"
     ],
@@ -9650,7 +9650,7 @@
     "drug2": "Eritromicina",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmia fatal (torsades de pointes)",
-    "mechanism": "Aumento do risco de arritmia fatal (torsades de pointes). Conduta: Evitar.",
+    "mechanism": "A propafenona e a eritromicina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Evitar.",
     "drug1_rxcuis": [
       "8754"
     ],
@@ -9745,7 +9745,7 @@
     "drug2": "Tramadol",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "mechanism": "A rasagilina bloqueia a enzima que destrói a serotonina no cérebro, e o tramadol aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Evitar.",
     "drug1_rxcuis": [
       "134748"
     ],
@@ -9762,7 +9762,7 @@
     "drug2": "Dextrometorfano",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "mechanism": "A rasagilina bloqueia a enzima que destrói a serotonina no cérebro, e o dextrometorfano aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Evitar.",
     "drug1_rxcuis": [
       "134748"
     ],
@@ -9778,7 +9778,7 @@
     "drug2": "Citalopram",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "mechanism": "A rasagilina bloqueia a enzima que destrói a serotonina no cérebro, e o citalopram aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Evitar.",
     "drug1_rxcuis": [
       "134748"
     ],
@@ -9794,7 +9794,7 @@
     "drug2": "Escitalopram",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "mechanism": "A rasagilina bloqueia a enzima que destrói a serotonina no cérebro, e o escitalopram aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Evitar.",
     "drug1_rxcuis": [
       "134748"
     ],
@@ -9811,7 +9811,7 @@
     "drug2": "Fluoxetina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "mechanism": "A rasagilina bloqueia a enzima que destrói a serotonina no cérebro, e a fluoxetina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Evitar.",
     "drug1_rxcuis": [
       "134748"
     ],
@@ -9827,7 +9827,7 @@
     "drug2": "Paroxetina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "mechanism": "A rasagilina bloqueia a enzima que destrói a serotonina no cérebro, e a paroxetina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Evitar.",
     "drug1_rxcuis": [
       "134748"
     ],
@@ -9843,7 +9843,7 @@
     "drug2": "Sertralina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "mechanism": "A rasagilina bloqueia a enzima que destrói a serotonina no cérebro, e a sertralina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Evitar.",
     "drug1_rxcuis": [
       "134748"
     ],
@@ -9969,7 +9969,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmia fatal (torsades de pointes)",
-    "mechanism": "Aumento do risco de arritmia fatal (torsades de pointes). Conduta: Evitar.",
+    "mechanism": "A risperidona e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Evitar.",
     "drug1_rxcuis": [
       "35636"
     ],
@@ -9986,7 +9986,7 @@
     "drug2": "Posaconazol",
     "risk_level": "critical",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Contraindicado.",
+    "mechanism": "O posaconazol bloqueia as vias que eliminam a rivaroxabana do organismo, e o anticoagulante se acumula acima da dose segura. O resultado é risco de sangramento que não estanca — no aparelho digestivo ou no cérebro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "1114195"
     ],
@@ -10083,7 +10083,7 @@
     "drug2": "Linezolida",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A linezolida bloqueia a enzima que destrói a serotonina no cérebro, e o rizatriptano aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "88014"
     ],
@@ -10173,7 +10173,7 @@
     "drug2": "Metotrexato",
     "risk_level": "critical",
     "risk_description": "Toxicidade grave",
-    "mechanism": "Toxicidade grave. Conduta: Contraindicado.",
+    "mechanism": "O salix alba reduz a eliminação do metotrexato pelos rins, e ele se acumula. Metotrexato em excesso ataca a medula óssea e as mucosas: feridas na boca, queda das defesas, anemia e sangramento — mesmo nas doses semanais baixas usadas para artrite. Conduta: Contraindicado.",
     "drug2_rxcuis": [
       "6851"
     ]
@@ -10186,7 +10186,7 @@
     "drug2": "Tramadol",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A selegilina bloqueia a enzima que destrói a serotonina no cérebro, e o tramadol aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "9639"
     ],
@@ -10202,7 +10202,7 @@
     "drug2": "Dextrometorfano",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A selegilina bloqueia a enzima que destrói a serotonina no cérebro, e o dextrometorfano aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "9639"
     ],
@@ -10266,7 +10266,7 @@
     "drug2": "Linezolida",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A linezolida bloqueia a enzima que destrói a serotonina no cérebro, e a sertralina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "36437"
     ],
@@ -10283,7 +10283,7 @@
     "drug2": "Fenelzina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A fenelzina bloqueia a enzima que destrói a serotonina no cérebro, e a sertralina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "36437"
     ],
@@ -10298,7 +10298,7 @@
     "drug2": "Selegilina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A selegilina bloqueia a enzima que destrói a serotonina no cérebro, e a sibutramina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "36514"
     ],
@@ -10313,7 +10313,7 @@
     "drug2": "Fenelzina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A fenelzina bloqueia a enzima que destrói a serotonina no cérebro, e a sibutramina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "36514"
     ],
@@ -10328,7 +10328,7 @@
     "drug2": "Tramadol",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "mechanism": "A sibutramina e o tramadol elevam a serotonina no cérebro por caminhos diferentes. Somados, ela pode chegar a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — a síndrome serotoninérgica, que exige atendimento de urgência. Conduta: Evitar.",
     "drug1_rxcuis": [
       "36514"
     ],
@@ -10378,7 +10378,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "critical",
     "risk_description": "Risco de rabdomiólise",
-    "mechanism": "Risco de rabdomiólise. Conduta: Contraindicado.",
+    "mechanism": "A ciclosporina bloqueia a enzima do fígado que elimina a sinvastatina, que então se acumula no sangue. Em excesso, a estatina destrói fibras musculares (rabdomiólise): dor muscular intensa, fraqueza, urina escura — e os resíduos do músculo podem levar os rins à falência. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "36567"
     ],
@@ -10395,7 +10395,7 @@
     "drug2": "Eritromicina",
     "risk_level": "critical",
     "risk_description": "Risco de rabdomiólise",
-    "mechanism": "Risco de rabdomiólise. Conduta: Contraindicado.",
+    "mechanism": "A eritromicina bloqueia a enzima do fígado que elimina a sinvastatina, que então se acumula no sangue. Em excesso, a estatina destrói fibras musculares (rabdomiólise): dor muscular intensa, fraqueza, urina escura — e os resíduos do músculo podem levar os rins à falência. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "36567"
     ],
@@ -10412,7 +10412,7 @@
     "drug2": "Claritromicina",
     "risk_level": "critical",
     "risk_description": "Risco de rabdomiólise",
-    "mechanism": "Risco de rabdomiólise. Conduta: Contraindicado.",
+    "mechanism": "A claritromicina bloqueia a enzima do fígado que elimina a sinvastatina, que então se acumula no sangue. Em excesso, a estatina destrói fibras musculares (rabdomiólise): dor muscular intensa, fraqueza, urina escura — e os resíduos do músculo podem levar os rins à falência. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "36567"
     ],
@@ -10429,7 +10429,7 @@
     "drug2": "Itraconazol",
     "risk_level": "critical",
     "risk_description": "Risco de rabdomiólise",
-    "mechanism": "Risco de rabdomiólise. Conduta: Contraindicado.",
+    "mechanism": "O itraconazol bloqueia a enzima do fígado que elimina a sinvastatina, que então se acumula no sangue. Em excesso, a estatina destrói fibras musculares (rabdomiólise): dor muscular intensa, fraqueza, urina escura — e os resíduos do músculo podem levar os rins à falência. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "36567"
     ],
@@ -10446,7 +10446,7 @@
     "drug2": "Posaconazol",
     "risk_level": "critical",
     "risk_description": "Risco de rabdomiólise",
-    "mechanism": "Risco de rabdomiólise. Conduta: Contraindicado.",
+    "mechanism": "O posaconazol bloqueia a enzima do fígado que elimina a sinvastatina, que então se acumula no sangue. Em excesso, a estatina destrói fibras musculares (rabdomiólise): dor muscular intensa, fraqueza, urina escura — e os resíduos do músculo podem levar os rins à falência. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "36567"
     ],
@@ -10463,7 +10463,7 @@
     "drug2": "Voriconazol",
     "risk_level": "critical",
     "risk_description": "Risco de rabdomiólise",
-    "mechanism": "Risco de rabdomiólise. Conduta: Contraindicado.",
+    "mechanism": "O voriconazol bloqueia a enzima do fígado que elimina a sinvastatina, que então se acumula no sangue. Em excesso, a estatina destrói fibras musculares (rabdomiólise): dor muscular intensa, fraqueza, urina escura — e os resíduos do músculo podem levar os rins à falência. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "36567"
     ],
@@ -10547,7 +10547,7 @@
     "drug2": "Eritromicina",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmia fatal (torsades de pointes)",
-    "mechanism": "Aumento do risco de arritmia fatal (torsades de pointes). Conduta: Evitar a combinação.",
+    "mechanism": "O sotalol e a eritromicina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "9947"
     ],
@@ -10563,7 +10563,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmia fatal (torsades de pointes)",
-    "mechanism": "Aumento do risco de arritmia fatal (torsades de pointes). Conduta: Contraindicado.",
+    "mechanism": "O sotalol e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "9947"
     ],
@@ -10594,7 +10594,7 @@
     "drug2": "Metotrexato",
     "risk_level": "critical",
     "risk_description": "Toxicidade por metotrexato",
-    "mechanism": "Toxicidade por metotrexato. Conduta: Evitar uso concomitante.",
+    "mechanism": "A sulfametoxazol-trimetoprima reduz a eliminação do metotrexato pelos rins, e ele se acumula. Metotrexato em excesso ataca a medula óssea e as mucosas: feridas na boca, queda das defesas, anemia e sangramento — mesmo nas doses semanais baixas usadas para artrite. Conduta: Evitar uso concomitante.",
     "drug2_rxcuis": [
       "6851"
     ]
@@ -10638,7 +10638,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias cardíacas",
-    "mechanism": "Aumento do risco de arritmias cardíacas. Conduta: Contraindicado.",
+    "mechanism": "A sulpirida e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "10239"
     ],
@@ -10818,7 +10818,7 @@
     "drug2": "Citalopram",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Monitorar sinais de síndrome serotoninérgica.",
+    "mechanism": "O tapentadol e o citalopram elevam a serotonina no cérebro por caminhos diferentes. Somados, ela pode chegar a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — a síndrome serotoninérgica, que exige atendimento de urgência. Conduta: Monitorar sinais de síndrome serotoninérgica.",
     "drug1_rxcuis": [
       "787390"
     ],
@@ -11044,7 +11044,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Contraindicado.",
+    "mechanism": "A tioridazina e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "10502"
     ],
@@ -11060,7 +11060,7 @@
     "drug2": "Ziprasidona",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Contraindicado.",
+    "mechanism": "A tioridazina e a ziprasidona alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "10502"
     ],
@@ -11250,7 +11250,7 @@
     "drug2": "Linezolida",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "mechanism": "A linezolida bloqueia a enzima que destrói a serotonina no cérebro, e o tramadol aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Evitar.",
     "drug1_rxcuis": [
       "10689"
     ],
@@ -11267,7 +11267,7 @@
     "drug2": "Buspirona",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A tranilcipromina bloqueia a enzima que destrói a serotonina no cérebro, e a buspirona aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "10734"
     ],
@@ -11284,7 +11284,7 @@
     "drug2": "Dextrometorfano",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A tranilcipromina bloqueia a enzima que destrói a serotonina no cérebro, e o dextrometorfano aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "10734"
     ],
@@ -11316,7 +11316,7 @@
     "drug2": "Sibutramina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A tranilcipromina bloqueia a enzima que destrói a serotonina no cérebro, e a sibutramina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "10734"
     ],
@@ -11333,7 +11333,7 @@
     "drug2": "Linezolida",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A linezolida bloqueia a enzima que destrói a serotonina no cérebro, e a trazodona aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "10737"
     ],
@@ -11383,7 +11383,7 @@
     "drug2": "Linezolida",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "mechanism": "A linezolida bloqueia a enzima que destrói a serotonina no cérebro, e a trimipramina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Evitar.",
     "drug1_rxcuis": [
       "10834"
     ],
@@ -11399,7 +11399,7 @@
     "drug2": "Fenelzina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A fenelzina bloqueia a enzima que destrói a serotonina no cérebro, e a trimipramina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "10834"
     ],
@@ -11415,7 +11415,7 @@
     "drug2": "Selegilina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "mechanism": "A selegilina bloqueia a enzima que destrói a serotonina no cérebro, e a trimipramina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Evitar.",
     "drug1_rxcuis": [
       "10834"
     ],
@@ -11431,7 +11431,7 @@
     "drug2": "Rasagilina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "mechanism": "A rasagilina bloqueia a enzima que destrói a serotonina no cérebro, e a trimipramina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Evitar.",
     "drug1_rxcuis": [
       "10834"
     ],
@@ -11689,7 +11689,7 @@
     "drug2": "Linezolida",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A linezolida bloqueia a enzima que destrói a serotonina no cérebro, e a venlafaxina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "39786"
     ],
@@ -11736,7 +11736,7 @@
     "drug2": "Colchicina",
     "risk_level": "critical",
     "risk_description": "Insuficiência renal aguda",
-    "mechanism": "Insuficiência renal aguda. Conduta: Contraindicado.",
+    "mechanism": "O verapamil bloqueia as vias que eliminam a colchicina, que tem margem de segurança estreita e passa a se acumular. O excesso causa dor e fraqueza muscular, formigamento nas mãos e nos pés e lesão da medula óssea. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "11170"
     ],
@@ -11787,7 +11787,7 @@
     "drug2": "Linezolida",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "mechanism": "A linezolida bloqueia a enzima que destrói a serotonina no cérebro, e a vilazodona aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "1086769"
     ],
@@ -11834,7 +11834,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmia fatal (torsades de pointes)",
-    "mechanism": "Aumento do risco de arritmia fatal (torsades de pointes). Conduta: Contraindicado.",
+    "mechanism": "O voriconazol e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "121243"
     ],
@@ -11866,7 +11866,7 @@
     "drug2": "Linezolida",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A linezolida bloqueia a enzima que destrói a serotonina no cérebro, e a vortioxetina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "1455099"
     ],
@@ -11974,7 +11974,7 @@
     "drug2": "Pimozida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Contraindicado.",
+    "mechanism": "A ziprasidona e a pimozida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "115698"
     ],
@@ -12236,7 +12236,7 @@
     "drug2": "Isocarboxazida",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A isocarboxazida bloqueia a enzima que destrói a serotonina no cérebro, e o almotriptano aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "279645"
     ],
@@ -12252,7 +12252,7 @@
     "drug2": "Tranilcipromina",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A tranilcipromina bloqueia a enzima que destrói a serotonina no cérebro, e o almotriptano aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "279645"
     ]
@@ -12264,7 +12264,7 @@
     "drug2": "Moclobemida",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "A moclobemida bloqueia a enzima que destrói a serotonina no cérebro, e o almotriptano aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "279645"
     ],
@@ -12312,7 +12312,7 @@
     "drug2": "Etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Contraindicado.",
+    "mechanism": "O alprazolam e o etanol deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda e respiração perigosamente lenta, com risco de parada respiratória durante o sono. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "596"
     ],
@@ -12401,7 +12401,7 @@
     "drug2": "Sinvastatina",
     "risk_level": "critical",
     "risk_description": "Risco de rabdomiólise",
-    "mechanism": "Risco de rabdomiólise. Conduta: Evitar combinação.",
+    "mechanism": "A amiodarona bloqueia a enzima do fígado que elimina a sinvastatina, que então se acumula no sangue. Em excesso, a estatina destrói fibras musculares (rabdomiólise): dor muscular intensa, fraqueza, urina escura — e os resíduos do músculo podem levar os rins à falência. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "703"
     ],
@@ -12417,7 +12417,7 @@
     "drug2": "MAOIs",
     "risk_level": "critical",
     "risk_description": "Síndrome serotoninérgica grave",
-    "mechanism": "Síndrome serotoninérgica grave. Conduta: Contraindicado.",
+    "mechanism": "O mAOIs bloqueia a enzima que destrói a serotonina no cérebro, e a amitriptilina aumenta a serotonina disponível. Juntos, ela sobe a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão — quadro que pode ser fatal e exige pronto-socorro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "704"
     ]
@@ -12457,7 +12457,7 @@
     "drug2": "Cetoconazol",
     "risk_level": "critical",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Contraindicado.",
+    "mechanism": "O cetoconazol bloqueia as vias que eliminam a apixabana do organismo, e o anticoagulante se acumula acima da dose segura. O resultado é risco de sangramento que não estanca — no aparelho digestivo ou no cérebro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "1364430"
     ],
@@ -12472,7 +12472,7 @@
     "drug2": "Nelfinavir",
     "risk_level": "critical",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Contraindicado.",
+    "mechanism": "O nelfinavir bloqueia as vias que eliminam a apixabana do organismo, e o anticoagulante se acumula acima da dose segura. O resultado é risco de sangramento que não estanca — no aparelho digestivo ou no cérebro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "1364430"
     ],
@@ -12487,7 +12487,7 @@
     "drug2": "Cobicistat",
     "risk_level": "critical",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Contraindicado.",
+    "mechanism": "O cobicistat bloqueia as vias que eliminam a apixabana do organismo, e o anticoagulante se acumula acima da dose segura. O resultado é risco de sangramento que não estanca — no aparelho digestivo ou no cérebro. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "1364430"
     ],
@@ -12516,7 +12516,7 @@
     "drug2": "Cisaprida",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Contraindicado.",
+    "mechanism": "A asenapina e a cisaprida alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma torsades de pointes: arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "784649"
     ],
@@ -12645,7 +12645,7 @@
     "drug2": "Opioides",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória e sedação excessiva",
-    "mechanism": "Depressão respiratória e sedação excessiva. Conduta: Evitar.",
+    "mechanism": "O opioides reduz o estímulo que o cérebro manda para respirar, e o baclofeno aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar.",
     "drug1_rxcuis": [
       "1292"
     ]
@@ -12659,7 +12659,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória e sedação excessiva",
-    "mechanism": "Depressão respiratória e sedação excessiva. Conduta: Evitar.",
+    "mechanism": "O baclofeno e o álcool/etanol deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda e respiração perigosamente lenta, com risco de parada respiratória durante o sono. Conduta: Evitar.",
     "drug1_rxcuis": [
       "1292"
     ]
@@ -12725,7 +12725,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "O bromazepam e o álcool/etanol deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda e respiração perigosamente lenta, com risco de parada respiratória durante o sono. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "1749"
     ]
@@ -12739,7 +12739,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "A buprenorfina reduz o estímulo que o cérebro manda para respirar, e o álcool/etanol aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "1819"
     ]
@@ -12833,7 +12833,7 @@
     "drug2": "Opioides",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "O opioides reduz o estímulo que o cérebro manda para respirar, e o clonazepam aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "2598"
     ]
@@ -12847,7 +12847,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "O clonazepam e o álcool/etanol deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda e respiração perigosamente lenta, com risco de parada respiratória durante o sono. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "2598"
     ]
@@ -12860,7 +12860,7 @@
     "drug2": "Opioides",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "O opioides reduz o estímulo que o cérebro manda para respirar, e o clorazepato aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "2353"
     ]
@@ -12873,7 +12873,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "O clorazepato e o álcool/etanol deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda e respiração perigosamente lenta, com risco de parada respiratória durante o sono. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "2353"
     ]
@@ -12938,7 +12938,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "O cloxazolam e o álcool/etanol deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda e respiração perigosamente lenta, com risco de parada respiratória durante o sono. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "21311"
     ]
@@ -12952,7 +12952,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória",
-    "mechanism": "Depressão respiratória. Conduta: Evitar.",
+    "mechanism": "A codeína reduz o estímulo que o cérebro manda para respirar, e o álcool/etanol aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar.",
     "drug1_rxcuis": [
       "2670"
     ]
@@ -13005,7 +13005,7 @@
     "drug2": "Opióides",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "O opióides reduz o estímulo que o cérebro manda para respirar, e o diazepam aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "3322"
     ]
@@ -13019,7 +13019,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "O diazepam e o álcool/etanol deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda e respiração perigosamente lenta, com risco de parada respiratória durante o sono. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "3322"
     ]
@@ -13174,7 +13174,7 @@
     "drug2": "Etanol",
     "risk_level": "critical",
     "risk_description": "depressão respiratória grave",
-    "mechanism": "depressão respiratória grave. Conduta: Evitar.",
+    "mechanism": "A fentanila reduz o estímulo que o cérebro manda para respirar, e o etanol aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar.",
     "drug1_rxcuis": [
       "4337"
     ],
@@ -13274,7 +13274,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Contraindicado.",
+    "mechanism": "A hidrocodona reduz o estímulo que o cérebro manda para respirar, e o álcool/etanol aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "5489"
     ]
@@ -13368,7 +13368,7 @@
     "drug2": "Etanol",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de depressão respiratória",
-    "mechanism": "Aumento do risco de depressão respiratória. Conduta: Evitar a combinação.",
+    "mechanism": "A levomepromazina e o etanol deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda e respiração perigosamente lenta, com risco de parada respiratória durante o sono. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "6852"
     ],
@@ -13397,7 +13397,7 @@
     "drug2": "Opioides",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "O opioides reduz o estímulo que o cérebro manda para respirar, e o lorazepam aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "6470"
     ]
@@ -13411,7 +13411,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "O lorazepam e o álcool/etanol deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda e respiração perigosamente lenta, com risco de parada respiratória durante o sono. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "6470"
     ]
@@ -13439,7 +13439,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Sedação respiratória grave",
-    "mechanism": "Sedação respiratória grave. Conduta: Evitar.",
+    "mechanism": "A metadona reduz o estímulo que o cérebro manda para respirar, e o álcool/etanol aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar.",
     "drug1_rxcuis": [
       "6813"
     ]
@@ -13534,7 +13534,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Contraindicado.",
+    "mechanism": "O midazolam e o álcool/etanol deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda e respiração perigosamente lenta, com risco de parada respiratória durante o sono. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "6960"
     ]
@@ -13548,7 +13548,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Contraindicado.",
+    "mechanism": "A morfina reduz o estímulo que o cérebro manda para respirar, e o álcool/etanol aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "7052"
     ]
@@ -13574,7 +13574,7 @@
     "drug2": "Opioides",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Contraindicado.",
+    "mechanism": "O opioides reduz o estímulo que o cérebro manda para respirar, e o nitrazepam aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "7440"
     ]
@@ -13588,7 +13588,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Contraindicado.",
+    "mechanism": "O nitrazepam e o álcool/etanol deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda e respiração perigosamente lenta, com risco de parada respiratória durante o sono. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "7440"
     ]
@@ -13615,7 +13615,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar.",
+    "mechanism": "O oxazepam e o álcool/etanol deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda e respiração perigosamente lenta, com risco de parada respiratória durante o sono. Conduta: Evitar.",
     "drug1_rxcuis": [
       "7781"
     ]
@@ -13629,7 +13629,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "A oxicodona reduz o estímulo que o cérebro manda para respirar, e o álcool/etanol aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "7804"
     ]
@@ -13710,7 +13710,7 @@
     "drug2": "Opioides",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar.",
+    "mechanism": "O opioides reduz o estímulo que o cérebro manda para respirar, e a prometazina aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar.",
     "drug1_rxcuis": [
       "8745"
     ]
@@ -13724,7 +13724,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar.",
+    "mechanism": "A prometazina e o álcool/etanol deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda e respiração perigosamente lenta, com risco de parada respiratória durante o sono. Conduta: Evitar.",
     "drug1_rxcuis": [
       "8745"
     ]
@@ -13779,7 +13779,7 @@
     "drug2": "Etanol",
     "risk_level": "critical",
     "risk_description": "Supressão respiratória grave",
-    "mechanism": "Supressão respiratória grave. Conduta: Evitar consumo de álcool.",
+    "mechanism": "O tapentadol reduz o estímulo que o cérebro manda para respirar, e o etanol aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Evitar consumo de álcool.",
     "drug1_rxcuis": [
       "787390"
     ],
@@ -13838,7 +13838,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Contraindicado.",
+    "mechanism": "O tramadol reduz o estímulo que o cérebro manda para respirar, e o álcool/etanol aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "10689"
     ]
@@ -13961,7 +13961,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Sedação intensa e respiração depressa",
-    "mechanism": "Sedação intensa e respiração depressa. Conduta: Evitar.",
+    "mechanism": "O zaleplon e o álcool/etanol deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda e respiração perigosamente lenta, com risco de parada respiratória durante o sono. Conduta: Evitar.",
     "drug1_rxcuis": [
       "74667"
     ]
