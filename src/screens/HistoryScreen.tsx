@@ -7,7 +7,10 @@ import { useFocusEffect, useNavigation, useRoute, RouteProp, NavigationProp } fr
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   getMedicationLog, deleteMedicationLog, updateMedicationLogEntry, getActivityLogs, MedicationLogEntry,
+  getProfile,
 } from '../database/db';
+import { montarRelatorio } from '../utils/relatorioMedico';
+import { gerarRelatorioPdf } from '../services/relatorioPdf';
 import { ActivityLog } from '../database/db';
 
 type Tab = 'medications' | 'activities';
@@ -58,6 +61,29 @@ export default function HistoryScreen() {
   const navigation = useNavigation<NavigationProp<HistoryParams>>();
   const route = useRoute<RouteProp<HistoryParams, 'History'>>();
   const [tab, setTab] = useState<Tab>('medications');
+  const [gerandoPdf, setGerandoPdf] = useState(false);
+
+  // 180 dias: cobre as consultas de rotina (semestrais) sem virar um calhamaço. O resumo é
+  // por medicamento, não dose a dose — ver relatorioMedico.ts.
+  async function gerarPdf() {
+    if (gerandoPdf) return;
+    setGerandoPdf(true);
+    try {
+      const [log, perfil] = await Promise.all([getMedicationLog(), getProfile()]);
+      const rel = montarRelatorio(log, 180);
+      if (rel.medicamentos.length === 0) {
+        Alert.alert('Sem dados', 'Ainda não há doses registradas para montar o relatório.');
+        return;
+      }
+      await gerarRelatorioPdf(rel, perfil);
+    } catch (e: any) {
+      // Sem catch silencioso: um relatório que não sai e não avisa faz a pessoa chegar na
+      // consulta de mãos vazias achando que levou.
+      Alert.alert('Não foi possível gerar', e?.message ?? 'Tente novamente.');
+    } finally {
+      setGerandoPdf(false);
+    }
+  }
 
   // Medication log state
   const [medLogs, setMedLogs] = useState<MedicationLogEntry[]>([]);
@@ -267,6 +293,20 @@ export default function HistoryScreen() {
 
       {tab === 'medications' ? (
         <>
+          {/* Levar à consulta. Fica no Histórico porque é aqui que vivem os dados que o
+              médico quer — e é onde a pessoa está quando lembra da consulta. */}
+          <TouchableOpacity
+            style={styles.pdfBtn}
+            onPress={gerarPdf}
+            disabled={gerandoPdf}
+            accessibilityRole="button"
+            accessibilityLabel="Gerar relatório em PDF para levar ao médico"
+          >
+            <Text style={styles.pdfBtnText}>
+              {gerandoPdf ? 'Gerando…' : '📄  Relatório para o médico (PDF)'}
+            </Text>
+          </TouchableOpacity>
+
           {/* Medication name filter chips */}
           {medNames.length > 0 && (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll} contentContainerStyle={styles.filterContent}>
@@ -528,6 +568,11 @@ export default function HistoryScreen() {
 }
 
 const styles = StyleSheet.create({
+  pdfBtn: {
+    marginHorizontal: 12, marginTop: 10, marginBottom: 2,
+    backgroundColor: '#1C3F7A', borderRadius: 10, paddingVertical: 13, alignItems: 'center',
+  },
+  pdfBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
   container: { flex: 1, backgroundColor: '#F2F4F8' },
 
   tabRow: {
