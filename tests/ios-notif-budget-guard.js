@@ -44,10 +44,11 @@ const js = ts.transpileModule(prelude + src, {
 const mod = { exports: {} };
 new Function('module', 'exports', 'require', js)(mod, mod.exports, require);
 const { basesDoPeriodo, calcularNagsPorLembrete, custoDaCartela, diasDeCartelaQueCabem, horarioDaChecagem,
-        JANELA_CICLO_DIAS, BORDAS_CICLO } = mod.exports;
+        JANELA_CICLO_DIAS, BORDAS_CICLO, CURVA_COBRANCA, COBRANCAS_MAX, COBRANCAS_HISTORICO, instanteDaCobranca } = mod.exports;
 
 for (const [nome, fn] of [['basesDoPeriodo', basesDoPeriodo], ['calcularNagsPorLembrete', calcularNagsPorLembrete],
-                          ['custoDaCartela', custoDaCartela], ['diasDeCartelaQueCabem', diasDeCartelaQueCabem]]) {
+                          ['custoDaCartela', custoDaCartela], ['diasDeCartelaQueCabem', diasDeCartelaQueCabem],
+                          ['instanteDaCobranca', instanteDaCobranca]]) {
   if (typeof fn !== 'function') {
     console.log(`  ✗ FALHOU  notifications.ts não exporta ${nome} — o gate não testa nada.`);
     process.exit(1);
@@ -55,7 +56,9 @@ for (const [nome, fn] of [['basesDoPeriodo', basesDoPeriodo], ['calcularNagsPorL
 }
 
 const TETO = 64;
-const MAX_NAGS = 6;
+// LIDO do código, não fixado aqui: se a curva de cobrança mudar, o gate acompanha em vez de
+// virar mentira verde. Foi o que aconteceu ao trocar 5-em-5 por crescente.
+const MAX_NAGS = COBRANCAS_MAX;
 let falhas = 0;
 
 function check(nome, real, esperado) {
@@ -78,9 +81,11 @@ check('5 remédios 1x/dia (o setup do usuário)', calcularNagsPorLembrete(5, 5, 
 check('sem nenhuma repetição ligada', calcularNagsPorLembrete(40, 0, 0), MAX_NAGS);
 
 console.log('\n  RATEIO — apertando, a cobrança cede antes da dose\n');
-check('8 horários com repetição (estouraria em 7×8=56+8)', calcularNagsPorLembrete(8, 8, 0), 6);
-check('10 horários com repetição', calcularNagsPorLembrete(10, 10, 0), 5);
-check('12 horários com repetição', calcularNagsPorLembrete(12, 12, 0), 4);
+// Com a curva de 4, o teto da cobrança é 4 — a casa só começa a perder insistência a partir
+// de 13 horários, contra 9 na régua antiga de 6. É o limiar que a curva comprou.
+check('8 horários: ainda cobrança cheia', calcularNagsPorLembrete(8, 8, 0), MAX_NAGS);
+check('12 horários: ainda cobrança cheia (era 3 na régua antiga)', calcularNagsPorLembrete(12, 12, 0), MAX_NAGS);
+check('13 horários: começa a ceder', calcularNagsPorLembrete(13, 13, 0), 3);
 check('20 horários com repetição', calcularNagsPorLembrete(20, 20, 0), 2);
 check('consultas futuras comem do orçamento', calcularNagsPorLembrete(10, 10, 5), 4);
 
@@ -124,7 +129,8 @@ check('sem checagem noturna, 7 dias custam 9', custoDaCartela(7, false), 9);
 check('dias negativos não viram crédito', custoDaCartela(-5), BORDAS_CICLO);
 
 // O número que decidiu o desenho: com cobrança de 5 em 5 min seriam 7 requests/dia.
-check('a cartela com cobrança custaria 149 no ciclo cheio (por isso NÃO tem)', 21 * 7 + 2, 149);
+check('a cartela com cobrança custaria 107 no ciclo cheio no iOS (por isso NÃO tem lá)',
+  21 * (1 + CURVA_COBRANCA.length) + 2, 107);
 
 console.log('\n  A CARTELA NUNCA PODE SACRIFICAR DOSE ALHEIA\n');
 const CARTELA_7D = custoDaCartela(7);
@@ -146,6 +152,35 @@ for (let horarios = 1; horarios <= 40; horarios++) {
 }
 check(`1 a 40 horários × até 2 cartelas cabe em 64 (pior: ${piorComCartela})`, estourouComCartela, null);
 check(`no aperto a janela encolhe (mínimo visto: ${menorJanela} dias)`, menorJanela < JANELA_CICLO_DIAS, true);
+
+console.log('\n  CURVA DE COBRANÇA — crescente, não de 5 em 5\n');
+check('4 cobranças, não 6', CURVA_COBRANCA.length, 4);
+check('a primeira ainda é rápida (5 min)', CURVA_COBRANCA[0], 5);
+check('cobre 3 horas (a régua linear cobria 30 min)', CURVA_COBRANCA[CURVA_COBRANCA.length - 1], 180);
+check('é estritamente crescente', CURVA_COBRANCA.every((v, i) => i === 0 || v > CURVA_COBRANCA[i - 1]), true);
+// O ponto da curva: com POUCAS cobranças sobreviventes ela rende muito mais que a linear —
+// e é justamente no aperto que sobram poucas.
+check('com 2 sobreviventes cobre 20 min (linear cobria 10)', CURVA_COBRANCA[1], 20);
+check('com 3 sobreviventes cobre 60 min (linear cobria 15)', CURVA_COBRANCA[2], 60);
+check('custo por horário caiu de 7 para 5', 1 + CURVA_COBRANCA.length, 5);
+
+// O array certo não basta: o agendamento tem de USAR a curva. Sabotando o disparo de volta
+// para `i * intervalo` e deixando o array intacto, o gate passava — conferia o dado, não o
+// comportamento. Estes casos travam o instante real de cada cobrança.
+const min = (dose, i) => (instanteDaCobranca(dose, i) - dose) / 60000;
+const DOSE = new Date(2026, 6, 19, 8, 0, 0, 0).getTime();
+check('1ª cobrança dispara 5 min após a dose', min(DOSE, 1), 5);
+check('2ª dispara aos 20 min (linear daria 10)', min(DOSE, 2), 20);
+check('3ª dispara aos 60 min (linear daria 15)', min(DOSE, 3), 60);
+check('4ª dispara aos 180 min (linear daria 20)', min(DOSE, 4), 180);
+check('os intervalos CRESCEM entre si (não é régua fixa)',
+  min(DOSE, 2) - min(DOSE, 1) < min(DOSE, 4) - min(DOSE, 3), true);
+
+// Quem ATUALIZA o app tem as cobranças 5 e 6 já agendadas pela régua linear antiga. Se a
+// varredura de limpeza encolher junto com a curva, elas nunca são canceladas e ficam tocando
+// para sempre num ritmo que o app não oferece mais — e ocupando slot no iPhone.
+check('o teto de limpeza NÃO encolhe com a curva', COBRANCAS_HISTORICO >= 6, true);
+check('…e cobre com folga a curva atual', COBRANCAS_HISTORICO > CURVA_COBRANCA.length, true);
 
 console.log('\n  CHECAGEM NOTURNA — derivada da dose, nunca fixa\n');
 // Fixar em 22h quebraria para quem toma antes de dormir: a "checagem" viria ANTES da dose.
@@ -181,8 +216,10 @@ check('janela zerada ainda custa as 2 bordas', custoDaCartela(diasDeCartelaQueCa
 
 // A cartela tem de EMPURRAR a cobrança para baixo. Se não empurrar, ela é invisível para o
 // rateio — que é exatamente o bug que este bloco existe para impedir.
-check('cartela reduz a cobrança dos outros (8 horários)',
-  calcularNagsPorLembrete(8, 8, 0, CARTELA_7D) < calcularNagsPorLembrete(8, 8, 0, 0), true);
+// 12 horários e não 8: com a curva de 4 o teto ainda não morde em 8, e os dois lados dariam
+// 4 — o teste passaria sem provar nada.
+check('cartela reduz a cobrança dos outros (12 horários)',
+  calcularNagsPorLembrete(12, 12, 0, CARTELA_7D) < calcularNagsPorLembrete(12, 12, 0, 0), true);
 check('cartela some do rateio quando não existe',
   calcularNagsPorLembrete(8, 8, 0, 0), calcularNagsPorLembrete(8, 8, 0));
 

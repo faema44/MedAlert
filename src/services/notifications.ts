@@ -604,7 +604,40 @@ function sameScheduled(
 // após o próximo disparo do lembrete) — antes a repetição era reagendada pelo listener
 // JS a cada recebimento e nunca tocava com o app fechado. Canceladas ao responder
 // (cancelRepeatAlarm); rearmadas para a ocorrência seguinte a cada abertura do app.
-const REPEAT_COUNT = 6;
+/**
+ * Quando cada cobrança dispara, em minutos DEPOIS da dose. Crescente, não de 5 em 5.
+ *
+ * A régua linear antiga (5,10,15,20,25,30) gastava 6 notificações para cobrir meia hora, e
+ * gastava mal: quem não reagiu ao toque dos 20 minutos não vai reagir ao dos 25 — está no
+ * banho, dirigindo, em reunião. Quem alcança essa pessoa é o toque de daqui a uma hora.
+ *
+ * Com 4 disparos cobre 3 HORAS em vez de 30 minutos, e custa 5 requests por horário em vez
+ * de 7. No iOS a curva é TRUNCADA pelo orçamento (ver calcularNagsPorLembrete) — vira um
+ * prefixo deste array, não outra regra.
+ *
+ * Não libera orçamento: o pior caso segue 60, porque o rateio gasta o que houver por desenho.
+ * O ganho é rendimento por slot, e o limiar de cobrança cheia sobe de 8 para 12 horários.
+ */
+export const CURVA_COBRANCA = [5, 20, 60, 180];
+const REPEAT_COUNT = CURVA_COBRANCA.length;
+export const COBRANCAS_MAX = REPEAT_COUNT;
+
+/**
+ * Teto de varredura ao LIMPAR cobranças antigas. Nunca pode encolher junto com a curva: é o
+ * maior número de cobranças que alguma versão já agendou (a régua linear usava 6). Quem
+ * atualiza traz o excedente da versão anterior, e ele só some se alguém procurar por ele.
+ */
+export const COBRANCAS_HISTORICO = 8;
+
+/**
+ * Quando a i-ésima cobrança dispara. Existe como função exportada, e não inline no
+ * agendamento, para o gate poder testá-la: sabotando o disparo de volta para linear
+ * (`i * intervalo`) e deixando a CURVA_COBRANCA intacta, o teste passava — ele conferia o
+ * array, não o uso dele. Curva decorativa é pior que curva errada, porque parece coberta.
+ */
+export function instanteDaCobranca(occurrenceMs: number, i: number): number {
+  return occurrenceMs + CURVA_COBRANCA[i - 1] * 60 * 1000;
+}
 
 // ─── Teto de 64 notificações pendentes do iOS ────────────────────────────────
 //
@@ -736,7 +769,10 @@ async function scheduleRepeatSeries(
 ): Promise<void> {
   for (let i = 1; i <= nagsPorLembrete; i++) {
     const id = `reminder_repeat_${medicationId}_${tp}_${i}`;
-    const fireMs = occurrenceMs + i * intervalMinutes * 60 * 1000;
+    // `intervalMinutes` (repeat_interval no banco) deixou de definir o RITMO e vale só como
+    // liga/desliga — a UI sempre ofereceu sim/não, nunca um intervalo à escolha. Assim nenhum
+    // dado existente precisa migrar: quem tem 5 gravado passa a receber a curva.
+    const fireMs = instanteDaCobranca(occurrenceMs, i);
     if (fireMs <= Date.now()) continue;
     const prev = existing?.get(id);
     if (prev && (prev.trigger as any)?.value === fireMs && (prev.trigger as any)?.channelId === channelId) continue;
@@ -753,7 +789,12 @@ async function scheduleRepeatSeries(
   // O orçamento encolhe quando a pessoa cadastra mais remédio. Sem apagar o excedente
   // de uma passada anterior, o corte não libera vaga nenhuma — as cobranças 5 e 6
   // continuariam pendentes ocupando o teto que acabamos de tentar respeitar.
-  for (let i = nagsPorLembrete + 1; i <= REPEAT_COUNT; i++) {
+  //
+  // O limite é COBRANCAS_HISTORICO, não REPEAT_COUNT: a curva encolheu de 6 para 4, e quem
+  // atualiza o app tem as cobranças 5 e 6 já agendadas pela versão antiga. Varrendo só até o
+  // REPEAT_COUNT atual, elas nunca seriam canceladas — ficariam tocando de 5 em 5 minutos
+  // para sempre, num ritmo que o app não oferece mais, e ocupando slot no iPhone.
+  for (let i = nagsPorLembrete + 1; i <= COBRANCAS_HISTORICO; i++) {
     await Notifications.cancelScheduledNotificationAsync(`reminder_repeat_${medicationId}_${tp}_${i}`).catch(() => {});
   }
 }
@@ -1064,6 +1105,27 @@ async function scheduleCartela(
         });
       }
 
+      // COBRANÇA NA CARTELA — só no Android, onde não existe teto de 64. No iPhone a conta
+      // proíbe: 21 dias × 5 requests pulverizaria o orçamento e calaria os remédios dos
+      // outros moradores. Aqui não há esse custo, então a dose cíclica ganha a insistência
+      // completa que a pílula merece — quem esquece o anticoncepcional engravida.
+      if (Platform.OS !== 'ios' && (r.repeat_interval ?? 0) > 0) {
+        for (let k = 0; k < CURVA_COBRANCA.length; k++) {
+          const quando = instanteDaCobranca(
+            new Date(dia.getFullYear(), dia.getMonth(), dia.getDate(), h, m, 0, 0).getTime(), k + 1);
+          if (quando <= Date.now()) continue;
+          await agendar({
+            identifier: `cartelanag_${med.id}_${ymd(dia)}_${tp}_${k + 1}`,
+            content: reminderContent(nome, med.dose, med.id, canal, 0, undefined, idDose),
+            trigger: {
+              type: Notifications.SchedulableTriggerInputTypes.DATE,
+              date: quando,
+              channelId: canal,
+            } as any,
+          });
+        }
+      }
+
       // A checagem substitui a cobrança de 5 em 5 min: 1 slot por dia em vez de 6, e é o que
       // protege anticoncepcional, cuja margem é de ~12h e não de 30 minutos.
       const chk = horarioDaChecagem(h, m);
@@ -1197,7 +1259,8 @@ export async function cancelAllRemindersForMedication(medicationId: number): Pro
         n.identifier.startsWith(`cartela_${medicationId}_`) ||
         n.identifier.startsWith(`cartelachk_${medicationId}_`) ||
         n.identifier.startsWith(`cartelaret_${medicationId}_`) ||
-        n.identifier.startsWith(`cartelarei_${medicationId}_`))
+        n.identifier.startsWith(`cartelarei_${medicationId}_`) ||
+        n.identifier.startsWith(`cartelanag_${medicationId}_`))
       .map(n => Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {}))
   );
 }
