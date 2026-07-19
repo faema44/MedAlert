@@ -2,6 +2,7 @@ import * as SQLite from 'expo-sqlite';
 import * as Sentry from '@sentry/react-native';
 import { Profile, Medication, EmergencyContact, MedicationReminder, Activity, ActivityReminder, ActivityType, Appointment } from '../types';
 import { diaTemDose } from '../utils/medCycle';
+import { fotoParaBase64, base64ParaFoto } from '../services/fotoMedicamento';
 
 let db: SQLite.SQLiteDatabase | null = null;
 let dbInitPromise: Promise<SQLite.SQLiteDatabase> | null = null;
@@ -323,6 +324,12 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
   try {
     await database.execAsync('ALTER TABLE medications ADD COLUMN cycle_anchor TEXT');
   } catch {}
+  // Caminho da foto do medicamento (arquivo no sandbox do app, não a imagem em si). Serve
+  // para reconhecer o comprimido na hora de tomar — quem toma seis remédios tem três brancos
+  // e redondos na gaveta. Ver src/services/fotoMedicamento.ts.
+  try {
+    await database.execAsync('ALTER TABLE medications ADD COLUMN photo_uri TEXT');
+  } catch {}
 }
 
 // Profile
@@ -388,8 +395,8 @@ export async function setMedicationSuspended(id: number, suspended: boolean): Pr
 export async function addMedication(med: Omit<Medication, 'id'>): Promise<number> {
   const database = await getDb();
   const result = await database.runAsync(
-    `INSERT INTO medications (generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, units_per_dose, end_date, home_reminder, save_history, meal_mode, cycle_kind, cycle_days_on, cycle_days_off, cycle_anchor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [med.generic_name ?? '', med.commercial_name ?? '', med.dose ?? '', med.frequency ?? '', med.is_critical ? 1 : 0, med.notes ?? '', med.stock_quantity ?? null, med.units_per_dose ?? 1, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1, med.meal_mode ?? 0, med.cycle_kind ?? null, med.cycle_days_on ?? null, med.cycle_days_off ?? null, med.cycle_anchor ?? null]
+    `INSERT INTO medications (generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, units_per_dose, end_date, home_reminder, save_history, meal_mode, cycle_kind, cycle_days_on, cycle_days_off, cycle_anchor, photo_uri) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [med.generic_name ?? '', med.commercial_name ?? '', med.dose ?? '', med.frequency ?? '', med.is_critical ? 1 : 0, med.notes ?? '', med.stock_quantity ?? null, med.units_per_dose ?? 1, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1, med.meal_mode ?? 0, med.cycle_kind ?? null, med.cycle_days_on ?? null, med.cycle_days_off ?? null, med.cycle_anchor ?? null, med.photo_uri ?? null]
   );
   return result.lastInsertRowId;
 }
@@ -397,8 +404,8 @@ export async function addMedication(med: Omit<Medication, 'id'>): Promise<number
 export async function updateMedication(med: Medication): Promise<void> {
   const database = await getDb();
   await database.runAsync(
-    `UPDATE medications SET generic_name=?, commercial_name=?, dose=?, frequency=?, is_critical=?, notes=?, stock_quantity=?, units_per_dose=?, end_date=?, home_reminder=?, save_history=?, meal_mode=?, cycle_kind=?, cycle_days_on=?, cycle_days_off=?, cycle_anchor=? WHERE id=?`,
-    [med.generic_name, med.commercial_name, med.dose, med.frequency, med.is_critical ? 1 : 0, med.notes, med.stock_quantity ?? null, med.units_per_dose ?? 1, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1, med.meal_mode ?? 0, med.cycle_kind ?? null, med.cycle_days_on ?? null, med.cycle_days_off ?? null, med.cycle_anchor ?? null, med.id]
+    `UPDATE medications SET generic_name=?, commercial_name=?, dose=?, frequency=?, is_critical=?, notes=?, stock_quantity=?, units_per_dose=?, end_date=?, home_reminder=?, save_history=?, meal_mode=?, cycle_kind=?, cycle_days_on=?, cycle_days_off=?, cycle_anchor=?, photo_uri=? WHERE id=?`,
+    [med.generic_name, med.commercial_name, med.dose, med.frequency, med.is_critical ? 1 : 0, med.notes, med.stock_quantity ?? null, med.units_per_dose ?? 1, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1, med.meal_mode ?? 0, med.cycle_kind ?? null, med.cycle_days_on ?? null, med.cycle_days_off ?? null, med.cycle_anchor ?? null, med.photo_uri ?? null, med.id]
   );
 }
 
@@ -1208,6 +1215,13 @@ export async function exportBackup(): Promise<string> {
     );
     if (linha?.value != null) kv[chave] = linha.value;
   }
+  // A foto é ARQUIVO, e o backup é JSON: sem embutir, restaurar traria os remédios com o
+  // caminho apontando para um arquivo que não existe no celular novo — e as fotos sumiriam
+  // em silêncio. A 600px cada uma tem ~40 KB (ver fotoMedicamento.ts).
+  for (const m of (medications ?? [])) {
+    (m as any).photo_b64 = fotoParaBase64(m.photo_uri);
+  }
+
   return JSON.stringify({
     // Continua version 1 de propósito: os campos novos são ADIÇÕES, e um backup antigo (sem
     // eles) tem que continuar restaurável — o import trata cada bloco como opcional.
@@ -1250,8 +1264,10 @@ export async function importBackup(json: string): Promise<void> {
     }
     for (const m of (medications ?? [])) {
       await database.runAsync(
-        'INSERT INTO medications (id, generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, units_per_dose, end_date, archived, home_reminder, save_history, suspended, meal_mode, cycle_kind, cycle_days_on, cycle_days_off, cycle_anchor) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-        [m.id, m.generic_name ?? '', m.commercial_name ?? '', m.dose ?? '', m.frequency ?? '', m.is_critical ?? 0, m.notes ?? '', m.stock_quantity ?? null, m.units_per_dose ?? 1, m.end_date ?? null, m.archived ?? 0, m.home_reminder ?? 1, m.save_history ?? 1, m.suspended ?? 0, m.meal_mode ?? 0, m.cycle_kind ?? null, m.cycle_days_on ?? null, m.cycle_days_off ?? null, m.cycle_anchor ?? null]
+        'INSERT INTO medications (id, generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, units_per_dose, end_date, archived, home_reminder, save_history, suspended, meal_mode, cycle_kind, cycle_days_on, cycle_days_off, cycle_anchor, photo_uri) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        // O caminho do backup é do OUTRO celular e não vale aqui: recria-se o arquivo e
+        // grava-se o caminho local. Sem foto no backup, fica null e o app mostra o ícone.
+        [m.id, m.generic_name ?? '', m.commercial_name ?? '', m.dose ?? '', m.frequency ?? '', m.is_critical ?? 0, m.notes ?? '', m.stock_quantity ?? null, m.units_per_dose ?? 1, m.end_date ?? null, m.archived ?? 0, m.home_reminder ?? 1, m.save_history ?? 1, m.suspended ?? 0, m.meal_mode ?? 0, m.cycle_kind ?? null, m.cycle_days_on ?? null, m.cycle_days_off ?? null, m.cycle_anchor ?? null, base64ParaFoto(m.id, (m as any).photo_b64)]
       );
     }
     for (const r of (medication_reminders ?? [])) {

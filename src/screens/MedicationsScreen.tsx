@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
   Modal, TextInput, Switch, Alert, ScrollView,
   KeyboardAvoidingView, Platform, ActivityIndicator, Keyboard,
-  InteractionManager,
+  InteractionManager, Image,
 } from 'react-native';
 import PickerDataHora from '../components/PickerDataHora';
 import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -28,6 +28,7 @@ import * as Sentry from '@sentry/react-native';
 import { Medication, MedicationReminder } from '../types';
 import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, isPhytotherapic, nomeDaBaseParaBula } from '../utils/drugSearch';
 import { cicloDoMedicamento, cycleState, ancoraPorDiaAtual, validarCiclo, diasDeEstoque } from '../utils/medCycle';
+import { tirarFoto, escolherFoto, apagarFoto, temFoto, consolidarFoto } from '../services/fotoMedicamento';
 import { useBulaViewer } from '../utils/useBulaViewer';
 import { reportMissingDrug } from '../services/reportMissing';
 // ──────────────────────────────────────────────────────────────────────────────
@@ -205,6 +206,31 @@ export default function MedicationsScreen() {
   const [cycleOn, setCycleOn] = useState('21');
   const [cycleOff, setCycleOff] = useState('7');
   const [cycleDiaAtual, setCycleDiaAtual] = useState('1');
+  // Caminho da foto enquanto o assistente está aberto. Só vai para o banco no salvar.
+  const [fotoUri, setFotoUri] = useState<string | null>(null);
+
+  // O arquivo da foto é nomeado por id do medicamento, mas um cadastro NOVO ainda não tem id.
+  // Um negativo estável resolve: o arquivo nasce com esse nome e é renomeado no salvar, sem
+  // colidir com nenhum medicamento real.
+  const fotoTempIdRef = useRef<number>(-Date.now());
+  function fotoMedId(): number {
+    return editingId ?? fotoTempIdRef.current;
+  }
+
+  /**
+   * Um `onPress={async () => ...}` sem catch engole a rejeição: a pessoa toca, nada acontece,
+   * e ela conclui que o app ignorou o toque. Foi assim que eu mesmo escondi a primeira falha
+   * desta tela. Aqui o erro aparece na cara e vai para o Sentry.
+   */
+  async function pegarFoto(fn: (id: number) => Promise<string | null>) {
+    try {
+      const u = await fn(fotoMedId());
+      if (u) setFotoUri(u);
+    } catch (e: any) {
+      relatarFalhaSilenciosa(`foto do medicamento ${fotoMedId()}`, e);
+      Alert.alert('Não foi possível usar a foto', e?.message ?? 'Tente novamente.');
+    }
+  }
   const [reminderPeriod, setReminderPeriod] = useState<ReminderPeriod>('day');
   const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([]);
   const [selectedMonthDays, setSelectedMonthDays] = useState<number[]>([]);
@@ -565,6 +591,7 @@ export default function MedicationsScreen() {
         // As QUATRO colunas do ciclo, ou as quatro em NULL — nunca metade: cicloDoMedicamento
         // exige todas, e configuração pela metade seria dado corrompido que o app trataria
         // como "sem ciclo" (falha segura, mas silenciosa).
+        photo_uri: fotoUri,
         ...(comPausa && cicloValidoDoForm()
           ? {
               cycle_kind: cycleKind,
@@ -587,6 +614,13 @@ export default function MedicationsScreen() {
         for (const r of existing) await deleteReminder(r.id).catch(() => {});
       } else {
         savedMedId = await addMedication(data);
+      }
+
+      // A foto de um cadastro NOVO nasceu com id provisório: agora que o id existe, o arquivo
+      // é renomeado e o caminho definitivo volta para o banco. Sem isto sobrariam órfãos.
+      const fotoFinal = await consolidarFoto(savedMedId, fotoUri);
+      if (fotoFinal !== (fotoUri ?? null)) {
+        await updateMedication({ ...data, id: savedMedId, photo_uri: fotoFinal } as any).catch(() => {});
       }
 
       // Editando um medicamento em stand-by: grava os lembretes no banco mas não
@@ -718,6 +752,7 @@ export default function MedicationsScreen() {
     resetPickerState(); setReminders([]);
     // Reabre o ciclo como foi salvo. O "dia da cartela" é recalculado a partir da âncora —
     // guardar o dia digitado seria mentira uma semana depois.
+    setFotoUri(item.photo_uri ?? null);
     const cicloSalvo = cicloDoMedicamento(item);
     setComPausa(cicloSalvo != null);
     if (cicloSalvo) {
@@ -1102,6 +1137,39 @@ export default function MedicationsScreen() {
                 ))}
               </View>
             </View>
+            {/* Foto no passo da DOSE, e não num passo próprio: é aqui que se descreve o
+                medicamento, e assim não acrescenta um passo obrigatório para quem não quer
+                foto. Serve para reconhecer o comprimido na hora de tomar — quem toma seis
+                remédios tem três brancos e redondos na gaveta. */}
+            <Text style={[styles.fieldLabel, { marginTop: 18 }]}>Foto do medicamento (opcional)</Text>
+            <Text style={styles.wizHint}>Ajuda a reconhecer o comprimido na hora de tomar</Text>
+            <View style={styles.fotoRow}>
+              {temFoto(fotoUri) ? (
+                <>
+                  <Image source={{ uri: fotoUri as string }} style={styles.fotoPreview} />
+                  <View style={{ flex: 1, gap: 8 }}>
+                    <TouchableOpacity style={styles.fotoBtn} onPress={() => pegarFoto(tirarFoto)}>
+                      <Text style={styles.fotoBtnText}>🔄 Trocar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.fotoBtn, styles.fotoBtnRemover]} onPress={() => {
+                      apagarFoto(fotoMedId()); setFotoUri(null);
+                    }}>
+                      <Text style={[styles.fotoBtnText, styles.fotoBtnRemoverText]}>Remover</Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : (
+                <>
+                  <TouchableOpacity style={styles.fotoBtn} onPress={() => pegarFoto(tirarFoto)}>
+                    <Text style={styles.fotoBtnText}>📷 Tirar foto</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.fotoBtn} onPress={() => pegarFoto(escolherFoto)}>
+                    <Text style={styles.fotoBtnText}>🖼 Escolher</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
+
             <Text style={[styles.fieldLabel, { marginTop: 18 }]}>Observações (opcional)</Text>
             <TextInput
               style={[styles.fieldInput, { minHeight: 60, textAlignVertical: 'top', marginTop: 4 }]}
@@ -2080,6 +2148,15 @@ const styles = StyleSheet.create({
   presetHint: { fontSize: 12, color: '#888', marginTop: 2 },
 
   cycleRow: { flexDirection: 'row', gap: 12, marginTop: 8 },
+  fotoRow: { flexDirection: 'row', gap: 10, marginTop: 8, alignItems: 'center' },
+  fotoPreview: { width: 84, height: 84, borderRadius: 10, backgroundColor: '#eee' },
+  fotoBtn: {
+    flex: 1, borderWidth: 1.5, borderColor: '#C8CDD8', borderRadius: 10,
+    paddingVertical: 12, alignItems: 'center',
+  },
+  fotoBtnText: { fontSize: 14, fontWeight: '700', color: '#1C3F7A' },
+  fotoBtnRemover: { borderColor: '#E0B4A4' },
+  fotoBtnRemoverText: { color: '#B03A2E' },
   cyclePreview: {
     marginTop: 18, backgroundColor: '#EEF2FA', borderRadius: 10, padding: 12,
     borderWidth: 0.5, borderColor: 'rgba(28,63,122,0.15)',

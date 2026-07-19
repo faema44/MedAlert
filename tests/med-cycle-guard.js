@@ -150,7 +150,10 @@ check('cicloDoMedicamento: inválido é null',     cicloDoMedicamento({ ...COLS_
 // ---------------------------------------------------------------------------
 console.log('\n  PERSISTÊNCIA — a cartela sobrevive a migração, INSERT, UPDATE e RESTORE\n');
 const dbSrc = fs.readFileSync(path.join(ROOT, 'src/database/db.ts'), 'utf8');
-const COLUNAS = ['cycle_kind', 'cycle_days_on', 'cycle_days_off', 'cycle_anchor'];
+// photo_uri entra aqui pelo MESMO motivo das do ciclo: é coluna de medicamento que o
+// RESTORE precisa carregar. E ela tem um agravante — a foto é ARQUIVO, então além da
+// coluna o backup leva o conteúdo em base64 (photo_b64).
+const COLUNAS = ['cycle_kind', 'cycle_days_on', 'cycle_days_off', 'cycle_anchor', 'photo_uri'];
 
 // Olhar o TRECHO em volta não serve: `cycle_kind` aparece no array de parâmetros JS logo
 // abaixo do SQL, então um INSERT sem a coluna passaria batido. (Comprovado sabotando o
@@ -169,7 +172,7 @@ function colunasDoSet(ancora) {
 }
 
 const migracao = COLUNAS.filter(c => !dbSrc.includes(`ALTER TABLE medications ADD COLUMN ${c}`));
-check('migração cria as 4 colunas', migracao, []);
+check('migração cria as 5 colunas', migracao, []);
 
 const ALVOS = [
   ['addMedication',     listaDeColunas('INSERT INTO medications (generic_name')],
@@ -177,7 +180,7 @@ const ALVOS = [
   ['updateMedication',  colunasDoSet('UPDATE medications SET generic_name')],
 ];
 for (const [nome, cols] of ALVOS) {
-  check(`${nome}: SQL tem as 4 colunas`, cols == null ? ['SQL NÃO ENCONTRADO'] : COLUNAS.filter(c => !cols.includes(c)), []);
+  check(`${nome}: SQL tem as 5 colunas`, cols == null ? ['SQL NÃO ENCONTRADO'] : COLUNAS.filter(c => !cols.includes(c)), []);
 }
 
 // Contagem de ? bate com a de colunas? Errar aqui desloca TODOS os valores em silêncio.
@@ -189,6 +192,15 @@ for (const [nome, ancora] of [['addMedication', 'INSERT INTO medications (generi
   const marks = mv ? (mv[1].match(/\?/g) || []).length : 0;
   check(`${nome}: ${cols} colunas ↔ ${marks} placeholders`, cols === marks && cols > 0, true);
 }
+
+// A foto é o único dado do medicamento que NÃO cabe numa coluna: o backup tem de carregar o
+// arquivo. Sem isto, restaurar traz o remédio com um caminho apontando para o nada.
+console.log('\n  A FOTO SOBREVIVE AO BACKUP (é arquivo, não coluna)\n');
+check('export embute a foto em base64', dbSrc.includes('fotoParaBase64'), true);
+check('restore recria o arquivo', dbSrc.includes('base64ParaFoto'), true);
+// O caminho do backup é do OUTRO celular: gravar ele cru daria um <Image> quebrado.
+check('restore NÃO grava o caminho do outro celular',
+  /base64ParaFoto\(m\.id/.test(dbSrc) && !/m\.photo_uri \?\? null\]/.test(dbSrc), true);
 
 console.log('');
 if (falhas) {

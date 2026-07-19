@@ -30,6 +30,9 @@ export interface Medication {
   cycle_days_on?: number | null; // dias tomando
   cycle_days_off?: number | null;// dias de pausa
   cycle_anchor?: string | null;  // "YYYY-MM-DD" — dia 1 da cartela
+  // Caminho do ARQUIVO da foto no sandbox do app. Não sobrevive a troca de celular sozinho:
+  // o backup a carrega em base64 (ver fotoMedicamento.ts), senão sumiria em silêncio.
+  photo_uri?: string | null;
 }
 
 export interface EmergencyContact {

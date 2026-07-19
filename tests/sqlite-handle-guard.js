@@ -25,7 +25,9 @@ const ROOT = path.join(__dirname, '..');
 const src = fs.readFileSync(path.join(ROOT, 'src/database/db.ts'), 'utf8')
   .replace("import * as SQLite from 'expo-sqlite';", 'const SQLite = {};')
   .replace("import * as Sentry from '@sentry/react-native';", 'const Sentry = { captureMessage: () => {} };')
-  .replace(/^import \{ diaTemDose \} from '\.\.\/utils\/medCycle';$/m, 'const diaTemDose = () => true;');
+  .replace(/^import \{ diaTemDose \} from '\.\.\/utils\/medCycle';$/m, 'const diaTemDose = () => true;')
+  .replace(/^import \{ fotoParaBase64, base64ParaFoto \} from '\.\.\/services\/fotoMedicamento';$/m,
+           'const fotoParaBase64 = () => null, base64ParaFoto = () => null;');
 const js = ts.transpileModule(src, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
 const mod = { exports: {} };
 new Function('module', 'exports', 'require', js)(mod, mod.exports, require);

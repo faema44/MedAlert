@@ -63,6 +63,14 @@
           "organization": "alerta-medico",
           "project": "react-native"
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O Alerta Médico usa suas fotos para você escolher a imagem do medicamento e reconhecê-lo na hora de tomar.",
+          "cameraPermission": "O Alerta Médico usa a câmera para fotografar o medicamento e ajudar você a reconhecê-lo na hora de tomar.",
+          "microphonePermission": false
+        }
       ]
     ],
     "extra": {

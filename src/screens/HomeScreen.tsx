@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useMemo, useRef, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Alert, AppState, Platform,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Alert, AppState, Platform, Image,
 } from 'react-native';
 import PickerDataHora from '../components/PickerDataHora';
 import { useFocusEffect, useNavigation, NavigationProp } from '@react-navigation/native';
@@ -12,6 +12,7 @@ import {
   revertMedicationLogSlotToPending,
 } from '../database/db';
 import { cicloDoMedicamento, cycleState, diaTemDose, diasDeEstoque, ComCiclo } from '../utils/medCycle';
+import { temFoto } from '../services/fotoMedicamento';
 import EmergencyChecklist from '../components/EmergencyChecklist';
 import { getMedIdOptIn, isMedicalIdPending } from '../services/medicalId';
 import { getCyclePhase, CyclePhaseInfo } from '../utils/cyclePhase';
@@ -749,7 +750,12 @@ export default function HomeScreen() {
         <View key={alert.id} style={styles.fgAlertCard}>
           {/* Info row: icon + name + time badge */}
           <View style={styles.fgAlertInfo}>
-            <Text style={styles.fgAlertIcon}>{alert.icon}</Text>
+            {/* A foto substitui o emoji quando existe: é aqui, no instante de tomar, que a
+                pessoa confunde dois comprimidos brancos. O emoji volta se o arquivo sumiu
+                (restore de outro celular sem a foto). */}
+            {temFoto(alert.medObj?.photo_uri)
+              ? <Image source={{ uri: alert.medObj!.photo_uri as string }} style={styles.fgAlertFoto} />
+              : <Text style={styles.fgAlertIcon}>{alert.icon}</Text>}
             <View style={{ flex: 1 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Text style={styles.fgAlertName} numberOfLines={1}>{alert.name}</Text>
@@ -973,6 +979,7 @@ const styles = StyleSheet.create({
     paddingVertical: 9, alignItems: 'center',
   },
   fgAlertNaoTomeiText: { fontSize: 12, fontWeight: '700', color: '#fff' },
+  fgAlertFoto: { width: 44, height: 44, borderRadius: 8, backgroundColor: '#fff' },
 
   // Registro visual de INFORMAÇÃO (branco, como os cards de próximos lembretes), nunca o
   // do cartão de ação (azul escuro com três botões) — a diferença é o que impede a pessoa
