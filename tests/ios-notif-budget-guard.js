@@ -35,15 +35,19 @@ const prelude = `
   const getRemindersForMedication = () => {}, getMedications = () => {}, getActivities = () => {};
   const getRemindersForActivity = () => {}, getAppointments = () => {}, getContacts = () => {};
   const getKV = () => {}, setKV = () => {}, addMedicationLowStockLog = () => {};
+  const cicloDoMedicamento = (m) => (m && m.cycle_kind ? m : null);
+  const diaTemDose = () => true;
 `;
 const js = ts.transpileModule(prelude + src, {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2019 },
 }).outputText;
 const mod = { exports: {} };
 new Function('module', 'exports', 'require', js)(mod, mod.exports, require);
-const { basesDoPeriodo, calcularNagsPorLembrete } = mod.exports;
+const { basesDoPeriodo, calcularNagsPorLembrete, custoDaCartela, diasDeCartelaQueCabem,
+        JANELA_CICLO_DIAS, BORDAS_CICLO } = mod.exports;
 
-for (const [nome, fn] of [['basesDoPeriodo', basesDoPeriodo], ['calcularNagsPorLembrete', calcularNagsPorLembrete]]) {
+for (const [nome, fn] of [['basesDoPeriodo', basesDoPeriodo], ['calcularNagsPorLembrete', calcularNagsPorLembrete],
+                          ['custoDaCartela', custoDaCartela], ['diasDeCartelaQueCabem', diasDeCartelaQueCabem]]) {
   if (typeof fn !== 'function') {
     console.log(`  ✗ FALHOU  notifications.ts não exporta ${nome} — o gate não testa nada.`);
     process.exit(1);
@@ -101,6 +105,68 @@ for (let horarios = 1; horarios <= 40; horarios++) {
   }
 }
 check(`nenhum setup de 1 a 40 horários estoura 64 (pior caso: ${piorCaso})`, estourou, null);
+
+// ---------------------------------------------------------------------------
+// RITMO COM PAUSA (cartela/adesivo/anel) — src/utils/medCycle.ts
+//
+// A cartela não tem gatilho nativo: 21/7 não é diário, semanal nem mensal, então cada dia
+// coberto é uma notificação DATADA. É a única coisa no app que consome slots em bloco, e
+// por isso a única capaz de calar os remédios dos outros moradores — o iOS guarda as 64
+// mais PRÓXIMAS, e 21 dias de cartela ocupariam a janela inteira.
+// ---------------------------------------------------------------------------
+console.log('\n  RITMO COM PAUSA — a cartela cede primeiro, e as bordas nunca caem\n');
+
+check('janela é de 7 dias, não o ciclo inteiro', JANELA_CICLO_DIAS, 7);
+check('reinício + retirada são 2 slots reservados', BORDAS_CICLO, 2);
+check('7 dias ativos custam 16 (7×2 + 2 bordas)', custoDaCartela(7), 16);
+check('em plena pausa custa só as 2 bordas', custoDaCartela(0), 2);
+check('sem checagem noturna, 7 dias custam 9', custoDaCartela(7, false), 9);
+check('dias negativos não viram crédito', custoDaCartela(-5), BORDAS_CICLO);
+
+// O número que decidiu o desenho: com cobrança de 5 em 5 min seriam 7 requests/dia.
+check('a cartela com cobrança custaria 149 no ciclo cheio (por isso NÃO tem)', 21 * 7 + 2, 149);
+
+console.log('\n  A CARTELA NUNCA PODE SACRIFICAR DOSE ALHEIA\n');
+const CARTELA_7D = custoDaCartela(7);
+let piorComCartela = 0, estourouComCartela = null, menorJanela = JANELA_CICLO_DIAS;
+for (let horarios = 1; horarios <= 40; horarios++) {
+  for (const consultas of [0, 3, 8]) {
+    for (const cartelas of [0, 1, 2]) {
+      // A janela ENCOLHE conforme o aperto — é o passo 4 da hierarquia.
+      const dias = diasDeCartelaQueCabem(JANELA_CICLO_DIAS, cartelas, horarios, consultas);
+      const slots = cartelas > 0 ? cartelas * custoDaCartela(dias) : 0;
+      if (cartelas > 0 && dias < menorJanela) menorJanela = dias;
+      const nags = calcularNagsPorLembrete(horarios, horarios, consultas, slots);
+      const total = horarios + horarios * nags + consultas * 2 + slots;
+      if (total > piorComCartela) piorComCartela = total;
+      if (total > TETO && !estourouComCartela) estourouComCartela = { horarios, consultas, cartelas, dias, total };
+      if (nags < 0 || nags > MAX_NAGS) estourouComCartela = { horarios, consultas, cartelas, nags };
+    }
+  }
+}
+check(`1 a 40 horários × até 2 cartelas cabe em 64 (pior: ${piorComCartela})`, estourouComCartela, null);
+check(`no aperto a janela encolhe (mínimo visto: ${menorJanela} dias)`, menorJanela < JANELA_CICLO_DIAS, true);
+
+console.log('\n  A JANELA CEDE, AS BORDAS NÃO\n');
+check('casa vazia: cartela leva a janela inteira', diasDeCartelaQueCabem(7, 1, 2, 0), 7);
+check('casa de 20 horários: ainda cabe a janela', diasDeCartelaQueCabem(7, 1, 20, 0), 7);
+check('casa de 40 + 8 consultas: janela encolhe a 1', diasDeCartelaQueCabem(7, 1, 40, 8), 1);
+check('casa de 40 + 8 consultas + 2 cartelas: só as bordas', diasDeCartelaQueCabem(7, 2, 40, 8), 0);
+check('sem cartela nenhuma, não reserva nada', diasDeCartelaQueCabem(7, 0, 10, 0), 0);
+// Mesmo com a janela em zero, reinício e retirada continuam agendados.
+check('janela zerada ainda custa as 2 bordas', custoDaCartela(diasDeCartelaQueCabem(7, 2, 40, 8)), BORDAS_CICLO);
+
+// A cartela tem de EMPURRAR a cobrança para baixo. Se não empurrar, ela é invisível para o
+// rateio — que é exatamente o bug que este bloco existe para impedir.
+check('cartela reduz a cobrança dos outros (8 horários)',
+  calcularNagsPorLembrete(8, 8, 0, CARTELA_7D) < calcularNagsPorLembrete(8, 8, 0, 0), true);
+check('cartela some do rateio quando não existe',
+  calcularNagsPorLembrete(8, 8, 0, 0), calcularNagsPorLembrete(8, 8, 0));
+
+// Casa lotada: a cobrança zera, mas a DOSE de todos continua agendada.
+const nagsLotada = calcularNagsPorLembrete(30, 30, 0, CARTELA_7D);
+check('casa de 30 horários + cartela: cobrança cede a 0', nagsLotada, 0);
+check('…e as doses + cartela ainda cabem', 30 + 30 * nagsLotada + CARTELA_7D <= TETO, true);
 
 console.log('');
 if (falhas) {

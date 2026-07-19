@@ -5,6 +5,7 @@ import { Profile, Medication, MedicationReminder, ActivityReminder } from '../ty
 import { postMedNotification, cancelMedNotification, isEmergencyActive, setNextMedSchedule, cancelNextMedBanner } from './medNotification';
 import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity, getAppointments, getContacts, getKV, setKV, addMedicationLowStockLog } from '../database/db';
 import { isPhytotherapic } from '../utils/drugSearch';
+import { cicloDoMedicamento, diaTemDose, ComCiclo } from '../utils/medCycle';
 import { CAREGIVER_CHANNEL } from './caregiver';
 
 const CHANNEL_ID = 'medalert_emergency_v5';
@@ -634,13 +635,81 @@ export function basesDoPeriodo(period?: string): number {
   return 1; // day, nmonths
 }
 
+// Janela do ritmo com pausa: quantos dias do bloco ativo ficam agendados por vez. NÃO é o
+// ciclo inteiro porque 21 dias × dose não caberia junto com os remédios da casa. 7 basta
+// porque no bloco ativo a pessoa abre o app todo dia para confirmar a dose, e o app
+// reabastece a janela a cada abertura. Na pausa ela some — mas ali não há dose a agendar,
+// só o reinício, que é reservado à parte.
+export const JANELA_CICLO_DIAS = 7;
+
+// As duas BORDAS (reinício da cartela e retirada do adesivo/anel) são intocáveis: valem 1
+// slot cada e ficam agendadas mesmo num aparelho lotado. Esquecer de recomeçar é o modo de
+// falha que engravida — é o último aviso que pode cair, não o primeiro.
+export const BORDAS_CICLO = 2;
+
+/**
+ * Slots que um medicamento com pausa consome no iOS.
+ *
+ * `diasComDose` = quantos dos próximos JANELA_CICLO_DIAS caem no bloco ativo (na pausa é 0).
+ * Cada dia custa 1 dose + 1 checagem noturna. NÃO leva cobrança de 5 em 5 min: 21 dias × 7
+ * requests = 147 slots, que não estouraria o teto — pulverizaria, e o iOS, guardando as 64
+ * mais próximas, calaria os remédios dos outros moradores para caber a cartela.
+ */
+export function custoDaCartela(diasComDose: number, comChecagemNoturna = true): number {
+  const porDia = comChecagemNoturna ? 2 : 1;
+  return Math.max(0, diasComDose) * porDia + BORDAS_CICLO;
+}
+
+/**
+ * Quantos dias de cartela cabem DE FATO, depois de reservar o que não cede.
+ *
+ * A hierarquia, do intocável ao descartável:
+ *   1. doses dos lembretes recorrentes  (`bases`)
+ *   2. consultas futuras
+ *   3. as BORDAS de cada cartela — reinício e retirada
+ *   4. dias do bloco ativo  ← encolhe aqui
+ *   5. cobrança             ← e depois aqui
+ *
+ * Zerar cobrança não bastava: com 2 cartelas numa casa cheia o total chegava a 88 de 64, e o
+ * iOS descartaria as mais distantes — matando dose de outro morador. A cartela chegou por
+ * último, então é ela que cede a janela primeiro.
+ */
+export function diasDeCartelaQueCabem(
+  diasDesejados: number,
+  cartelas: number,
+  bases: number,
+  consultasFuturas: number,
+  comChecagemNoturna = true,
+): number {
+  if (cartelas <= 0) return 0;
+  const livre = TETO_IOS - RESERVA_AVULSOS - bases - consultasFuturas * 2 - cartelas * BORDAS_CICLO;
+  if (livre <= 0) return 0;   // aperto extremo: sobrevivem só reinício e retirada
+  const porDia = comChecagemNoturna ? 2 : 1;
+  return Math.max(0, Math.min(diasDesejados, Math.floor(livre / (cartelas * porDia))));
+}
+
+/** Quantos dos próximos JANELA_CICLO_DIAS caem no bloco ativo. Em plena pausa, 0. */
+export function diasComDoseNaJanela(med: ComCiclo, hoje = new Date()): number {
+  if (!cicloDoMedicamento(med)) return 0;
+  let n = 0;
+  for (let i = 0; i < JANELA_CICLO_DIAS; i++) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + i);
+    if (diaTemDose(med, d)) n++;
+  }
+  return n;
+}
+
 export function calcularNagsPorLembrete(
   bases: number,
   lembretesComRepeticao: number,
   consultasFuturas: number,
+  slotsDeCartela = 0,
 ): number {
   if (lembretesComRepeticao <= 0) return REPEAT_COUNT;
-  const sobra = TETO_IOS - RESERVA_AVULSOS - bases - consultasFuturas * 2;
+  // A cartela é agendada por DATA (não há gatilho nativo para 21/7), então ela ocupa slots
+  // fixos que precisam sair do orçamento ANTES de ratear cobrança. Sem este termo o total
+  // passa de 64 em silêncio e o iOS escolhe sozinho quem descartar — escolhendo errado.
+  const sobra = TETO_IOS - RESERVA_AVULSOS - bases - consultasFuturas * 2 - slotsDeCartela;
   return Math.max(0, Math.min(REPEAT_COUNT, Math.floor(sobra / lembretesComRepeticao)));
 }
 
@@ -648,6 +717,11 @@ export function calcularNagsPorLembrete(
 // parâmetro fingiria que cada lembrete tem orçamento próprio. Recalculado a cada
 // passada completa (rescheduleAllActiveNotifications). Fora do iOS nunca muda.
 let nagsPorLembrete = REPEAT_COUNT;
+
+// Idem: quantos dias de cartela cabem neste aparelho. Fora do iOS é sempre a janela cheia,
+// porque lá não existe teto — ver [[project_ciclico_com_pausa]], a cobrança crescente do
+// Android ficou guardada para depois.
+let janelaDeCartelaDias = JANELA_CICLO_DIAS;
 
 async function scheduleRepeatSeries(
   medicationId: number,
@@ -1179,11 +1253,20 @@ export async function rescheduleAllActiveNotifications(): Promise<void> {
     if (Platform.OS === 'ios') {
       let bases = 0;
       let comRepeticao = 0;
-      for (const rs of medRs) for (const r of rs) {
-        if (!r.is_active) continue;
-        bases += basesDoPeriodo(r.period);
-        if ((r.repeat_interval ?? 0) > 0) comRepeticao++;
-      }
+      const comCiclo: Medication[] = [];
+      meds.forEach((med, i) => {
+        const temCiclo = cicloDoMedicamento(med) != null;
+        if (temCiclo) comCiclo.push(med);
+        for (const r of medRs[i] ?? []) {
+          if (!r.is_active) continue;
+          // Quem tem ciclo NÃO entra em `bases` nem em `comRepeticao`: ele não usa gatilho
+          // nativo repetido (não existe "21 on / 7 off" nativo) e não leva cobrança. Contá-lo
+          // nos dois lugares cobraria o orçamento duas vezes.
+          if (temCiclo) continue;
+          bases += basesDoPeriodo(r.period);
+          if ((r.repeat_interval ?? 0) > 0) comRepeticao++;
+        }
+      });
       for (const rs of actRs) for (const r of rs) {
         if (!r.is_active) continue;
         bases += basesDoPeriodo(r.period);
@@ -1193,7 +1276,15 @@ export async function rescheduleAllActiveNotifications(): Promise<void> {
         const t = new Date(`${a.date}T${a.time || '00:00'}:00`).getTime();
         return !isNaN(t) && t > agora;
       }).length;
-      nagsPorLembrete = calcularNagsPorLembrete(bases, comRepeticao, futuras);
+      // A janela da cartela encolhe conforme a casa aperta — e só depois disso o que restou
+      // vira cobrança. Zerar cobrança sozinho não bastava: 2 cartelas numa casa cheia
+      // chegavam a 88 de 64, e o iOS descartaria as distantes, matando dose de outro morador.
+      janelaDeCartelaDias = diasDeCartelaQueCabem(JANELA_CICLO_DIAS, comCiclo.length, bases, futuras);
+      const slotsDeCartela = comCiclo.reduce(
+        (acc, med) => acc + custoDaCartela(Math.min(janelaDeCartelaDias, diasComDoseNaJanela(med))),
+        0,
+      );
+      nagsPorLembrete = calcularNagsPorLembrete(bases, comRepeticao, futuras, slotsDeCartela);
     }
 
     await Promise.all(meds.map(async (med, i) => {
