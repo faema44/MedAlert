@@ -1066,15 +1066,26 @@ export async function reconcileMissedDoses(lookbackDays = 7): Promise<number> {
   return created;
 }
 
-export async function getMedicationLog(opts?: { medication_id?: number; since_iso?: string }): Promise<MedicationLogEntry[]> {
+/**
+ * `limit` existe por causa do RELATÓRIO do médico, que precisa do histórico inteiro.
+ *
+ * O teto de 500 serve à tela do Histórico (rolagem), mas no relatório ele mentiria por
+ * OMISSÃO: quem toma 5 remédios por dia gera 500 linhas em ~100 dias, e o documento diria
+ * "todo o histórico" mostrando três meses. O padrão continua 500 para não mudar quem já
+ * chamava; quem quer tudo passa `limit: null` e assume o custo.
+ */
+export async function getMedicationLog(
+  opts?: { medication_id?: number; since_iso?: string; limit?: number | null },
+): Promise<MedicationLogEntry[]> {
   const database = await getDb();
   const conditions: string[] = [];
   const params: any[] = [];
   if (opts?.medication_id != null) { conditions.push('medication_id=?'); params.push(opts.medication_id); }
   if (opts?.since_iso) { conditions.push('scheduled_at >= ?'); params.push(opts.since_iso); }
   const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+  const limite = opts?.limit === null ? '' : ` LIMIT ${Number(opts?.limit ?? 500)}`;
   const rows = await database.getAllAsync<MedicationLogEntry>(
-    `SELECT * FROM medication_log ${where} ORDER BY scheduled_at DESC LIMIT 500`,
+    `SELECT * FROM medication_log ${where} ORDER BY scheduled_at DESC${limite}`,
     params
   );
   return rows;

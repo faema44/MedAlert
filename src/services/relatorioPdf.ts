@@ -1,7 +1,7 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { Profile } from '../types';
-import { RelatorioAdesao, ResumoMedicamento, percentualAdesao } from '../utils/relatorioMedico';
+import { RelatorioAdesao, ResumoMedicamento, textoAdesao, faixaAdesao } from '../utils/relatorioMedico';
 
 // ---------------------------------------------------------------------------
 // O PDF que a pessoa leva na consulta.
@@ -38,7 +38,10 @@ function idade(nascimento?: string | null): string {
 }
 
 function linhaMed(m: ResumoMedicamento): string {
-  const pct = percentualAdesao(m);
+  const f = faixaAdesao(m);
+  // Faixa larga = incerteza grande. Marcar em cinza evita que o médico leia o piso como
+  // se fosse o número.
+  const incerto = f != null && f.teto - f.piso > 15;
   return `
     <tr>
       <td class="nome"><strong>${esc(m.nome)}</strong>${m.dose ? `<span class="dose"> · ${esc(m.dose)}</span>` : ''}</td>
@@ -46,7 +49,7 @@ function linhaMed(m: ResumoMedicamento): string {
       <td class="n nao">${m.naoTomou}</td>
       <td class="n sem">${m.semResposta}</td>
       <td class="n tot">${m.total}</td>
-      <td class="n pct">${pct == null ? '<span class="semdado">—</span>' : `${pct}%`}</td>
+      <td class="n pct${incerto ? ' incerto' : ''}">${textoAdesao(m)}</td>
       <td class="dt">${dataBR(m.primeiraDose)}</td>
       <td class="dt">${dataBR(m.ultimaDose)}</td>
     </tr>`;
@@ -86,6 +89,7 @@ export function montarHtml(rel: RelatorioAdesao, perfil: Profile | null): string
   .sem { color: #8A6D1F; font-weight: 700; }
   .tot, .pct { font-weight: 700; }
   .semdado { color: #aaa; }
+  .incerto { color: #8A6D1F; font-weight: 600; }
   .vazio { text-align: center; color: #888; padding: 16px; }
   /* O aviso vem ANTES da tabela de propósito: depois dela, já foi lida como medição. */
   .aviso { margin: 12px 0 0; padding: 9px 11px; border-radius: 5px;
@@ -94,7 +98,9 @@ export function montarHtml(rel: RelatorioAdesao, perfil: Profile | null): string
 </style></head><body>
 
   <h1>Relatório de uso de medicamentos</h1>
-  <div class="sub">Período de ${dataBR(rel.desde)} a ${dataBR(rel.ate)} · ${rel.dias} dias · emitido em ${emitido}</div>
+  <div class="sub">${rel.dias == null
+    ? `Histórico completo — desde ${dataBR(rel.desde)}`
+    : `Período de ${dataBR(rel.desde)} a ${dataBR(rel.ate)} · ${rel.dias} dias`} · emitido em ${emitido}</div>
 
   <div class="ficha">
     <div class="linha"><span class="rot">Paciente:</span> <strong>${esc(nome)}</strong>${anos ? ` · ${anos}` : ''}${perfil?.blood_type && perfil.blood_type !== 'Desconhecido' ? ` · sangue ${esc(perfil.blood_type)}` : ''}</div>
@@ -118,8 +124,10 @@ export function montarHtml(rel: RelatorioAdesao, perfil: Profile | null): string
   </table>
 
   <div class="aviso">
-    <strong>Adesão</strong> considera só as doses respondidas. Quando menos da metade das doses
-    teve resposta, o percentual aparece como “—”: não haveria base para afirmá-lo.
+    <strong>Adesão</strong> é uma faixa, não um número: o menor valor supõe que <em>nenhuma</em>
+    dose sem resposta foi tomada, e o maior supõe que <em>todas</em> foram. A verdade está entre
+    os dois — e uma faixa larga (ex.: 7–100%) significa que não há como afirmar a adesão, não
+    que ela seja ruim. Quando não houve dose sem resposta, aparece um número só.
     <strong>Última dose</strong> é a última que o paciente <em>confirmou</em> ter tomado.
   </div>
 

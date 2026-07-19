@@ -28,9 +28,9 @@ export interface ResumoMedicamento {
 }
 
 export interface RelatorioAdesao {
-  desde: string;
+  desde: string;   // a PRIMEIRA dose que existe, quando o período é o histórico inteiro
   ate: string;
-  dias: number;
+  dias: number | null;  // null = histórico inteiro
   medicamentos: ResumoMedicamento[];
 }
 
@@ -53,11 +53,14 @@ function estado(e: MedicationLogEntry): 'tomou' | 'naoTomou' | 'semResposta' {
  */
 export function montarRelatorio(
   log: MedicationLogEntry[],
-  dias = 180,
+  dias: number | null = null,
   hoje: Date = new Date(),
 ): RelatorioAdesao {
   const fim = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 23, 59, 59);
-  const ini = new Date(fim.getTime() - dias * 86400000);
+  // `dias = null` é o padrão: HISTÓRICO INTEIRO. Um remédio que a pessoa tomou ano passado
+  // pode ser a pista que falta para o médico que a conhece há dez minutos — e o custo de
+  // incluí-lo é uma linha a mais na tabela.
+  const ini = dias == null ? new Date(0) : new Date(fim.getTime() - dias * 86400000);
 
   const porNome = new Map<string, ResumoMedicamento>();
   for (const e of log) {
@@ -91,8 +94,15 @@ export function montarRelatorio(
     }
   }
 
+  // Com o histórico inteiro, "desde 01/01/1970" seria absurdo no papel: o início real é a
+  // primeira dose que existe.
+  const primeiras = [...porNome.values()].map(r => r.primeiraDose).filter(Boolean) as string[];
+  const desde = dias == null && primeiras.length
+    ? primeiras.reduce((a, b) => (new Date(a) <= new Date(b) ? a : b))
+    : ini.toISOString();
+
   return {
-    desde: ini.toISOString(),
+    desde,
     ate: fim.toISOString(),
     dias,
     // Mais doses primeiro: o de uso contínuo interessa mais que o eventual.
@@ -100,11 +110,31 @@ export function montarRelatorio(
   };
 }
 
-/** "24 de 28" — percentual só quando há base para ele. */
-export function percentualAdesao(r: ResumoMedicamento): number | null {
-  // Com sem-resposta demais o percentual vira ficção: 2 tomadas de 3 respondidas não é "67%"
-  // se outras 25 doses ficaram sem resposta. Abaixo de metade respondida, não afirmamos.
-  const respondidas = r.tomou + r.naoTomou;
-  if (respondidas === 0 || respondidas < r.total / 2) return null;
-  return Math.round((r.tomou / respondidas) * 100);
+/**
+ * Adesão como FAIXA, não como número único.
+ *
+ * A primeira versão dividia só pelas doses respondidas, e isso mentia para cima: sinvastatina
+ * com 45 tomadas e 16 sem resposta virava "100%", que o médico lê como "tomou tudo". Excluir
+ * o desconhecido do denominador é, na prática, assumir que o desconhecido foi tomado.
+ *
+ * Dividir pelo total mentiria para baixo — assumiria que ninguém tomou nas doses sem resposta.
+ *
+ * A faixa não escolhe nenhuma das duas mentiras: o PISO supõe que nenhuma sem-resposta foi
+ * tomada, o TETO supõe que todas foram. A verdade está entre as duas, e a LARGURA da faixa é
+ * a própria mensagem — 90–94% é um dado firme; 7–100% diz "não dá para afirmar nada", que é
+ * exatamente o caso da varfarina com 57 doses sem resposta.
+ */
+export function faixaAdesao(r: ResumoMedicamento): { piso: number; teto: number } | null {
+  if (r.total <= 0) return null;
+  return {
+    piso: Math.round((r.tomou / r.total) * 100),
+    teto: Math.round(((r.tomou + r.semResposta) / r.total) * 100),
+  };
+}
+
+/** Texto pronto: "94%" quando não há dúvida, "7–100%" quando há. */
+export function textoAdesao(r: ResumoMedicamento): string {
+  const f = faixaAdesao(r);
+  if (!f) return '—';
+  return f.piso === f.teto ? `${f.piso}%` : `${f.piso}–${f.teto}%`;
 }

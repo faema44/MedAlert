@@ -20,9 +20,9 @@ const js = ts.transpileModule(src, {
 }).outputText;
 const mod = { exports: {} };
 new Function('module', 'exports', 'require', js)(mod, mod.exports, require);
-const { montarRelatorio, percentualAdesao } = mod.exports;
+const { montarRelatorio, faixaAdesao, textoAdesao } = mod.exports;
 
-for (const [nome, fn] of [['montarRelatorio', montarRelatorio], ['percentualAdesao', percentualAdesao]]) {
+for (const [nome, fn] of [['montarRelatorio', montarRelatorio], ['faixaAdesao', faixaAdesao], ['textoAdesao', textoAdesao]]) {
   if (typeof fn !== 'function') {
     console.log(`  ✗ FALHOU  relatorioMedico.ts não exporta ${nome} — o gate não testa nada.`);
     process.exit(1);
@@ -107,14 +107,43 @@ console.log('\n  PRIMEIRA E ÚLTIMA DOSE\n');
   check('sem nenhuma confirmação, última dose é null', r.ultimaDose, null);
 }
 
-console.log('\n  PERCENTUAL — só quando há base para afirmar\n');
-check('24 de 28 respondidas → 86%', percentualAdesao({ tomou: 24, naoTomou: 4, semResposta: 0, total: 28 }), 86);
-check('metade respondida ainda vale', percentualAdesao({ tomou: 10, naoTomou: 5, semResposta: 15, total: 30 }), 67);
-// 2 de 3 respondidas não é "67% de adesão" quando 25 doses ficaram sem resposta.
-check('respostas de menos → NÃO inventa percentual',
-  percentualAdesao({ tomou: 2, naoTomou: 1, semResposta: 25, total: 28 }), null);
-check('nada respondido → null, não 0%',
-  percentualAdesao({ tomou: 0, naoTomou: 0, semResposta: 10, total: 10 }), null);
+console.log('\n  ADESÃO É FAIXA — nunca um número que esconde o desconhecido\n');
+// A 1ª versão dividia só pelas RESPONDIDAS, e isso mentia PARA CIMA: excluir o desconhecido
+// do denominador é, na prática, assumir que o desconhecido foi tomado. Sinvastatina com 45
+// tomadas e 16 sem resposta virava "100%", que o médico lê como "tomou tudo".
+check('45 tomadas + 16 sem resposta NÃO é 100%',
+  textoAdesao({ tomou: 45, naoTomou: 0, semResposta: 16, total: 61 }), '74–100%');
+// Dividir pelo TOTAL mentiria PARA BAIXO — assumiria que nenhuma sem-resposta foi tomada.
+// A faixa não escolhe nenhuma das duas mentiras.
+check('o piso supõe que NENHUMA sem-resposta foi tomada',
+  faixaAdesao({ tomou: 45, naoTomou: 0, semResposta: 16, total: 61 }).piso, 74);
+check('o teto supõe que TODAS foram',
+  faixaAdesao({ tomou: 45, naoTomou: 0, semResposta: 16, total: 61 }).teto, 100);
+
+check('sem nenhuma dúvida, é um número só', textoAdesao({ tomou: 28, naoTomou: 0, semResposta: 0, total: 28 }), '100%');
+check('tudo respondido, com faltas', textoAdesao({ tomou: 24, naoTomou: 4, semResposta: 0, total: 28 }), '86%');
+
+// A LARGURA da faixa É a mensagem: 7–100% diz "não dá para afirmar nada". Um "100%" ali
+// mandaria o médico procurar outra causa para o INR desregulado da varfarina.
+const varfarina = { tomou: 4, naoTomou: 0, semResposta: 57, total: 61 };
+check('varfarina com 57 sem resposta → faixa larguíssima', textoAdesao(varfarina), '7–100%');
+check('…e o piso NÃO é 100%', faixaAdesao(varfarina).piso, 7);
+check('faixa larga é reconhecível (>15 pontos)',
+  faixaAdesao(varfarina).teto - faixaAdesao(varfarina).piso > 15, true);
+check('nada registrado → null, sem inventar', faixaAdesao({ tomou: 0, naoTomou: 0, semResposta: 0, total: 0 }), null);
+
+console.log('\n  HISTÓRICO INTEIRO É O PADRÃO\n');
+{
+  const log = [linha('Antigo', diasAtras(900), 'tomou'), linha('Novo', diasAtras(2), 'tomou')];
+  const tudo = montarRelatorio(log, null, HOJE);
+  check('sem período, entra o remédio de 900 dias atrás', tudo.medicamentos.length, 2);
+  check('dias = null sinaliza histórico completo', tudo.dias, null);
+  // "desde 01/01/1970" no papel seria absurdo — o início real é a primeira dose que existe.
+  check('"desde" é a primeira dose real, não a época zero',
+    tudo.desde.slice(0, 10), diasAtras(900).slice(0, 10));
+  check('com período explícito, o antigo fica fora',
+    montarRelatorio(log, 180, HOJE).medicamentos.length, 1);
+}
 
 console.log('\n  AGRUPAMENTO\n');
 {

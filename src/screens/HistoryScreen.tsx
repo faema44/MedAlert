@@ -63,14 +63,19 @@ export default function HistoryScreen() {
   const [tab, setTab] = useState<Tab>('medications');
   const [gerandoPdf, setGerandoPdf] = useState(false);
 
-  // 180 dias: cobre as consultas de rotina (semestrais) sem virar um calhamaço. O resumo é
-  // por medicamento, não dose a dose — ver relatorioMedico.ts.
+  // HISTÓRICO INTEIRO: um remédio que a pessoa tomou ano passado pode ser a pista que falta
+  // para o médico que a conhece há dez minutos. É resumo por medicamento, então incluir tudo
+  // custa uma linha a mais na tabela, não uma página.
+  //
+  // `limit: null` é obrigatório aqui — o padrão de 500 do getMedicationLog serviria à tela e
+  // faria o relatório dizer "histórico completo" mostrando só os últimos ~100 dias de quem
+  // toma vários remédios.
   async function gerarPdf() {
     if (gerandoPdf) return;
     setGerandoPdf(true);
     try {
-      const [log, perfil] = await Promise.all([getMedicationLog(), getProfile()]);
-      const rel = montarRelatorio(log, 180);
+      const [log, perfil] = await Promise.all([getMedicationLog({ limit: null }), getProfile()]);
+      const rel = montarRelatorio(log);
       if (rel.medicamentos.length === 0) {
         Alert.alert('Sem dados', 'Ainda não há doses registradas para montar o relatório.');
         return;
