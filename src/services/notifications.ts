@@ -997,6 +997,18 @@ async function scheduleCartela(
 ): Promise<void> {
   const ciclo = cicloDoMedicamento(med);
   if (!ciclo) return;
+
+  // Contadores em vez de `.catch(() => {})` por chamada. Engolir erro aqui seria o pior tipo
+  // de bug deste app: a cartela pararia de avisar e NINGUÉM perceberia — não há tela que
+  // mostre "o que deveria estar agendado". E capturar por notificação inundaria o Sentry com
+  // dezenas de eventos idênticos, então conta-se tudo e relata-se UMA vez no fim.
+  let pedidas = 0, falhas = 0;
+  let primeiroErro: unknown = null;
+  const agendar = async (args: Parameters<typeof Notifications.scheduleNotificationAsync>[0]) => {
+    pedidas++;
+    try { await Notifications.scheduleNotificationAsync(args); }
+    catch (e) { falhas++; if (!primeiroErro) primeiroErro = e; }
+  };
   const nome = med.commercial_name?.trim() || med.generic_name;
   const ativos = reminders.filter(r => r.is_active);
   if (!ativos.length) return;
@@ -1017,14 +1029,14 @@ async function scheduleCartela(
       const idDose = `cartela_${med.id}_${ymd(dia)}_${tp}`;
       const conteudo = reminderContent(nome, med.dose, med.id, canal, 0);
       if (!sameScheduled(existing?.get(idDose), conteudo, canal)) {
-        await Notifications.scheduleNotificationAsync({
+        await agendar({
           identifier: idDose, content: conteudo,
           trigger: {
-            type: Notifications.SchedulableTriggerInputTypes.CALENDAR, repeats: false,
-            year: dia.getFullYear(), month: dia.getMonth() + 1, day: dia.getDate(),
-            hour: h, minute: m, channelId: canal,
+            type: Notifications.SchedulableTriggerInputTypes.DATE,
+            date: new Date(dia.getFullYear(), dia.getMonth(), dia.getDate(), h, m, 0, 0),
+            channelId: canal,
           } as any,
-        }).catch(() => {});
+        });
       }
 
       // A checagem substitui a cobrança de 5 em 5 min: 1 slot por dia em vez de 6, e é o que
@@ -1039,14 +1051,14 @@ async function scheduleCartela(
         sticky: true, categoryIdentifier: MED_ACTION_CATEGORY, ...soundFor(canal),
       };
       if (!sameScheduled(existing?.get(idChk), conteudoChk, canal)) {
-        await Notifications.scheduleNotificationAsync({
+        await agendar({
           identifier: idChk, content: conteudoChk,
           trigger: {
-            type: Notifications.SchedulableTriggerInputTypes.CALENDAR, repeats: false,
-            year: diaChk.getFullYear(), month: diaChk.getMonth() + 1, day: diaChk.getDate(),
-            hour: chk.h, minute: chk.m, channelId: canal,
+            type: Notifications.SchedulableTriggerInputTypes.DATE,
+            date: new Date(diaChk.getFullYear(), diaChk.getMonth(), diaChk.getDate(), chk.h, chk.m, 0, 0),
+            channelId: canal,
           } as any,
-        }).catch(() => {});
+        });
       }
     }
   }
@@ -1063,14 +1075,14 @@ async function scheduleCartela(
     const corpo = ciclo.kind === 'ring' ? 'Hoje é dia de retirar o anel' : 'Hoje é dia de retirar o adesivo';
     const cRet = { title: nome, body: corpo, data: { type: 'reminder', medicationId: med.id, name: nome, dose: '', repeatInterval: 0 }, sticky: true, categoryIdentifier: MED_ACTION_CATEGORY, ...soundFor(canal0) };
     if (!sameScheduled(existing?.get(idRet), cRet, canal0)) {
-      await Notifications.scheduleNotificationAsync({
+      await agendar({
         identifier: idRet, content: cRet,
         trigger: {
-          type: Notifications.SchedulableTriggerInputTypes.CALENDAR, repeats: false,
-          year: inicioPausa.getFullYear(), month: inicioPausa.getMonth() + 1, day: inicioPausa.getDate(),
-          hour: h0, minute: m0, channelId: canal0,
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+            date: new Date(inicioPausa.getFullYear(), inicioPausa.getMonth(), inicioPausa.getDate(), h0, m0, 0, 0),
+            channelId: canal0,
         } as any,
-      }).catch(() => {});
+      });
     }
   }
 
@@ -1087,14 +1099,28 @@ async function scheduleCartela(
   };
   if (vespera.getTime() >= new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()).getTime()
       && !sameScheduled(existing?.get(idRei), cRei, canal0)) {
-    await Notifications.scheduleNotificationAsync({
+    await agendar({
       identifier: idRei, content: cRei,
       trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.CALENDAR, repeats: false,
-        year: vespera.getFullYear(), month: vespera.getMonth() + 1, day: vespera.getDate(),
-        hour: h0, minute: m0, channelId: canal0,
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+            date: new Date(vespera.getFullYear(), vespera.getMonth(), vespera.getDate(), h0, m0, 0, 0),
+            channelId: canal0,
       } as any,
-    }).catch(() => {});
+    });
+  }
+
+  // A cartela é o único agendamento do app que a pessoa não consegue conferir em lugar
+  // nenhum: os outros ela vê em "próximos lembretes", mas estes são datados e distantes.
+  // Se falharem, a cartela simplesmente para de avisar — sem erro, sem tela, sem sintoma.
+  // Por isso o resultado é sempre relatado, mesmo quando dá tudo certo.
+  const resumo = `[cartela] ${med.id} ${nome}: ${pedidas - falhas}/${pedidas} agendadas (janela ${janelaDias}d)`;
+  if (falhas > 0) {
+    // console.warn além do Sentry: no emulador o Sentry não chega, e sem sinal local a
+    // verificação vira adivinhação. Aparece no logcat como ReactNativeJS.
+    console.warn(`${resumo} — ${falhas} FALHARAM`, primeiroErro);
+    Sentry.captureMessage(`${resumo} — ${falhas} falharam: ${String((primeiroErro as any)?.message ?? primeiroErro)}`, 'error');
+  } else {
+    console.log(resumo);
   }
 }
 
@@ -1361,7 +1387,10 @@ export async function rescheduleRemindersForMedication(
   // Com pausa, o caminho é OUTRO: nenhum dos gatilhos nativos abaixo sabe pular a semana de
   // descanso, e um DAILY avisaria a pessoa a tomar justamente nos dias em que não deve.
   if (cicloDoMedicamento(med)) {
-    await scheduleCartela(med, reminders, janelaDeCartelaDias, existing).catch(() => {});
+    await scheduleCartela(med, reminders, janelaDeCartelaDias, existing).catch(e => {
+      console.warn('[cartela] scheduleCartela estourou', e);
+      Sentry.captureException(e);
+    });
     return;
   }
 
