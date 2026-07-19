@@ -10147,7 +10147,7 @@
     "drug2": "Eritromicina",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de arritmia cardíaca (QT prolongado)",
-    "mechanism": "Aumento do risco de arritmia cardíaca (QT prolongado). Conduta: Evitar a combinação.",
+    "mechanism": "A eritromicina bloqueia a enzima CYP3A4 do fígado, que é a via de eliminação da rupatadina. Ela se acumula e, em concentração alta, alonga o intervalo QT do coração — o tempo que ele leva para se recarregar entre batimentos —, com risco de arritmia. Conduta: Evitar a combinação.",
     "drug2_rxcuis": [
       "4053"
     ]
@@ -10161,7 +10161,7 @@
     "drug2": "Cetoconazol",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de arritmia cardíaca (QT prolongado)",
-    "mechanism": "Aumento do risco de arritmia cardíaca (QT prolongado). Conduta: Evitar a combinação.",
+    "mechanism": "O cetoconazol bloqueia a enzima CYP3A4 do fígado, que é a via de eliminação da rupatadina. Ela se acumula e, em concentração alta, alonga o intervalo QT do coração — o tempo que ele leva para se recarregar entre batimentos —, com risco de arritmia. Conduta: Evitar a combinação.",
     "drug2_rxcuis": [
       "6135"
     ]
@@ -31536,7 +31536,7 @@
     "drug1": "Carbamazepina",
     "drug2": "Tioridazina",
     "risk_level": "high",
-    "risk_description": "Redução do efeito da tioridazina e risco somado de arritmia",
+    "risk_description": "Perda do efeito da tioridazina — e atenção ao risco de arritmia dela",
     "mechanism": "A carbamazepina induz o CYP3A4 e reduz as concentrações plasmáticas da tioridazina, comprometendo a eficácia antipsicótica. A tioridazina tem risco conhecido de torsades de pointes, o que exige cautela adicional. Monitorar sintomas e ECG."
   },
   {
