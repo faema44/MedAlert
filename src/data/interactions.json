@@ -2655,7 +2655,7 @@
     "drug2": "Aspirina",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de acidose e toxicidade",
-    "mechanism": "Aumento do risco de acidose e toxicidade. Conduta: Evitar uso concomitante.",
+    "mechanism": "A acetazolamida faz o corpo perder bicarbonato, e a aspirina em dose alta também acidifica o sangue. Juntas, empurram o organismo para a acidose e fazem o salicilato entrar mais no cérebro: confusão, respiração ofegante e zumbido no ouvido. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
       "167"
     ],
@@ -3304,7 +3304,7 @@
     "drug2": "Tioridazina",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Contraindicado.",
+    "mechanism": "O aprepitanto bloqueia a enzima CYP3A4 do fígado, que é a via de eliminação da tioridazina. Ela se acumula e alonga o intervalo QT do coração, com risco de torsades de pointes — arritmia que causa desmaio e pode evoluir para parada cardíaca. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "358255"
     ],
@@ -3756,7 +3756,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de hepatotoxicidade",
-    "mechanism": "Aumento do risco de hepatotoxicidade. Conduta: Contraindicado.",
+    "mechanism": "A ciclosporina eleva bastante o nível de bosentana no sangue, e as duas já são tóxicas para o fígado por conta própria. O risco de lesão hepática se multiplica: cansaço, enjoo, urina escura e olhos amarelados. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "75207"
     ],
@@ -4657,7 +4657,7 @@
     "drug2": "Digoxina",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de toxicidade cardíaca",
-    "mechanism": "Aumento do risco de toxicidade cardíaca. Conduta: Evitar combinação.",
+    "mechanism": "A cloroquina bloqueia a glicoproteína-P, a bomba que retira a digoxina do organismo. A digoxina se acumula, e sua margem de segurança é estreita: enjoo, alterações na visão (halos amarelados) e arritmias perigosas. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "2393"
     ],
@@ -5065,7 +5065,7 @@
     "drug2": "Rivaroxabana",
     "risk_level": "critical",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Evitar.",
+    "mechanism": "A dalteparina e a rivaroxabana são dois anticoagulantes de mecanismos diferentes. Usar os dois ao mesmo tempo não traz benefício e soma o risco: um sangramento pode não parar sozinho — no aparelho digestivo ou no cérebro. Conduta: Evitar.",
     "drug1_rxcuis": [
       "67109"
     ],
@@ -5688,7 +5688,7 @@
     "drug2": "Midazolam",
     "risk_level": "critical",
     "risk_description": "Sedação prolongada e respiratória grave",
-    "mechanism": "Sedação prolongada e respiratória grave. Conduta: Contraindicado.",
+    "mechanism": "O efavirenz bloqueia a enzima do fígado que elimina o midazolam, que então se acumula. A sedação fica muito mais profunda e prolongada do que o esperado para a dose, com risco de a respiração ficar perigosamente lenta. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "195085"
     ],
@@ -5705,7 +5705,7 @@
     "drug2": "Triazolam",
     "risk_level": "critical",
     "risk_description": "Sedação prolongada e respiratória grave",
-    "mechanism": "Sedação prolongada e respiratória grave. Conduta: Contraindicado.",
+    "mechanism": "O efavirenz bloqueia a enzima do fígado que elimina o triazolam, que então se acumula. A sedação fica muito mais profunda e prolongada do que o esperado para a dose, com risco de a respiração ficar perigosamente lenta. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "195085"
     ],
@@ -6009,7 +6009,7 @@
     "drug2": "Rituximabe",
     "risk_level": "critical",
     "risk_description": "supressão medular grave",
-    "mechanism": "supressão medular grave. Conduta: Contraindicado.",
+    "mechanism": "O etanercepte e o rituximabe suprimem o sistema de defesa por caminhos diferentes. Somados, as defesas caem demais: infecções graves, e a produção de células do sangue pela medula pode ser prejudicada. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "214555"
     ],
@@ -7045,7 +7045,7 @@
     "drug2": "Tacrolimo",
     "risk_level": "critical",
     "risk_description": "Rejeição de transplante",
-    "mechanism": "Rejeição de transplante. Conduta: Evitar.",
+    "mechanism": "A erva de São João acelera as enzimas do fígado que destroem o tacrolimo, e o nível do imunossupressor despenca. Sem ele na dose certa, o corpo pode rejeitar o órgão transplantado — e a queda acontece em silêncio, sem sintoma que avise. Conduta: Evitar.",
     "drug2_rxcuis": [
       "42316"
     ]
@@ -7364,7 +7364,7 @@
     "drug2": "Verapamil",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de bradicardia grave",
-    "mechanism": "Aumento do risco de bradicardia grave. Conduta: Evitar a combinação.",
+    "mechanism": "O verapamil bloqueia a eliminação da ivabradina e, por conta própria, já reduz a frequência cardíaca. Os dois efeitos se somam: o coração pode bater lento demais, causando tontura, fraqueza e desmaio. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "1649480"
     ],
@@ -7593,7 +7593,7 @@
     "drug2": "Bupropiona",
     "risk_level": "critical",
     "risk_description": "convulsão",
-    "mechanism": "convulsão. Conduta: Evitar.",
+    "mechanism": "A linezolida age como inibidor da MAO, e a bupropiona aumenta noradrenalina e dopamina além de baixar o limiar para convulsão. Juntas, podem desencadear crise convulsiva e picos de pressão. Conduta: Evitar.",
     "drug1_rxcuis": [
       "190376"
     ],
@@ -7610,7 +7610,7 @@
     "drug2": "Sacubitril",
     "risk_level": "critical",
     "risk_description": "Hipotensão grave",
-    "mechanism": "Hipotensão grave. Conduta: Contraindicado.",
+    "mechanism": "O sacubitril e o lisinopril bloqueiam duas rotas que o corpo usa para sustentar a pressão, e a bradicinina se acumula. A pressão pode cair a níveis perigosos, e há risco de angioedema — inchaço súbito de lábios, língua e garganta, que fecha a passagem do ar. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "29046"
     ],
@@ -8472,7 +8472,7 @@
     "drug2": "Buprenorfina",
     "risk_level": "critical",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar.",
+    "mechanism": "A nalbufina e a buprenorfina são opioides que disputam o mesmo receptor: além de somarem a depressão da respiração, uma desloca a outra e pode precipitar abstinência. A combinação piora a dor em vez de aliviar, e ainda arrisca a respiração. Conduta: Evitar.",
     "drug1_rxcuis": [
       "7238"
     ],
@@ -8965,7 +8965,7 @@
     "drug2": "Cetoconazol",
     "risk_level": "critical",
     "risk_description": "Toxicidade grave de oxicodona",
-    "mechanism": "Toxicidade grave de oxicodona. Conduta: Evitar combinação.",
+    "mechanism": "O cetoconazol bloqueia a enzima do fígado que elimina a oxicodona, que se acumula em níveis muito acima do previsto para a dose tomada. O resultado é sedação profunda e respiração perigosamente lenta. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "7804"
     ],
@@ -9682,7 +9682,7 @@
     "drug2": "Ergotamina",
     "risk_level": "critical",
     "risk_description": "Crise hipertensiva grave",
-    "mechanism": "Crise hipertensiva grave. Conduta: Evitar.",
+    "mechanism": "O propranolol bloqueia a via que dilata os vasos, e a ergotamina já é um potente vasoconstritor. Juntos, o aperto nos vasos se intensifica: dor, palidez e frio nas mãos e nos pés, com risco de isquemia. Conduta: Evitar.",
     "drug1_rxcuis": [
       "8787"
     ],
@@ -10067,7 +10067,7 @@
     "drug2": "Ergotamina",
     "risk_level": "critical",
     "risk_description": "Crise hipertensiva grave",
-    "mechanism": "Crise hipertensiva grave. Conduta: Contraindicado.",
+    "mechanism": "O rizatriptano e a ergotamina contraem os vasos sanguíneos pelo mesmo caminho. Somados, o aperto vai longe demais: a pressão dispara e há risco de espasmo nas artérias do coração e do cérebro. Por isso as bulas exigem 24 horas de intervalo entre os dois. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "88014"
     ],
@@ -10344,7 +10344,7 @@
     "drug2": "Cetoconazol",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de hipotensão grave",
-    "mechanism": "Aumento do risco de hipotensão grave. Conduta: Evitar a combinação.",
+    "mechanism": "O cetoconazol bloqueia a enzima do fígado que elimina a silodosina, que se acumula. A silodosina relaxa os vasos: em excesso, a pressão cai de forma acentuada ao levantar, com tontura e risco de queda. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "720825"
     ],
@@ -10361,7 +10361,7 @@
     "drug2": "Ritonavir",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de hipotensão grave",
-    "mechanism": "Aumento do risco de hipotensão grave. Conduta: Evitar a combinação.",
+    "mechanism": "O ritonavir bloqueia a enzima do fígado que elimina a silodosina, que se acumula. A silodosina relaxa os vasos: em excesso, a pressão cai de forma acentuada ao levantar, com tontura e risco de queda. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "720825"
     ],
@@ -10497,7 +10497,7 @@
     "drug2": "Tacrolimo",
     "risk_level": "critical",
     "risk_description": "Nefrotoxicidade grave",
-    "mechanism": "Nefrotoxicidade grave. Conduta: Evitar combinação.",
+    "mechanism": "O sirolimo e o tacrolimo agridem o rim pelo mesmo mecanismo, e o tacrolimo ainda eleva o nível de sirolimo no sangue. A função dos rins pode se deteriorar de forma acelerada. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "35302"
     ],
@@ -10655,7 +10655,7 @@
     "drug2": "Ergotamina",
     "risk_level": "critical",
     "risk_description": "Crise hipertensiva grave",
-    "mechanism": "Crise hipertensiva grave. Conduta: Contraindicado.",
+    "mechanism": "O sumatriptano e a ergotamina contraem os vasos sanguíneos pelo mesmo caminho. Somados, o aperto vai longe demais: a pressão dispara e há risco de espasmo nas artérias do coração e do cérebro. Por isso as bulas exigem 24 horas de intervalo entre os dois. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "37418"
     ],
@@ -10802,7 +10802,7 @@
     "drug2": "Buprenorfina",
     "risk_level": "critical",
     "risk_description": "Supressão respiratória grave",
-    "mechanism": "Supressão respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "A buprenorfina ocupa com força o mesmo receptor do tapentadol: além de somarem a depressão da respiração, ela desloca o outro opioide e pode precipitar abstinência. O alívio da dor piora e a respiração fica em risco. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "787390"
     ],
@@ -10951,7 +10951,7 @@
     "drug2": "Voriconazol",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de hemorragia grave",
-    "mechanism": "Aumento do risco de hemorragia grave. Conduta: Evitar a combinação.",
+    "mechanism": "O voriconazol bloqueia a enzima do fígado que elimina o ticagrelor, que se acumula. Como o ticagrelor impede as plaquetas de se juntarem, o excesso significa sangramento que não estanca — inclusive no cérebro. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "1116632"
     ],
@@ -11110,7 +11110,7 @@
     "drug2": "Infliximabe",
     "risk_level": "critical",
     "risk_description": "Imunossupressão grave",
-    "mechanism": "Imunossupressão grave. Conduta: Evitar.",
+    "mechanism": "O tocilizumabe e o infliximabe bloqueiam duas vias diferentes da defesa do organismo. Somados, a imunidade cai demais e o risco de infecção grave sobe, sem ganho de eficácia que justifique. Conduta: Evitar.",
     "drug1_rxcuis": [
       "612865"
     ],
@@ -11284,8 +11284,8 @@
     "drug1": "Tranilcipromina",
     "drug2": "Selegilina",
     "risk_level": "critical",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "risk_description": "Crise hipertensiva e síndrome serotoninérgica",
+    "mechanism": "A tranilcipromina e a selegilina bloqueiam a mesma enzima, a monoaminoxidase. Somadas, a noradrenalina e a serotonina se acumulam sem freio: pressão em disparada, febre alta, rigidez e confusão. Ao trocar de um para o outro é preciso um intervalo de semanas. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "10734"
     ],
@@ -11334,7 +11334,7 @@
     "drug2": "Cetoconazol",
     "risk_level": "critical",
     "risk_description": "Sedação intensificada, risco de depressão respiratória",
-    "mechanism": "Sedação intensificada, risco de depressão respiratória. Conduta: Evitar.",
+    "mechanism": "O cetoconazol bloqueia a enzima do fígado que elimina o triazolam, que se acumula. A sedação fica muito mais profunda e prolongada do que o esperado, com risco de a respiração ficar perigosamente lenta. Conduta: Evitar.",
     "drug1_rxcuis": [
       "10767"
     ],
@@ -11430,7 +11430,7 @@
     "drug2": "Tofacitinibe",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de infecções graves",
-    "mechanism": "Aumento do risco de infecções graves. Conduta: Evitar a combinação.",
+    "mechanism": "O upadacitinibe e o tofacitinibe bloqueiam a MESMA via de defesa (as enzimas JAK). Usar os dois não aumenta o efeito útil, só a imunossupressão: infecções graves, incluindo reativação de tuberculose e herpes-zóster. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "2196092"
     ],
@@ -11445,7 +11445,7 @@
     "drug2": "Azatioprina",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de infecções graves",
-    "mechanism": "Aumento do risco de infecções graves. Conduta: Evitar a combinação.",
+    "mechanism": "O upadacitinibe e a azatioprina suprimem o sistema de defesa por caminhos diferentes. Somados, as defesas caem demais e a medula óssea pode ser afetada, com risco de infecções graves. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "2196092"
     ],
@@ -11475,7 +11475,7 @@
     "drug2": "Tacrolimo",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de infecções graves",
-    "mechanism": "Aumento do risco de infecções graves. Conduta: Evitar a combinação.",
+    "mechanism": "O upadacitinibe e o tacrolimo suprimem o sistema de defesa por caminhos diferentes. Somados, as defesas caem demais, com risco de infecções graves e por germes incomuns. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "2196092"
     ],
@@ -11975,7 +11975,7 @@
     "drug2": "Ergotamina",
     "risk_level": "critical",
     "risk_description": "Crise hipertensiva grave",
-    "mechanism": "Crise hipertensiva grave. Conduta: Contraindicado.",
+    "mechanism": "O zolmitriptano e a ergotamina contraem os vasos sanguíneos pelo mesmo caminho. Somados, o aperto vai longe demais: a pressão dispara e há risco de espasmo nas artérias do coração e do cérebro. Por isso as bulas exigem 24 horas de intervalo entre os dois. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "135775"
     ],
@@ -12356,7 +12356,7 @@
     "drug2": "Succinilcolina",
     "risk_level": "critical",
     "risk_description": "bloqueio neuromuscular prolongado",
-    "mechanism": "bloqueio neuromuscular prolongado. Conduta: Evitar.",
+    "mechanism": "A amicacina interfere na transmissão entre o nervo e o músculo, no mesmo ponto em que a succinilcolina age. O bloqueio muscular fica mais forte e mais longo do que o previsto — a respiração pode demorar a voltar depois de uma anestesia. Conduta: Evitar.",
     "drug1_rxcuis": [
       "641"
     ]
@@ -12368,7 +12368,7 @@
     "drug2": "Eplerenona",
     "risk_level": "critical",
     "risk_description": "Hiperpotassemia grave",
-    "mechanism": "Hiperpotassemia grave. Conduta: Contraindicado.",
+    "mechanism": "A amilorida e a eplerenona seguram potássio no corpo, cada uma por uma via. Somadas, o potássio pode subir a níveis que fazem o coração parar, e o aviso costuma ser discreto: fraqueza, formigamento e batimentos irregulares. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "644"
     ],
@@ -12415,7 +12415,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de depressão respiratória",
-    "mechanism": "Aumento do risco de depressão respiratória. Conduta: Evitar.",
+    "mechanism": "A amitriptilina e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda e respiração perigosamente lenta — e o álcool ainda aumenta a queda de pressão ao levantar. Conduta: Evitar.",
     "drug1_rxcuis": [
       "704"
     ]
@@ -12544,8 +12544,8 @@
     "drug1": "Atomoxetina",
     "drug2": "MAOIs",
     "risk_level": "critical",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Contraindicado.",
+    "risk_description": "Crise hipertensiva por excesso de noradrenalina",
+    "mechanism": "A atomoxetina bloqueia a recaptação de NORADRENALINA — ela não é serotoninérgica — e o IMAO impede a destruição dessa mesma substância. A noradrenalina se acumula sem freio: pressão em disparada, febre alta e agitação. Entre um e outro é preciso um intervalo de 2 semanas. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "38400"
     ]
@@ -12605,7 +12605,7 @@
     "drug2": "Inibidores da xantina oxidase",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de toxicidade hematológica",
-    "mechanism": "Aumento do risco de toxicidade hematológica. Conduta: Evitar a combinação.",
+    "mechanism": "Os inibidores da xantina oxidase (alopurinol, febuxostate) bloqueiam justamente a enzima que destrói a azatioprina. Sem ela, o medicamento acumula em níveis tóxicos e pode destruir a medula óssea — a dose da azatioprina precisa ser reduzida a cerca de 1/4 pelo médico. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "1256"
     ]
@@ -12737,7 +12737,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Aumento de risco de convulsões",
-    "mechanism": "Aumento de risco de convulsões. Conduta: Evitar consumo de álcool.",
+    "mechanism": "A bupropiona baixa o limiar para convulsão, e o álcool — sobretudo quando o consumo habitual é interrompido de repente — baixa ainda mais. A combinação pode desencadear crise convulsiva em quem nunca teve. Conduta: Evitar consumo de álcool.",
     "drug1_rxcuis": [
       "42347"
     ]
@@ -13203,7 +13203,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Risco de hipoglicemia grave",
-    "mechanism": "Risco de hipoglicemia grave. Conduta: Evitar consumo excessivo.",
+    "mechanism": "O álcool atrapalha o fígado a repor o açúcar do sangue, e a glibenclamida já o está baixando. A hipoglicemia pode ser grave e demorada — e a embriaguez disfarça os sinais de alarme (tremor, suor frio, confusão), atrasando o socorro. Conduta: Evitar consumo excessivo.",
     "drug1_rxcuis": [
       "4815"
     ]
@@ -13409,7 +13409,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de sedação e depressão respiratória",
-    "mechanism": "Aumento do risco de sedação e depressão respiratória. Conduta: Evitar.",
+    "mechanism": "A maprotilina e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda e respiração perigosamente lenta — e ambos baixam o limiar para convulsão. Conduta: Evitar.",
     "drug1_rxcuis": [
       "6646"
     ]
@@ -13794,7 +13794,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Aumento do risco de sedação e depressão respiratória",
-    "mechanism": "Aumento do risco de sedação e depressão respiratória. Conduta: Evitar.",
+    "mechanism": "A tioridazina e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda e respiração perigosamente lenta, além de queda de pressão ao levantar. Conduta: Evitar.",
     "drug1_rxcuis": [
       "10502"
     ]
@@ -13918,7 +13918,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "critical",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Evitar.",
+    "mechanism": "O álcool ocupa as enzimas do fígado que também eliminam a varfarina. Numa bebedeira, a varfarina se acumula e o sangue fica fino demais (o INR sobe), com risco de sangramento que não estanca. Já o consumo crônico faz o oposto e derruba a proteção — nos dois casos o controle se perde. Conduta: Evitar.",
     "drug1_rxcuis": [
       "11289"
     ]
