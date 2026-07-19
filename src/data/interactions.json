@@ -2672,7 +2672,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de nefrotoxicidade",
-    "mechanism": "Aumento do risco de nefrotoxicidade. Conduta: Monitorar função renal.",
+    "mechanism": "A acetazolamida altera o equilíbrio de sais e eleva o nível de ciclosporina no sangue. A ciclosporina já é tóxica para o rim na dose certa; acima dela a lesão vem mais rápido e pode ser permanente — por isso o nível precisa ser dosado. Conduta: Monitorar função renal.",
     "drug1_rxcuis": [
       "167"
     ],
@@ -2689,7 +2689,7 @@
     "drug2": "Ibuprofeno",
     "risk_level": "moderate",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Evitar.",
+    "mechanism": "O ibuprofeno ocupa o mesmo ponto da plaqueta em que o AAS age e impede o AAS de fazer seu efeito protetor do coração; ao mesmo tempo, os dois somam agressão ao estômago. Tomar o AAS ao menos 30 minutos antes do ibuprofeno reduz o problema. Conduta: Evitar.",
     "drug1_rxcuis": [
       "1191"
     ],
@@ -2705,7 +2705,7 @@
     "drug2": "Lítio",
     "risk_level": "high",
     "risk_description": "Toxicidade por lítio",
-    "mechanism": "Toxicidade por lítio. Conduta: Evitar.",
+    "mechanism": "O ácido mefenâmico reduz a eliminação de lítio pelos rins, e o nível de lítio no sangue sobe. O lítio tem margem estreita: em excesso causa tremor grosseiro, vômitos, diarreia, confusão e fala arrastada. Conduta: Evitar.",
     "drug1_rxcuis": [
       "6693"
     ],
@@ -2801,7 +2801,7 @@
     "drug2": "Cetoconazol",
     "risk_level": "high",
     "risk_description": "Aumento do risco de hipotensão ortostática",
-    "mechanism": "Aumento do risco de hipotensão ortostática. Conduta: Evitar.",
+    "mechanism": "O cetoconazol bloqueia a enzima do fígado que elimina a alfuzosina, que se acumula. A alfuzosina relaxa os vasos: em excesso, a pressão cai ao levantar, com tontura e risco de queda. Conduta: Evitar.",
     "drug1_rxcuis": [
       "17300"
     ],
@@ -2818,7 +2818,7 @@
     "drug2": "Ritonavir",
     "risk_level": "high",
     "risk_description": "Aumento do risco de hipotensão ortostática",
-    "mechanism": "Aumento do risco de hipotensão ortostática. Conduta: Evitar.",
+    "mechanism": "O ritonavir bloqueia a enzima do fígado que elimina a alfuzosina, que se acumula. A alfuzosina relaxa os vasos: em excesso, a pressão cai ao levantar, com tontura e risco de queda. Conduta: Evitar.",
     "drug1_rxcuis": [
       "17300"
     ],
@@ -2971,8 +2971,8 @@
     "drug1": "Amantadina",
     "drug2": "Memantina",
     "risk_level": "moderate",
-    "risk_description": "Risco de toxicidade dopaminérgica",
-    "mechanism": "Risco de toxicidade dopaminérgica. Conduta: Evitar combinação.",
+    "risk_description": "Risco de confusão e alucinações (efeito somado sobre o NMDA)",
+    "mechanism": "A amantadina e a memantina agem sobre o mesmo receptor cerebral (NMDA). Somadas, aumentam o risco de confusão, alucinações, tontura e agitação — especialmente em idosos. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "620"
     ],
@@ -3074,7 +3074,7 @@
     "drug2": "Levodopa",
     "risk_level": "high",
     "risk_description": "Aumento risco de discinesia",
-    "mechanism": "Aumento risco de discinesia. Conduta: Evitar combinação.",
+    "mechanism": "A amisulprida bloqueia os receptores de dopamina que a levodopa depende para agir: o efeito antiparkinsoniano cai e podem surgir rigidez e movimentos involuntários. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "46303"
     ],
@@ -3477,7 +3477,7 @@
     "drug2": "Clonidina",
     "risk_level": "high",
     "risk_description": "crise hipertensiva",
-    "mechanism": "crise hipertensiva. Conduta: Evitar.",
+    "mechanism": "O atenolol bloqueia os receptores que dilatam os vasos. Se a clonidina for interrompida de repente nessa situação, a pressão pode disparar de forma perigosa — o efeito rebote fica sem contrapeso. Conduta: Evitar.",
     "drug1_rxcuis": [
       "1202"
     ],
@@ -3609,7 +3609,7 @@
     "drug2": "Ritonavir",
     "risk_level": "high",
     "risk_description": "Aumento do risco de toxicidade",
-    "mechanism": "Aumento do risco de toxicidade. Conduta: Evitar a combinação.",
+    "mechanism": "O ritonavir bloqueia a enzima do fígado que elimina a avanafila, que se acumula. O excesso derruba a pressão, com tontura, desmaio e dor de cabeça intensa. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "1291301"
     ],
@@ -3625,7 +3625,7 @@
     "drug2": "Febuxostate",
     "risk_level": "high",
     "risk_description": "Aumento do risco de toxicidade hematológica",
-    "mechanism": "Aumento do risco de toxicidade hematológica. Conduta: Evitar a combinação.",
+    "mechanism": "O febuxostate bloqueia a xantina oxidase, enzima que destrói a azatioprina. Sem ela, a azatioprina acumula em níveis tóxicos e pode destruir a medula óssea — a dose precisa ser reduzida a cerca de 1/4 pelo médico. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "1256"
     ],
@@ -3675,7 +3675,7 @@
     "drug2": "Sunitinibe",
     "risk_level": "high",
     "risk_description": "Risco aumentado de perfuração gastrointestinal",
-    "mechanism": "Risco aumentado de perfuração gastrointestinal. Conduta: Evitar combinação.",
+    "mechanism": "O bevacizumabe prejudica a cicatrização da parede do intestino e o sunitinibe age na mesma via dos vasos. Juntos, cresce o risco de perfuração intestinal — dor abdominal forte e súbita é sinal de emergência. Conduta: Evitar combinação.",
     "drug2_rxcuis": [
       "357977"
     ],
@@ -3705,7 +3705,7 @@
     "drug2": "Clorpromazina",
     "risk_level": "moderate",
     "risk_description": "hipotensão grave",
-    "mechanism": "hipotensão grave. Conduta: Monitorar pressão.",
+    "mechanism": "O bisoprolol e a clorpromazina baixam a pressão por caminhos diferentes, e a clorpromazina ainda eleva o nível do betabloqueador. A pressão pode cair demais, sobretudo ao levantar. Conduta: Monitorar pressão.",
     "drug1_rxcuis": [
       "19484"
     ],
@@ -3722,7 +3722,7 @@
     "drug2": "Cetoconazol",
     "risk_level": "moderate",
     "risk_description": "Reação adversa grave (neuropatia grave)",
-    "mechanism": "Reação adversa grave (neuropatia grave). Conduta: Evitar.",
+    "mechanism": "O cetoconazol bloqueia a enzima do fígado que elimina o bortezomibe, que se acumula. O excesso agrava a neuropatia: formigamento, dor e perda de sensibilidade nas mãos e nos pés. Conduta: Evitar.",
     "drug1_rxcuis": [
       "358258"
     ],
@@ -3739,7 +3739,7 @@
     "drug2": "Ritonavir",
     "risk_level": "moderate",
     "risk_description": "Reação adversa grave (neuropatia grave)",
-    "mechanism": "Reação adversa grave (neuropatia grave). Conduta: Evitar.",
+    "mechanism": "O ritonavir bloqueia a enzima do fígado que elimina o bortezomibe, que se acumula. O excesso agrava a neuropatia: formigamento, dor e perda de sensibilidade nas mãos e nos pés. Conduta: Evitar.",
     "drug1_rxcuis": [
       "358258"
     ],
@@ -3870,7 +3870,7 @@
     "drug2": "Clobazam",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de sedação e depressão respiratória",
-    "mechanism": "Aumento do risco de sedação e depressão respiratória. Conduta: Monitorar e ajustar doses.",
+    "mechanism": "O canabidiol bloqueia a enzima do fígado que elimina o clobazam, e o metabólito ativo dele se acumula. A sonolência aumenta muito — é a interação mais conhecida do canabidiol. Conduta: Monitorar e ajustar doses.",
     "drug1_rxcuis": [
       "2045371"
     ],
@@ -3887,7 +3887,7 @@
     "drug2": "Fenitoína",
     "risk_level": "moderate",
     "risk_description": "Toxicidade por fenitoína",
-    "mechanism": "Toxicidade por fenitoína. Conduta: Monitorar níveis plasmáticos.",
+    "mechanism": "A capecitabina reduz a eliminação da fenitoína, que se acumula. A fenitoína tem margem estreita: tontura, visão dupla, desequilíbrio e sonolência. Conduta: Monitorar níveis plasmáticos.",
     "drug1_rxcuis": [
       "194000"
     ],
@@ -3953,7 +3953,7 @@
     "drug2": "Voriconazol",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de toxicidade hematológica",
-    "mechanism": "Aumento do risco de toxicidade hematológica. Conduta: Evitar combinação.",
+    "mechanism": "O voriconazol e a carboplatina deprimem a produção de células na medula óssea. Somados, podem faltar glóbulos brancos, plaquetas e glóbulos vermelhos. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "40048"
     ],
@@ -3985,7 +3985,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
     "risk_description": "Nefrotoxicidade grave",
-    "mechanism": "Nefrotoxicidade grave. Conduta: Monitorar função renal.",
+    "mechanism": "A caspofungina eleva o nível de ciclosporina no sangue. A ciclosporina já é tóxica para o rim na dose certa; acima dela a lesão vem mais rápido e pode ser permanente — por isso o nível precisa ser dosado. Conduta: Monitorar função renal.",
     "drug1_rxcuis": [
       "140108"
     ],
@@ -4050,7 +4050,7 @@
     "drug2": "Rituximabe",
     "risk_level": "high",
     "risk_description": "supressão medular grave",
-    "mechanism": "supressão medular grave. Conduta: Contraindicado.",
+    "mechanism": "O certolizumabe e o rituximabe bloqueiam vias diferentes da defesa do organismo. Somados, a imunidade cai demais: infecções graves, sem ganho de eficácia que justifique o risco. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "709271"
     ],
@@ -4166,7 +4166,7 @@
     "drug2": "Cimetidina",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de mielossupressão grave",
-    "mechanism": "Aumento do risco de mielossupressão grave. Conduta: Evitar combinação.",
+    "mechanism": "A cimetidina altera as enzimas do fígado que ativam e eliminam a ciclofosfamida, tornando o efeito sobre a medula óssea imprevisível: pode faltar glóbulo branco, plaqueta e glóbulo vermelho. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "3002"
     ],
@@ -4183,7 +4183,7 @@
     "drug2": "Fenitoína",
     "risk_level": "high",
     "risk_description": "Aumento do risco de mielossupressão grave",
-    "mechanism": "Aumento do risco de mielossupressão grave. Conduta: Evitar combinação.",
+    "mechanism": "A fenitoína altera as enzimas que ativam a ciclofosfamida, aumentando a formação dos metabólitos que agridem a medula óssea. O hemograma precisa ser acompanhado de perto. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "3002"
     ],
@@ -4198,7 +4198,7 @@
     "drug2": "Voriconazol",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de mielossupressão grave",
-    "mechanism": "Aumento do risco de mielossupressão grave. Conduta: Evitar combinação.",
+    "mechanism": "O voriconazol altera a eliminação da ciclofosfamida e ambos podem deprimir a medula óssea. Risco de faltar glóbulos brancos (infecção) e plaquetas (sangramento). Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "3002"
     ],
@@ -4232,7 +4232,7 @@
     "drug2": "Rifampicina",
     "risk_level": "high",
     "risk_description": "Redução grave da imunossupressão",
-    "mechanism": "Redução grave da imunossupressão. Conduta: Evitar ou ajustar dose de Ciclosporina.",
+    "mechanism": "A rifampicina acelera as enzimas que destroem a ciclosporina, e o nível do imunossupressor despenca. Sem ele na dose certa, o corpo pode rejeitar o órgão transplantado — e a queda acontece em silêncio. Conduta: Evitar ou ajustar dose de Ciclosporina.",
     "drug1_rxcuis": [
       "3008"
     ],
@@ -4265,7 +4265,7 @@
     "drug2": "Fenitoína",
     "risk_level": "high",
     "risk_description": "Nível tóxico de fenitoína",
-    "mechanism": "Nível tóxico de fenitoína. Conduta: Monitorar níveis de fenitoína.",
+    "mechanism": "A cimetidina bloqueia a enzima do fígado que elimina a fenitoína, que se acumula. A fenitoína tem margem estreita: tontura, visão dupla, desequilíbrio, fala arrastada e sonolência. Conduta: Monitorar níveis de fenitoína.",
     "drug1_rxcuis": [
       "2541"
     ],
@@ -4282,7 +4282,7 @@
     "drug2": "Teofilina",
     "risk_level": "high",
     "risk_description": "Nível tóxico de teofilina",
-    "mechanism": "Nível tóxico de teofilina. Conduta: Monitorar níveis de teofilina.",
+    "mechanism": "A cimetidina bloqueia a enzima do fígado que elimina a teofilina, que se acumula. A teofilina tem margem estreita: enjoo, agitação, palpitação, tremor e, em excesso, convulsão. Conduta: Monitorar níveis de teofilina.",
     "drug1_rxcuis": [
       "2541"
     ],
@@ -4416,8 +4416,8 @@
     "drug1": "Clindamicina",
     "drug2": "Eritromicina",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de pseudomembranosa colite",
-    "mechanism": "Aumento do risco de pseudomembranosa colite. Conduta: Evitar.",
+    "risk_description": "Antagonismo entre os dois antibióticos, e risco de colite",
+    "mechanism": "A clindamicina e a eritromicina disputam o mesmo ponto do ribossomo da bactéria: em vez de somar, uma atrapalha a outra. Além disso, a clindamicina favorece a colite por C. difficile — diarreia intensa durante ou após o tratamento merece avaliação. Conduta: Evitar.",
     "drug1_rxcuis": [
       "2582"
     ],
@@ -4623,7 +4623,7 @@
     "drug2": "Cimetidina",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de toxicidade cardíaca",
-    "mechanism": "Aumento do risco de toxicidade cardíaca. Conduta: Evitar combinação.",
+    "mechanism": "A cimetidina bloqueia a enzima do fígado que elimina a cloroquina, que se acumula. Em excesso, a cloroquina alonga o intervalo QT e pode causar arritmia grave. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "2393"
     ],
@@ -4640,7 +4640,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "high",
     "risk_description": "Aumento do risco de toxicidade cardíaca",
-    "mechanism": "Aumento do risco de toxicidade cardíaca. Conduta: Evitar combinação.",
+    "mechanism": "A cloroquina eleva o nível de ciclosporina e ambas afetam o coração. O risco é duplo: arritmia e toxicidade da ciclosporina. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "2393"
     ],
@@ -5082,7 +5082,7 @@
     "drug2": "Trimetoprima",
     "risk_level": "high",
     "risk_description": "Toxicidade hematológica grave",
-    "mechanism": "Toxicidade hematológica grave. Conduta: Evitar.",
+    "mechanism": "A dapsona e a trimetoprima elevam o nível uma da outra e ambas agridem o sangue. O risco é de metemoglobinemia (sangue que não carrega oxigênio direito) e queda das células do sangue. Conduta: Evitar.",
     "drug1_rxcuis": [
       "3108"
     ],
@@ -5216,7 +5216,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "high",
     "risk_description": "Aumento risco de toxicidade digital",
-    "mechanism": "Aumento risco de toxicidade digital. Conduta: Monitorar níveis de digoxina e efeitos cardíacos.",
+    "mechanism": "A ciclosporina bloqueia a glicoproteína-P, a bomba que retira a digoxina do organismo. A digoxina se acumula e sua margem de segurança é estreita: enjoo, alterações na visão (halos amarelados), batimentos lentos e arritmias. Conduta: Monitorar níveis de digoxina e efeitos cardíacos.",
     "drug1_rxcuis": [
       "3407"
     ],
@@ -5233,7 +5233,7 @@
     "drug2": "Eritromicina",
     "risk_level": "high",
     "risk_description": "Aumento risco de toxicidade digital",
-    "mechanism": "Aumento risco de toxicidade digital. Conduta: Monitorar níveis de digoxina e efeitos cardíacos.",
+    "mechanism": "A eritromicina bloqueia a glicoproteína-P, a bomba que retira a digoxina do organismo. A digoxina se acumula e sua margem de segurança é estreita: enjoo, alterações na visão (halos amarelados), batimentos lentos e arritmias. Conduta: Monitorar níveis de digoxina e efeitos cardíacos.",
     "drug1_rxcuis": [
       "3407"
     ],
@@ -5250,7 +5250,7 @@
     "drug2": "Verapamil",
     "risk_level": "high",
     "risk_description": "Aumento risco de toxicidade digital",
-    "mechanism": "Aumento risco de toxicidade digital. Conduta: Monitorar níveis de digoxina e efeitos cardíacos.",
+    "mechanism": "O verapamil bloqueia a glicoproteína-P, a bomba que retira a digoxina do organismo. A digoxina se acumula e sua margem de segurança é estreita: enjoo, alterações na visão (halos amarelados), batimentos lentos e arritmias. Conduta: Monitorar níveis de digoxina e efeitos cardíacos.",
     "drug1_rxcuis": [
       "3407"
     ],
@@ -5281,7 +5281,7 @@
     "drug2": "Sibutramina",
     "risk_level": "high",
     "risk_description": "Crise hipertensiva grave",
-    "mechanism": "Crise hipertensiva grave. Conduta: Contraindicado.",
+    "mechanism": "A di-hidroergotamina contrai os vasos e a sibutramina eleva a pressão e os batimentos. Juntas, a pressão pode subir de forma perigosa. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "3418"
     ],
@@ -5349,7 +5349,7 @@
     "drug2": "Metotrexato",
     "risk_level": "moderate",
     "risk_description": "toxicidade hematológica grave",
-    "mechanism": "toxicidade hematológica grave. Conduta: Evitar.",
+    "mechanism": "A dipirona pode deprimir a medula óssea por conta própria, e o metotrexato faz o mesmo. Somados, o risco de faltar glóbulos brancos e plaquetas aumenta. Conduta: Evitar.",
     "drug1_rxcuis": [
       "3523"
     ],
@@ -5383,7 +5383,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "high",
     "risk_description": "neutropenia grave",
-    "mechanism": "neutropenia grave. Conduta: Monitorar contagem sanguínea.",
+    "mechanism": "A ciclosporina bloqueia a enzima do fígado que elimina o docetaxel, que se acumula. O excesso derruba os glóbulos brancos, com risco de infecção grave e febre. Conduta: Monitorar contagem sanguínea.",
     "drug1_rxcuis": [
       "72962"
     ],
@@ -5400,7 +5400,7 @@
     "drug2": "Eritromicina",
     "risk_level": "high",
     "risk_description": "neutropenia grave",
-    "mechanism": "neutropenia grave. Conduta: Monitorar contagem sanguínea.",
+    "mechanism": "A eritromicina bloqueia a enzima do fígado que elimina o docetaxel, que se acumula. O excesso derruba os glóbulos brancos, com risco de infecção grave e febre. Conduta: Monitorar contagem sanguínea.",
     "drug1_rxcuis": [
       "72962"
     ],
@@ -5417,7 +5417,7 @@
     "drug2": "Claritromicina",
     "risk_level": "high",
     "risk_description": "neutropenia grave",
-    "mechanism": "neutropenia grave. Conduta: Monitorar contagem sanguínea.",
+    "mechanism": "A claritromicina bloqueia a enzima do fígado que elimina o docetaxel, que se acumula. O excesso derruba os glóbulos brancos, com risco de infecção grave e febre. Conduta: Monitorar contagem sanguínea.",
     "drug1_rxcuis": [
       "72962"
     ],
@@ -5434,7 +5434,7 @@
     "drug2": "Rifampicina",
     "risk_level": "moderate",
     "risk_description": "Redução da biodisponibilidade do dolutegravir",
-    "mechanism": "Redução da biodisponibilidade do dolutegravir. Conduta: Aumentar dose de dolutegravir para 50mg 2x/dia.",
+    "mechanism": "A rifampicina acelera as enzimas do fígado que destroem o dolutegravir, derrubando seu nível. O vírus pode voltar a se multiplicar e criar resistência — por isso a dose precisa ser dobrada. Conduta: Aumentar dose de dolutegravir para 50mg 2x/dia.",
     "drug1_rxcuis": [
       "1433868"
     ],
@@ -5514,7 +5514,7 @@
     "drug2": "Isotretinoína",
     "risk_level": "high",
     "risk_description": "Risco de pseudotumor cerebral",
-    "mechanism": "Risco de pseudotumor cerebral. Conduta: Evitar combinação.",
+    "mechanism": "A doxiciclina e a isotretinoína elevam a pressão dentro do crânio. Juntas, pode surgir pseudotumor cerebral: dor de cabeça persistente, enjoo e visão borrada — sinais que exigem avaliação imediata. Conduta: Evitar combinação.",
     "drug2_rxcuis": [
       "6064"
     ]
@@ -5528,7 +5528,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "high",
     "risk_description": "Aumento do risco de cardiotoxicidade",
-    "mechanism": "Aumento do risco de cardiotoxicidade. Conduta: Monitorar função cardíaca.",
+    "mechanism": "A ciclosporina bloqueia a bomba que retira a doxorrubicina das células, e ela se acumula. A doxorrubicina em excesso agride o músculo do coração de forma que pode ser permanente. Conduta: Monitorar função cardíaca.",
     "drug1_rxcuis": [
       "3639"
     ],
@@ -5561,7 +5561,7 @@
     "drug2": "Verapamil",
     "risk_level": "high",
     "risk_description": "Aumento do risco de cardiotoxicidade",
-    "mechanism": "Aumento do risco de cardiotoxicidade. Conduta: Monitorar função cardíaca.",
+    "mechanism": "O verapamil bloqueia a bomba que retira a doxorrubicina das células, e ela se acumula. A doxorrubicina em excesso agride o músculo do coração de forma que pode ser permanente. Conduta: Monitorar função cardíaca.",
     "drug1_rxcuis": [
       "3639"
     ],
@@ -5576,7 +5576,7 @@
     "drug2": "Alprazolam",
     "risk_level": "moderate",
     "risk_description": "Sedação respiratória grave",
-    "mechanism": "Sedação respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "O dronabinol e o alprazolam deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda, confusão e respiração perigosamente lenta. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "10402"
     ],
@@ -5592,7 +5592,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "high",
     "risk_description": "Aumento do risco de toxicidade cardíaca",
-    "mechanism": "Aumento do risco de toxicidade cardíaca. Conduta: Contraindicado.",
+    "mechanism": "A dronedarona eleva bastante o nível de ciclosporina e ambas afetam o ritmo do coração. A combinação soma toxicidade cardíaca e renal. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "233698"
     ],
@@ -5782,7 +5782,7 @@
     "drug2": "Ciprofloxacino",
     "risk_level": "high",
     "risk_description": "Crise hipertensiva grave",
-    "mechanism": "Crise hipertensiva grave. Conduta: Contraindicado.",
+    "mechanism": "O ciprofloxacino bloqueia a enzima do fígado que elimina a ergotamina, que se acumula. O excesso contrai os vasos com força: dor, palidez e frio nas extremidades, com risco de isquemia. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "4025"
     ],
@@ -5847,7 +5847,7 @@
     "drug2": "Ciprofloxacino",
     "risk_level": "high",
     "risk_description": "Aumento do risco de toxicidade",
-    "mechanism": "Aumento do risco de toxicidade. Conduta: Evitar a combinação.",
+    "mechanism": "O ciprofloxacino bloqueia a enzima do fígado que elimina o erlotinibe, que se acumula. O excesso agrava diarreia, erupção na pele e lesão do fígado. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "337525"
     ],
@@ -5864,7 +5864,7 @@
     "drug2": "Eritromicina",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de toxicidade",
-    "mechanism": "Aumento do risco de toxicidade. Conduta: Evitar a combinação.",
+    "mechanism": "A eritromicina bloqueia a enzima do fígado que elimina o erlotinibe, que se acumula. O excesso agrava diarreia, erupção na pele e lesão do fígado. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "337525"
     ],
@@ -5880,7 +5880,7 @@
     "drug2": "Ritonavir",
     "risk_level": "high",
     "risk_description": "Aumento do risco de toxicidade",
-    "mechanism": "Aumento do risco de toxicidade. Conduta: Evitar a combinação.",
+    "mechanism": "O ritonavir bloqueia a enzima do fígado que elimina o erlotinibe, que se acumula. O excesso agrava diarreia, erupção na pele e lesão do fígado. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "337525"
     ],
@@ -5931,7 +5931,7 @@
     "drug2": "Oxcarbazepina",
     "risk_level": "high",
     "risk_description": "Reação adversa grave (agranulocitose, anemia aplástica)",
-    "mechanism": "Reação adversa grave (agranulocitose, anemia aplástica). Conduta: Evitar.",
+    "mechanism": "A eslicarbazepina é o metabólito ativo da oxcarbazepina: usar os dois é dobrar o mesmo medicamento, sem ganho e com mais risco de queda das células do sangue e de sódio baixo. Conduta: Evitar.",
     "drug1_rxcuis": [
       "1482502"
     ],
@@ -5947,7 +5947,7 @@
     "drug2": "Cilostazol",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de sangramento",
-    "mechanism": "Aumento do risco de sangramento. Conduta: Monitorar INR.",
+    "mechanism": "O esomeprazol bloqueia a enzima do fígado que elimina o cilostazol, que se acumula. O cilostazol impede as plaquetas de se juntarem, então o excesso aumenta o risco de sangramento. Conduta: Monitorar INR.",
     "drug1_rxcuis": [
       "283742"
     ],
@@ -5963,7 +5963,7 @@
     "drug2": "Amilorida",
     "risk_level": "high",
     "risk_description": "Hiperpotassemia grave",
-    "mechanism": "Hiperpotassemia grave. Conduta: Contraindicado.",
+    "mechanism": "A espironolactona e a amilorida seguram potássio no corpo, cada uma por uma via. Somadas, o potássio pode subir a níveis que fazem o coração parar, com aviso discreto: fraqueza, formigamento e batimentos irregulares. Conduta: Contraindicado.",
     "drug2_rxcuis": [
       "644"
     ]
@@ -5994,7 +5994,7 @@
     "drug2": "Abatacepte",
     "risk_level": "high",
     "risk_description": "supressão medular grave",
-    "mechanism": "supressão medular grave. Conduta: Contraindicado.",
+    "mechanism": "O etanercepte e o abatacepte bloqueiam vias diferentes da defesa do organismo. Somados, a imunidade cai demais: infecções graves, sem ganho de eficácia que justifique o risco. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "214555"
     ],
@@ -6026,7 +6026,7 @@
     "drug2": "Ritonavir",
     "risk_level": "high",
     "risk_description": "Aumento do risco de tromboembolismo",
-    "mechanism": "Aumento do risco de tromboembolismo. Conduta: Monitorar e ajustar dose.",
+    "mechanism": "O ritonavir eleva o nível de etinilestradiol, e o estrogênio em excesso aumenta a tendência do sangue a coagular. Cresce o risco de trombose na perna e de embolia no pulmão. Conduta: Monitorar e ajustar dose.",
     "drug1_rxcuis": [
       "4124"
     ],
@@ -6074,7 +6074,7 @@
     "drug2": "Bosentana",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de hepatotoxicidade",
-    "mechanism": "Aumento do risco de hepatotoxicidade. Conduta: Monitorar função hepática.",
+    "mechanism": "A bosentana e o everolimo são processados pelo fígado e ambos podem agredi-lo. Juntos, o risco de lesão hepática soma: cansaço, enjoo, urina escura e olhos amarelados. Conduta: Monitorar função hepática.",
     "drug1_rxcuis": [
       "141704"
     ],
@@ -6091,7 +6091,7 @@
     "drug2": "Eritromicina",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de hepatotoxicidade",
-    "mechanism": "Aumento do risco de hepatotoxicidade. Conduta: Monitorar função hepática.",
+    "mechanism": "A eritromicina bloqueia a enzima do fígado que elimina o everolimo, que se acumula. Em concentração alta o próprio fígado é agredido, além de aumentar a imunossupressão. Conduta: Monitorar função hepática.",
     "drug1_rxcuis": [
       "141704"
     ],
@@ -6141,7 +6141,7 @@
     "drug2": "Teofilina",
     "risk_level": "high",
     "risk_description": "Aumento do risco de toxicidade",
-    "mechanism": "Aumento do risco de toxicidade. Conduta: Monitorar níveis plasmáticos.",
+    "mechanism": "O febuxostate reduz a eliminação da teofilina, que se acumula. A teofilina tem margem estreita: enjoo, agitação, palpitação e tremor. Conduta: Monitorar níveis plasmáticos.",
     "drug1_rxcuis": [
       "73689"
     ],
@@ -6208,7 +6208,7 @@
     "drug2": "Voriconazol",
     "risk_level": "high",
     "risk_description": "Aumento do risco de arritmia cardíaca e convulsão",
-    "mechanism": "Aumento do risco de arritmia cardíaca e convulsão. Conduta: Monitorar eletrocardiograma e níveis plasmáticos.",
+    "mechanism": "O voriconazol eleva o nível de fenitoína, e a fenitoína derruba o do voriconazol. O resultado é imprevisível nos dois sentidos: intoxicação por fenitoína (tontura, visão dupla, desequilíbrio) e falha do antifúngico. Conduta: Monitorar eletrocardiograma e níveis plasmáticos.",
     "drug1_rxcuis": [
       "8183"
     ],
@@ -6224,7 +6224,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "high",
     "risk_description": "redução grave da imunossupressão",
-    "mechanism": "redução grave da imunossupressão. Conduta: Monitorar níveis de ciclosporina.",
+    "mechanism": "O fenobarbital acelera as enzimas que destroem a ciclosporina, e o nível do imunossupressor cai. Sem ele na dose certa, o corpo pode rejeitar o órgão transplantado. Conduta: Monitorar níveis de ciclosporina.",
     "drug1_rxcuis": [
       "8134"
     ],
@@ -6241,7 +6241,7 @@
     "drug2": "Teofilina",
     "risk_level": "high",
     "risk_description": "redução grave da eficácia",
-    "mechanism": "redução grave da eficácia. Conduta: Ajustar dose de teofilina.",
+    "mechanism": "O fenobarbital acelera as enzimas do fígado que destroem a teofilina, e o nível dela cai. A falta de ar pode voltar mesmo com o remédio sendo tomado certinho. Conduta: Ajustar dose de teofilina.",
     "drug1_rxcuis": [
       "8134"
     ],
@@ -6371,7 +6371,7 @@
     "drug2": "Levodopa",
     "risk_level": "moderate",
     "risk_description": "Redução absorção levodopa",
-    "mechanism": "Redução absorção levodopa. Conduta: Administrar separadamente.",
+    "mechanism": "O ferro se liga à levodopa dentro do intestino e impede que ela seja absorvida. O efeito cai — separar as tomadas por pelo menos 2 horas resolve. Conduta: Administrar separadamente.",
     "drug1_rxcuis": [
       "24947"
     ],
@@ -6451,7 +6451,7 @@
     "drug2": "Metoclopramida",
     "risk_level": "high",
     "risk_description": "Aumento risco de distonia aguda",
-    "mechanism": "Aumento risco de distonia aguda. Conduta: Monitorar sinais de distonia.",
+    "mechanism": "A flufenazina e a metoclopramida bloqueiam os mesmos receptores de dopamina. O risco de distonia aguda — contração súbita e dolorosa do pescoço, língua ou olhos — aumenta bastante, sobretudo em jovens. Conduta: Monitorar sinais de distonia.",
     "drug1_rxcuis": [
       "4496"
     ],
@@ -6518,7 +6518,7 @@
     "drug2": "Metoclopramida",
     "risk_level": "moderate",
     "risk_description": "Aumento risco de discinesia tardia",
-    "mechanism": "Aumento risco de discinesia tardia. Conduta: Evitar.",
+    "mechanism": "A fluoxetina reduz a liberação de dopamina e a metoclopramida bloqueia seus receptores. Somadas, aumenta o risco de movimentos involuntários que podem se tornar permanentes se o uso for prolongado. Conduta: Evitar.",
     "drug1_rxcuis": [
       "4493"
     ],
@@ -6665,7 +6665,7 @@
     "drug2": "Vancomicina",
     "risk_level": "high",
     "risk_description": "ototoxicidade grave",
-    "mechanism": "ototoxicidade grave. Conduta: Monitorar audição.",
+    "mechanism": "A gentamicina e a vancomicina agridem o ouvido interno e o rim. Somadas, pode haver perda auditiva e zumbido que não se recuperam, além de queda da função renal. Conduta: Monitorar audição.",
     "drug1_rxcuis": [
       "1596450"
     ],
@@ -6714,7 +6714,7 @@
     "drug2": "Cimetidina",
     "risk_level": "moderate",
     "risk_description": "Risco de hipoglicemia grave",
-    "mechanism": "Risco de hipoglicemia grave. Conduta: Monitorar glicemia.",
+    "mechanism": "A cimetidina reduz a eliminação da glibenclamida, que se acumula e baixa o açúcar mais do que o previsto. A hipoglicemia pode ser demorada: tremor, suor frio, confusão. Conduta: Monitorar glicemia.",
     "drug1_rxcuis": [
       "4815"
     ],
@@ -6729,7 +6729,7 @@
     "drug2": "Digoxina",
     "risk_level": "high",
     "risk_description": "Aumento do risco de toxicidade digital",
-    "mechanism": "Aumento do risco de toxicidade digital. Conduta: Monitorar níveis de digoxina.",
+    "mechanism": "O alcaçuz faz o corpo perder potássio. Com o potássio baixo, o coração fica muito mais sensível à digoxina, e sinais de intoxicação podem surgir mesmo com a dose de sempre: enjoo, alterações na visão e arritmias. Conduta: Monitorar níveis de digoxina.",
     "drug2_rxcuis": [
       "3407"
     ]
@@ -6741,7 +6741,7 @@
     "drug2": "Espironolactona",
     "risk_level": "moderate",
     "risk_description": "Redução do efeito diurético",
-    "mechanism": "Redução do efeito diurético. Conduta: Evitar combinação.",
+    "mechanism": "O alcaçuz faz o corpo reter sódio e perder potássio, exatamente o oposto do que a espironolactona faz. O efeito diurético cai e a pressão pode subir. Conduta: Evitar combinação.",
     "drug2_rxcuis": [
       "9997"
     ]
@@ -6802,7 +6802,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
     "risk_description": "Rejeição do enxerto",
-    "mechanism": "Rejeição do enxerto. Conduta: Evitar.",
+    "mechanism": "A griseofulvina acelera as enzimas que destroem a ciclosporina, e o nível dela cai. Em quem fez transplante, isso pode levar à rejeição do enxerto. Conduta: Evitar.",
     "drug1_rxcuis": [
       "5021"
     ],
@@ -7090,7 +7090,7 @@
     "drug2": "Metoclopramida",
     "risk_level": "high",
     "risk_description": "Aumento do risco de arritmias fatais",
-    "mechanism": "Aumento do risco de arritmias fatais. Conduta: Evitar a combinação.",
+    "mechanism": "A iloperidona e a metoclopramida alongam o intervalo QT do coração. Somadas, esse tempo pode ficar longo a ponto de disparar uma arritmia grave, além do risco de rigidez e tremor. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "73178"
     ],
@@ -7187,7 +7187,7 @@
     "drug2": "Efedrina",
     "risk_level": "high",
     "risk_description": "crise hipertensiva",
-    "mechanism": "crise hipertensiva. Conduta: Evitar.",
+    "mechanism": "O indacaterol e a efedrina estimulam os mesmos receptores. Somados, aumentam a pressão, os batimentos e o tremor, além do risco de arritmia. Conduta: Evitar.",
     "drug1_rxcuis": [
       "1114326"
     ],
@@ -7251,7 +7251,7 @@
     "drug2": "Rituximabe",
     "risk_level": "high",
     "risk_description": "supressão medular grave",
-    "mechanism": "supressão medular grave. Conduta: Contraindicado.",
+    "mechanism": "O infliximabe e o rituximabe bloqueiam vias diferentes da defesa do organismo. Somados, a imunidade cai demais: infecções graves, sem ganho de eficácia que justifique o risco. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "191831"
     ],
@@ -7268,7 +7268,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de hepatotoxicidade",
-    "mechanism": "Aumento do risco de hepatotoxicidade. Conduta: Monitorar função hepática.",
+    "mechanism": "O isavuconazol eleva bastante o nível de ciclosporina, e os dois são processados pelo fígado. O risco de lesão hepática soma, e a ciclosporina em excesso ainda agride o rim. Conduta: Monitorar função hepática.",
     "drug1_rxcuis": [
       "1720882"
     ],
@@ -7300,7 +7300,7 @@
     "drug2": "Midazolam",
     "risk_level": "high",
     "risk_description": "Prolongamento do efeito sedativo",
-    "mechanism": "Prolongamento do efeito sedativo. Conduta: Evitar.",
+    "mechanism": "O isavuconazol bloqueia a enzima do fígado que elimina o midazolam, que se acumula. A sedação fica muito mais profunda e prolongada do que o esperado para a dose, com risco de a respiração ficar lenta demais — e de queda, no caso de idosos. Conduta: Evitar.",
     "drug1_rxcuis": [
       "1720882"
     ],
@@ -7380,8 +7380,8 @@
     "drug1": "Lamotrigina",
     "drug2": "Valproato de sódio",
     "risk_level": "high",
-    "risk_description": "Aumento do risco de reações adversas graves",
-    "mechanism": "Aumento do risco de reações adversas graves. Conduta: Monitorar e ajustar doses.",
+    "risk_description": "Risco de reação grave de pele (Stevens-Johnson)",
+    "mechanism": "O valproato bloqueia a eliminação da lamotrigina, cujo nível pode dobrar. O risco maior é de reação grave na pele (síndrome de Stevens-Johnson) — por isso a lamotrigina precisa ser introduzida bem devagar, em dose menor. Conduta: Monitorar e ajustar doses.",
     "drug1_rxcuis": [
       "28439"
     ],
@@ -7397,7 +7397,7 @@
     "drug2": "Clopidogrel",
     "risk_level": "moderate",
     "risk_description": "Redução da eficácia do clopidogrel",
-    "mechanism": "Redução da eficácia do clopidogrel. Conduta: Administrar com cautela.",
+    "mechanism": "O lansoprazol bloqueia a enzima que ATIVA o clopidogrel. Sem ativação, o clopidogrel protege menos contra infarto e trombose de stent — e nada avisa que a proteção caiu. Conduta: Administrar com cautela.",
     "drug1_rxcuis": [
       "17128"
     ],
@@ -7447,7 +7447,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de nefrotoxicidade",
-    "mechanism": "Aumento do risco de nefrotoxicidade. Conduta: Monitorar função renal.",
+    "mechanism": "O levofloxacino eleva o nível de ciclosporina no sangue. A ciclosporina já é tóxica para o rim na dose certa; acima dela a lesão vem mais rápido e pode ser permanente — por isso o nível precisa ser dosado. Conduta: Monitorar função renal.",
     "drug1_rxcuis": [
       "82122"
     ],
@@ -7627,7 +7627,7 @@
     "drug2": "Itraconazol",
     "risk_level": "high",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Evitar a combinação.",
+    "mechanism": "O itraconazol bloqueia a enzima e a bomba que eliminam a loperamida, que se acumula. Em excesso, a loperamida afeta o ritmo do coração e pode causar arritmia grave. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "6468"
     ],
@@ -7644,7 +7644,7 @@
     "drug2": "Cetoconazol",
     "risk_level": "high",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Evitar a combinação.",
+    "mechanism": "O cetoconazol bloqueia a enzima e a bomba que eliminam a loperamida, que se acumula. Em excesso, a loperamida afeta o ritmo do coração e pode causar arritmia grave. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "6468"
     ],
@@ -7659,7 +7659,7 @@
     "drug2": "Eritromicina",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Evitar a combinação.",
+    "mechanism": "A eritromicina bloqueia a enzima e a bomba que eliminam a loperamida, que se acumula. Em excesso, a loperamida afeta o ritmo do coração e pode causar arritmia grave. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "6468"
     ],
@@ -7874,7 +7874,7 @@
     "drug2": "Dextrometorfano",
     "risk_level": "moderate",
     "risk_description": "Risco de convulsão grave",
-    "mechanism": "Risco de convulsão grave. Conduta: Evitar combinação.",
+    "mechanism": "A memantina e o dextrometorfano agem sobre o mesmo receptor cerebral (NMDA). Somados, aumentam o risco de confusão, alucinações e convulsão. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "6719"
     ],
@@ -8033,7 +8033,7 @@
     "drug2": "Haloperidol",
     "risk_level": "high",
     "risk_description": "Sedação respiratória grave",
-    "mechanism": "Sedação respiratória grave. Conduta: Evitar.",
+    "mechanism": "A metadona e o haloperidol somam sedação, e ambos alongam o intervalo QT do coração. O risco é duplo: respiração lenta demais e arritmia grave. Conduta: Evitar.",
     "drug1_rxcuis": [
       "6813"
     ],
@@ -8131,7 +8131,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "high",
     "risk_description": "Insuficiência renal grave",
-    "mechanism": "Insuficiência renal grave. Conduta: Monitorar função renal.",
+    "mechanism": "A ciclosporina eleva o nível de metilprednisolona e ambas sobrecarregam o rim. A função renal pode se deteriorar, e o excesso de corticoide traz seus próprios efeitos. Conduta: Monitorar função renal.",
     "drug1_rxcuis": [
       "6902"
     ],
@@ -8148,7 +8148,7 @@
     "drug2": "Teofilina",
     "risk_level": "moderate",
     "risk_description": "Agranulocitose grave",
-    "mechanism": "Agranulocitose grave. Conduta: Evitar.",
+    "mechanism": "O metimazol pode causar queda grave dos glóbulos brancos (agranulocitose), e a teofilina tem sua eliminação alterada quando a tireoide muda de estado. Febre e dor de garganta durante o uso exigem hemograma imediato. Conduta: Evitar.",
     "drug1_rxcuis": [
       "6835"
     ],
@@ -8165,7 +8165,7 @@
     "drug2": "Levodopa",
     "risk_level": "high",
     "risk_description": "Redução da eficácia da levodopa",
-    "mechanism": "Redução da eficácia da levodopa. Conduta: Evitar combinação.",
+    "mechanism": "A metoclopramida bloqueia os receptores de dopamina que a levodopa depende para agir. O efeito antiparkinsoniano é anulado e o quadro motor pode piorar. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "6915"
     ],
@@ -8182,7 +8182,7 @@
     "drug2": "Clorpromazina",
     "risk_level": "moderate",
     "risk_description": "hipotensão grave",
-    "mechanism": "hipotensão grave. Conduta: Monitorar pressão.",
+    "mechanism": "O metoprolol e a clorpromazina baixam a pressão por caminhos diferentes, e cada um eleva o nível do outro. A pressão pode cair demais, sobretudo ao levantar. Conduta: Monitorar pressão.",
     "drug1_rxcuis": [
       "6918"
     ],
@@ -8199,7 +8199,7 @@
     "drug2": "Rifampicina",
     "risk_level": "moderate",
     "risk_description": "redução eficácia metoprolol",
-    "mechanism": "redução eficácia metoprolol. Conduta: Ajustar dose metoprolol.",
+    "mechanism": "A rifampicina acelera as enzimas do fígado que destroem o metoprolol, e o efeito sobre a pressão e os batimentos diminui. Conduta: Ajustar dose metoprolol.",
     "drug1_rxcuis": [
       "6918"
     ],
@@ -8280,7 +8280,7 @@
     "drug2": "Lítio",
     "risk_level": "high",
     "risk_description": "Aumento risco toxicidade litiada",
-    "mechanism": "Aumento risco toxicidade litiada. Conduta: Monitorar níveis plasmáticos.",
+    "mechanism": "O metronidazol reduz a eliminação do lítio pelos rins, e o nível no sangue sobe. Em excesso, o lítio causa tremor grosseiro, vômitos, diarreia, confusão e fala arrastada. Conduta: Monitorar níveis plasmáticos.",
     "drug2_rxcuis": [
       "6448"
     ]
@@ -8294,7 +8294,7 @@
     "drug2": "Eritromicina",
     "risk_level": "high",
     "risk_description": "Aumento do risco de depressão respiratória grave",
-    "mechanism": "Aumento do risco de depressão respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "A eritromicina bloqueia a enzima do fígado que elimina o midazolam, que se acumula. A sedação fica muito mais profunda e prolongada do que o esperado para a dose, com risco de a respiração ficar lenta demais — e de queda, no caso de idosos. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "6960"
     ],
@@ -8311,7 +8311,7 @@
     "drug2": "Cetoconazol",
     "risk_level": "high",
     "risk_description": "Aumento do risco de depressão respiratória grave",
-    "mechanism": "Aumento do risco de depressão respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "O cetoconazol bloqueia a enzima do fígado que elimina o midazolam, que se acumula. A sedação fica muito mais profunda e prolongada do que o esperado para a dose, com risco de a respiração ficar lenta demais — e de queda, no caso de idosos. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "6960"
     ],
@@ -8456,7 +8456,7 @@
     "drug2": "Ibuprofeno",
     "risk_level": "high",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Evitar uso concomitante.",
+    "mechanism": "A nadroparina impede a formação do coágulo e o ibuprofeno age sobre as plaquetas e a mucosa do estômago. Atacando a coagulação por frentes diferentes, um sangramento pode não parar sozinho. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
       "67031"
     ],
@@ -8587,7 +8587,7 @@
     "drug2": "Lítio",
     "risk_level": "moderate",
     "risk_description": "Toxicidade por lítio",
-    "mechanism": "Toxicidade por lítio. Conduta: Evitar.",
+    "mechanism": "O nepafenaco reduz a eliminação de lítio pelos rins, e o nível de lítio no sangue sobe. O lítio tem margem estreita: em excesso causa tremor grosseiro, vômitos, diarreia, confusão e fala arrastada. Conduta: Evitar.",
     "drug1_rxcuis": [
       "298665"
     ],
@@ -8604,7 +8604,7 @@
     "drug2": "Rifampicina",
     "risk_level": "high",
     "risk_description": "Redução da eficácia da Nevirapina",
-    "mechanism": "Redução da eficácia da Nevirapina. Conduta: Evitar.",
+    "mechanism": "A rifampicina acelera as enzimas que destroem a nevirapina, derrubando seu nível a ponto de o tratamento falhar e o vírus criar resistência. Conduta: Evitar.",
     "drug1_rxcuis": [
       "53654"
     ],
@@ -8621,7 +8621,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "high",
     "risk_description": "Aumento do risco de nefrotoxicidade",
-    "mechanism": "Aumento do risco de nefrotoxicidade. Conduta: Monitorar função renal.",
+    "mechanism": "A nifedipina eleva o nível de ciclosporina no sangue. A ciclosporina já é tóxica para o rim na dose certa; acima dela a lesão vem mais rápido e pode ser permanente — por isso o nível precisa ser dosado. Conduta: Monitorar função renal.",
     "drug1_rxcuis": [
       "7417"
     ],
@@ -8655,7 +8655,7 @@
     "drug2": "Cimetidina",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de hipotensão grave",
-    "mechanism": "Aumento do risco de hipotensão grave. Conduta: Monitorar pressão arterial.",
+    "mechanism": "A cimetidina bloqueia a enzima do fígado que elimina a nifedipina, que se acumula. O efeito sobre a pressão fica exagerado: tontura, rubor e risco de queda. Conduta: Monitorar pressão arterial.",
     "drug1_rxcuis": [
       "7417"
     ],
@@ -8756,7 +8756,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de nefrotoxicidade",
-    "mechanism": "Aumento do risco de nefrotoxicidade. Conduta: Monitorar a função renal.",
+    "mechanism": "O norfloxacino eleva o nível de ciclosporina no sangue. A ciclosporina já é tóxica para o rim na dose certa; acima dela a lesão vem mais rápido e pode ser permanente — por isso o nível precisa ser dosado. Conduta: Monitorar a função renal.",
     "drug1_rxcuis": [
       "7517"
     ],
@@ -8854,7 +8854,7 @@
     "drug2": "Cilostazol",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de sangramento grave",
-    "mechanism": "Aumento do risco de sangramento grave. Conduta: Evitar.",
+    "mechanism": "O omeprazol bloqueia a enzima do fígado que elimina o cilostazol, que se acumula. O cilostazol impede as plaquetas de se juntarem, então o excesso aumenta o risco de sangramento. Conduta: Evitar.",
     "drug1_rxcuis": [
       "7646"
     ],
@@ -8901,7 +8901,7 @@
     "drug2": "Voriconazol",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de toxicidade do Voriconazol",
-    "mechanism": "Aumento do risco de toxicidade do Voriconazol. Conduta: Monitorar.",
+    "mechanism": "O omeprazol eleva o nível de voriconazol no sangue, e o antifúngico em excesso causa alterações visuais, confusão e agressão ao fígado. Conduta: Monitorar.",
     "drug1_rxcuis": [
       "7646"
     ],
@@ -8916,7 +8916,7 @@
     "drug2": "Fentanila",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Monitorar a função cardíaca.",
+    "mechanism": "A ondansetrona alonga o intervalo QT do coração e a fentanila soma efeito sobre o ritmo cardíaco, além de deprimir a respiração. Vigiar o ECG e a respiração. Conduta: Monitorar a função cardíaca.",
     "drug1_rxcuis": [
       "26225"
     ],
@@ -8948,7 +8948,7 @@
     "drug2": "Rifampicina",
     "risk_level": "high",
     "risk_description": "Redução da eficácia da oxcarbazepina",
-    "mechanism": "Redução da eficácia da oxcarbazepina. Conduta: Monitorar a resposta clínica.",
+    "mechanism": "A rifampicina acelera as enzimas que destroem a oxcarbazepina, e o nível dela cai. As convulsões podem voltar sem que nada avise. Conduta: Monitorar a resposta clínica.",
     "drug1_rxcuis": [
       "32624"
     ],
@@ -8982,7 +8982,7 @@
     "drug2": "Cisplatina",
     "risk_level": "moderate",
     "risk_description": "neutropenia prolongada e grave",
-    "mechanism": "neutropenia prolongada e grave. Conduta: Administrar cisplatina antes do paclitaxel.",
+    "mechanism": "A ordem importa: dar cisplatina antes do paclitaxel reduz a eliminação do paclitaxel e aprofunda a queda dos glóbulos brancos. Invertendo a ordem, o efeito sobre a medula é menor. Conduta: Administrar cisplatina antes do paclitaxel.",
     "drug1_rxcuis": [
       "56946"
     ],
@@ -9014,7 +9014,7 @@
     "drug2": "Eritromicina",
     "risk_level": "moderate",
     "risk_description": "mielossupressão grave",
-    "mechanism": "mielossupressão grave. Conduta: Evitar combinação.",
+    "mechanism": "A eritromicina bloqueia a enzima do fígado que elimina o paclitaxel, que se acumula. O excesso aprofunda a queda dos glóbulos brancos, com risco de infecção grave. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "56946"
     ],
@@ -9121,7 +9121,7 @@
     "drug2": "Lítio",
     "risk_level": "high",
     "risk_description": "Toxicidade por lítio",
-    "mechanism": "Toxicidade por lítio. Conduta: Evitar.",
+    "mechanism": "O parecoxibe reduz a eliminação de lítio pelos rins, e o nível de lítio no sangue sobe. O lítio tem margem estreita: em excesso causa tremor grosseiro, vômitos, diarreia, confusão e fala arrastada. Conduta: Evitar.",
     "drug1_rxcuis": [
       "279950"
     ],
@@ -9138,7 +9138,7 @@
     "drug2": "Metotrexato",
     "risk_level": "high",
     "risk_description": "Toxicidade por metotrexato",
-    "mechanism": "Toxicidade por metotrexato. Conduta: Evitar.",
+    "mechanism": "O parecoxibe reduz a eliminação do metotrexato pelos rins, e ele se acumula. Metotrexato em excesso ataca a medula óssea e as mucosas: feridas na boca, queda das defesas e sangramento. Conduta: Evitar.",
     "drug1_rxcuis": [
       "279950"
     ],
@@ -9264,7 +9264,7 @@
     "drug2": "Risperidona",
     "risk_level": "high",
     "risk_description": "Aumento do risco de efeitos extrapiramidais",
-    "mechanism": "Aumento do risco de efeitos extrapiramidais. Conduta: Monitorar e ajustar doses.",
+    "mechanism": "A perfenazina e a risperidona bloqueiam os mesmos receptores de dopamina. Somadas, aumentam muito a chance de rigidez, tremor, inquietação motora e, raramente, síndrome neuroléptica maligna. Conduta: Monitorar e ajustar doses.",
     "drug1_rxcuis": [
       "8076"
     ],
@@ -9279,7 +9279,7 @@
     "drug2": "Bupropiona",
     "risk_level": "high",
     "risk_description": "Convulsão grave",
-    "mechanism": "Convulsão grave. Conduta: Evitar.",
+    "mechanism": "A kava kava e a bupropiona baixam o limiar para convulsão — o ponto a partir do qual o cérebro dispara uma crise. Somadas, o risco cresce, inclusive em quem nunca teve convulsão. Conduta: Evitar.",
     "drug1_rxcuis": [
       "285228"
     ],
@@ -9470,7 +9470,7 @@
     "drug2": "Cimetidina",
     "risk_level": "high",
     "risk_description": "Aumento do risco de reações adversas graves",
-    "mechanism": "Aumento do risco de reações adversas graves. Conduta: Monitorar e ajustar dose.",
+    "mechanism": "A cimetidina reduz a eliminação do pramipexol pelos rins, e ele se acumula. O excesso causa sonolência súbita, alucinações, náusea e queda de pressão ao levantar. Conduta: Monitorar e ajustar dose.",
     "drug1_rxcuis": [
       "746741"
     ],
@@ -9601,7 +9601,7 @@
     "drug2": "Clobazam",
     "risk_level": "high",
     "risk_description": "Sedação intensificada e risco de depressão respiratória",
-    "mechanism": "Sedação intensificada e risco de depressão respiratória. Conduta: Monitorar e ajustar doses.",
+    "mechanism": "A primidona vira fenobarbital no corpo e, somada ao clobazam, aprofunda muito a sedação. A respiração pode ficar lenta demais, e o efeito se acumula ao longo dos dias. Conduta: Monitorar e ajustar doses.",
     "drug1_rxcuis": [
       "8691"
     ],
@@ -9618,7 +9618,7 @@
     "drug2": "Fenitoína",
     "risk_level": "moderate",
     "risk_description": "Risco de toxicidade por fenitoína",
-    "mechanism": "Risco de toxicidade por fenitoína. Conduta: Monitorar níveis plasmáticos de fenitoína.",
+    "mechanism": "A primidona vira fenobarbital no corpo e compete com a fenitoína pela mesma via de eliminação. Os níveis de ambas ficam imprevisíveis, e o excesso de fenitoína causa tontura e desequilíbrio. Conduta: Monitorar níveis plasmáticos de fenitoína.",
     "drug1_rxcuis": [
       "8691"
     ],
@@ -9665,7 +9665,7 @@
     "drug2": "Clorpromazina",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de hipotensão grave",
-    "mechanism": "Aumento do risco de hipotensão grave. Conduta: Monitorar pressão arterial.",
+    "mechanism": "O propofol e a clorpromazina relaxam os vasos e deprimem o coração. Juntos, a pressão pode despencar durante a sedação. Conduta: Monitorar pressão arterial.",
     "drug1_rxcuis": [
       "8782"
     ],
@@ -9697,7 +9697,7 @@
     "drug2": "Cetirizina",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de sedação e sonolência",
-    "mechanism": "Aumento do risco de sedação e sonolência. Conduta: Evitar uso concomitante.",
+    "mechanism": "A quetiapina e a cetirizina causam sonolência por caminhos diferentes. Somadas, a sedação aumenta e, no idoso, cresce o risco de confusão e de queda. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
       "51272"
     ],
@@ -9729,7 +9729,7 @@
     "drug2": "Cetoconazol",
     "risk_level": "moderate",
     "risk_description": "Redução absorção cetoconazol",
-    "mechanism": "Redução absorção cetoconazol. Conduta: Administrar separadamente.",
+    "mechanism": "O rabeprazol reduz a acidez do estômago, e o cetoconazol precisa de meio ácido para ser absorvido. O antifúngico pode simplesmente não fazer efeito. Conduta: Administrar separadamente.",
     "drug1_rxcuis": [
       "114979"
     ],
@@ -10098,7 +10098,7 @@
     "drug2": "Cimetidina",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de reações adversas graves",
-    "mechanism": "Aumento do risco de reações adversas graves. Conduta: Evitar a combinação.",
+    "mechanism": "A cimetidina bloqueia a enzima do fígado que elimina o ropinirol, que se acumula. O excesso causa sonolência súbita, alucinações, náusea e queda de pressão. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "72302"
     ],
@@ -10217,7 +10217,7 @@
     "drug2": "Ciprofloxacino",
     "risk_level": "high",
     "risk_description": "Risco de hepatotoxicidade grave",
-    "mechanism": "Risco de hepatotoxicidade grave. Conduta: Evitar.",
+    "mechanism": "O sene em uso prolongado pode agredir o fígado, e o ciprofloxacino também. Juntos, o risco de lesão hepática soma — e o sene, por ser natural, costuma não ser contado ao médico. Conduta: Evitar.",
     "drug1_rxcuis": [
       "36387"
     ],
@@ -10232,7 +10232,7 @@
     "drug2": "Eritromicina",
     "risk_level": "high",
     "risk_description": "Risco de hepatotoxicidade grave",
-    "mechanism": "Risco de hepatotoxicidade grave. Conduta: Evitar.",
+    "mechanism": "O sene em uso prolongado pode agredir o fígado, e a eritromicina também. Juntos, o risco de lesão hepática soma — e o sene, por ser natural, costuma não ser contado ao médico. Conduta: Evitar.",
     "drug1_rxcuis": [
       "36387"
     ],
@@ -10514,7 +10514,7 @@
     "drug2": "Eritromicina",
     "risk_level": "high",
     "risk_description": "Aumento de nível plasmático de Sirolimo",
-    "mechanism": "Aumento de nível plasmático de Sirolimo. Conduta: Monitorar níveis plasmáticos.",
+    "mechanism": "A eritromicina bloqueia a enzima do fígado que elimina o sirolimo, que se acumula. O excesso aumenta a imunossupressão e agride rim e sangue — o nível precisa ser dosado. Conduta: Monitorar níveis plasmáticos.",
     "drug1_rxcuis": [
       "35302"
     ],
@@ -10580,7 +10580,7 @@
     "drug2": "Fenitoína",
     "risk_level": "high",
     "risk_description": "Toxicidade por fenitoína",
-    "mechanism": "Toxicidade por fenitoína. Conduta: Monitorar níveis plasmáticos.",
+    "mechanism": "O sulfametoxazol-trimetoprima desloca a fenitoína das proteínas do sangue e reduz sua eliminação. A fração ativa sobe: tontura, visão dupla, desequilíbrio e sonolência. Conduta: Monitorar níveis plasmáticos.",
     "drug2_rxcuis": [
       "8183"
     ]
@@ -10623,7 +10623,7 @@
     "drug2": "Metoclopramida",
     "risk_level": "high",
     "risk_description": "Aumento do risco de efeitos extrapiramidais",
-    "mechanism": "Aumento do risco de efeitos extrapiramidais. Conduta: Evitar combinação.",
+    "mechanism": "A sulpirida e a metoclopramida bloqueiam os mesmos receptores de dopamina. Somadas, aumentam muito a chance de rigidez, tremor e inquietação motora. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "10239"
     ],
@@ -10721,7 +10721,7 @@
     "drug2": "Lenalidomida",
     "risk_level": "high",
     "risk_description": "Reação de hipersensibilidade grave",
-    "mechanism": "Reação de hipersensibilidade grave. Conduta: Evitar combinação.",
+    "mechanism": "A talidomida e a lenalidomida são da mesma família e agem do mesmo jeito. Usar as duas não aumenta o efeito útil, só o risco: queda das células do sangue, trombose e neuropatia. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "10432"
     ],
@@ -10737,7 +10737,7 @@
     "drug2": "Dexametasona",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de trombose venosa profunda",
-    "mechanism": "Aumento do risco de trombose venosa profunda. Conduta: Monitorar e prevenir.",
+    "mechanism": "A talidomida aumenta a tendência do sangue a coagular e a dexametasona potencializa esse efeito. O risco de trombose na perna e de embolia no pulmão sobe bastante — por isso costuma se associar profilaxia. Conduta: Monitorar e prevenir.",
     "drug1_rxcuis": [
       "10432"
     ],
@@ -10753,8 +10753,8 @@
     "drug1": "Tamoxifeno",
     "drug2": "Paroxetina",
     "risk_level": "high",
-    "risk_description": "Risco de tromboembolismo",
-    "mechanism": "Risco de tromboembolismo. Conduta: Evitar.",
+    "risk_description": "Perda de eficácia do tamoxifeno",
+    "mechanism": "A paroxetina bloqueia a enzima que transforma o tamoxifeno na sua forma ativa. Sem essa conversão, o tamoxifeno protege menos contra o retorno do câncer de mama — e nada avisa que a proteção caiu. Conduta: Evitar.",
     "drug1_rxcuis": [
       "10324"
     ],
@@ -10768,8 +10768,8 @@
     "drug1": "Tamoxifeno",
     "drug2": "Fluoxetina",
     "risk_level": "high",
-    "risk_description": "Risco de tromboembolismo",
-    "mechanism": "Risco de tromboembolismo. Conduta: Evitar.",
+    "risk_description": "Perda de eficácia do tamoxifeno",
+    "mechanism": "A fluoxetina bloqueia a enzima que transforma o tamoxifeno na sua forma ativa. Sem essa conversão, o tamoxifeno protege menos contra o retorno do câncer de mama — e nada avisa que a proteção caiu. Conduta: Evitar.",
     "drug1_rxcuis": [
       "10324"
     ],
@@ -10786,7 +10786,7 @@
     "drug2": "Varfarina",
     "risk_level": "high",
     "risk_description": "Risco de hemorragia grave",
-    "mechanism": "Risco de hemorragia grave. Conduta: Monitorar INR.",
+    "mechanism": "O tamoxifeno bloqueia a enzima do fígado que elimina a varfarina, que se acumula. O sangue fica fino demais (INR sobe), com risco de sangramento que não estanca. Conduta: Monitorar INR.",
     "drug1_rxcuis": [
       "10324"
     ],
@@ -10851,7 +10851,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
     "risk_description": "Nefrotoxicidade grave",
-    "mechanism": "Nefrotoxicidade grave. Conduta: Monitorar função renal.",
+    "mechanism": "A teicoplanina e a ciclosporina agridem o rim, cada uma por um caminho. Somadas, a filtração pode cair de forma acelerada — muitas vezes sem sintoma no início. Conduta: Monitorar função renal.",
     "drug1_rxcuis": [
       "57021"
     ],
@@ -10901,7 +10901,7 @@
     "drug2": "Eritromicina",
     "risk_level": "high",
     "risk_description": "Aumento de nível plasmático com risco de toxicidade",
-    "mechanism": "Aumento de nível plasmático com risco de toxicidade. Conduta: Evitar ou ajustar dose.",
+    "mechanism": "A eritromicina bloqueia a enzima do fígado que elimina a teofilina, que se acumula. A teofilina tem margem estreita: enjoo, agitação, palpitação, tremor e, em excesso, convulsão. Conduta: Evitar ou ajustar dose.",
     "drug1_rxcuis": [
       "10438"
     ],
@@ -10918,7 +10918,7 @@
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
     "risk_description": "Aumento de risco de hepatotoxicidade",
-    "mechanism": "Aumento de risco de hepatotoxicidade. Conduta: Monitorar função hepática.",
+    "mechanism": "A terbinafina e a ciclosporina são processadas pelo fígado e podem agredi-lo. A terbinafina ainda altera o nível de ciclosporina, exigindo dosagem. Conduta: Monitorar função hepática.",
     "drug1_rxcuis": [
       "37801"
     ],
@@ -10997,7 +10997,7 @@
     "drug2": "Ibuprofeno",
     "risk_level": "high",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Evitar.",
+    "mechanism": "A ticlopidina impede as plaquetas de se juntarem e o ibuprofeno soma esse efeito, além de agredir a mucosa do estômago. O risco de hemorragia digestiva aumenta bastante. Conduta: Evitar.",
     "drug1_rxcuis": [
       "10594"
     ],
@@ -11187,7 +11187,7 @@
     "drug2": "Carbonato de lítio",
     "risk_level": "moderate",
     "risk_description": "toxicidade por lítio grave",
-    "mechanism": "toxicidade por lítio grave. Conduta: Monitorar níveis de lítio.",
+    "mechanism": "O topiramato altera o equilíbrio de sais e água no corpo, o que pode elevar o lítio no sangue. O lítio tem margem estreita: em excesso causa tremor grosseiro, vômitos, confusão e fala arrastada. Conduta: Monitorar níveis de lítio.",
     "drug1_rxcuis": [
       "38404"
     ],
@@ -11203,7 +11203,7 @@
     "drug2": "Lítio",
     "risk_level": "high",
     "risk_description": "Toxicidade por lítio",
-    "mechanism": "Toxicidade por lítio. Conduta: Evitar.",
+    "mechanism": "A torasemida faz o rim reter lítio em vez de eliminá-lo, e o nível de lítio no sangue sobe. O lítio tem margem estreita: em excesso causa tremor grosseiro, vômitos, diarreia, confusão e fala arrastada. Conduta: Evitar.",
     "drug1_rxcuis": [
       "38413"
     ],
@@ -11218,7 +11218,7 @@
     "drug2": "Clorpromazina",
     "risk_level": "high",
     "risk_description": "Potencialização do efeito paralisante",
-    "mechanism": "Potencialização do efeito paralisante. Conduta: Evitar uso concomitante.",
+    "mechanism": "A clorpromazina pode somar-se ao efeito da toxina botulínica sobre a transmissão entre nervo e músculo, prolongando a fraqueza muscular além do esperado. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
       "1712"
     ],
@@ -11351,7 +11351,7 @@
     "drug2": "Eritromicina",
     "risk_level": "high",
     "risk_description": "Sedação intensificada, risco de depressão respiratória",
-    "mechanism": "Sedação intensificada, risco de depressão respiratória. Conduta: Evitar.",
+    "mechanism": "A eritromicina bloqueia a enzima do fígado que elimina o triazolam, que se acumula. A sedação fica muito mais profunda e prolongada do que o esperado para a dose, com risco de a respiração ficar lenta demais — e de queda, no caso de idosos. Conduta: Evitar.",
     "drug1_rxcuis": [
       "10767"
     ],
@@ -11505,7 +11505,7 @@
     "drug2": "Midazolam",
     "risk_level": "moderate",
     "risk_description": "Sedação excessiva e depressão respiratória",
-    "mechanism": "Sedação excessiva e depressão respiratória. Conduta: Evitar.",
+    "mechanism": "A valeriana potencializa o efeito sedativo do midazolam. A sonolência fica mais profunda que o esperado, com risco de confusão e queda — e, por ser natural, costuma não ser mencionada ao médico. Conduta: Evitar.",
     "drug2_rxcuis": [
       "6960"
     ]
@@ -11517,7 +11517,7 @@
     "drug2": "Oxazepam",
     "risk_level": "moderate",
     "risk_description": "Sedação excessiva e depressão respiratória",
-    "mechanism": "Sedação excessiva e depressão respiratória. Conduta: Evitar.",
+    "mechanism": "A valeriana potencializa o efeito sedativo do oxazepam. A sonolência fica mais profunda que o esperado, com risco de confusão e queda — e, por ser natural, costuma não ser mencionada ao médico. Conduta: Evitar.",
     "drug2_rxcuis": [
       "7781"
     ]
@@ -11529,7 +11529,7 @@
     "drug2": "Triazolam",
     "risk_level": "high",
     "risk_description": "Sedação excessiva e depressão respiratória",
-    "mechanism": "Sedação excessiva e depressão respiratória. Conduta: Evitar.",
+    "mechanism": "A valeriana potencializa o efeito sedativo do triazolam. A sonolência fica mais profunda que o esperado, com risco de confusão e queda — e, por ser natural, costuma não ser mencionada ao médico. Conduta: Evitar.",
     "drug2_rxcuis": [
       "10767"
     ]
@@ -11560,7 +11560,7 @@
     "drug2": "Fenobarbital",
     "risk_level": "high",
     "risk_description": "Aumento do risco de hepatotoxicidade",
-    "mechanism": "Aumento do risco de hepatotoxicidade. Conduta: Monitorar função hepática.",
+    "mechanism": "O valproato e o fenobarbital são processados pelo fígado e podem agredi-lo; além disso o valproato faz o fenobarbital acumular, somando sedação. Vigiar fígado e sonolência. Conduta: Monitorar função hepática.",
     "drug1_rxcuis": [
       "105673"
     ],
@@ -11626,7 +11626,7 @@
     "drug2": "Cefazolina",
     "risk_level": "moderate",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Evitar.",
+    "mechanism": "A cefazolina altera a flora do intestino que produz vitamina K, e a varfarina depende justamente dessa vitamina. O efeito anticoagulante pode aumentar de forma imprevisível. Conduta: Evitar.",
     "drug1_rxcuis": [
       "11289"
     ],
@@ -11656,7 +11656,7 @@
     "drug2": "Piperacilina",
     "risk_level": "high",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Evitar.",
+    "mechanism": "A piperacilina altera a flora do intestino que produz vitamina K e afeta as plaquetas. Com a varfarina, o risco de sangramento aumenta e o INR fica instável. Conduta: Evitar.",
     "drug1_rxcuis": [
       "11289"
     ],
@@ -11786,7 +11786,7 @@
     "drug2": "Posaconazol",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Evitar a combinação.",
+    "mechanism": "O posaconazol bloqueia a enzima do fígado que elimina a vonoprazana e ambos afetam o intervalo QT. O risco de arritmia grave aumenta. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "2604577"
     ],
@@ -11801,7 +11801,7 @@
     "drug2": "Voriconazol",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de arritmias graves",
-    "mechanism": "Aumento do risco de arritmias graves. Conduta: Evitar a combinação.",
+    "mechanism": "O voriconazol bloqueia a enzima do fígado que elimina a vonoprazana e ambos afetam o intervalo QT. O risco de arritmia grave aumenta. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "2604577"
     ],
@@ -11865,8 +11865,8 @@
     "drug1": "Zaleplon",
     "drug2": "Cetoconazol",
     "risk_level": "high",
-    "risk_description": "Sedação intensa e respiração depressa",
-    "mechanism": "Sedação intensa e respiração depressa. Conduta: Evitar.",
+    "risk_description": "Sedação intensa e respiração deprimida",
+    "mechanism": "O cetoconazol bloqueia a enzima do fígado que elimina o zaleplon, que se acumula. A sedação fica muito mais profunda e prolongada do que o esperado para a dose, com risco de a respiração ficar lenta demais — e de queda, no caso de idosos. Conduta: Evitar.",
     "drug1_rxcuis": [
       "74667"
     ],
@@ -11881,7 +11881,7 @@
     "drug2": "Ritonavir",
     "risk_level": "high",
     "risk_description": "Sedação intensa e respiração depressa",
-    "mechanism": "Sedação intensa e respiração depressa. Conduta: Evitar.",
+    "mechanism": "O ritonavir bloqueia a enzima do fígado que elimina o zaleplon, que se acumula. A sedação fica muito mais profunda e prolongada do que o esperado para a dose, com risco de a respiração ficar lenta demais — e de queda, no caso de idosos. Conduta: Evitar.",
     "drug1_rxcuis": [
       "74667"
     ],
@@ -11896,7 +11896,7 @@
     "drug2": "Cisplatina",
     "risk_level": "moderate",
     "risk_description": "nefrotoxicidade grave",
-    "mechanism": "nefrotoxicidade grave. Conduta: Evitar.",
+    "mechanism": "O zinco em excesso compete com a eliminação da cisplatina e soma agressão ao rim, que já é o órgão mais afetado por ela. A função renal precisa ser acompanhada. Conduta: Evitar.",
     "drug1_rxcuis": [
       "11416"
     ],
@@ -12042,8 +12042,8 @@
     "drug1": "Zolpidem",
     "drug2": "Cetoconazol",
     "risk_level": "moderate",
-    "risk_description": "Sedação intensa e respiratória",
-    "mechanism": "Sedação intensa e respiratória. Conduta: Evitar.",
+    "risk_description": "Sedação intensa e respiração deprimida",
+    "mechanism": "O cetoconazol bloqueia a enzima do fígado que elimina o zolpidem, que se acumula. A sedação fica muito mais profunda e prolongada do que o esperado para a dose, com risco de a respiração ficar lenta demais — e de queda, no caso de idosos. Conduta: Evitar.",
     "drug1_rxcuis": [
       "39993"
     ],
@@ -12058,7 +12058,7 @@
     "drug2": "Carbonato de lítio",
     "risk_level": "moderate",
     "risk_description": "Toxicidade por lítio",
-    "mechanism": "Toxicidade por lítio. Conduta: Evitar combinação.",
+    "mechanism": "A zonisamida e o lítio somam efeitos sobre o sistema nervoso e o equilíbrio de sais, e sinais de intoxicação por lítio podem surgir mais facilmente: tremor grosseiro, confusão, vômitos e fala arrastada. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "39998"
     ],
@@ -12075,7 +12075,7 @@
     "drug2": "Eritromicina",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de sedação respiratória",
-    "mechanism": "Aumento do risco de sedação respiratória. Conduta: Evitar combinação.",
+    "mechanism": "A eritromicina bloqueia a enzima do fígado que elimina a zopiclona, que se acumula. A sedação fica muito mais profunda e prolongada do que o esperado para a dose, com risco de a respiração ficar lenta demais — e de queda, no caso de idosos. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "40001"
     ],
@@ -12092,7 +12092,7 @@
     "drug2": "Cetoconazol",
     "risk_level": "high",
     "risk_description": "Aumento do risco de sedação respiratória",
-    "mechanism": "Aumento do risco de sedação respiratória. Conduta: Evitar combinação.",
+    "mechanism": "O cetoconazol bloqueia a enzima do fígado que elimina a zopiclona, que se acumula. A sedação fica muito mais profunda e prolongada do que o esperado para a dose, com risco de a respiração ficar lenta demais — e de queda, no caso de idosos. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "40001"
     ],
@@ -12109,7 +12109,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
     "risk_description": "Hemorragia gastrointestinal",
-    "mechanism": "Hemorragia gastrointestinal. Conduta: Evitar.",
+    "mechanism": "O AAS já agride a mucosa do estômago e reduz a proteção dela, e o álcool agride diretamente essa mesma mucosa. Juntos, o risco de úlcera e sangramento digestivo aumenta bastante. Conduta: Evitar.",
     "drug1_rxcuis": [
       "1191"
     ]
@@ -12123,7 +12123,7 @@
     "drug2": "Anakinra",
     "risk_level": "high",
     "risk_description": "supressão imunológica grave",
-    "mechanism": "supressão imunológica grave. Conduta: Contraindicado.",
+    "mechanism": "O abatacepte e a anacinra bloqueiam vias diferentes da defesa do organismo. Somados, a imunidade cai demais: infecções graves, sem ganho de eficácia que justifique o risco. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "614391"
     ],
@@ -12138,7 +12138,7 @@
     "drug2": "TNF-alfa inibidores",
     "risk_level": "high",
     "risk_description": "supressão imunológica grave",
-    "mechanism": "supressão imunológica grave. Conduta: Contraindicado.",
+    "mechanism": "O abatacepte e os inibidores de TNF-alfa bloqueiam vias diferentes da defesa do organismo. Somados, a imunidade cai demais: infecções graves, sem ganho de eficácia que justifique o risco. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "614391"
     ]
@@ -12150,7 +12150,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "high",
     "risk_description": "Aumento do risco de hepatotoxicidade",
-    "mechanism": "Aumento do risco de hepatotoxicidade. Conduta: Evitar uso concomitante.",
+    "mechanism": "O ácido valproico e o álcool agridem o fígado, e o álcool ainda soma sedação. O risco de lesão hepática cresce: cansaço, enjoo, dor do lado direito da barriga e olhos amarelados. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
       "11118"
     ]
@@ -12164,7 +12164,7 @@
     "drug2": "Tetraciclinas",
     "risk_level": "high",
     "risk_description": "Pseudotumor cerebri",
-    "mechanism": "Pseudotumor cerebri. Conduta: Evitar.",
+    "mechanism": "A acitretina e as tetraciclinas elevam a pressão dentro do crânio. Juntas, pode surgir pseudotumor cerebral: dor de cabeça persistente, enjoo e visão borrada — sinais que exigem avaliação imediata. Conduta: Evitar.",
     "drug1_rxcuis": [
       "16818"
     ]
@@ -12176,7 +12176,7 @@
     "drug2": "Anakinra",
     "risk_level": "high",
     "risk_description": "Imunossupressão grave",
-    "mechanism": "Imunossupressão grave. Conduta: Evitar.",
+    "mechanism": "O adalimumabe e a anacinra bloqueiam vias diferentes da defesa do organismo. Somados, a imunidade cai demais: infecções graves, sem ganho de eficácia que justifique o risco. Conduta: Evitar.",
     "drug1_rxcuis": [
       "327361"
     ],
@@ -12205,7 +12205,7 @@
     "drug2": "Metisergida",
     "risk_level": "high",
     "risk_description": "Crise hipertensiva grave",
-    "mechanism": "Crise hipertensiva grave. Conduta: Contraindicado.",
+    "mechanism": "O almotriptano e a metisergida contraem os vasos sanguíneos pelo mesmo caminho. Somados, o aperto vai longe demais: a pressão dispara e há risco de espasmo nas artérias. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "279645"
     ],
@@ -12326,7 +12326,7 @@
     "drug2": "Neostigmina",
     "risk_level": "high",
     "risk_description": "bloqueio neuromuscular prolongado",
-    "mechanism": "bloqueio neuromuscular prolongado. Conduta: Evitar.",
+    "mechanism": "A amicacina interfere na transmissão entre nervo e músculo, justamente o que a neostigmina tenta melhorar. O efeito do antídoto é anulado e a fraqueza muscular pode se prolongar. Conduta: Evitar.",
     "drug1_rxcuis": [
       "641"
     ],
@@ -12341,7 +12341,7 @@
     "drug2": "Piridostigmina",
     "risk_level": "high",
     "risk_description": "bloqueio neuromuscular prolongado",
-    "mechanism": "bloqueio neuromuscular prolongado. Conduta: Evitar.",
+    "mechanism": "A amicacina interfere na transmissão entre nervo e músculo, justamente o que a piridostigmina tenta melhorar. O efeito do medicamento é anulado e a fraqueza muscular pode piorar — atenção especial em miastenia. Conduta: Evitar.",
     "drug1_rxcuis": [
       "641"
     ],
@@ -12427,7 +12427,7 @@
     "drug2": "Aminoglicosídeos",
     "risk_level": "high",
     "risk_description": "Nefrotoxicidade grave",
-    "mechanism": "Nefrotoxicidade grave. Conduta: Evitar combinação.",
+    "mechanism": "A anfotericina B e os aminoglicosídeos agridem diretamente o túbulo do rim. Somados, a lesão renal vem mais rápido e pode não se recuperar por completo. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "11248"
     ]
@@ -12529,7 +12529,7 @@
     "drug2": "Epinefrina",
     "risk_level": "high",
     "risk_description": "crise hipertensiva",
-    "mechanism": "crise hipertensiva. Conduta: Evitar.",
+    "mechanism": "O atenolol bloqueia os receptores beta, deixando livre só o efeito da epinefrina que contrai os vasos. A pressão sobe de forma acentuada e os batimentos ficam lentos. Conduta: Evitar.",
     "drug1_rxcuis": [
       "1202"
     ],
@@ -12617,7 +12617,7 @@
     "drug2": "Triciclicos",
     "risk_level": "moderate",
     "risk_description": "Sedação excessiva e depressão respiratória",
-    "mechanism": "Sedação excessiva e depressão respiratória. Conduta: Evitar.",
+    "mechanism": "O baclofeno e os antidepressivos tricíclicos deprimem o sistema nervoso central. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — além de sedação intensa e risco de queda. Conduta: Evitar.",
     "drug1_rxcuis": [
       "1292"
     ]
@@ -12655,7 +12655,7 @@
     "drug2": "Estrógenos",
     "risk_level": "moderate",
     "risk_description": "Insuficiência adrenal grave",
-    "mechanism": "Insuficiência adrenal grave. Conduta: Monitorar função adrenal.",
+    "mechanism": "Os estrógenos aumentam a proteína que carrega o cortisol no sangue, alterando quanto corticoide fica de fato disponível. O ajuste da dose fica menos previsível e o eixo hormonal pode se desregular. Conduta: Monitorar função adrenal.",
     "drug1_rxcuis": [
       "1514"
     ]
@@ -12669,7 +12669,7 @@
     "drug2": "Barbitúricos",
     "risk_level": "moderate",
     "risk_description": "Insuficiência adrenal grave",
-    "mechanism": "Insuficiência adrenal grave. Conduta: Monitorar função adrenal.",
+    "mechanism": "Os barbitúricos aceleram acelera as enzimas do fígado que destroem a betametasona, e o corticoide cai a níveis insuficientes. Em quem depende dele, isso pode desencadear crise por falta de cortisol: fraqueza intensa, queda de pressão, vômitos e desmaio — sobretudo em infecção ou cirurgia. Conduta: Monitorar função adrenal.",
     "drug1_rxcuis": [
       "1514"
     ]
@@ -12683,7 +12683,7 @@
     "drug2": "Pazopanibe",
     "risk_level": "high",
     "risk_description": "Risco aumentado de perfuração gastrointestinal",
-    "mechanism": "Risco aumentado de perfuração gastrointestinal. Conduta: Evitar combinação.",
+    "mechanism": "O bevacizumabe prejudica a cicatrização da parede do intestino e o pazopanibe age na mesma via dos vasos. Juntos, cresce o risco de perfuração intestinal — dor abdominal forte e súbita é sinal de emergência. Conduta: Evitar combinação.",
     "drug2_rxcuis": [
       "714438"
     ]
@@ -12751,7 +12751,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "high",
     "risk_description": "Aumento do risco de toxicidade da carbamazepina",
-    "mechanism": "Aumento do risco de toxicidade da carbamazepina. Conduta: Evitar o uso concomitante.",
+    "mechanism": "O álcool e a carbamazepina somam efeito sobre o cérebro, e o álcool altera o metabolismo dela. A intoxicação aparece como tontura, visão dupla, desequilíbrio e sonolência. Conduta: Evitar o uso concomitante.",
     "drug1_rxcuis": [
       "2002"
     ]
@@ -12763,7 +12763,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de sedação e depressão respiratória",
-    "mechanism": "Aumento do risco de sedação e depressão respiratória. Conduta: Evitar consumo excessivo de álcool.",
+    "mechanism": "A cariprazina e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda, confusão e respiração perigosamente lenta — com risco de queda em idosos. Conduta: Evitar consumo excessivo de álcool.",
     "drug1_rxcuis": [
       "1667655"
     ]
@@ -12883,7 +12883,7 @@
     "drug2": "opioides",
     "risk_level": "high",
     "risk_description": "depressão respiratória grave",
-    "mechanism": "depressão respiratória grave. Conduta: Evitar.",
+    "mechanism": "A clorzoxazona e os opioides deprimem o sistema nervoso central. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — além de sedação intensa e risco de queda. Conduta: Evitar.",
     "drug1_rxcuis": [
       "2410"
     ]
@@ -12896,7 +12896,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
     "risk_description": "depressão respiratória grave",
-    "mechanism": "depressão respiratória grave. Conduta: Evitar.",
+    "mechanism": "A clorzoxazona e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda, confusão e respiração perigosamente lenta — com risco de queda em idosos. Conduta: Evitar.",
     "drug1_rxcuis": [
       "2410"
     ]
@@ -12950,7 +12950,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
     "risk_description": "Aumento de risco de cetoacidose diabética",
-    "mechanism": "Aumento de risco de cetoacidose diabética. Conduta: Evitar consumo excessivo.",
+    "mechanism": "A dapagliflozina faz o corpo queimar gordura em vez de açúcar, e o álcool acelera esse processo. Pode surgir cetoacidose mesmo com a glicemia quase normal: enjoo, vômito, respiração ofegante e hálito adocicado. Conduta: Evitar consumo excessivo.",
     "drug1_rxcuis": [
       "1488564"
     ]
@@ -12976,7 +12976,7 @@
     "drug2": "Opioides",
     "risk_level": "high",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar.",
+    "mechanism": "A dexclorfeniramina é um anti-histamínico que causa sonolência, e os opioides deprimem o centro que comanda a respiração. Juntos, a respiração pode ficar lenta demais durante o sono. Conduta: Evitar.",
     "drug1_rxcuis": [
       "22697"
     ]
@@ -13029,7 +13029,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de depressão respiratória grave",
-    "mechanism": "Aumento do risco de depressão respiratória grave. Conduta: Evitar.",
+    "mechanism": "A doxepina e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda, confusão e respiração perigosamente lenta — com risco de queda em idosos. Conduta: Evitar.",
     "drug1_rxcuis": [
       "3638"
     ]
@@ -13042,7 +13042,7 @@
     "drug2": "Etanol",
     "risk_level": "moderate",
     "risk_description": "Sedação respiratória grave",
-    "mechanism": "Sedação respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "O dronabinol e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda, confusão e respiração perigosamente lenta — com risco de queda em idosos. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "10402"
     ],
@@ -13073,7 +13073,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
     "risk_description": "Aumento de risco de cetoacidose diabética",
-    "mechanism": "Aumento de risco de cetoacidose diabética. Conduta: Evitar consumo excessivo.",
+    "mechanism": "A empagliflozina faz o corpo queimar gordura em vez de açúcar, e o álcool acelera esse processo. Pode surgir cetoacidose mesmo com a glicemia quase normal: enjoo, vômito, respiração ofegante e hálito adocicado. Conduta: Evitar consumo excessivo.",
     "drug1_rxcuis": [
       "1545653"
     ]
@@ -13114,7 +13114,7 @@
     "drug2": "Etanol",
     "risk_level": "high",
     "risk_description": "reação descontrolada",
-    "mechanism": "reação descontrolada. Conduta: Evitar.",
+    "mechanism": "A fenelzina impede a destruição das aminas presentes em bebidas fermentadas (como a tiramina de vinhos e cervejas), e a pressão pode disparar. O álcool ainda soma sedação e queda de pressão. Conduta: Evitar.",
     "drug1_rxcuis": [
       "8123"
     ],
@@ -13175,7 +13175,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
     "risk_description": "Aumento risco de hemorragia grave",
-    "mechanism": "Aumento risco de hemorragia grave. Conduta: Evitar.",
+    "mechanism": "A fluoxetina reduz a serotonina das plaquetas, que é o que as faz se agregarem, e o álcool agride a mucosa do estômago. O risco de sangramento digestivo aumenta. Conduta: Evitar.",
     "drug1_rxcuis": [
       "4493"
     ]
@@ -13217,7 +13217,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "high",
     "risk_description": "Risco de hipoglicemia grave",
-    "mechanism": "Risco de hipoglicemia grave. Conduta: Evitar consumo excessivo.",
+    "mechanism": "O álcool atrapalha o fígado a repor o açúcar do sangue, e a gliclazida já o está baixando. A hipoglicemia pode ser grave e demorada — e a embriaguez disfarça os sinais de alarme (tremor, suor frio, confusão), atrasando o socorro. Conduta: Evitar consumo excessivo.",
     "drug1_rxcuis": [
       "4816"
     ]
@@ -13231,7 +13231,7 @@
     "drug2": "Álcool (etanol)",
     "risk_level": "high",
     "risk_description": "Risco de hipoglicemia grave",
-    "mechanism": "Risco de hipoglicemia grave. Conduta: Evitar consumo excessivo.",
+    "mechanism": "O álcool atrapalha o fígado a repor o açúcar do sangue, e a glimepirida já o está baixando. A hipoglicemia pode ser grave e demorada — e a embriaguez disfarça os sinais de alarme (tremor, suor frio, confusão), atrasando o socorro. Conduta: Evitar consumo excessivo.",
     "drug1_rxcuis": [
       "25789"
     ]
@@ -13245,7 +13245,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "high",
     "risk_description": "Aumento do risco de sedação e depressão respiratória",
-    "mechanism": "Aumento do risco de sedação e depressão respiratória. Conduta: Evitar consumo de álcool.",
+    "mechanism": "O haloperidol e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda, confusão e respiração perigosamente lenta — com risco de queda em idosos. Conduta: Evitar consumo de álcool.",
     "drug1_rxcuis": [
       "5093"
     ]
@@ -13270,7 +13270,7 @@
     "drug2": "Barbitúricos",
     "risk_level": "high",
     "risk_description": "Insuficiência adrenal grave",
-    "mechanism": "Insuficiência adrenal grave. Conduta: Monitorar função adrenal.",
+    "mechanism": "Os barbitúricos aceleram acelera as enzimas do fígado que destroem a hidrocortisona, e o corticoide cai a níveis insuficientes. Em quem depende dele, isso pode desencadear crise por falta de cortisol: fraqueza intensa, queda de pressão, vômitos e desmaio — sobretudo em infecção ou cirurgia. Conduta: Monitorar função adrenal.",
     "drug1_rxcuis": [
       "5492"
     ]
@@ -13296,7 +13296,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de depressão respiratória",
-    "mechanism": "Aumento do risco de depressão respiratória. Conduta: Evitar.",
+    "mechanism": "A imipramina e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda, confusão e respiração perigosamente lenta — com risco de queda em idosos. Conduta: Evitar.",
     "drug1_rxcuis": [
       "5691"
     ]
@@ -13310,7 +13310,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "high",
     "risk_description": "hipoglicemia grave",
-    "mechanism": "hipoglicemia grave. Conduta: Evitar.",
+    "mechanism": "O álcool atrapalha o fígado a repor o açúcar do sangue, e a insulina já o está baixando. A hipoglicemia pode ser grave e vir horas depois — e a embriaguez disfarça os sinais de alarme. Conduta: Evitar.",
     "drug1_rxcuis": [
       "1605101"
     ]
@@ -13323,7 +13323,7 @@
     "drug2": "Etanol",
     "risk_level": "high",
     "risk_description": "Aumento do risco de hepatotoxicidade",
-    "mechanism": "Aumento do risco de hepatotoxicidade. Conduta: Evitar consumo de álcool.",
+    "mechanism": "A isoniazida já agride o fígado, e o álcool acelera a formação do metabólito tóxico dela. Juntos, o risco de hepatite medicamentosa cresce bastante: cansaço, enjoo, urina escura e olhos amarelados. Conduta: Evitar consumo de álcool.",
     "drug1_rxcuis": [
       "6038"
     ],
@@ -13340,7 +13340,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
     "risk_description": "Aumento do risco de toxicidade neurológica",
-    "mechanism": "Aumento do risco de toxicidade neurológica. Conduta: Evitar uso concomitante.",
+    "mechanism": "O álcool pode aumentar a passagem da ivermectina para o cérebro e soma efeito depressor. Podem surgir tontura, sonolência e descoordenação. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
       "6069"
     ]
@@ -13367,7 +13367,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "high",
     "risk_description": "Risco de toxicidade por lítio",
-    "mechanism": "Risco de toxicidade por lítio. Conduta: Evitar.",
+    "mechanism": "O álcool desidrata e altera a eliminação do lítio pelos rins, e o nível no sangue pode subir. Além disso, os dois somam efeito sobre o cérebro: confusão, tontura e fala arrastada. Conduta: Evitar.",
     "drug1_rxcuis": [
       "6448"
     ]
@@ -13437,7 +13437,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "high",
     "risk_description": "acidose láctica",
-    "mechanism": "acidose láctica. Conduta: Evitar.",
+    "mechanism": "A metformina favorece o acúmulo de ácido lático, e o álcool atrapalha o fígado a eliminá-lo. Juntos, pode ocorrer acidose lática: respiração ofegante, dor muscular, enjoo e sonolência — rara, mas grave. Conduta: Evitar.",
     "drug1_rxcuis": [
       "6809"
     ]
@@ -13451,7 +13451,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
     "risk_description": "Úlcera péptica grave",
-    "mechanism": "Úlcera péptica grave. Conduta: Evitar consumo excessivo.",
+    "mechanism": "O corticoide e o álcool agridem a mucosa do estômago pelo mesmo caminho. Juntos, aumentam o risco de úlcera e de sangramento digestivo — que pode ocorrer sem dor que avise. Conduta: Evitar consumo excessivo.",
     "drug1_rxcuis": [
       "6902"
     ]
@@ -13463,7 +13463,7 @@
     "drug2": "Opioides",
     "risk_level": "high",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "O metocarbamol e os opioides deprimem o sistema nervoso central. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — além de sedação intensa e risco de queda. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "6845"
     ]
@@ -13476,7 +13476,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "high",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar combinação.",
+    "mechanism": "O metocarbamol e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda, confusão e respiração perigosamente lenta — com risco de queda em idosos. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "6845"
     ]
@@ -13490,7 +13490,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "high",
     "risk_description": "Toxicidade por metotrexato",
-    "mechanism": "Toxicidade por metotrexato. Conduta: Evitar consumo excessivo.",
+    "mechanism": "O metotrexato e o álcool agridem o fígado pelo mesmo caminho. Em quem toma metotrexato semanal, beber com frequência multiplica o risco de fibrose e lesão hepática. Conduta: Evitar consumo excessivo.",
     "drug1_rxcuis": [
       "6851"
     ]
@@ -13504,7 +13504,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "high",
     "risk_description": "Síndrome disulfiram",
-    "mechanism": "Síndrome disulfiram. Conduta: Evitar consumo de álcool durante e 3 dias após tratamento.",
+    "mechanism": "O metronidazol bloqueia a enzima que degrada o álcool, e o acetaldeído se acumula. Basta pouca bebida para causar rubor intenso, dor de cabeça latejante, vômitos e taquicardia. Conduta: Evitar consumo de álcool durante e 3 dias após tratamento.",
     "drug1_rxcuis": [
       "6922"
     ]
@@ -13544,7 +13544,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
     "risk_description": "Hemorragia grave",
-    "mechanism": "Hemorragia grave. Conduta: Evitar uso concomitante.",
+    "mechanism": "A nadroparina impede a formação do coágulo e o álcool agride a mucosa do estômago, além de afetar as plaquetas. O risco de sangramento digestivo aumenta. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
       "67031"
     ]
@@ -13627,7 +13627,7 @@
     "drug2": "Etanol (álcool)",
     "risk_level": "high",
     "risk_description": "Aumento do risco de hepatotoxicidade",
-    "mechanism": "Aumento do risco de hepatotoxicidade. Conduta: Evitar consumo excessivo de álcool.",
+    "mechanism": "O álcool faz o fígado produzir mais do metabólito tóxico do paracetamol e ao mesmo tempo esgota a defesa que o neutraliza. Doses de paracetamol que seriam seguras podem causar lesão grave do fígado em quem bebe com frequência. Conduta: Evitar consumo excessivo de álcool.",
     "drug1_rxcuis": [
       "161"
     ]
@@ -13641,7 +13641,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "high",
     "risk_description": "Risco de depressão respiratória",
-    "mechanism": "Risco de depressão respiratória. Conduta: Evitar uso concomitante.",
+    "mechanism": "O perampanel e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda, confusão e respiração perigosamente lenta — com risco de queda em idosos. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
       "1356552"
     ]
@@ -13653,7 +13653,7 @@
     "drug2": "Etanol",
     "risk_level": "high",
     "risk_description": "Depressão respiratória grave",
-    "mechanism": "Depressão respiratória grave. Conduta: Evitar.",
+    "mechanism": "A kava kava e o álcool deprimem o sistema nervoso central e ambos agridem o fígado. A sedação soma e pode chegar a respiração perigosamente lenta. Conduta: Evitar.",
     "drug1_rxcuis": [
       "285228"
     ],
@@ -13668,7 +13668,7 @@
     "drug2": "Barbitúricos",
     "risk_level": "moderate",
     "risk_description": "Insuficiência adrenal grave",
-    "mechanism": "Insuficiência adrenal grave. Conduta: Monitorar função adrenal.",
+    "mechanism": "Os barbitúricos aceleram acelera as enzimas do fígado que destroem a prednisolona, e o corticoide cai a níveis insuficientes. Em quem depende dele, isso pode desencadear crise por falta de cortisol: fraqueza intensa, queda de pressão, vômitos e desmaio — sobretudo em infecção ou cirurgia. Conduta: Monitorar função adrenal.",
     "drug1_rxcuis": [
       "8638"
     ]
@@ -13682,7 +13682,7 @@
     "drug2": "Álcool",
     "risk_level": "high",
     "risk_description": "Sedação intensificada e risco de depressão respiratória",
-    "mechanism": "Sedação intensificada e risco de depressão respiratória. Conduta: Evitar.",
+    "mechanism": "A primidona e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda, confusão e respiração perigosamente lenta — com risco de queda em idosos. Conduta: Evitar.",
     "drug1_rxcuis": [
       "8691"
     ]
@@ -13736,7 +13736,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
     "risk_description": "Reação adversa grave",
-    "mechanism": "Reação adversa grave. Conduta: Evitar.",
+    "mechanism": "A selegilina em doses maiores perde a seletividade e passa a agir como IMAO não seletivo; com bebidas fermentadas, há risco de pico de pressão, além da sedação somada. Conduta: Evitar.",
     "drug1_rxcuis": [
       "9639"
     ]
@@ -13780,7 +13780,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "high",
     "risk_description": "Síndrome disulfiram",
-    "mechanism": "Síndrome disulfiram. Conduta: Evitar uso concomitante.",
+    "mechanism": "O tinidazol bloqueia a enzima que degrada o álcool, e o acetaldeído se acumula. Basta pouca bebida para causar rubor intenso, dor de cabeça latejante, vômitos e taquicardia. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
       "10612"
     ]
@@ -13808,7 +13808,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
     "risk_description": "sedação intensa ou depressão respiratória",
-    "mechanism": "sedação intensa ou depressão respiratória. Conduta: Evitar uso concomitante.",
+    "mechanism": "O topiramato e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda, confusão e respiração perigosamente lenta — com risco de queda em idosos. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
       "38404"
     ]
@@ -13835,7 +13835,7 @@
     "drug2": "Etanol",
     "risk_level": "moderate",
     "risk_description": "Reação paradoxal e risco de hipertensão",
-    "mechanism": "Reação paradoxal e risco de hipertensão. Conduta: Evitar.",
+    "mechanism": "A tranilcipromina impede a destruição das aminas presentes em bebidas fermentadas (a tiramina de vinhos e cervejas), e a pressão pode disparar de forma abrupta. Conduta: Evitar.",
     "drug1_rxcuis": [
       "10734"
     ],
@@ -13852,7 +13852,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "high",
     "risk_description": "Sedação intensa e risco de overdose",
-    "mechanism": "Sedação intensa e risco de overdose. Conduta: Evitar.",
+    "mechanism": "A trazodona e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda, confusão e respiração perigosamente lenta — com risco de queda em idosos. Conduta: Evitar.",
     "drug1_rxcuis": [
       "10737"
     ]
@@ -13879,7 +13879,7 @@
     "drug2": "Álcool/etanol",
     "risk_level": "high",
     "risk_description": "Aumento do risco de depressão respiratória",
-    "mechanism": "Aumento do risco de depressão respiratória. Conduta: Evitar.",
+    "mechanism": "A trimipramina e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda, confusão e respiração perigosamente lenta — com risco de queda em idosos. Conduta: Evitar.",
     "drug1_rxcuis": [
       "10834"
     ]
@@ -13893,7 +13893,7 @@
     "drug2": "Etanol (álcool)",
     "risk_level": "moderate",
     "risk_description": "Sedação excessiva e depressão respiratória",
-    "mechanism": "Sedação excessiva e depressão respiratória. Conduta: Evitar."
+    "mechanism": "A valeriana e o álcool deprimem o sistema nervoso central pelo mesmo caminho (receptores GABA). A sedação soma e pode chegar a sonolência profunda e confusão. Conduta: Evitar."
   },
   {
     "id": "int_941",
@@ -13904,7 +13904,7 @@
     "drug2": "Álcool/Etanol",
     "risk_level": "high",
     "risk_description": "Aumento do risco de hepatotoxicidade",
-    "mechanism": "Aumento do risco de hepatotoxicidade. Conduta: Evitar uso concomitante.",
+    "mechanism": "O valproato de sódio e o álcool agridem o fígado, e o álcool ainda soma sedação. O risco de lesão hepática cresce: cansaço, enjoo, dor do lado direito da barriga e olhos amarelados. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
       "105673"
     ]
@@ -19251,7 +19251,7 @@
     "drug2": "Isoniazida",
     "risk_level": "moderate",
     "risk_description": "As concentrações séricas de isoniazida podem ser diminuídas.",
-    "mechanism": "As concentrações séricas de isoniazida podem ser diminuídas. A conduta clínica não é especificada no texto."
+    "mechanism": "A dexametasona acelera as enzimas do fígado que destroem a isoniazida, e o nível dela cai. O tratamento da tuberculose pode perder eficácia sem que nada avise."
   },
   {
     "id": "int_1553",
@@ -19260,7 +19260,7 @@
     "drug2": "Colestiramina",
     "risk_level": "moderate",
     "risk_description": "Colestiramina pode aumentar a depuração de corticosteroides.",
-    "mechanism": "Colestiramina pode aumentar a depuração de corticosteroides. A conduta clínica não é especificada no texto."
+    "mechanism": "A colestiramina se liga ao corticoide dentro do intestino e impede que ele seja absorvido. O efeito do corticoide cai — tomar os dois com algumas horas de intervalo reduz o problema."
   },
   {
     "id": "int_1554",
@@ -25343,7 +25343,7 @@
     "drug2": "Isoniazida",
     "risk_level": "moderate",
     "risk_description": "As concentrações séricas de isoniazida podem ser diminuídas.",
-    "mechanism": "As concentrações séricas de isoniazida podem ser diminuídas. Monitorar a eficácia do tratamento antituberculose."
+    "mechanism": "A metilprednisolona acelera as enzimas do fígado que destroem a isoniazida, e o nível dela cai. O tratamento da tuberculose pode perder eficácia sem que nada avise."
   },
   {
     "id": "int_2281",
@@ -25761,7 +25761,7 @@
     "drug2": "Digoxina",
     "risk_level": "high",
     "risk_description": "Aumento da concentração sérica e prolongamento da meia-vida da digoxina.",
-    "mechanism": "Aumento da concentração sérica e prolongamento da meia-vida da digoxina. Monitorar os níveis séricos de digoxina."
+    "mechanism": "O naproxeno reduz a eliminação da digoxina pelos rins e prolonga o tempo que ela permanece no corpo. A digoxina tem margem estreita: enjoo, alterações na visão, batimentos lentos e arritmias."
   },
   {
     "id": "int_2350",
@@ -25789,7 +25789,7 @@
     "drug2": "Colestiramina",
     "risk_level": "moderate",
     "risk_description": "Retardo na absorção do naproxeno.",
-    "mechanism": "Retardo na absorção do naproxeno. A administração concomitante de colestiramina com naproxeno não é recomendada."
+    "mechanism": "A colestiramina se liga ao naproxeno dentro do intestino e retarda sua absorção. O alívio da dor demora mais a chegar — separar as tomadas por algumas horas resolve."
   },
   {
     "id": "int_2353",
@@ -31189,7 +31189,7 @@
     "drug2": "Digoxina",
     "risk_level": "moderate",
     "risk_description": "A canagliflozina aumenta a exposição à digoxina.",
-    "mechanism": "A canagliflozina aumenta a exposição à digoxina. Monitorar pacientes em uso concomitante para necessidade de ajuste da dose de digoxina."
+    "mechanism": "A canagliflozina bloqueia a glicoproteína-P, a bomba que retira a digoxina do organismo. A digoxina se acumula e sua margem de segurança é estreita: enjoo, alterações na visão (halos amarelados), batimentos lentos e arritmias."
   },
   {
     "id": "int_3046",
