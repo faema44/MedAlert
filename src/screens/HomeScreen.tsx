@@ -9,6 +9,7 @@ import {
   getRemindersForMedication, updateAllRemindersSound,
   getActivities, getRemindersForActivity, updateAllActivityRemindersSound,
   getAppointments, resolveMedicationLogSlot, updateMedicationStock, getMedicationLog,
+  revertMedicationLogSlotToPending,
 } from '../database/db';
 import EmergencyChecklist from '../components/EmergencyChecklist';
 import { getMedIdOptIn, isMedicalIdPending } from '../services/medicalId';
@@ -134,6 +135,11 @@ function buildSlots(active: MedicationReminder[], today: Date, from: number, to:
 // deixa de decidir. Teto de 12h: sem ele um lembrete semanal ficaria 3 dias e meio na tela.
 const MAX_ALERT_WINDOW_MS = 12 * 60 * 60 * 1000;
 
+// Acima disto, "No horário" vira uma afirmação duvidosa: o cartão vive até 12h, e marcar
+// "tomei no horário" numa dose de 4h atrás grava um histórico bonito demais para o médico
+// ler. Passado o limite, confirmamos em vez de assumir o horário agendado.
+const LATE_CONFIRM_MS = 2 * 60 * 60 * 1000;
+
 function alertExpiryMs(slot: MedSlot, allSlots: MedSlot[]): number {
   const slotMs = slot.at.getTime();
   const next = allSlots.find(s => s.at.getTime() > slotMs);
@@ -165,6 +171,10 @@ export default function HomeScreen() {
   const [fgHModalHour, setFgHModalHour] = useState(0);
   const [fgHModalMinute, setFgHModalMinute] = useState(0);
   const [showFgHTimePicker, setShowFgHTimePicker] = useState(false);
+  // Feedback + desfazer: sem confirmação, o cartão sumia e pronto — pra quem toca errado
+  // (tremor, dedo grosso), a única saída era caçar o registro no Histórico.
+  const [snack, setSnack] = useState<{ text: string; undo: () => void } | null>(null);
+  const snackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dismissedAlertsRef = useRef<Set<string>>(new Set());
 
   const load = useCallback(async () => {
@@ -364,6 +374,8 @@ export default function HomeScreen() {
 
   useFocusEffect(useCallback(() => { load(); clearBadge(); }, [load]));
 
+  useEffect(() => () => { if (snackTimerRef.current) clearTimeout(snackTimerRef.current); }, []);
+
   // Re-check when app returns from background (useFocusEffect doesn't fire in this case)
   useEffect(() => {
     const sub = AppState.addEventListener('change', state => {
@@ -458,6 +470,65 @@ export default function HomeScreen() {
     load();
   }
 
+  // Mostra o aviso "Registrado" com Desfazer, e some sozinho em 5s.
+  function showResponseSnack(
+    item: UnifiedItem,
+    opts: { taken: boolean; takenLabel?: string; stockBefore: number | null | undefined },
+  ) {
+    if (snackTimerRef.current) clearTimeout(snackTimerRef.current);
+    const text = opts.taken
+      ? `✓ ${item.name} — tomado${opts.takenLabel ? ` às ${opts.takenLabel}` : ''}`
+      : `✗ ${item.name} — não tomei`;
+    const undo = async () => {
+      if (snackTimerRef.current) clearTimeout(snackTimerRef.current);
+      setSnack(null);
+      const scheduledAt = new Date(item.slotMs!).toISOString();
+      await revertMedicationLogSlotToPending(item.id, scheduledAt).catch(() => {});
+      // Restaura o estoque para o valor EXATO de antes do desconto (o handleTomeiHome já
+      // tinha subtraído). stockBefore vem capturado no momento da resposta.
+      if (opts.taken && opts.stockBefore != null) {
+        await updateMedicationStock(item.id, opts.stockBefore).catch(() => {});
+      }
+      dismissedAlertsRef.current.delete(alertKey(item));
+      load();
+    };
+    setSnack({ text, undo });
+    snackTimerRef.current = setTimeout(() => setSnack(null), 5000);
+  }
+
+  async function registrarNoHorario(item: UnifiedItem) {
+    const stockBefore = item.medObj?.stock_quantity;
+    await handleTomeiHome(item);
+    dismissedAlertsRef.current.add(alertKey(item));
+    setForegroundAlerts(prev => prev.filter(a => a.id !== item.id));
+    showResponseSnack(item, { taken: true, takenLabel: item.time, stockBefore });
+  }
+
+  // "No horário" grava taken_at = horário AGENDADO. Numa dose muito atrasada isso é uma
+  // afirmação forte demais, então confirmamos antes; o "Outro horário" leva ao mesmo picker.
+  function confirmarNoHorario(item: UnifiedItem) {
+    const lateMs = Date.now() - (item.slotMs ?? Date.now());
+    if (lateMs > LATE_CONFIRM_MS) {
+      Alert.alert(
+        'Confirmar horário',
+        `Você tomou ${item.name} no horário das ${item.time}? Se tomou agora ou em outro horário, escolha "Outro horário".`,
+        [
+          {
+            text: 'Outro horário',
+            onPress: () => {
+              const now = new Date();
+              setFgHModalHour(now.getHours()); setFgHModalMinute(now.getMinutes());
+              setFgHModalItem(item);
+            },
+          },
+          { text: `Sim, às ${item.time}`, onPress: () => { registrarNoHorario(item); } },
+        ],
+      );
+      return;
+    }
+    registrarNoHorario(item);
+  }
+
   async function dismissMedsHint() {
     const now = new Date().toISOString();
     await setKV('home_hint_meds_dismissed_at', now);
@@ -484,6 +555,7 @@ export default function HomeScreen() {
   }, [unifiedItems]);
 
   return (
+    <View style={{ flex: 1 }}>
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
       {/* Dismissable setup hints — no forced onboarding */}
@@ -615,9 +687,10 @@ export default function HomeScreen() {
                 await handlePuleiHome(alert);
                 dismissedAlertsRef.current.add(alertKey(alert));
                 setForegroundAlerts(prev => prev.filter(a => a.id !== alert.id));
+                showResponseSnack(alert, { taken: false, stockBefore: alert.medObj?.stock_quantity });
               }}
             >
-              <Text style={styles.fgAlertNaoTomeiText}>Não tomei</Text>
+              <Text style={styles.fgAlertNaoTomeiText} numberOfLines={1} adjustsFontSizeToFit>Não tomei</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.fgAlertOutro}
@@ -627,17 +700,13 @@ export default function HomeScreen() {
                 setFgHModalItem(alert);
               }}
             >
-              <Text style={styles.fgAlertOutroText}>⏰ Outro</Text>
+              <Text style={styles.fgAlertOutroText} numberOfLines={1} adjustsFontSizeToFit>⏰ Outro horário</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.fgAlertTomei}
-              onPress={async () => {
-                await handleTomeiHome(alert);
-                dismissedAlertsRef.current.add(alertKey(alert));
-                setForegroundAlerts(prev => prev.filter(a => a.id !== alert.id));
-              }}
+              onPress={() => confirmarNoHorario(alert)}
             >
-              <Text style={styles.fgAlertTomeiText}>✓ No horário</Text>
+              <Text style={styles.fgAlertTomeiText} numberOfLines={1} adjustsFontSizeToFit>✓ No horário</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -750,10 +819,13 @@ export default function HomeScreen() {
                   // ontem (dose tardia respondida de manhã), "tomei às 23:55" cairia hoje
                   // às 23:55 — no futuro. Ninguém toma remédio no futuro: é ontem.
                   if (customTime.getTime() > Date.now()) customTime.setDate(customTime.getDate() - 1);
+                  const stockBefore = item.medObj?.stock_quantity;
+                  const takenLabel = `${String(fgHModalHour).padStart(2, '0')}:${String(fgHModalMinute).padStart(2, '0')}`;
                   setFgHModalItem(null);
                   await handleTomeiHome(item, customTime);
                   dismissedAlertsRef.current.add(alertKey(item));
                   setForegroundAlerts(prev => prev.filter(a => a.id !== item.id));
+                  showResponseSnack(item, { taken: true, takenLabel, stockBefore });
                 }}
               >
                 <Text style={styles.overdueTomeiText}>Confirmar</Text>
@@ -767,6 +839,16 @@ export default function HomeScreen() {
       )}
 
     </ScrollView>
+
+      {snack && (
+        <View style={styles.snackbar}>
+          <Text style={styles.snackText} numberOfLines={2}>{snack.text}</Text>
+          <TouchableOpacity onPress={snack.undo} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Text style={styles.snackUndo}>DESFAZER</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
   );
 }
 
@@ -802,6 +884,15 @@ const styles = StyleSheet.create({
     paddingVertical: 9, alignItems: 'center',
   },
   fgAlertNaoTomeiText: { fontSize: 12, fontWeight: '700', color: '#fff' },
+
+  snackbar: {
+    position: 'absolute', left: 12, right: 12, bottom: 14,
+    backgroundColor: '#1A1F2E', borderRadius: 10, paddingVertical: 12, paddingHorizontal: 14,
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 6,
+  },
+  snackText: { flex: 1, color: '#fff', fontSize: 13, fontWeight: '600' },
+  snackUndo: { color: '#E07B4F', fontSize: 13, fontWeight: '800', letterSpacing: 0.5 },
 
   remindersCard: {
     backgroundColor: '#fff', borderRadius: 12, marginBottom: 10,

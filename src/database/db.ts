@@ -905,6 +905,34 @@ export async function updateMedicationLogEntry(
   await database.runAsync('UPDATE medications SET stock_quantity=? WHERE id=?', [next, prev.medication_id]);
 }
 
+// Desfaz a resposta que o card da Home acabou de gravar: devolve a dose para "Sem resposta"
+// (taken/status/taken_at NULL) — mesmo estado de um disparo não respondido. O estoque é
+// devolvido pelo chamador (que sabe o valor exato antes do desconto), não aqui: a linha só
+// carrega taken/status, não a unidade descontada. Casa a linha pelo mesmo ±50min do
+// resolveMedicationLogSlot. Retorna se estava marcada como tomada, para o chamador decidir se
+// restaura o estoque.
+export async function revertMedicationLogSlotToPending(
+  medicationId: number,
+  scheduledAtIso: string,
+): Promise<{ wasTaken: boolean }> {
+  const database = await getDb();
+  const slotSecs = Math.floor(new Date(scheduledAtIso).getTime() / 1000);
+  const row = await database.getFirstAsync<{ id: number; taken: number | null; status: string | null }>(
+    `SELECT id, taken, status FROM medication_log
+     WHERE medication_id=? AND (taken IS NOT NULL OR status IN ('taken','skipped'))
+       AND ABS(strftime('%s', scheduled_at) - ?) < 3000
+     ORDER BY ABS(strftime('%s', scheduled_at) - ?) LIMIT 1`,
+    [medicationId, slotSecs, slotSecs]
+  );
+  if (!row) return { wasTaken: false };
+  const wasTaken = row.status === 'taken' || row.taken === 1;
+  await database.runAsync(
+    'UPDATE medication_log SET taken=NULL, status=NULL, taken_at=NULL WHERE id=?',
+    [row.id]
+  );
+  return { wasTaken };
+}
+
 
 // ---------------------------------------------------------------------------
 // "Sem resposta" no histórico.

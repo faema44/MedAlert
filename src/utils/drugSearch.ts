@@ -234,7 +234,18 @@ export function nomeDaBaseParaBula(nome: string): string | null {
     }
   }
   const chave = identidadeSemSal(nome).join('|');
-  return chave ? (indiceBula.get(chave) ?? null) : null;
+  const direto = chave ? (indiceBula.get(chave) ?? null) : null;
+  if (direto) return direto;
+  // O nome cadastrado pode ser uma MARCA ("Aspirina") em vez do genérico da base
+  // ("AAS (Ácido Acetilsalicílico)") — aí a identidade não bate e o botão da bula sumia.
+  // resolveGeneric faz match EXATO de marca → genérico (sem fuzzy), herdando a mesma trava
+  // de não-ambiguidade; só então reprocessa a identidade. É a mesma bula que a busca já abre.
+  const generico = resolveGeneric(nome);
+  if (generico !== nome) {
+    const chave2 = identidadeSemSal(generico).join('|');
+    return chave2 ? (indiceBula.get(chave2) ?? null) : null;
+  }
+  return null;
 }
 
 export function getBulaUrl(genericName: string, brandName?: string): string {

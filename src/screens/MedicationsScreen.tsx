@@ -894,6 +894,62 @@ export default function MedicationsScreen() {
               placeholderTextColor="#bbb"
             />
 
+            {/* Sugestões LOGO ABAIXO do campo (não presas no rodapé): antes elas renderizavam
+                no fim do modal, separadas do input pelos botões Voltar/Próximo — num aparelho
+                grande, longe demais pra parecerem ligadas ao que se digita. O passo é curto, então
+                o campo fica no topo e as sugestões vêm acima do teclado. Mesmo padrão do fitoterápico. */}
+            {entryType !== 'fitoterapico' && !knownDrug && !customNameConfirmed
+              && form.generic_name.trim().length >= 2 && (
+              <View style={styles.suggestionsInline}>
+                {suggestions.map(s => (
+                  <View key={s.label} style={styles.suggestionRow}>
+                    <TouchableOpacity
+                      style={[styles.suggestionChip, s.isBrand && styles.suggestionChipBrand]}
+                      onPress={() => applySuggestion(s)}
+                    >
+                      <Text style={[styles.suggestionChipText, s.isBrand && styles.suggestionChipTextBrand]} numberOfLines={1}>
+                        {s.label}
+                      </Text>
+                      {s.category ? (
+                        <Text style={[styles.suggestionCategory, s.isBrand && styles.suggestionCategoryBrand]}>
+                          {s.category}
+                        </Text>
+                      ) : null}
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.bulaBtn} onPress={() => openBula(s.bulaUrl, s.genericName)} accessibilityLabel={`Ver bula de ${s.genericName}`} accessibilityRole="button">
+                      <Text style={styles.bulaBtnText}>📋</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+                {/* Card com o nome exatamente como digitado — dá segurança a quem não acha o remédio na lista.
+                    Fica sempre disponível (mesmo com nome igual a alguma sugestão) porque o usuário pode
+                    ainda estar completando o nome com um complemento/tipo diferente.
+                    O nome continua sendo reportado ao Google Drive (via wizGoNext) para entrarmos com ele no BD.
+                    Se o nome digitado bate exatamente com uma sugestão, tocar aqui aplica a sugestão do BD
+                    (não o texto digitado), pra não reportar como "não encontrado" por engano. */}
+                <View style={styles.suggestionRow}>
+                  <TouchableOpacity
+                    style={[styles.suggestionChip, styles.suggestionChipTyped]}
+                    onPress={() => {
+                      const typed = form.generic_name.trim().toLowerCase();
+                      const exactMatch = suggestions.find(
+                        s => s.label.toLowerCase() === typed || s.genericName.toLowerCase() === typed
+                      );
+                      if (exactMatch) { applySuggestion(exactMatch); return; }
+                      Keyboard.dismiss(); setCustomNameConfirmed(true);
+                    }}
+                  >
+                    <Text style={[styles.suggestionChipText, styles.suggestionChipTextTyped]} numberOfLines={1}>
+                      {form.generic_name.trim()}
+                    </Text>
+                    <Text style={[styles.suggestionCategory, styles.suggestionCategoryTyped]}>
+                      Digitado
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
             {entryType === 'fitoterapico' && form.generic_name.length > 0 && (() => {
               const phytoList = getSuggestions(form.generic_name, 34, 'Fitoterápico');
               const typed = form.generic_name.trim().toLowerCase();
@@ -981,7 +1037,7 @@ export default function MedicationsScreen() {
           { p: 'day'   as ReminderPeriod, icon: '☀️', label: 'Todo Dia',  hint: 'Repetição diária' },
           { p: 'week'  as ReminderPeriod, icon: '📅', label: 'Semanal',   hint: 'Alguns dias da semana' },
           { p: 'month' as ReminderPeriod, icon: '🗓',  label: 'Mensal',    hint: 'Alguns dias do mês' },
-          { p: 'year'  as ReminderPeriod, icon: '📆', label: 'Livre',     hint: 'A cada N meses' },
+          { p: 'year'  as ReminderPeriod, icon: '♾️', label: 'Livre',     hint: 'A cada N meses' },
         ];
         return (
           <>
@@ -1632,63 +1688,6 @@ export default function MedicationsScreen() {
                   })()}
                 </View>
               </ScrollView>
-
-              {/* Suggestions fixas acima do teclado — visíveis mesmo com teclado aberto */}
-              {wizardStep === 'name' && entryType !== 'fitoterapico' && !knownDrug && !customNameConfirmed
-                && form.generic_name.trim().length >= 2 && (
-                <ScrollView
-                  style={styles.suggestionsFloating}
-                  keyboardShouldPersistTaps="handled"
-                  showsVerticalScrollIndicator={false}
-                >
-                  {suggestions.map(s => (
-                    <View key={s.label} style={styles.suggestionRow}>
-                      <TouchableOpacity
-                        style={[styles.suggestionChip, s.isBrand && styles.suggestionChipBrand]}
-                        onPress={() => applySuggestion(s)}
-                      >
-                        <Text style={[styles.suggestionChipText, s.isBrand && styles.suggestionChipTextBrand]} numberOfLines={1}>
-                          {s.label}
-                        </Text>
-                        {s.category ? (
-                          <Text style={[styles.suggestionCategory, s.isBrand && styles.suggestionCategoryBrand]}>
-                            {s.category}
-                          </Text>
-                        ) : null}
-                      </TouchableOpacity>
-                      <TouchableOpacity style={styles.bulaBtn} onPress={() => openBula(s.bulaUrl, s.genericName)} accessibilityLabel={`Ver bula de ${s.genericName}`} accessibilityRole="button">
-                        <Text style={styles.bulaBtnText}>📋</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-                  {/* Card com o nome exatamente como digitado — dá segurança a quem não acha o remédio na lista.
-                      Fica sempre disponível (mesmo com nome igual a alguma sugestão) porque o usuário pode
-                      ainda estar completando o nome com um complemento/tipo diferente.
-                      O nome continua sendo reportado ao Google Drive (via wizGoNext) para entrarmos com ele no BD.
-                      Se o nome digitado bate exatamente com uma sugestão, tocar aqui aplica a sugestão do BD
-                      (não o texto digitado), pra não reportar como "não encontrado" por engano. */}
-                  <View style={styles.suggestionRow}>
-                    <TouchableOpacity
-                      style={[styles.suggestionChip, styles.suggestionChipTyped]}
-                      onPress={() => {
-                        const typed = form.generic_name.trim().toLowerCase();
-                        const exactMatch = suggestions.find(
-                          s => s.label.toLowerCase() === typed || s.genericName.toLowerCase() === typed
-                        );
-                        if (exactMatch) { applySuggestion(exactMatch); return; }
-                        Keyboard.dismiss(); setCustomNameConfirmed(true);
-                      }}
-                    >
-                      <Text style={[styles.suggestionChipText, styles.suggestionChipTextTyped]} numberOfLines={1}>
-                        {form.generic_name.trim()}
-                      </Text>
-                      <Text style={[styles.suggestionCategory, styles.suggestionCategoryTyped]}>
-                        Digitado
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </ScrollView>
-              )}
             </View>
           </View>
         </KeyboardAvoidingView>
@@ -1875,10 +1874,7 @@ const styles = StyleSheet.create({
     fontSize: 15, color: '#222', backgroundColor: '#fafafa',
   },
   suggestionsBox: { marginTop: 6, gap: 4 },
-  suggestionsFloating: {
-    maxHeight: 220, borderTopWidth: 1, borderTopColor: '#f0f0f0',
-    paddingHorizontal: 16, paddingVertical: 8, backgroundColor: '#fff', gap: 4,
-  },
+  suggestionsInline: { marginTop: 12, gap: 4 },
   suggestionRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   suggestionChip: { flex: 1, backgroundColor: '#e8edf7', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#c0ccdf' },
   suggestionChipBrand: { backgroundColor: '#f0e8f7', borderColor: '#c8b0dd' },
