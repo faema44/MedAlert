@@ -9681,8 +9681,8 @@
     "drug1": "Propranolol",
     "drug2": "Ergotamina",
     "risk_level": "critical",
-    "risk_description": "Crisis hipertensiva grave",
-    "mechanism": "Crisis hipertensiva grave. Conduta: Evitar.",
+    "risk_description": "Crise hipertensiva grave",
+    "mechanism": "Crise hipertensiva grave. Conduta: Evitar.",
     "drug1_rxcuis": [
       "8787"
     ],
@@ -10654,8 +10654,8 @@
     "drug1": "Sumatriptano",
     "drug2": "Ergotamina",
     "risk_level": "critical",
-    "risk_description": "Crisse hipertensiva grave",
-    "mechanism": "Crisse hipertensiva grave. Conduta: Contraindicado.",
+    "risk_description": "Crise hipertensiva grave",
+    "mechanism": "Crise hipertensiva grave. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "37418"
     ],
@@ -11003,22 +11003,6 @@
     ],
     "drug2_rxcuis": [
       "5640"
-    ]
-  },
-  {
-    "id": "int_730",
-    "source": "FDA",
-    "source_ref": "Tigecilina",
-    "drug1": "Tigecilina",
-    "drug2": "Varfarina",
-    "risk_level": "moderate",
-    "risk_description": "Risco de sangramento grave",
-    "mechanism": "Risco de sangramento grave. Conduta: Monitorar INR.",
-    "drug1_rxcuis": [
-      "384455"
-    ],
-    "drug2_rxcuis": [
-      "11289"
     ]
   },
   {
@@ -22182,7 +22166,7 @@
     "drug2": "Carbamazepina",
     "risk_level": "high",
     "risk_description": "Pode reduzir o efeito terapêutico de MAVYRET.",
-    "mechanism": "Carbamazepine induz P-gp/CYP3A, diminuindo as concentrações plasmáticas de glecaprevir e pibrentasvir. A coadministração não é recomendada."
+    "mechanism": "Carbamazepina induz P-gp/CYP3A, diminuindo as concentrações plasmáticas de glecaprevir e pibrentasvir. A coadministração não é recomendada."
   },
   {
     "id": "int_1907",
@@ -27193,7 +27177,7 @@
     "drug2": "Carbamazepina",
     "risk_level": "high",
     "risk_description": "Pode reduzir o efeito terapêutico de MAVYRET.",
-    "mechanism": "Carbamazepine induz P-gp/CYP3A, diminuindo as concentrações plasmáticas de glecaprevir e pibrentasvir. A coadministração não é recomendada."
+    "mechanism": "Carbamazepina induz P-gp/CYP3A, diminuindo as concentrações plasmáticas de glecaprevir e pibrentasvir. A coadministração não é recomendada."
   },
   {
     "id": "int_2534",
@@ -28536,7 +28520,14 @@
     "drug2": "Varfarina",
     "risk_level": "moderate",
     "risk_description": "Pode alterar o efeito anticoagulante da varfarina.",
-    "mechanism": "Mecanismo não especificado. Conduta: monitorar o tempo de protrombina ou outro teste de anticoagulação adequado se tigeciclina for administrada com varfarina."
+    "mechanism": "Mecanismo não especificado. Conduta: monitorar o tempo de protrombina ou outro teste de anticoagulação adequado se tigeciclina for administrada com varfarina.",
+    "drug1_rxcuis": [
+      "384455"
+    ],
+    "drug2_rxcuis": [
+      "11289"
+    ],
+    "source_ref": "Tigeciclina"
   },
   {
     "id": "int_2697",
@@ -29548,7 +29539,7 @@
     "drug1": "Vardenafila",
     "drug2": "Nifedipina",
     "risk_level": "moderate",
-    "risk_description": "Pode causar redução adicional da pressão arterial (média de 6/5 mmHg) em pacientes hipertensos controlados com nifedipino.",
+    "risk_description": "Pode causar redução adicional da pressão arterial (média de 6/5 mmHg) em pacientes hipertensos controlados com nifedipina.",
     "mechanism": "Efeito aditivo na redução da pressão arterial. Conduta: monitorar a pressão arterial, pois houve redução adicional em estudo."
   },
   {
@@ -30180,7 +30171,7 @@
     "drug1": "Voriconazol",
     "drug2": "Ivabradina",
     "risk_level": "critical",
-    "risk_description": "Voriconazol provavelmente aumenta a exposição plasmática de ivabradina, com risco de prolongamento do QT e torsade de pointes.",
+    "risk_description": "Voriconazol provavelmente aumenta a exposição plasmática de ivabradina, com risco de prolongamento do QT e torsades de pointes.",
     "mechanism": "Inibição do CYP3A4. Contraindicado."
   },
   {

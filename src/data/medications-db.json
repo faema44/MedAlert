@@ -7499,12 +7499,6 @@
       "rxcui": "22299"
     },
     {
-      "genericName": "Tigecilina",
-      "brands": [],
-      "category": "Antibiótico",
-      "rxcui": "384455"
-    },
-    {
       "genericName": "Colistina",
       "brands": [
         "Colistina EMS"
@@ -14086,7 +14080,8 @@
       "brands": [
         "Tygacil"
       ],
-      "category": "Antibiótico"
+      "category": "Antibiótico",
+      "rxcui": "384455"
     },
     {
       "genericName": "Tiocolchicosídeo",
