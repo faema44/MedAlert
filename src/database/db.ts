@@ -306,6 +306,22 @@ async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
   try {
     await database.execAsync('ALTER TABLE medications ADD COLUMN meal_mode INTEGER DEFAULT 0');
   } catch {}
+  // Ritmo com pausa: cartela 21/7, adesivo 3 semanas/1, anel 21/7 — e corticoide cíclico,
+  // reposição hormonal, quimio. O ciclo é do MEDICAMENTO, não do lembrete: quem toma em 2
+  // horários segue uma cartela só. cycle_kind NULL = sem ciclo, e aí nada muda de comportamento.
+  // Cálculo em src/utils/medCycle.ts.
+  try {
+    await database.execAsync('ALTER TABLE medications ADD COLUMN cycle_kind TEXT');
+  } catch {}
+  try {
+    await database.execAsync('ALTER TABLE medications ADD COLUMN cycle_days_on INTEGER');
+  } catch {}
+  try {
+    await database.execAsync('ALTER TABLE medications ADD COLUMN cycle_days_off INTEGER');
+  } catch {}
+  try {
+    await database.execAsync('ALTER TABLE medications ADD COLUMN cycle_anchor TEXT');
+  } catch {}
 }
 
 // Profile
@@ -371,8 +387,8 @@ export async function setMedicationSuspended(id: number, suspended: boolean): Pr
 export async function addMedication(med: Omit<Medication, 'id'>): Promise<number> {
   const database = await getDb();
   const result = await database.runAsync(
-    `INSERT INTO medications (generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, units_per_dose, end_date, home_reminder, save_history, meal_mode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [med.generic_name ?? '', med.commercial_name ?? '', med.dose ?? '', med.frequency ?? '', med.is_critical ? 1 : 0, med.notes ?? '', med.stock_quantity ?? null, med.units_per_dose ?? 1, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1, med.meal_mode ?? 0]
+    `INSERT INTO medications (generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, units_per_dose, end_date, home_reminder, save_history, meal_mode, cycle_kind, cycle_days_on, cycle_days_off, cycle_anchor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [med.generic_name ?? '', med.commercial_name ?? '', med.dose ?? '', med.frequency ?? '', med.is_critical ? 1 : 0, med.notes ?? '', med.stock_quantity ?? null, med.units_per_dose ?? 1, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1, med.meal_mode ?? 0, med.cycle_kind ?? null, med.cycle_days_on ?? null, med.cycle_days_off ?? null, med.cycle_anchor ?? null]
   );
   return result.lastInsertRowId;
 }
@@ -380,8 +396,8 @@ export async function addMedication(med: Omit<Medication, 'id'>): Promise<number
 export async function updateMedication(med: Medication): Promise<void> {
   const database = await getDb();
   await database.runAsync(
-    `UPDATE medications SET generic_name=?, commercial_name=?, dose=?, frequency=?, is_critical=?, notes=?, stock_quantity=?, units_per_dose=?, end_date=?, home_reminder=?, save_history=?, meal_mode=? WHERE id=?`,
-    [med.generic_name, med.commercial_name, med.dose, med.frequency, med.is_critical ? 1 : 0, med.notes, med.stock_quantity ?? null, med.units_per_dose ?? 1, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1, med.meal_mode ?? 0, med.id]
+    `UPDATE medications SET generic_name=?, commercial_name=?, dose=?, frequency=?, is_critical=?, notes=?, stock_quantity=?, units_per_dose=?, end_date=?, home_reminder=?, save_history=?, meal_mode=?, cycle_kind=?, cycle_days_on=?, cycle_days_off=?, cycle_anchor=? WHERE id=?`,
+    [med.generic_name, med.commercial_name, med.dose, med.frequency, med.is_critical ? 1 : 0, med.notes, med.stock_quantity ?? null, med.units_per_dose ?? 1, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1, med.meal_mode ?? 0, med.cycle_kind ?? null, med.cycle_days_on ?? null, med.cycle_days_off ?? null, med.cycle_anchor ?? null, med.id]
   );
 }
 
@@ -1214,8 +1230,8 @@ export async function importBackup(json: string): Promise<void> {
     }
     for (const m of (medications ?? [])) {
       await database.runAsync(
-        'INSERT INTO medications (id, generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, units_per_dose, end_date, archived, home_reminder, save_history, suspended, meal_mode) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-        [m.id, m.generic_name ?? '', m.commercial_name ?? '', m.dose ?? '', m.frequency ?? '', m.is_critical ?? 0, m.notes ?? '', m.stock_quantity ?? null, m.units_per_dose ?? 1, m.end_date ?? null, m.archived ?? 0, m.home_reminder ?? 1, m.save_history ?? 1, m.suspended ?? 0, m.meal_mode ?? 0]
+        'INSERT INTO medications (id, generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, units_per_dose, end_date, archived, home_reminder, save_history, suspended, meal_mode, cycle_kind, cycle_days_on, cycle_days_off, cycle_anchor) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        [m.id, m.generic_name ?? '', m.commercial_name ?? '', m.dose ?? '', m.frequency ?? '', m.is_critical ?? 0, m.notes ?? '', m.stock_quantity ?? null, m.units_per_dose ?? 1, m.end_date ?? null, m.archived ?? 0, m.home_reminder ?? 1, m.save_history ?? 1, m.suspended ?? 0, m.meal_mode ?? 0, m.cycle_kind ?? null, m.cycle_days_on ?? null, m.cycle_days_off ?? null, m.cycle_anchor ?? null]
       );
     }
     for (const r of (medication_reminders ?? [])) {

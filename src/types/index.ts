@@ -23,6 +23,13 @@ export interface Medication {
   save_history?: number; // 1 = pergunta Tomei/Não tomei e salva no histórico (default), 0 = só alerta 15min
   suspended?: number; // 1 = stand-by: sem alarmes/tela de bloqueio, setup preservado (default 0)
   meal_mode?: number; // 1 = os horários do dia vieram das refeições, não de "Nx por dia" (default 0)
+  // Ritmo com pausa (cartela/adesivo/anel). Solto como string pelo mesmo motivo do `period`
+  // em MedicationReminder: é o que o SQLite devolve. A união vive em src/utils/medCycle.ts,
+  // que também faz o cálculo. cycle_kind NULL = sem ciclo.
+  cycle_kind?: string | null;    // 'pill' | 'patch' | 'ring' | 'custom'  (CycleKind)
+  cycle_days_on?: number | null; // dias tomando
+  cycle_days_off?: number | null;// dias de pausa
+  cycle_anchor?: string | null;  // "YYYY-MM-DD" — dia 1 da cartela
 }
 
 export interface EmergencyContact {

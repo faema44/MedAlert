@@ -105,6 +105,56 @@ check('fracionário é recusado',  validarCiclo({ ...CARTELA, daysOn: 1.5 }) !==
 check('data inválida é recusada', validarCiclo({ ...CARTELA, anchor: 'ontem' }) !== null, true);
 check('cartela 21/7 é aceita',   validarCiclo(CARTELA), null);
 
+// ---------------------------------------------------------------------------
+// PERSISTÊNCIA — o ciclo tem que sobreviver aos QUATRO caminhos do db.ts.
+//
+// O export do backup usa `SELECT *` e leva coluna nova de graça; o IMPORT tem lista
+// explícita. Essa assimetria perde dado em SILÊNCIO: a pessoa restaura o backup no celular
+// novo, os remédios voltam, e a cartela volta como medicamento comum — tomando na semana
+// de pausa. Este bloco existe para que a próxima coluna não caia na mesma armadilha.
+// ---------------------------------------------------------------------------
+console.log('\n  PERSISTÊNCIA — a cartela sobrevive a migração, INSERT, UPDATE e RESTORE\n');
+const dbSrc = fs.readFileSync(path.join(ROOT, 'src/database/db.ts'), 'utf8');
+const COLUNAS = ['cycle_kind', 'cycle_days_on', 'cycle_days_off', 'cycle_anchor'];
+
+// Olhar o TRECHO em volta não serve: `cycle_kind` aparece no array de parâmetros JS logo
+// abaixo do SQL, então um INSERT sem a coluna passaria batido. (Comprovado sabotando o
+// arquivo: o guard frouxo aprovou.) Aqui isolamos a LISTA DE COLUNAS do próprio SQL.
+function listaDeColunas(ancora) {
+  const i = dbSrc.indexOf(ancora);
+  if (i < 0) return null;
+  const m = dbSrc.slice(i).match(/INSERT INTO medications\s*\(([^)]*)\)\s*VALUES/);
+  return m ? m[1].split(',').map(s => s.trim()) : null;
+}
+function colunasDoSet(ancora) {
+  const i = dbSrc.indexOf(ancora);
+  if (i < 0) return null;
+  const m = dbSrc.slice(i).match(/UPDATE medications SET ([\s\S]*?)WHERE/);
+  return m ? m[1].split(',').map(s => s.trim().split('=')[0].trim()) : null;
+}
+
+const migracao = COLUNAS.filter(c => !dbSrc.includes(`ALTER TABLE medications ADD COLUMN ${c}`));
+check('migração cria as 4 colunas', migracao, []);
+
+const ALVOS = [
+  ['addMedication',     listaDeColunas('INSERT INTO medications (generic_name')],
+  ['RESTORE do backup', listaDeColunas('INSERT INTO medications (id, generic_name')],
+  ['updateMedication',  colunasDoSet('UPDATE medications SET generic_name')],
+];
+for (const [nome, cols] of ALVOS) {
+  check(`${nome}: SQL tem as 4 colunas`, cols == null ? ['SQL NÃO ENCONTRADO'] : COLUNAS.filter(c => !cols.includes(c)), []);
+}
+
+// Contagem de ? bate com a de colunas? Errar aqui desloca TODOS os valores em silêncio.
+for (const [nome, ancora] of [['addMedication', 'INSERT INTO medications (generic_name'],
+                              ['RESTORE do backup', 'INSERT INTO medications (id, generic_name']]) {
+  const cols = (listaDeColunas(ancora) || []).length;
+  const i = dbSrc.indexOf(ancora);
+  const mv = dbSrc.slice(i).match(/VALUES\s*\(([^)]*)\)/);
+  const marks = mv ? (mv[1].match(/\?/g) || []).length : 0;
+  check(`${nome}: ${cols} colunas ↔ ${marks} placeholders`, cols === marks && cols > 0, true);
+}
+
 console.log('');
 if (falhas) {
   console.log(`  ✗ ${falhas} cenário(s) falharam. O ritmo com pausa está errado — a pessoa pode\n    tomar na semana de descanso e descansar na de tomar, sem nenhum aviso.\n`);
