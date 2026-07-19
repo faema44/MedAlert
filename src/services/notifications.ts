@@ -223,8 +223,16 @@ export interface SchedulableReminder {
   period?: string;
 }
 
-export function nextReminderInfo(reminders: SchedulableReminder[]): ReminderInfo | null {
-  const now = new Date();
+/**
+ * `buscarAPartirDe` desloca só a ORIGEM da busca — o rótulo "hoje/amanhã" continua ancorado
+ * no agora de verdade. Serve a quem tem ritmo com pausa: se a próxima ocorrência cair em dia
+ * de pausa, o chamador reconsulta a partir do dia seguinte até achar um dia que tem dose.
+ */
+export function nextReminderInfo(
+  reminders: SchedulableReminder[],
+  buscarAPartirDe?: Date,
+): ReminderInfo | null {
+  const now = buscarAPartirDe ?? new Date();
   let bestMs = Infinity;
 
   for (const r of reminders) {
@@ -282,7 +290,10 @@ export function nextReminderInfo(reminders: SchedulableReminder[]): ReminderInfo
   const best = new Date(bestMs);
   const hh = String(best.getHours()).padStart(2, '0');
   const mm = String(best.getMinutes()).padStart(2, '0');
-  const today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  // Ancorado no HOJE real, não na origem da busca: senão uma busca deslocada para daqui a
+  // 4 dias rotularia a ocorrência como "hoje".
+  const agora = new Date();
+  const today0 = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate()).getTime();
   const targetDay = new Date(best.getFullYear(), best.getMonth(), best.getDate()).getTime();
   const diffDays = Math.round((targetDay - today0) / 86400000);
   const dayLabel = diffDays === 0 ? 'hoje' : diffDays === 1 ? 'amanhã'

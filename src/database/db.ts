@@ -1,6 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 import * as Sentry from '@sentry/react-native';
 import { Profile, Medication, EmergencyContact, MedicationReminder, Activity, ActivityReminder, ActivityType, Appointment } from '../types';
+import { diaTemDose } from '../utils/medCycle';
 
 let db: SQLite.SQLiteDatabase | null = null;
 let dbInitPromise: Promise<SQLite.SQLiteDatabase> | null = null;
@@ -1000,8 +1001,11 @@ export async function reconcileMissedDoses(lookbackDays = 7): Promise<number> {
   const meds = await database.getAllAsync<{
     id: number; generic_name: string; commercial_name: string | null; dose: string | null;
     end_date: string | null; save_history: number | null; created_at: string;
+    cycle_kind: string | null; cycle_days_on: number | null;
+    cycle_days_off: number | null; cycle_anchor: string | null;
   }>(
-    `SELECT id, generic_name, commercial_name, dose, end_date, save_history, created_at
+    `SELECT id, generic_name, commercial_name, dose, end_date, save_history, created_at,
+            cycle_kind, cycle_days_on, cycle_days_off, cycle_anchor
        FROM medications
       WHERE (archived=0 OR archived IS NULL) AND (suspended=0 OR suspended IS NULL)`
   );
@@ -1023,6 +1027,11 @@ export async function reconcileMissedDoses(lookbackDays = 7): Promise<number> {
 
     for (let back = lookbackDays; back >= 0; back--) {
       const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() - back);
+
+      // Dia de PAUSA da cartela não é dose esquecida: não tomar ali é o tratamento. Sem
+      // isto, toda cartela geraria 7 "sem resposta" por ciclo — sujando o histórico que a
+      // pessoa mostra ao médico e disparando o aviso de estoque desatualizado sem motivo.
+      if (!diaTemDose(med, day)) continue;
 
       for (const r of reminders) {
         if (!r.is_active) continue;

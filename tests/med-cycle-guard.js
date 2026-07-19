@@ -94,9 +94,17 @@ console.log('\n  ESTOQUE — a pausa não consome dose\n');
 check('cartela: 21 doses por ciclo',            dosesPorCiclo(CARTELA, 1), 21);
 check('cartela: 21 comprimidos cobrem 28 DIAS', diasDeEstoque(CARTELA, 21, 1), 28);
 check('cartela: 42 comprimidos cobrem 56 dias', diasDeEstoque(CARTELA, 42, 1), 56);
-check('adesivo: 3 doses por ciclo',             dosesPorCiclo(ADESIVO, 1, 1), 3);
-check('anel: 1 dose por ciclo',                 dosesPorCiclo(ANEL, 1), 1);
+check('cartela: 40 comprimidos cobrem 47 dias', diasDeEstoque(CARTELA, 40, 1), 47);
 check('estoque parcial não inventa pausa',      diasDeEstoque(CARTELA, 10, 1), 10);
+check('anel: 1 dose por ciclo',                 dosesPorCiclo(ANEL, 1), 1);
+check('anel: 3 anéis cobrem 84 dias',           diasDeEstoque(ANEL, 3, 1), 84);
+
+// SEM passar diasDaSemanaAtivos — é como a Home chama de verdade. Passar o argumento
+// escondia o bug: o adesivo caía no default 7 e virava 21 doses por ciclo, fazendo
+// "9 adesivos ≈ 9 dias" em vez de 9 semanas.
+check('adesivo: 3 doses por ciclo (sem argumento extra)', dosesPorCiclo(ADESIVO, 1), 3);
+check('adesivo: 9 adesivos cobrem 84 dias, não 9',        diasDeEstoque(ADESIVO, 9, 1), 84);
+check('adesivo: 1 adesivo cobre 7 dias',                  diasDeEstoque(ADESIVO, 1, 1), 7);
 
 console.log('\n  CONFIGURAÇÃO IMPOSSÍVEL É RECUSADA NO CADASTRO\n');
 check('pausa zero é recusada',   validarCiclo({ ...CARTELA, daysOff: 0 }) !== null, true);
@@ -104,6 +112,26 @@ check('dias tomando zero é recusado', validarCiclo({ ...CARTELA, daysOn: 0 }) !
 check('fracionário é recusado',  validarCiclo({ ...CARTELA, daysOn: 1.5 }) !== null, true);
 check('data inválida é recusada', validarCiclo({ ...CARTELA, anchor: 'ontem' }) !== null, true);
 check('cartela 21/7 é aceita',   validarCiclo(CARTELA), null);
+
+console.log('\n  diaTemDose — o decisor único, e a falha para o lado SEGURO\n');
+const { diaTemDose, cicloDoMedicamento } = mod.exports;
+const COLS_OK = { cycle_kind: 'pill', cycle_days_on: 21, cycle_days_off: 7, cycle_anchor: '2026-09-01' };
+
+check('dia ativo tem dose',              diaTemDose(COLS_OK, D('2026-09-10')), true);
+check('dia de PAUSA não tem dose',       diaTemDose(COLS_OK, D('2026-09-25')), false);
+
+// O erro tolerável é avisar demais. Calar um remédio por dado corrompido não se desfaz:
+// ninguém percebe o alarme que não tocou. Por isso tudo abaixo devolve TRUE.
+check('sem ciclo nenhum → tem dose',     diaTemDose({}, D('2026-09-25')), true);
+check('kind sem os dias → tem dose',     diaTemDose({ cycle_kind: 'pill' }, D('2026-09-25')), true);
+check('sem âncora → tem dose',           diaTemDose({ ...COLS_OK, cycle_anchor: null }, D('2026-09-25')), true);
+check('dias zerados → tem dose',         diaTemDose({ ...COLS_OK, cycle_days_off: 0 }, D('2026-09-25')), true);
+check('âncora lixo → tem dose',          diaTemDose({ ...COLS_OK, cycle_anchor: 'ontem' }, D('2026-09-25')), true);
+check('daysOn fracionário → tem dose',   diaTemDose({ ...COLS_OK, cycle_days_on: 2.5 }, D('2026-09-25')), true);
+
+check('cicloDoMedicamento: completo vira ciclo', cicloDoMedicamento(COLS_OK) !== null, true);
+check('cicloDoMedicamento: pela metade é null',  cicloDoMedicamento({ cycle_kind: 'pill' }), null);
+check('cicloDoMedicamento: inválido é null',     cicloDoMedicamento({ ...COLS_OK, cycle_days_off: 0 }), null);
 
 // ---------------------------------------------------------------------------
 // PERSISTÊNCIA — o ciclo tem que sobreviver aos QUATRO caminhos do db.ts.

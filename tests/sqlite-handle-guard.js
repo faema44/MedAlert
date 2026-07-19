@@ -19,9 +19,13 @@ const ROOT = path.join(__dirname, '..');
 // Carrega o predicado REAL, transpilando o TS — não uma cópia do regex, que poderia divergir do
 // que roda em produção (que é justamente o bug que este teste existe para pegar). Os imports
 // nativos viram stubs: nada aqui os usa, e o db.ts não tem efeito colateral no topo.
+// Os imports de TIPO (`../types`) somem sozinhos na transpilação e nunca precisaram de stub.
+// Os de VALOR, não: `medCycle` emite require e quebraria o gate por caminho relativo. Ele é
+// testado por inteiro no test:cycle; aqui basta existir.
 const src = fs.readFileSync(path.join(ROOT, 'src/database/db.ts'), 'utf8')
   .replace("import * as SQLite from 'expo-sqlite';", 'const SQLite = {};')
-  .replace("import * as Sentry from '@sentry/react-native';", 'const Sentry = { captureMessage: () => {} };');
+  .replace("import * as Sentry from '@sentry/react-native';", 'const Sentry = { captureMessage: () => {} };')
+  .replace(/^import \{ diaTemDose \} from '\.\.\/utils\/medCycle';$/m, 'const diaTemDose = () => true;');
 const js = ts.transpileModule(src, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
 const mod = { exports: {} };
 new Function('module', 'exports', 'require', js)(mod, mod.exports, require);

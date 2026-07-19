@@ -11,6 +11,7 @@ import {
   getAppointments, resolveMedicationLogSlot, updateMedicationStock, getMedicationLog,
   revertMedicationLogSlotToPending,
 } from '../database/db';
+import { cicloDoMedicamento, cycleState, diaTemDose, diasDeEstoque, ComCiclo } from '../utils/medCycle';
 import EmergencyChecklist from '../components/EmergencyChecklist';
 import { getMedIdOptIn, isMedicalIdPending } from '../services/medicalId';
 import { getCyclePhase, CyclePhaseInfo } from '../utils/cyclePhase';
@@ -112,11 +113,47 @@ function occursOnDay(period: string | undefined, d: Date): boolean {
 
 type MedSlot = { at: Date; r: MedicationReminder };
 
+// Estado do ritmo com pausa para desenhar na Home. Não é dose e não vira UnifiedItem.
+type CicloNaTela = {
+  medId: number;
+  nome: string;
+  kind: string;
+  ativo: boolean;
+  diaDoBloco: number;
+  totalDoBloco: number;
+  faltam: number;
+  vespera: boolean;      // último dia de pausa — amanhã recomeça
+  ultimoAtivo: boolean;  // último dia tomando — amanhã começa a pausa
+};
+
+// "retire o adesivo/anel" só existe para quem tem algo aplicado; a pílula só para de tomar.
+const RETIRAR: Record<string, string> = { patch: 'Retire o adesivo', ring: 'Retire o anel' };
+
+// Próxima dose REAL de quem tem pausa. Sem isto, "próximos lembretes" anunciava a dose de
+// amanhã para um medicamento que amanhã ainda está em pausa — contradizendo, na mesma tela,
+// o card que dizia "faltam 4 dias". Anda dia a dia até achar um que tenha dose; o teto de
+// 400 evita laço infinito se algum ciclo doente disser que nenhum dia tem dose.
+function proximaDoseComCiclo(reminders: MedicationReminder[], med: ComCiclo) {
+  let info = nextReminderInfo(reminders);
+  if (!info || !cicloDoMedicamento(med)) return info;
+  for (let i = 0; i < 400 && info && !diaTemDose(med, new Date(info.sortMs)); i++) {
+    const seguinte = new Date(info.sortMs);
+    seguinte.setDate(seguinte.getDate() + 1);
+    seguinte.setHours(0, 0, 0, 0);
+    info = nextReminderInfo(reminders, seguinte);
+  }
+  return info;
+}
+
 // Horários agendados do medicamento nos dias [from, to] relativos a hoje, em ordem.
-function buildSlots(active: MedicationReminder[], today: Date, from: number, to: number): MedSlot[] {
+// `med` entra só pelo ciclo: em dia de PAUSA não existe dose, então não nasce slot. Barrar
+// aqui — na origem — garante que nenhuma borda mais adiante consiga confirmar uma dose que
+// o tratamento não prevê. O cartão de pausa é outro objeto, e não passa por aqui.
+function buildSlots(active: MedicationReminder[], today: Date, from: number, to: number, med?: ComCiclo): MedSlot[] {
   const out: MedSlot[] = [];
   for (let off = from; off <= to; off++) {
     const day = new Date(today.getFullYear(), today.getMonth(), today.getDate() + off);
+    if (med && !diaTemDose(med, day)) continue;
     for (const r of active) {
       if (!occursOnDay(r.period, day)) continue;
       const [h, m] = r.time.split(':').map(Number);
@@ -173,6 +210,7 @@ export default function HomeScreen() {
   const [showFgHTimePicker, setShowFgHTimePicker] = useState(false);
   // Feedback + desfazer: sem confirmação, o cartão sumia e pronto — pra quem toca errado
   // (tremor, dedo grosso), a única saída era caçar o registro no Histórico.
+  const [ciclos, setCiclos] = useState<CicloNaTela[]>([]);
   const [snack, setSnack] = useState<{ text: string; undo: () => void } | null>(null);
   const snackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dismissedAlertsRef = useRef<Set<string>>(new Set());
@@ -229,7 +267,7 @@ export default function HomeScreen() {
       if (reminders.length === 0) return;
       const activeReminders = reminders.filter(r => r.is_active);
       const isMuted = activeReminders.length > 0 && activeReminders.every(r => !r.with_sound);
-      const info = nextReminderInfo(reminders);
+      const info = proximaDoseComCiclo(reminders, med);
       if (!info) return;
       const { time: medTime, dayDiff: medDayDiff } = extractTimeDayDiff(info.sortMs);
       const dailyDoses = activeReminders.length || 1;
@@ -328,13 +366,34 @@ export default function HomeScreen() {
     // estoque para errar). Os números nunca batiam, e o usuário concluía, com razão, que um
     // dos dois estava mentindo.
     const staleStockMeds = new Set<number>();
+    const ciclos: CicloNaTela[] = [];
 
     m.forEach((med, idx) => {
       const active = (medReminders[idx] ?? []).filter(r => r.is_active);
       if (!active.length) return;
 
+      // O medicamento com ciclo aparece SEMPRE, tomando ou em pausa. Sumir na pausa seria
+      // calar justo na semana em que nada acontece — e é aí que "o app parou de funcionar" e
+      // "estou na pausa" ficam indistinguíveis. O card de pausa não é dose: não tem botão de
+      // confirmar e não passa pelo buildSlots.
+      const ciclo = cicloDoMedicamento(med);
+      if (ciclo) {
+        const st = cycleState(ciclo, nowD);
+        ciclos.push({
+          medId: med.id,
+          nome: med.commercial_name?.trim() || med.generic_name,
+          kind: ciclo.kind,
+          ativo: st.active,
+          diaDoBloco: st.dayOfBlock,
+          totalDoBloco: st.active ? ciclo.daysOn : ciclo.daysOff,
+          faltam: st.daysUntilFlip,
+          vespera: st.isPauseEve,
+          ultimoAtivo: st.isLastActive,
+        });
+      }
+
       // +1 dia: a "próxima dose" de um horário das 23h cai amanhã, e é ela que define a janela.
-      const allSlots = buildSlots(active, nowD, -7, 1);
+      const allSlots = buildSlots(active, nowD, -7, 1, med);
       const pending = allSlots.filter(s =>
         s.at.getTime() <= nowMs &&
         reminderExistedBeforeSlot(s.r, s.at) &&
@@ -370,6 +429,7 @@ export default function HomeScreen() {
     });
     setForegroundAlerts(overdue);
     setStaleStockMeds(staleStockMeds.size);
+    setCiclos(ciclos);
   }, []);
 
   useFocusEffect(useCallback(() => { load(); clearBadge(); }, [load]));
@@ -661,6 +721,29 @@ export default function HomeScreen() {
         </TouchableOpacity>
       )}
 
+      {/* Ritmo com pausa. Card INFORMATIVO — sem botão de confirmar, de propósito: se
+          parecesse um cartão de dose, alguém marcaria "tomei" em plena semana de pausa.
+          Fica visível o ciclo inteiro, porque na pausa é que a pessoa mais precisa saber
+          que o app continua contando. */}
+      {ciclos.map(c => (
+        <View key={`ciclo_${c.medId}`} style={[styles.cicloCard, c.vespera && styles.cicloCardVespera]}>
+          <Text style={styles.cicloIcone}>{c.vespera ? '▶' : c.ativo ? '💊' : '⏸'}</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.cicloNome}>{c.nome}</Text>
+            <Text style={[styles.cicloTexto, c.vespera && styles.cicloTextoVespera]}>
+              {c.vespera
+                ? 'Amanhã começa a cartela nova'
+                : c.ativo
+                  ? `Dia ${c.diaDoBloco} de ${c.totalDoBloco}${
+                      c.ultimoAtivo
+                        ? ` · amanhã começa a pausa${RETIRAR[c.kind] ? ` — ${RETIRAR[c.kind].toLowerCase()}` : ''}`
+                        : ''}`
+                  : `Em pausa · ${c.faltam === 1 ? 'recomeça amanhã' : `faltam ${c.faltam} dias`}`}
+            </Text>
+          </View>
+        </View>
+      ))}
+
       {/* Foreground overdue alerts */}
       {foregroundAlerts.map(alert => (
         <View key={alert.id} style={styles.fgAlertCard}>
@@ -722,8 +805,14 @@ export default function HomeScreen() {
                 {groupIdx === 0 && <Text style={styles.remindersTitle}>PRÓXIMOS LEMBRETES</Text>}
               </View>
               {items.map((item) => {
+                // Com pausa, a conta "estoque ÷ doses por dia" subestima em 25%: 21
+                // comprimidos cobrem 28 dias de calendário, porque 7 deles não consomem dose.
+                const cicloDoItem = item.type === 'med' && item.medObj ? cicloDoMedicamento(item.medObj) : null;
+                const dosePorDia = (item.dailyDoses || 1) * (item.medObj?.units_per_dose || 1);
                 const daysLeft = item.type === 'med' && item.stockQty != null
-                  ? Math.floor(item.stockQty / ((item.dailyDoses || 1) * (item.medObj?.units_per_dose || 1)))
+                  ? (cicloDoItem
+                      ? diasDeEstoque(cicloDoItem, item.stockQty, dosePorDia)
+                      : Math.floor(item.stockQty / dosePorDia))
                   : null;
                 const daysUntilEnd = item.medObj?.end_date
                   ? Math.ceil((new Date(item.medObj.end_date + 'T23:59:59').getTime() - Date.now()) / 86400000)
@@ -884,6 +973,21 @@ const styles = StyleSheet.create({
     paddingVertical: 9, alignItems: 'center',
   },
   fgAlertNaoTomeiText: { fontSize: 12, fontWeight: '700', color: '#fff' },
+
+  // Registro visual de INFORMAÇÃO (branco, como os cards de próximos lembretes), nunca o
+  // do cartão de ação (azul escuro com três botões) — a diferença é o que impede a pessoa
+  // de confirmar uma dose que não existe.
+  cicloCard: {
+    backgroundColor: '#fff', borderRadius: 12, marginBottom: 10,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)',
+    paddingVertical: 14, paddingHorizontal: 14,
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+  },
+  cicloCardVespera: { borderWidth: 1.5, borderColor: '#E07B4F' },
+  cicloIcone: { fontSize: 22 },
+  cicloNome: { fontSize: 15, fontWeight: '700', color: '#1C3F7A' },
+  cicloTexto: { fontSize: 13, color: '#666', marginTop: 2 },
+  cicloTextoVespera: { color: '#E07B4F', fontWeight: '700' },
 
   snackbar: {
     position: 'absolute', left: 12, right: 12, bottom: 14,

@@ -79,6 +79,43 @@ export function cycleState(c: MedCycle, hoje: Date = new Date()): MedCycleState 
   };
 }
 
+/** A forma solta que vem do banco — colunas separadas, qualquer uma podendo ser NULL. */
+export interface ComCiclo {
+  cycle_kind?: string | null;
+  cycle_days_on?: number | null;
+  cycle_days_off?: number | null;
+  cycle_anchor?: string | null;
+}
+
+/**
+ * Monta o ciclo a partir das colunas, ou null se o medicamento não tem ciclo.
+ * Exige as QUATRO colunas: configuração pela metade não é ciclo, é dado corrompido.
+ */
+export function cicloDoMedicamento(m: ComCiclo): MedCycle | null {
+  if (!m.cycle_kind || m.cycle_days_on == null || m.cycle_days_off == null || !m.cycle_anchor) return null;
+  const c: MedCycle = {
+    kind: m.cycle_kind as CycleKind,
+    daysOn: m.cycle_days_on,
+    daysOff: m.cycle_days_off,
+    anchor: m.cycle_anchor,
+  };
+  return validarCiclo(c) === null ? c : null;
+}
+
+/**
+ * "Este dia tem dose?" — o ÚNICO lugar que decide isso. Home, histórico e agendamento
+ * chamam daqui, para não haver duas respostas.
+ *
+ * FALHA PARA O LADO SEGURO: sem ciclo, ou com ciclo inválido/incompleto, devolve TRUE e o
+ * medicamento se comporta como sempre. O erro tolerável é avisar demais; calar um remédio
+ * por causa de dado corrompido é o erro que não dá para desfazer.
+ */
+export function diaTemDose(m: ComCiclo, dia: Date = new Date()): boolean {
+  const c = cicloDoMedicamento(m);
+  if (!c) return true;
+  return cycleState(c, dia).active;
+}
+
 /**
  * Converte "estou no dia N da cartela hoje" na data-âncora.
  * É assim que perguntamos no cadastro: escolher um dia num calendário é o campo que mais erra,
@@ -94,26 +131,32 @@ export function ancoraPorDiaAtual(diaAtual: number, hoje: Date = new Date()): st
 }
 
 /**
- * Doses por ciclo — o estoque erra 25% sem isto: 21 comprimidos duram 28 dias, não 21.
- * `dosesPorDiaAtivo` vem dos horários cadastrados; para o anel a dose é única no ciclo.
+ * Doses por ciclo — o estoque erra sem isto: 21 comprimidos duram 28 dias, não 21.
+ *
+ * A FORMA da dose vem do `kind`, não do calendário: adesivo é semanal por definição, anel é
+ * um por ciclo. Só o 'custom' precisa que o chamador diga em quantos dias da semana se toma.
+ * (Antes o adesivo entrava numa conta que dependia de `diasDaSemanaAtivos`, e como a Home não
+ * passava esse argumento ele caía no default 7 e virava 21 doses por ciclo — 9 adesivos
+ * "durando 9 dias" em vez de 9 semanas. O teste passava porque eu é que passava o argumento.)
  */
 export function dosesPorCiclo(c: MedCycle, dosesPorDiaAtivo: number, diasDaSemanaAtivos = 7): number {
-  if (c.kind === 'ring') return 1;
-  if (c.kind === 'patch' || diasDaSemanaAtivos < 7) {
-    // Dose semanal: quantas vezes o dia da semana cai dentro do bloco ativo.
+  if (c.kind === 'ring') return 1;                                  // 1 colocação por ciclo
+  if (c.kind === 'patch') return Math.ceil(c.daysOn / 7);           // 1 por semana
+  if (diasDaSemanaAtivos < 7) {                                     // custom em dias fixos da semana
     return Math.ceil((c.daysOn * diasDaSemanaAtivos) / 7) * dosesPorDiaAtivo;
   }
   return c.daysOn * dosesPorDiaAtivo;
 }
 
 /** Dias de calendário que o estoque cobre — conta a pausa, que não consome dose. */
-export function diasDeEstoque(c: MedCycle, estoque: number, dosesPorDiaAtivo: number): number {
-  const porCiclo = dosesPorCiclo(c, dosesPorDiaAtivo);
+export function diasDeEstoque(c: MedCycle, estoque: number, dosesPorDiaAtivo: number, diasDaSemanaAtivos = 7): number {
+  const porCiclo = dosesPorCiclo(c, dosesPorDiaAtivo, diasDaSemanaAtivos);
   if (porCiclo <= 0) return 0;
   const total = c.daysOn + c.daysOff;
   const ciclosInteiros = Math.floor(estoque / porCiclo);
   const resto = estoque % porCiclo;
-  // O resto só rende dias ATIVOS — a pausa do último ciclo não é "cobertura".
-  const diasDoResto = Math.ceil(resto / Math.max(1, dosesPorDiaAtivo));
-  return ciclosInteiros * total + diasDoResto;
+  // Quantos dias cada dose cobre DENTRO do bloco ativo: 1 para pílula diária, 7 para adesivo,
+  // 21 para anel. Sem isto o resto era contado como se toda dose valesse um dia.
+  const diasPorDose = c.daysOn / porCiclo;
+  return ciclosInteiros * total + Math.round(resto * diasPorDose);
 }
