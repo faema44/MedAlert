@@ -20,7 +20,7 @@ import { getProfile } from '../database/db';
 import {
   updateEmergencyNotification,
   scheduleReminder, cancelAllRemindersForMedication, notifyLowStock,
-  rescheduleRemindersForMedication,
+  rescheduleRemindersForMedication, relatarFalhaSilenciosa,
 } from '../services/notifications';
 import { syncMedicalIdReminder } from '../services/medicalId';
 import { syncCaregiverSchedule } from '../services/caregiver';
@@ -594,11 +594,18 @@ export default function MedicationsScreen() {
       const isSuspendedMed = editingId !== null &&
         !!medications.find(m => m.id === editingId)?.suspended;
 
+      // Com pausa, NADA é agendado aqui: os gatilhos abaixo são os nativos que se repetem
+      // sozinhos, e um DAILY numa cartela dispararia justamente na semana de descanso. Pior,
+      // ficaria órfão — este caminho não cancela nada, e o reagendamento seguinte trata a
+      // cartela por outra rota sem tocar no diário que sobrou. O agendamento correto sai
+      // depois do laço, quando os lembretes já existem no banco.
+      const temCiclo = cicloDoMedicamento(data as any) != null;
+
       for (const e of newEntries) {
         const [h, m] = e.time.split(':').map(Number);
         const p = e.period ?? 'day';
         const ri = e.repeat_interval ?? 0;
-        if (!isSuspendedMed) try {
+        if (!isSuspendedMed && !temCiclo) try {
           const notifName = data.commercial_name.trim() || data.generic_name;
           const isHerbal = isPhytotherapic(data.generic_name);
           if (p === 'day') await scheduleReminder(savedMedId, notifName, data.dose, h, m, e.with_sound, ri, undefined, undefined, isHerbal);
@@ -608,8 +615,22 @@ export default function MedicationsScreen() {
             const [, nStr, dStr] = p.split(':');
             await scheduleReminderEveryNMonths(savedMedId, notifName, data.dose, Number(nStr), Number(dStr), h, m, e.with_sound, ri, undefined, undefined, isHerbal);
           }
-        } catch {}
-        await addReminder({ medication_id: savedMedId, time: e.time, period: e.period, with_sound: e.with_sound, is_active: true, repeat_interval: ri }).catch(() => {});
+        } catch (err) { relatarFalhaSilenciosa(`agendar ${savedMedId} ${e.time} (${p})`, err); }
+        // Se ESTA falhar, o medicamento fica salvo SEM lembrete — aparece na lista, com
+        // horário na tela, e nunca toca. Não há como o usuário perceber.
+        await addReminder({ medication_id: savedMedId, time: e.time, period: e.period, with_sound: e.with_sound, is_active: true, repeat_interval: ri })
+          .catch(err => relatarFalhaSilenciosa(`gravar lembrete ${savedMedId} ${e.time}`, err));
+      }
+
+      // A cartela é agendada agora, pela rota que conhece a pausa, e só depois dos lembretes
+      // existirem no banco — scheduleCartela lê os horários de lá.
+      if (temCiclo && !isSuspendedMed) {
+        const rs = await getRemindersForMedication(savedMedId).catch(() => [] as MedicationReminder[]);
+        const salvo = (await getMedications(true)).find(mm => mm.id === savedMedId);
+        if (salvo) {
+          await rescheduleRemindersForMedication(salvo, rs)
+            .catch(err => relatarFalhaSilenciosa(`agendar cartela ${savedMedId}`, err));
+        }
       }
 
       const isNew = editingId === null;

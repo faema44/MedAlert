@@ -10,7 +10,7 @@ import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
 import { exportBackup, importBackup, getAppointments } from '../database/db';
 import { encryptBackup, decryptBackup, isEncryptedBackup } from '../services/backupCrypto';
-import { rescheduleAllActiveNotifications, scheduleAppointmentReminders } from '../services/notifications';
+import { rescheduleAllActiveNotifications, scheduleAppointmentReminders, relatarFalhaSilenciosa } from '../services/notifications';
 import * as Notifications from 'expo-notifications';
 
 const IS_IOS = Platform.OS === 'ios';
@@ -114,10 +114,13 @@ export default function BackupScreen() {
     // Reagenda tudo na hora — sem exigir reinício do app.
     // Cancela agendamentos dos dados antigos (substituídos pelo import) e recria dos novos.
     await Notifications.cancelAllScheduledNotificationsAsync().catch(() => {});
-    await rescheduleAllActiveNotifications().catch(() => {});
+    // Falhar aqui deixa a pessoa com os dados restaurados e NENHUM alarme — ela troca de
+    // celular, vê os remédios na lista e conclui que está tudo certo.
+    await rescheduleAllActiveNotifications().catch(e => relatarFalhaSilenciosa('reagendar após restore', e));
     const appts = await getAppointments().catch(() => []);
     for (const a of appts) {
-      await scheduleAppointmentReminders(a.id, a.doctor_name, a.date, a.time).catch(() => {});
+      await scheduleAppointmentReminders(a.id, a.doctor_name, a.date, a.time)
+        .catch(e => relatarFalhaSilenciosa(`consulta ${a.id} após restore`, e));
     }
     Alert.alert('Backup restaurado', 'Dados e lembretes restaurados com sucesso.');
   }

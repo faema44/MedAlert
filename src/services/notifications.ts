@@ -1365,7 +1365,7 @@ export async function scheduleAppointmentReminders(
         date: d1,
         channelId: APPT_SOUND_CHANNEL,
       } as any,
-    }).catch(e => Sentry.captureException(e));
+    }).catch(e => relatarFalhaSilenciosa(`consulta ${appointmentId}`, e));
   }
 
   const h1 = new Date(apptMs - 60 * 60 * 1000);
@@ -1383,7 +1383,7 @@ export async function scheduleAppointmentReminders(
         date: h1,
         channelId: APPT_SOUND_CHANNEL,
       } as any,
-    }).catch(e => Sentry.captureException(e));
+    }).catch(e => relatarFalhaSilenciosa(`consulta ${appointmentId}`, e));
   }
 }
 
@@ -1417,20 +1417,22 @@ export async function rescheduleRemindersForMedication(
     const [h, m] = r.time.split(':').map(Number);
     if (isNaN(h)) continue;
     if (!r.period || r.period === 'day') {
-      await scheduleReminder(med.id, notifName, med.dose, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal, existing).catch(() => {});
+      await scheduleReminder(med.id, notifName, med.dose, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal, existing)
+        .catch(e => relatarFalhaSilenciosa(`diário ${med.id} ${r.time}`, e));
     } else if (r.period.startsWith('week:')) {
       const wds = r.period.split(':')[1].split(',').map(Number);
-      await scheduleReminderWeekly(med.id, notifName, med.dose, wds, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal, existing).catch(() => {});
+      await scheduleReminderWeekly(med.id, notifName, med.dose, wds, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal, existing)
+        .catch(e => relatarFalhaSilenciosa(`semanal ${med.id} ${r.time}`, e));
     } else if (r.period.startsWith('month:')) {
       const days = r.period.split(':')[1].split(',').map(Number);
       // catch com relato, não vazio: foi o catch vazio que escondeu por meses que o
       // CALENDAR estoura no Android e o lembrete mensal simplesmente não existia lá.
       await scheduleReminderMonthly(med.id, notifName, med.dose, days, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal, existing)
-        .catch(e => { console.warn('[mensal] falhou', e); Sentry.captureException(e); });
+        .catch(e => relatarFalhaSilenciosa(`mensal ${med.id} ${r.time}`, e));
     } else if (r.period.startsWith('nmonths:')) {
       const [, nStr, dStr] = r.period.split(':');
       await scheduleReminderEveryNMonths(med.id, notifName, med.dose, parseInt(nStr), parseInt(dStr), h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal, existing)
-        .catch(e => { console.warn('[livre] falhou', e); Sentry.captureException(e); });
+        .catch(e => relatarFalhaSilenciosa(`livre ${med.id} ${r.time}`, e));
     }
   }
 }
@@ -1452,6 +1454,28 @@ async function reportIOSNotificationBudget(): Promise<void> {
     `[ios] teto de notificações encostado: ${pending.length}/${IOS_NOTIF_LIMIT} pendentes — o sistema pode estar descartando lembretes`,
     'warning',
   );
+}
+
+/**
+ * Relata falha que o usuário NÃO tem como perceber sozinho.
+ *
+ * Nem todo `.catch(() => {})` é bug: cancelar notificação inexistente ou apagar canal já
+ * apagado falha à toa e sem consequência. O que não pode ficar mudo é a falha que deixa o
+ * app em silêncio — agendamento que não aconteceu, lembrete que não foi gravado. Não há tela
+ * que mostre "o que deveria estar agendado", então sem relato ninguém descobre.
+ *
+ * Foi assim que ficou escondido por meses que o gatilho CALENDAR não funciona no Android:
+ * lembrete Mensal, Livre e aviso de CONSULTA simplesmente não existiam lá.
+ *
+ * console.warn ALÉM do Sentry porque o Sentry não chega do emulador, e sem sinal local a
+ * verificação em desenvolvimento vira adivinhação.
+ */
+export function relatarFalhaSilenciosa(contexto: string, e: unknown): void {
+  console.warn(`[falha] ${contexto}`, e);
+  Sentry.captureException(e instanceof Error ? e : new Error(`${contexto}: ${String(e)}`), {
+    tags: { silenciosa: 'true' },
+    extra: { contexto },
+  });
 }
 
 /**
