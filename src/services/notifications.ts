@@ -848,6 +848,11 @@ export async function scheduleReminderWeekly(
   }
 }
 
+// Quantos meses à frente o Android agenda de uma vez para simular a repetição que só o iOS
+// tem nativa. 12 cobre um ano; o app reagenda tudo a cada abertura, então na prática a
+// pessoa nunca chega perto do fim da fila.
+const MESES_A_FRENTE_ANDROID = 12;
+
 export async function scheduleReminderMonthly(
   medicationId: number,
   medicationName: string,
@@ -870,18 +875,40 @@ export async function scheduleReminderMonthly(
   for (const day of days) {
     const id = `reminder_${medicationId}_m${day}_${tp}`;
     if (!sameScheduled(existing?.get(id), content, channelId)) {
-      await Notifications.scheduleNotificationAsync({
-        identifier: id,
-        content,
-        trigger: {
-          type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
-          repeats: true,
-          day,
-          hour,
-          minute,
-          channelId,
-        } as any,
-      });
+      if (Platform.OS === 'ios') {
+        // No iPhone o CALENDAR repetido resolve com 1 slot para sempre — e slot ali é escasso.
+        await Notifications.scheduleNotificationAsync({
+          identifier: id,
+          content,
+          trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
+            repeats: true,
+            day,
+            hour,
+            minute,
+            channelId,
+          } as any,
+        });
+      } else {
+        // No Android o CALENDAR não existe (é @platform ios) e ESTOURA: o lembrete mensal
+        // nunca funcionou aqui, calado, porque a chamada tem catch vazio. DATE não repete,
+        // então agendamos as próximas ocorrências uma a uma — o que só é viável porque
+        // Android não tem o teto de 64. Reabastecido a cada reagendamento (abertura do app).
+        for (let k = 0; k < MESES_A_FRENTE_ANDROID; k++) {
+          const alvo = new Date(now.getFullYear(), now.getMonth() + k, day, hour, minute, 0, 0);
+          if (alvo.getTime() <= now.getTime()) continue;
+          if (alvo.getDate() !== day) continue; // 31 em mês de 30: o JS rola p/ o mês seguinte
+          await Notifications.scheduleNotificationAsync({
+            identifier: `${id}_${alvo.getFullYear()}${String(alvo.getMonth() + 1).padStart(2, '0')}`,
+            content,
+            trigger: {
+              type: Notifications.SchedulableTriggerInputTypes.DATE,
+              date: alvo,
+              channelId,
+            } as any,
+          });
+        }
+      }
     }
     const c = new Date(now.getFullYear(), now.getMonth(), day, hour, minute, 0, 0);
     const ms = c.getTime() > now.getTime() ? c.getTime() : new Date(now.getFullYear(), now.getMonth() + 1, day, hour, minute, 0, 0).getTime();
@@ -923,13 +950,11 @@ export async function scheduleReminderEveryNMonths(
         identifier: id,
         content,
         trigger: {
-          type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
-          repeats: false,
-          year: next.getFullYear(),
-          month: next.getMonth() + 1,
-          day: next.getDate(),
-          hour,
-          minute,
+          // DATE, não CALENDAR: este último é @platform ios e ESTOURA no Android, então o
+          // lembrete "Livre" (a cada N meses) nunca funcionou lá — calado, porque a chamada
+          // tem catch vazio. Como aqui as datas já são explícitas, DATE é troca direta.
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: new Date(next.getFullYear(), next.getMonth(), next.getDate(), hour, minute, 0, 0),
           channelId,
         } as any,
       });
@@ -1333,16 +1358,14 @@ export async function scheduleAppointmentReminders(
         ...soundFor(APPT_SOUND_CHANNEL),
       },
       trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
-        repeats: false,
-        year: d1.getFullYear(),
-        month: d1.getMonth() + 1,
-        day: d1.getDate(),
-        hour: d1.getHours(),
-        minute: d1.getMinutes(),
+        // DATE, não CALENDAR (@platform ios). Este era o pior dos três: no Android o aviso
+        // de consulta ESTOURAVA e o catch vazio engolia — a pessoa perdia a consulta e o app
+        // nunca tinha dito nada. `d1` já é um instante pronto, então DATE recebe ele direto.
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: d1,
         channelId: APPT_SOUND_CHANNEL,
       } as any,
-    }).catch(() => {});
+    }).catch(e => Sentry.captureException(e));
   }
 
   const h1 = new Date(apptMs - 60 * 60 * 1000);
@@ -1356,16 +1379,11 @@ export async function scheduleAppointmentReminders(
         ...soundFor(APPT_SOUND_CHANNEL),
       },
       trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
-        repeats: false,
-        year: h1.getFullYear(),
-        month: h1.getMonth() + 1,
-        day: h1.getDate(),
-        hour: h1.getHours(),
-        minute: h1.getMinutes(),
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: h1,
         channelId: APPT_SOUND_CHANNEL,
       } as any,
-    }).catch(() => {});
+    }).catch(e => Sentry.captureException(e));
   }
 }
 
@@ -1405,10 +1423,14 @@ export async function rescheduleRemindersForMedication(
       await scheduleReminderWeekly(med.id, notifName, med.dose, wds, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal, existing).catch(() => {});
     } else if (r.period.startsWith('month:')) {
       const days = r.period.split(':')[1].split(',').map(Number);
-      await scheduleReminderMonthly(med.id, notifName, med.dose, days, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal, existing).catch(() => {});
+      // catch com relato, não vazio: foi o catch vazio que escondeu por meses que o
+      // CALENDAR estoura no Android e o lembrete mensal simplesmente não existia lá.
+      await scheduleReminderMonthly(med.id, notifName, med.dose, days, h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal, existing)
+        .catch(e => { console.warn('[mensal] falhou', e); Sentry.captureException(e); });
     } else if (r.period.startsWith('nmonths:')) {
       const [, nStr, dStr] = r.period.split(':');
-      await scheduleReminderEveryNMonths(med.id, notifName, med.dose, parseInt(nStr), parseInt(dStr), h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal, existing).catch(() => {});
+      await scheduleReminderEveryNMonths(med.id, notifName, med.dose, parseInt(nStr), parseInt(dStr), h, m, r.with_sound, r.repeat_interval, stockWarning, homeReminder, isHerbal, existing)
+        .catch(e => { console.warn('[livre] falhou', e); Sentry.captureException(e); });
     }
   }
 }
