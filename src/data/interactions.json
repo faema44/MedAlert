@@ -10129,8 +10129,8 @@
     "drug1": "Rotigotina",
     "drug2": "Fenelzina",
     "risk_level": "high",
-    "risk_description": "Síndrome serotoninérgica",
-    "mechanism": "Síndrome serotoninérgica. Conduta: Evitar.",
+    "risk_description": "Instabilidade da pressão arterial — risco de crise hipertensiva",
+    "mechanism": "A rotigotina é agonista DOPAMINÉRGICO — ela não aumenta a serotonina, então não causa síndrome serotoninérgica. O que existe com um IMAO não seletivo como a fenelzina é instabilidade da pressão: o IMAO impede a destruição das catecolaminas e a pressão pode disparar, ao mesmo tempo em que a rotigotina favorece queda de pressão ao levantar. Conduta: Evitar.",
     "drug1_rxcuis": [
       "616739"
     ],
