@@ -1454,6 +1454,22 @@ async function reportIOSNotificationBudget(): Promise<void> {
   );
 }
 
+/**
+ * Quantas notificações o iOS REALMENTE tem pendentes, contra o teto de 64.
+ *
+ * Conta o que o sistema devolve, não o que a nossa aritmética previu — se as duas
+ * divergirem, quem manda é o aparelho, e é justamente a divergência que interessa saber.
+ *
+ * Devolve null fora do iOS: no Android não há teto, e mostrar um contador ali seria inventar
+ * uma limitação que não existe.
+ */
+export async function contarNotificacoesIOS(): Promise<{ total: number; teto: number } | null> {
+  if (Platform.OS !== 'ios') return null;
+  const pendentes = await Notifications.getAllScheduledNotificationsAsync().catch(() => null);
+  if (!pendentes) return null;
+  return { total: pendentes.length, teto: TETO_IOS };
+}
+
 export async function rescheduleAllActiveNotifications(): Promise<void> {
   try {
     // Snapshot dos agendamentos atuais: lembrete já agendado e sem mudança não é
