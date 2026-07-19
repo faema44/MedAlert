@@ -120,6 +120,13 @@ const COLS_OK = { cycle_kind: 'pill', cycle_days_on: 21, cycle_days_off: 7, cycl
 check('dia ativo tem dose',              diaTemDose(COLS_OK, D('2026-09-10')), true);
 check('dia de PAUSA não tem dose',       diaTemDose(COLS_OK, D('2026-09-25')), false);
 
+// O anel fica 21 dias NO LUGAR: é 1 colocação por ciclo, não 21 doses.
+const ANEL_COLS = { ...COLS_OK, cycle_kind: 'ring' };
+check('anel: dia 1 tem colocação',       diaTemDose(ANEL_COLS, D('2026-09-01')), true);
+check('anel: dia 10 NÃO cobra de novo',  diaTemDose(ANEL_COLS, D('2026-09-10')), false);
+check('anel: dia 29 é a próxima colocação', diaTemDose(ANEL_COLS, D('2026-09-29')), true);
+check('adesivo: dia 10 ativo (a semana vem do lembrete)', diaTemDose({ ...COLS_OK, cycle_kind: 'patch' }, D('2026-09-10')), true);
+
 // O erro tolerável é avisar demais. Calar um remédio por dado corrompido não se desfaz:
 // ninguém percebe o alarme que não tocou. Por isso tudo abaixo devolve TRUE.
 check('sem ciclo nenhum → tem dose',     diaTemDose({}, D('2026-09-25')), true);

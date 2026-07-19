@@ -27,6 +27,7 @@ import { syncCaregiverSchedule } from '../services/caregiver';
 import * as Sentry from '@sentry/react-native';
 import { Medication, MedicationReminder } from '../types';
 import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, isPhytotherapic, nomeDaBaseParaBula } from '../utils/drugSearch';
+import { cicloDoMedicamento, cycleState, ancoraPorDiaAtual, validarCiclo } from '../utils/medCycle';
 import { useBulaViewer } from '../utils/useBulaViewer';
 import { reportMissingDrug } from '../services/reportMissing';
 // ──────────────────────────────────────────────────────────────────────────────
@@ -59,7 +60,19 @@ function addDays(days: number): string {
 const TIMES_PER_DAY_OPTIONS = [1, 2, 3, 4, 6];
 const DOSE_UNITS = ['mg', 'g', 'mcg', 'UI', 'mL', 'gotas', '%', 'cáps'];
 type ReminderPeriod = 'day' | 'week' | 'month' | 'year';
-type WizardStep = 'type' | 'name' | 'dose' | 'period' | 'times_per_day' | 'weekdays' | 'month_days' | 'n_months' | 'time' | 'deadline' | 'sound' | 'stock' | 'summary';
+type WizardStep = 'type' | 'name' | 'dose' | 'period' | 'cycle_preset' | 'cycle_setup' | 'times_per_day' | 'weekdays' | 'month_days' | 'n_months' | 'time' | 'deadline' | 'sound' | 'stock' | 'summary';
+
+// Presets do ritmo com pausa. O passo 2 pergunta QUAL TRATAMENTO, não "diário ou semanal?",
+// porque o anel não cabe nessa pergunta: ele é 1 colocação por ciclo mais uma retirada.
+// Os números vêm prontos — num remédio em que errar custa gravidez, o padrão certo de fábrica
+// vale mais que um formulário em branco. "Outro" existe para corticoide cíclico, reposição
+// hormonal e quimio não virarem cidadãos de segunda classe num card rotulado de cartela.
+const CYCLE_PRESETS = [
+  { kind: 'pill'   as const, icon: '💊', label: 'Cartela / pílula', hint: 'Todo dia · 21 tomando + 7 de pausa', on: 21, off: 7, period: 'day'  as ReminderPeriod },
+  { kind: 'patch'  as const, icon: '🩹', label: 'Adesivo',          hint: '1 por semana · 3 semanas + 1 de pausa', on: 21, off: 7, period: 'week' as ReminderPeriod },
+  { kind: 'ring'   as const, icon: '⭕', label: 'Anel',             hint: 'Coloca e retira · 21 dias + 7 de pausa', on: 21, off: 7, period: 'day'  as ReminderPeriod },
+  { kind: 'custom' as const, icon: '⚙️', label: 'Outro tratamento com pausa', hint: 'Você escolhe os dias', on: 21, off: 7, period: 'day' as ReminderPeriod },
+];
 
 const WEEKDAYS = [
   { label: 'Dom', value: 1 }, { label: 'Seg', value: 2 }, { label: 'Ter', value: 3 },
@@ -100,10 +113,13 @@ function computeTimes(startTime: string, timesPerDay: number): string[] {
   });
 }
 
-function getStepSequence(period: ReminderPeriod, isNew: boolean, skipTime = false): WizardStep[] {
+function getStepSequence(period: ReminderPeriod, isNew: boolean, skipTime = false, comPausa = false): WizardStep[] {
   const base: WizardStep[] = isNew
     ? ['type', 'name', 'dose', 'period']
     : ['name', 'dose', 'period'];
+  // Com pausa, os dois passos do ciclo entram ANTES da frequência: é o preset que decide se
+  // depois vem "vezes por dia" (pílula, anel) ou "dias da semana" (adesivo).
+  if (comPausa) base.push('cycle_preset', 'cycle_setup');
   if (period === 'day') base.push('times_per_day');
   else if (period === 'week') base.push('weekdays');
   else if (period === 'month') base.push('month_days');
@@ -183,6 +199,12 @@ export default function MedicationsScreen() {
   const [specificModeActive, setSpecificModeActive] = useState(false);
   const [withSound, setWithSound] = useState(true);
   const [repeatInterval, setRepeatInterval] = useState(0);
+  // Ritmo com pausa. `comPausa` é o que faz os dois passos do ciclo entrarem na sequência.
+  const [comPausa, setComPausa] = useState(false);
+  const [cycleKind, setCycleKind] = useState<'pill' | 'patch' | 'ring' | 'custom'>('pill');
+  const [cycleOn, setCycleOn] = useState('21');
+  const [cycleOff, setCycleOff] = useState('7');
+  const [cycleDiaAtual, setCycleDiaAtual] = useState('1');
   const [reminderPeriod, setReminderPeriod] = useState<ReminderPeriod>('day');
   const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([]);
   const [selectedMonthDays, setSelectedMonthDays] = useState<number[]>([]);
@@ -471,6 +493,15 @@ export default function MedicationsScreen() {
     setReminderHasSound(prev => new Map(prev).set(item.id, newSound));
   }
 
+  function cicloValidoDoForm(): boolean {
+    return validarCiclo({
+      kind: cycleKind,
+      daysOn: parseInt(cycleOn, 10),
+      daysOff: parseInt(cycleOff, 10),
+      anchor: ancoraPorDiaAtual(1),
+    }) === null;
+  }
+
   async function doSaveWizard() {
     try {
       const effectiveTime = startTime || '08:00';
@@ -531,6 +562,20 @@ export default function MedicationsScreen() {
         // Só vale para o esquema diário: "refeições" não existe em semanal/mensal, e
         // guardar 1 ali faria a edição abrir na tela errada.
         meal_mode: mealMode && reminderPeriod === 'day' ? 1 : 0,
+        // As QUATRO colunas do ciclo, ou as quatro em NULL — nunca metade: cicloDoMedicamento
+        // exige todas, e configuração pela metade seria dado corrompido que o app trataria
+        // como "sem ciclo" (falha segura, mas silenciosa).
+        ...(comPausa && cicloValidoDoForm()
+          ? {
+              cycle_kind: cycleKind,
+              cycle_days_on: parseInt(cycleOn, 10),
+              cycle_days_off: parseInt(cycleOff, 10),
+              cycle_anchor: ancoraPorDiaAtual(
+                Math.min(Math.max(parseInt(cycleDiaAtual, 10) || 1, 1),
+                         (parseInt(cycleOn, 10) || 1) + (parseInt(cycleOff, 10) || 0)),
+              ),
+            }
+          : { cycle_kind: null, cycle_days_on: null, cycle_days_off: null, cycle_anchor: null }),
       };
 
       let savedMedId: number;
@@ -650,6 +695,18 @@ export default function MedicationsScreen() {
     setSuggestions([]); setCommercialSuggestions([]); setKnownDrug(true); setCustomNameConfirmed(false);
     setEntryType(isPhytotherapic(item.generic_name) ? 'fitoterapico' : 'medicamento');
     resetPickerState(); setReminders([]);
+    // Reabre o ciclo como foi salvo. O "dia da cartela" é recalculado a partir da âncora —
+    // guardar o dia digitado seria mentira uma semana depois.
+    const cicloSalvo = cicloDoMedicamento(item);
+    setComPausa(cicloSalvo != null);
+    if (cicloSalvo) {
+      setCycleKind(cicloSalvo.kind);
+      setCycleOn(String(cicloSalvo.daysOn));
+      setCycleOff(String(cicloSalvo.daysOff));
+      setCycleDiaAtual(String(cycleState(cicloSalvo).dayInCycle));
+    } else {
+      setCycleKind('pill'); setCycleOn('21'); setCycleOff('7'); setCycleDiaAtual('1');
+    }
     setEditSnapshot(null);
     setWizardStep('summary');
     setShowModal(true);
@@ -703,10 +760,12 @@ export default function MedicationsScreen() {
 
   // overridePeriod: pass the new period when calling from the period tap handler,
   // because React state won't have updated yet at call time.
-  function wizGoNext(overridePeriod?: ReminderPeriod) {
+  function wizGoNext(overridePeriod?: ReminderPeriod, overrideComPausa?: boolean) {
     const p = overridePeriod ?? reminderPeriod;
     const isNew = editingId === null;
-    const seq = getStepSequence(p, isNew, mealMode);
+    // overrideComPausa: o setState do card ⏸ ainda não refletiu quando wizGoNext roda no
+    // mesmo toque — sem passar o valor à mão, a sequência sairia sem os passos do ciclo.
+    const seq = getStepSequence(p, isNew, mealMode, overrideComPausa ?? comPausa);
     const idx = seq.indexOf(wizardStep);
 
     if (wizardStep === 'name' && !form.generic_name.trim()) {
@@ -771,7 +830,7 @@ export default function MedicationsScreen() {
       return;
     }
     const isNew = editingId === null;
-    const seq = getStepSequence(reminderPeriod, isNew, mealMode);
+    const seq = getStepSequence(reminderPeriod, isNew, mealMode, comPausa);
     const idx = seq.indexOf(wizardStep);
     if (idx <= 0) {
       setShowModal(false);
@@ -1057,6 +1116,28 @@ export default function MedicationsScreen() {
                 );
               })}
             </View>
+
+            {/* Card LARGO, fora da grade 2×2 (os cards são width 47% com flexWrap — um quinto
+                ficaria órfão). A largura inteira também comporta o subtítulo, que é o que faz
+                a pessoa se reconhecer: "Com pausa" sozinho não diz nada a quem só sabe que
+                toma anticoncepcional. E o título NÃO é "cartela" de propósito — senão quem
+                toma corticoide cíclico nunca clicaria aqui. */}
+            <TouchableOpacity
+              style={[styles.periodWideBtn, comPausa && styles.periodWideBtnActive]}
+              onPress={() => {
+                lockOnlyRef.current = false; homeReminderRef.current = true;
+                setHomeReminderEnabled(true); setComPausa(true);
+                wizGoNext(undefined, true);
+              }}
+            >
+              <Text style={styles.periodCardIcon}>⏸</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.periodCardText, comPausa && styles.periodCardTextActive]}>Com pausa</Text>
+                <Text style={[styles.periodWideHint, comPausa && styles.periodCardTextActive]}>
+                  cartela, adesivo, anel
+                </Text>
+              </View>
+            </TouchableOpacity>
             <TouchableOpacity
               style={[styles.lockOnlyBtn, editingId !== null && !homeReminderEnabled && styles.lockOnlyBtnActive]}
               onPress={() => { lockOnlyRef.current = true; homeReminderRef.current = false; handleSave(); }}
@@ -1071,6 +1152,82 @@ export default function MedicationsScreen() {
               ? 'Apenas na Ficha Médica: o medicamento só entra na lista que você copia para a Ficha Médica do app Saúde — sem alarme e sem registro no Histórico.'
               : 'Apenas Tela de Bloqueio: o medicamento só aparece na ficha médica para socorristas — sem alarme e sem registro no Histórico.'}
             </Text>
+          </>
+        );
+      }
+
+      case 'cycle_preset': {
+        return (
+          <>
+            <Text style={styles.wizLabel}>Qual é o tratamento?</Text>
+            <Text style={styles.wizHint}>Os números já vêm prontos — você confere na próxima tela</Text>
+            {CYCLE_PRESETS.map(p => (
+              <TouchableOpacity
+                key={p.kind}
+                style={[styles.presetBtn, cycleKind === p.kind && styles.presetBtnActive]}
+                onPress={() => {
+                  setCycleKind(p.kind);
+                  setCycleOn(String(p.on));
+                  setCycleOff(String(p.off));
+                  setReminderPeriod(p.period);
+                  // O anel é 1 colocação por ciclo: 1 horário basta, e "vezes por dia" perde
+                  // o sentido. O adesivo cai em 'week' e a pessoa escolhe o dia da semana.
+                  if (p.kind === 'ring') { setTimesPerDay(1); setTimesPerDayTouched(true); }
+                  wizGoNext(p.period, true);
+                }}
+              >
+                <Text style={styles.presetIcon}>{p.icon}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.presetLabel, cycleKind === p.kind && styles.periodCardTextActive]}>{p.label}</Text>
+                  <Text style={[styles.presetHint, cycleKind === p.kind && styles.periodCardTextActive]}>{p.hint}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </>
+        );
+      }
+
+      case 'cycle_setup': {
+        const on = parseInt(cycleOn, 10) || 0;
+        const off = parseInt(cycleOff, 10) || 0;
+        const diaAtual = Math.min(Math.max(parseInt(cycleDiaAtual, 10) || 1, 1), Math.max(1, on + off));
+        const ancora = ancoraPorDiaAtual(diaAtual);
+        const valido = on >= 1 && off >= 1;
+        // Prévia com DATAS REAIS: é a única forma de a pessoa conferir o que configurou contra
+        // a cartela que tem na mão. Sem isto, um erro de 1 dia só aparece semanas depois.
+        const prev = valido ? (() => {
+          const st = cycleState({ kind: cycleKind, daysOn: on, daysOff: off, anchor: ancora });
+          const d = (n: number) => { const x = new Date(); x.setDate(x.getDate() + n); return `${String(x.getDate()).padStart(2, '0')}/${String(x.getMonth() + 1).padStart(2, '0')}`; };
+          return st.active
+            ? `Toma até ${d(st.daysUntilFlip - 1)} · pausa até ${d(st.daysUntilFlip + off - 1)} · recomeça ${d(st.daysUntilFlip + off)}`
+            : `Em pausa até ${d(st.daysUntilFlip - 1)} · recomeça ${d(st.daysUntilFlip)}`;
+        })() : null;
+        return (
+          <>
+            <Text style={styles.wizLabel}>Confira o ciclo</Text>
+            <View style={styles.cycleRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.fieldLabel}>Dias tomando</Text>
+                <TextInput style={styles.fieldInput} value={cycleOn} onChangeText={setCycleOn} keyboardType="number-pad" maxLength={3} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.fieldLabel}>Dias de pausa</Text>
+                <TextInput style={styles.fieldInput} value={cycleOff} onChangeText={setCycleOff} keyboardType="number-pad" maxLength={3} />
+              </View>
+            </View>
+
+            {/* Perguntar "em que dia você está" em vez de pedir a data de início: quem tem a
+                cartela na mão sabe o comprimido, mas erra o calendário. */}
+            <Text style={[styles.fieldLabel, { marginTop: 18 }]}>
+              {cycleKind === 'ring' ? 'Há quantos dias está com o anel?' : 'Que dia da cartela você está HOJE?'}
+            </Text>
+            <TextInput style={styles.fieldInput} value={cycleDiaAtual} onChangeText={setCycleDiaAtual} keyboardType="number-pad" maxLength={3} />
+            <Text style={styles.wizHint}>
+              Se começa hoje, deixe 1. {on + off === 28 ? 'Um ciclo de 28 dias recomeça sempre no mesmo dia da semana.' : ''}
+            </Text>
+
+            {prev && <View style={styles.cyclePreview}><Text style={styles.cyclePreviewText}>{prev}</Text></View>}
+            {!valido && <Text style={styles.cycleErro}>Tomando e pausa precisam de pelo menos 1 dia cada.</Text>}
           </>
         );
       }
@@ -1616,7 +1773,7 @@ export default function MedicationsScreen() {
             <View style={styles.wizModalBox}>
               {/* Progress bar — só no cadastro novo; a edição navega pelo resumo */}
               {editingId === null && (() => {
-                const seq = getStepSequence(reminderPeriod, true, mealMode);
+                const seq = getStepSequence(reminderPeriod, true, mealMode, comPausa);
                 const idx = Math.max(0, seq.indexOf(wizardStep));
                 const pct = `${Math.round((idx + 1) / seq.length * 100)}%`;
                 return (
@@ -1678,7 +1835,7 @@ export default function MedicationsScreen() {
                               if (wizardStep === 'summary') return 'Salvar ✓';
                               return editNextStep(wizardStep, reminderPeriod) === 'summary' ? 'OK ✓' : 'Próximo ›';
                             }
-                            const seq = getStepSequence(reminderPeriod, true, mealMode);
+                            const seq = getStepSequence(reminderPeriod, true, mealMode, comPausa);
                             const idx = seq.indexOf(wizardStep);
                             return idx >= seq.length - 1 ? 'Salvar ✓' : 'Próximo ›';
                           })()}
@@ -1874,6 +2031,33 @@ const styles = StyleSheet.create({
     fontSize: 15, color: '#222', backgroundColor: '#fafafa',
   },
   suggestionsBox: { marginTop: 6, gap: 4 },
+  // Largura inteira, fora da grade 2×2 — e é a largura que permite o subtítulo.
+  periodWideBtn: {
+    marginTop: 8, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 12,
+    paddingVertical: 14, paddingHorizontal: 12,
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+  },
+  periodWideBtnActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
+  periodWideHint: { fontSize: 12, color: '#888', marginTop: 2 },
+
+  presetBtn: {
+    marginTop: 10, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 12,
+    paddingVertical: 14, paddingHorizontal: 12,
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+  },
+  presetBtnActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
+  presetIcon: { fontSize: 24 },
+  presetLabel: { fontSize: 15, fontWeight: '700', color: '#333' },
+  presetHint: { fontSize: 12, color: '#888', marginTop: 2 },
+
+  cycleRow: { flexDirection: 'row', gap: 12, marginTop: 8 },
+  cyclePreview: {
+    marginTop: 18, backgroundColor: '#EEF2FA', borderRadius: 10, padding: 12,
+    borderWidth: 0.5, borderColor: 'rgba(28,63,122,0.15)',
+  },
+  cyclePreviewText: { fontSize: 13, color: '#1C3F7A', fontWeight: '600', lineHeight: 19 },
+  cycleErro: { fontSize: 13, color: '#C0392B', marginTop: 10, fontWeight: '600' },
+
   suggestionsInline: { marginTop: 12, gap: 4 },
   suggestionRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   suggestionChip: { flex: 1, backgroundColor: '#e8edf7', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#c0ccdf' },

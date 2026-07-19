@@ -113,7 +113,13 @@ export function cicloDoMedicamento(m: ComCiclo): MedCycle | null {
 export function diaTemDose(m: ComCiclo, dia: Date = new Date()): boolean {
   const c = cicloDoMedicamento(m);
   if (!c) return true;
-  return cycleState(c, dia).active;
+  const st = cycleState(c, dia);
+  if (!st.active) return false;
+  // O anel é UMA colocação por ciclo, não uma dose por dia: ele fica 21 dias no lugar. Sem
+  // esta linha o app cobraria 21 vezes a mesma colocação. (O adesivo não precisa: a
+  // periodicidade semanal dele vem do `week:N` do próprio lembrete.)
+  if (c.kind === 'ring') return st.isFirstOfCycle;
+  return true;
 }
 
 /**
