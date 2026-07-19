@@ -22,6 +22,36 @@ type PedidoSenha =
   | { modo: 'criar'; destino: 'share' | 'pasta' }
   | { modo: 'abrir'; json: string };
 
+// O arquivo NASCE para circular — WhatsApp, Drive, pendrive. O modelo de ameaça já assume que
+// ele vaza; quem segura a porta é só a senha. O scrypt encarece cada tentativa, mas encarecer
+// 10 mil tentativas (4 dígitos) ainda dá um número pequeno para quem tem uma GPU. Daí o piso de
+// 6 e a recusa das óbvias: são elas que aparecem quando se pede "pelo menos 6".
+//
+// Deliberadamente NÃO exigimos maiúscula/número/símbolo. O público é idoso, e senha que não se
+// lembra é pior que senha fraca: sem ela o backup não volta — por ninguém, nem por nós. Uma
+// frase de três palavras é mais forte que "Ab1@x" e infinitamente mais fácil de lembrar, e é
+// para lá que o texto do modal empurra.
+const SENHA_MIN = 6;
+
+const SENHAS_OBVIAS = new Set([
+  '123456', '1234567', '12345678', '123456789', '1234567890',
+  '654321', '111111', '000000', 'senha', 'senha123', 'password',
+  'qwerty', 'abcdef', 'aaaaaa', 'medalert', 'backup',
+]);
+
+/** Devolve o motivo da recusa, ou null se a senha serve. */
+function recusaSenha(s: string): string | null {
+  if (s.length < SENHA_MIN) return `A senha precisa de pelo menos ${SENHA_MIN} caracteres.`;
+  const baixa = s.toLowerCase();
+  if (SENHAS_OBVIAS.has(baixa)) return 'Essa senha é das primeiras que alguém tentaria. Escolha outra.';
+  if (/^(.)\1+$/.test(s)) return 'Repetir o mesmo caractere não protege o arquivo. Escolha outra.';
+  // Sequências (123456, abcdef e as de trás para frente) — o mesmo caso das repetições.
+  const seq = (passo: number) => s.split('').every((c, i) =>
+    i === 0 || c.charCodeAt(0) === s.charCodeAt(i - 1) + passo);
+  if (seq(1) || seq(-1)) return 'Sequências como 123456 são das primeiras tentativas. Escolha outra.';
+  return null;
+}
+
 export default function BackupScreen() {
   const insets = useSafeAreaInsets();
   const [pedido, setPedido] = useState<PedidoSenha | null>(null);
@@ -127,7 +157,8 @@ export default function BackupScreen() {
     const p = pedido;
     const s = senha.trim();
     if (p.modo === 'criar') {
-      if (s.length < 4) { setErroSenha('A senha precisa de pelo menos 4 caracteres.'); return; }
+      const recusa = recusaSenha(s);
+      if (recusa) { setErroSenha(recusa); return; }
       if (s !== senha2.trim()) { setErroSenha('As duas senhas não são iguais.'); return; }
     } else if (!s) {
       setErroSenha('Digite a senha deste backup.');
@@ -192,7 +223,7 @@ export default function BackupScreen() {
             </Text>
             <Text style={styles.senhaTexto}>
               {pedido?.modo === 'criar'
-                ? 'O arquivo só abre com esta senha. Anote em lugar seguro: sem ela, o backup não pode ser restaurado — por ninguém.'
+                ? 'O arquivo só abre com esta senha. Uma frase curta que só você lembra — como "meu cachorro bingo" — protege melhor que uma senha curta e é mais fácil de guardar. Anote em lugar seguro: sem ela, o backup não pode ser restaurado — por ninguém.'
                 : 'Digite a senha escolhida quando este backup foi exportado.'}
             </Text>
 
