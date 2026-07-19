@@ -61,6 +61,7 @@ import * as Notifications from 'expo-notifications';
 import {
   parsePairingLink, ingestCaregiverPush, notifyCaregiver, syncCaregiverSchedule,
   registerCaregiverTask, reconcileCaregiverMisses, getPatients,
+  contarRecadosNaoVistos, subscribeInbox,
 } from './src/services/caregiver';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
 
@@ -217,9 +218,18 @@ function AppNavigator() {
   const [activityAlert, setActivityAlert] = useState<ActivityAlertPayload | null>(null);
   // Este aparelho acompanha alguém? Controla o atalho de cuidador no cabeçalho.
   const [hasPatients, setHasPatients] = useState(false);
+  // Recados que chegaram e o cuidador ainda não abriu. A notificação do cuidador é local e
+  // passageira: quem não olhou na hora perde o aviso e nada mais chama a atenção. O selo é o
+  // que sobrevive a isso — fica no 👥 até ele abrir a lista.
+  const [recadosNovos, setRecadosNovos] = useState(0);
   const refreshHasPatients = () => {
     getPatients().then(ps => setHasPatients(ps.length > 0)).catch(() => {});
+    contarRecadosNaoVistos().then(setRecadosNovos).catch(() => {});
   };
+  // Chega recado com o app aberto: o selo aparece na hora, sem esperar troca de tela.
+  useEffect(() => subscribeInbox(() => {
+    contarRecadosNaoVistos().then(setRecadosNovos).catch(() => {});
+  }), []);
 
   useEffect(() => {
     async function init() {
@@ -562,10 +572,28 @@ function AppNavigator() {
                   <TouchableOpacity
                     onPress={() => navigation.navigate('CaregiverHistory' as never)}
                     style={{ padding: 4 }}
-                    accessibilityLabel="Histórico de quem eu acompanho"
+                    accessibilityLabel={recadosNovos > 0
+                      ? `Histórico de quem eu acompanho — ${recadosNovos} recado${recadosNovos > 1 ? 's' : ''} novo${recadosNovos > 1 ? 's' : ''}`
+                      : 'Histórico de quem eu acompanho'}
                     accessibilityRole="button"
                   >
-                    <Text style={{ fontSize: 20 }}>👥</Text>
+                    {/* Selo em vez de trocar a cor do 👥: emoji não se recolore. E o NÚMERO
+                        importa aqui — 1 recado e 3 recados pedem urgências diferentes. */}
+                    <View>
+                      <Text style={{ fontSize: 20 }}>👥</Text>
+                      {recadosNovos > 0 && (
+                        <View style={{
+                          position: 'absolute', top: -4, right: -7,
+                          minWidth: 17, height: 17, borderRadius: 9,
+                          backgroundColor: '#E07B4F', borderWidth: 1.5, borderColor: '#1C3F7A',
+                          alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3,
+                        }}>
+                          <Text style={{ color: '#fff', fontSize: 10, fontWeight: '800' }}>
+                            {recadosNovos > 9 ? '9+' : recadosNovos}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
                   </TouchableOpacity>
                 )}
                 <TouchableOpacity

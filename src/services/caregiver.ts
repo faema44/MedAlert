@@ -53,6 +53,9 @@ const KV_INBOX = 'caregiver_inbox';
 // Então gravamos aqui a cobrança futura; ao abrir o app, reconcileCaregiverMisses varre o que já
 // venceu e ainda está no livro (não foi confirmado) e passa para o histórico.
 const KV_MISSES = 'caregiver_misses';
+// Quando o cuidador ABRIU a lista de recados pela última vez. Guardado em KV, não em memória:
+// o aviso tem de sobreviver a fechar o app — é justamente quem fechou sem ver que precisa dele.
+const KV_INBOX_VISTO = 'caregiver_inbox_visto_em';
 const HORIZONTE_DIAS = 3;
 
 // `nick` vem do idoso (na 1ª mensagem dele). `label` é o apelido que o CUIDADOR deu ao gerar o
@@ -259,6 +262,46 @@ export async function getInbox(pid?: string): Promise<InboxItem[]> {
   } catch {
     return [];
   }
+}
+
+/**
+ * Quantos recados chegaram depois da última vez que o cuidador abriu a lista.
+ *
+ * POR QUE ISTO EXISTE: a notificação do cuidador é local e passageira — quem não olhou na hora
+ * (dormindo, dirigindo, em reunião) perde o aviso, ele some da bandeja e nada mais chama a
+ * atenção. O recado continua no inbox, mas ninguém tem como saber que está lá.
+ *
+ * Sem `visto` gravado, tudo o que existe conta como não visto: quem instalou e já tem recado
+ * precisa ver o selo, não começar zerado.
+ */
+export async function contarRecadosNaoVistos(): Promise<number> {
+  const [itens, visto] = await Promise.all([getInbox(), getKV(KV_INBOX_VISTO)]);
+  if (!itens.length) return 0;
+  const corte = visto ? new Date(visto).getTime() : 0;
+  if (isNaN(corte)) return itens.length;
+  return itens.filter(i => {
+    const t = new Date(i.at).getTime();
+    return isNaN(t) || t > corte;   // data ilegível conta como novo — errar para o lado de avisar
+  }).length;
+}
+
+/**
+ * Chamado ao ABRIR a lista. Só isso zera o selo — notificação vista na bandeja não conta.
+ *
+ * Marca até o item MAIS NOVO do inbox, não até "agora": o `at` vem do aparelho do idoso, e
+ * relógio adiantado dele produz carimbo no futuro. Marcando só "agora", esses itens ficariam
+ * eternamente não vistos e o selo nunca zeraria — o cuidador aprenderia a ignorá-lo, e aí ele
+ * deixa de valer para sempre. O que a pessoa acabou de ver na tela conta como visto, venha o
+ * carimbo de onde vier.
+ */
+export async function marcarRecadosVistos(): Promise<void> {
+  const itens = await getInbox();
+  const maisNovo = itens.reduce((max, i) => {
+    const t = new Date(i.at).getTime();
+    return isNaN(t) ? max : Math.max(max, t);
+  }, 0);
+  await setKV(KV_INBOX_VISTO, new Date(Math.max(Date.now(), maisNovo)).toISOString());
+  emitInbox();
 }
 
 // Mantém só os avisos das últimas `horas` de UMA pessoa e apaga os mais antigos (o pareamento e

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'rea
 import { useFocusEffect } from '@react-navigation/native';
 import {
   getInbox, InboxItem, getPatients, Patient, subscribeInbox, clearOldInbox,
+  marcarRecadosVistos,
 } from '../services/caregiver';
 
 // Cor e ícone por tipo de aviso, para diferenciar num relance.
@@ -27,7 +28,9 @@ export default function CaregiverHistoryScreen() {
     setAberto(prev => prev ?? (aceitos.length === 1 ? aceitos[0].pid : null));
   }, []);
 
-  useFocusEffect(useCallback(() => { load(); }, [load]));
+  // Abrir ESTA tela é o que zera o selo do 👥 — ver a notificação na bandeja não conta,
+  // porque é justamente quem não a viu que precisa do aviso persistir.
+  useFocusEffect(useCallback(() => { load(); marcarRecadosVistos().catch(() => {}); }, [load]));
   // Atualiza ao vivo quando um aviso chega com esta tela aberta.
   useEffect(() => subscribeInbox(() => { load(); }), [load]);
 
