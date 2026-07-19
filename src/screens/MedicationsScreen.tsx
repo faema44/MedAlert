@@ -27,7 +27,7 @@ import { syncCaregiverSchedule } from '../services/caregiver';
 import * as Sentry from '@sentry/react-native';
 import { Medication, MedicationReminder } from '../types';
 import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, isPhytotherapic, nomeDaBaseParaBula } from '../utils/drugSearch';
-import { cicloDoMedicamento, cycleState, ancoraPorDiaAtual, validarCiclo } from '../utils/medCycle';
+import { cicloDoMedicamento, cycleState, ancoraPorDiaAtual, validarCiclo, diasDeEstoque } from '../utils/medCycle';
 import { useBulaViewer } from '../utils/useBulaViewer';
 import { reportMissingDrug } from '../services/reportMissing';
 // ──────────────────────────────────────────────────────────────────────────────
@@ -1676,7 +1676,13 @@ export default function MedicationsScreen() {
           const repeatInt = meta?.repeat ?? 0;
           const dailyDoses = periodType === 'day' ? (times.length || 1) : 1;
           const unitsPerDose = item.units_per_dose || 1;
-          const daysLeft = item.stock_quantity != null ? Math.floor(item.stock_quantity / (dailyDoses * unitsPerDose)) : null;
+          // Com pausa a conta muda: 21 comprimidos cobrem 28 dias de calendário, porque os 7
+          // de pausa não consomem dose. Mesma correção já feita na Home.
+          const cicloItem = cicloDoMedicamento(item);
+          const daysLeft = item.stock_quantity == null ? null
+            : cicloItem
+              ? diasDeEstoque(cicloItem, item.stock_quantity, dailyDoses * unitsPerDose)
+              : Math.floor(item.stock_quantity / (dailyDoses * unitsPerDose));
           const stockLow = daysLeft != null && daysLeft <= 3;
 
           let scheduleStr = '';

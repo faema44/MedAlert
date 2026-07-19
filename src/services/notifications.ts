@@ -5,7 +5,7 @@ import { Profile, Medication, MedicationReminder, ActivityReminder } from '../ty
 import { postMedNotification, cancelMedNotification, isEmergencyActive, setNextMedSchedule, cancelNextMedBanner } from './medNotification';
 import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity, getAppointments, getContacts, getKV, setKV, addMedicationLowStockLog } from '../database/db';
 import { isPhytotherapic } from '../utils/drugSearch';
-import { cicloDoMedicamento, diaTemDose, ComCiclo } from '../utils/medCycle';
+import { cicloDoMedicamento, cycleState, diaTemDose, ComCiclo } from '../utils/medCycle';
 import { CAREGIVER_CHANNEL } from './caregiver';
 
 const CHANNEL_ID = 'medalert_emergency_v5';
@@ -941,6 +941,163 @@ export async function scheduleReminderEveryNMonths(
   }
 }
 
+// ---------------------------------------------------------------------------
+// RITMO COM PAUSA — o único agendamento DATADO do app.
+//
+// Os outros lembretes usam gatilho nativo que se repete sozinho (DAILY, WEEKLY, CALENDAR
+// repeats), e por isso custam 1 slot para sempre. Não existe gatilho nativo para "21 dias
+// tomando, 7 parado": o padrão tem período de 28 dias e não é diário, semanal nem mensal.
+// Então cada dia coberto é uma notificação com data própria — e é isto que torna a cartela
+// a única capaz de calar os remédios dos outros moradores, já que o iOS guarda as 64 mais
+// PRÓXIMAS. Ver o rateio em diasDeCartelaQueCabem.
+// ---------------------------------------------------------------------------
+
+/**
+ * Horário da checagem: "não confirmou a dose de hoje".
+ *
+ * Não pode ser fixo às 22h — quem toma antes de dormir receberia a cobrança ANTES da dose.
+ * Então deriva da dose: +3h.
+ *
+ * O que NÃO basta é um teto de 23:00, que foi a primeira regra que escrevi. Ele protege a
+ * dose das 22:00 mas não a das 00:00 (viraria 03:00) nem a das 02:00 (05:00) — e o gate
+ * pegou isso. A trava certa é uma JANELA DE VIGÍLIA: a checagem sempre cai entre 07:00 e
+ * 23:59. O que escorregaria para a madrugada é empurrado para as 07:00 do dia seguinte, e
+ * aí vira "não confirmou a dose de ontem", que ainda é útil — anticoncepcional tem margem
+ * de ~12h. Notificação às 4 da manhã não é insistência, é dano.
+ */
+const CHECAGEM_INICIO_MIN = 7 * 60;   // 07:00
+const CHECAGEM_FIM_MIN = 24 * 60 - 1; // 23:59
+
+export function horarioDaChecagem(hour: number, minute: number): { h: number; m: number; diaSeguinte: boolean } {
+  const base = hour * 60 + minute;
+  let alvo = base + 180;
+  const noDia = alvo % (24 * 60);
+  let diaSeguinte = alvo >= 24 * 60;
+  if (noDia < CHECAGEM_INICIO_MIN || noDia > CHECAGEM_FIM_MIN) {
+    // Caiu na madrugada: joga para as 07:00 da manhã que vem depois da dose.
+    alvo = CHECAGEM_INICIO_MIN;
+    diaSeguinte = base >= CHECAGEM_INICIO_MIN;
+    return { h: 7, m: 0, diaSeguinte };
+  }
+  return { h: Math.floor(noDia / 60), m: noDia % 60, diaSeguinte };
+}
+
+/**
+ * Agenda a cartela: os dias do bloco ativo dentro da janela, mais as duas bordas.
+ *
+ * `janelaDias` já vem rateada pelo orçamento (pode ser 0 num aparelho lotado). As BORDAS são
+ * agendadas SEMPRE, independentemente da janela: esquecer de recomeçar é o modo de falha que
+ * engravida, e a retirada do adesivo/anel não tem segunda chance.
+ */
+async function scheduleCartela(
+  med: Medication,
+  reminders: MedicationReminder[],
+  janelaDias: number,
+  existing?: ExistingMap,
+): Promise<void> {
+  const ciclo = cicloDoMedicamento(med);
+  if (!ciclo) return;
+  const nome = med.commercial_name?.trim() || med.generic_name;
+  const ativos = reminders.filter(r => r.is_active);
+  if (!ativos.length) return;
+  const hoje = new Date();
+  const ymd = (d: Date) => `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+
+  for (let i = 0; i < janelaDias; i++) {
+    const dia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + i);
+    if (!diaTemDose(med, dia)) continue;
+    for (const r of ativos) {
+      const [h, m] = r.time.split(':').map(Number);
+      if (isNaN(h) || isNaN(m)) continue;
+      // Dias passados de hoje não são reagendados: o gatilho datado não dispara no passado
+      // e ocuparia slot à toa.
+      if (i === 0 && new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), h, m) <= hoje) continue;
+      const canal = medChannel(r.with_sound, med.home_reminder !== 0, isPhytotherapic(med.generic_name));
+      const tp = timePart(h, m);
+      const idDose = `cartela_${med.id}_${ymd(dia)}_${tp}`;
+      const conteudo = reminderContent(nome, med.dose, med.id, canal, 0);
+      if (!sameScheduled(existing?.get(idDose), conteudo, canal)) {
+        await Notifications.scheduleNotificationAsync({
+          identifier: idDose, content: conteudo,
+          trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.CALENDAR, repeats: false,
+            year: dia.getFullYear(), month: dia.getMonth() + 1, day: dia.getDate(),
+            hour: h, minute: m, channelId: canal,
+          } as any,
+        }).catch(() => {});
+      }
+
+      // A checagem substitui a cobrança de 5 em 5 min: 1 slot por dia em vez de 6, e é o que
+      // protege anticoncepcional, cuja margem é de ~12h e não de 30 minutos.
+      const chk = horarioDaChecagem(h, m);
+      const diaChk = new Date(dia.getFullYear(), dia.getMonth(), dia.getDate() + (chk.diaSeguinte ? 1 : 0));
+      const idChk = `cartelachk_${med.id}_${ymd(dia)}_${tp}`;
+      const conteudoChk = {
+        title: nome,
+        body: `Você não confirmou a dose de hoje (${r.time.substring(0, 5)})`,
+        data: { type: 'reminder', medicationId: med.id, name: nome, dose: med.dose, repeatInterval: 0 },
+        sticky: true, categoryIdentifier: MED_ACTION_CATEGORY, ...soundFor(canal),
+      };
+      if (!sameScheduled(existing?.get(idChk), conteudoChk, canal)) {
+        await Notifications.scheduleNotificationAsync({
+          identifier: idChk, content: conteudoChk,
+          trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.CALENDAR, repeats: false,
+            year: diaChk.getFullYear(), month: diaChk.getMonth() + 1, day: diaChk.getDate(),
+            hour: chk.h, minute: chk.m, channelId: canal,
+          } as any,
+        }).catch(() => {});
+      }
+    }
+  }
+
+  // ── as duas bordas, sempre ──
+  const st = cycleState(ciclo, hoje);
+  const [h0, m0] = (ativos[0].time || '08:00').split(':').map(Number);
+  const canal0 = medChannel(ativos[0].with_sound, med.home_reminder !== 0, false);
+
+  // Retirada: só existe para quem tem algo aplicado. A pílula apenas para de tomar.
+  if ((ciclo.kind === 'patch' || ciclo.kind === 'ring') && st.active) {
+    const inicioPausa = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + st.daysUntilFlip);
+    const idRet = `cartelaret_${med.id}_${ymd(inicioPausa)}`;
+    const corpo = ciclo.kind === 'ring' ? 'Hoje é dia de retirar o anel' : 'Hoje é dia de retirar o adesivo';
+    const cRet = { title: nome, body: corpo, data: { type: 'reminder', medicationId: med.id, name: nome, dose: '', repeatInterval: 0 }, sticky: true, categoryIdentifier: MED_ACTION_CATEGORY, ...soundFor(canal0) };
+    if (!sameScheduled(existing?.get(idRet), cRet, canal0)) {
+      await Notifications.scheduleNotificationAsync({
+        identifier: idRet, content: cRet,
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.CALENDAR, repeats: false,
+          year: inicioPausa.getFullYear(), month: inicioPausa.getMonth() + 1, day: inicioPausa.getDate(),
+          hour: h0, minute: m0, channelId: canal0,
+        } as any,
+      }).catch(() => {});
+    }
+  }
+
+  // Reinício: a notificação mais importante da funcionalidade. Vai na VÉSPERA, porque avisar
+  // no próprio dia deixa a pessoa sem tempo de buscar a cartela nova.
+  const diasAteReinicio = st.active ? st.daysUntilFlip + ciclo.daysOff : st.daysUntilFlip;
+  const vespera = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + diasAteReinicio - 1);
+  const idRei = `cartelarei_${med.id}_${ymd(vespera)}`;
+  const cRei = {
+    title: nome,
+    body: ciclo.kind === 'ring' ? 'Amanhã começa o anel novo' : ciclo.kind === 'patch' ? 'Amanhã começa o adesivo novo' : 'Amanhã começa a cartela nova',
+    data: { type: 'reminder', medicationId: med.id, name: nome, dose: '', repeatInterval: 0 },
+    sticky: true, categoryIdentifier: MED_ACTION_CATEGORY, ...soundFor(canal0),
+  };
+  if (vespera.getTime() >= new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()).getTime()
+      && !sameScheduled(existing?.get(idRei), cRei, canal0)) {
+    await Notifications.scheduleNotificationAsync({
+      identifier: idRei, content: cRei,
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.CALENDAR, repeats: false,
+        year: vespera.getFullYear(), month: vespera.getMonth() + 1, day: vespera.getDate(),
+        hour: h0, minute: m0, channelId: canal0,
+      } as any,
+    }).catch(() => {});
+  }
+}
+
 export async function cancelReminderByTime(
   medicationId: number,
   time: string,
@@ -977,13 +1134,19 @@ export async function cancelReminderByTime(
 export async function cancelAllRemindersForMedication(medicationId: number): Promise<void> {
   const scheduled = await Notifications.getAllScheduledNotificationsAsync();
   // reminder_repeat_ não casa com o prefixo reminder_{id}_ — sem o filtro extra a
-  // série de repetições sobrevivia à exclusão do medicamento e tocava órfã
+  // série de repetições sobrevivia à exclusão do medicamento e tocava órfã.
+  // Os prefixos cartela* caem na MESMA armadilha, e pior: são datados, então uma cartela
+  // editada deixaria disparos marcados para dias que a nova configuração diz serem de pausa.
   await Promise.all(
     scheduled
       .filter(n =>
         n.identifier.startsWith(`reminder_${medicationId}_`) ||
         n.identifier.startsWith(`reminder_repeat_${medicationId}_`) ||
-        n.identifier === `reminder_repeat_${medicationId}`)
+        n.identifier === `reminder_repeat_${medicationId}` ||
+        n.identifier.startsWith(`cartela_${medicationId}_`) ||
+        n.identifier.startsWith(`cartelachk_${medicationId}_`) ||
+        n.identifier.startsWith(`cartelaret_${medicationId}_`) ||
+        n.identifier.startsWith(`cartelarei_${medicationId}_`))
       .map(n => Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {}))
   );
 }
@@ -1194,6 +1357,14 @@ export async function rescheduleRemindersForMedication(
   const notifName = med.commercial_name?.trim() || med.generic_name;
   const homeReminder = med.home_reminder !== 0;
   const isHerbal = isPhytotherapic(med.generic_name);
+
+  // Com pausa, o caminho é OUTRO: nenhum dos gatilhos nativos abaixo sabe pular a semana de
+  // descanso, e um DAILY avisaria a pessoa a tomar justamente nos dias em que não deve.
+  if (cicloDoMedicamento(med)) {
+    await scheduleCartela(med, reminders, janelaDeCartelaDias, existing).catch(() => {});
+    return;
+  }
+
   for (const r of reminders) {
     if (!r.is_active) continue;
     const [h, m] = r.time.split(':').map(Number);

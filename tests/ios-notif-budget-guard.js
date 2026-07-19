@@ -43,7 +43,7 @@ const js = ts.transpileModule(prelude + src, {
 }).outputText;
 const mod = { exports: {} };
 new Function('module', 'exports', 'require', js)(mod, mod.exports, require);
-const { basesDoPeriodo, calcularNagsPorLembrete, custoDaCartela, diasDeCartelaQueCabem,
+const { basesDoPeriodo, calcularNagsPorLembrete, custoDaCartela, diasDeCartelaQueCabem, horarioDaChecagem,
         JANELA_CICLO_DIAS, BORDAS_CICLO } = mod.exports;
 
 for (const [nome, fn] of [['basesDoPeriodo', basesDoPeriodo], ['calcularNagsPorLembrete', calcularNagsPorLembrete],
@@ -146,6 +146,29 @@ for (let horarios = 1; horarios <= 40; horarios++) {
 }
 check(`1 a 40 horários × até 2 cartelas cabe em 64 (pior: ${piorComCartela})`, estourouComCartela, null);
 check(`no aperto a janela encolhe (mínimo visto: ${menorJanela} dias)`, menorJanela < JANELA_CICLO_DIAS, true);
+
+console.log('\n  CHECAGEM NOTURNA — derivada da dose, nunca fixa\n');
+// Fixar em 22h quebraria para quem toma antes de dormir: a "checagem" viria ANTES da dose.
+const chk = (h, m = 0) => { const r = horarioDaChecagem(h, m); return `${String(r.h).padStart(2, '0')}:${String(r.m).padStart(2, '0')}${r.diaSeguinte ? '+1' : ''}`; };
+check('dose 08:00 → checagem 11:00', chk(8), '11:00');
+check('dose 12:00 → checagem 15:00', chk(12), '15:00');
+check('dose 20:00 → 23:00', chk(20), '23:00');
+// A primeira regra que escrevi tinha teto de 23:00 e quebrava aqui embaixo — a checagem caía
+// na madrugada para dose noturna ou de madrugada. Estes são os casos que o gate pegou.
+check('dose 21:00 → 07:00 do dia seguinte (não 00:00)', chk(21), '07:00+1');
+check('dose 22:00 → 07:00 do dia seguinte (não 01:00)', chk(22), '07:00+1');
+check('dose 23:30 → 07:00 do dia seguinte', chk(23, 30), '07:00+1');
+check('dose 00:00 → 07:00 do MESMO dia (não 03:00)', chk(0), '07:00');
+check('dose 02:00 → 07:00 do mesmo dia (não 05:00)', chk(2), '07:00');
+check('dose 05:00 → 08:00, já é horário de vigília', chk(5), '08:00');
+
+const varre = (f) => Array.from({ length: 24 * 4 }, (_, i) => f(Math.floor(i / 4), (i % 4) * 15)).every(Boolean);
+check('nunca cai ANTES da dose (varredura de 15 em 15 min)',
+  varre((h, m) => { const r = horarioDaChecagem(h, m); return (r.h * 60 + r.m) + (r.diaSeguinte ? 1440 : 0) > h * 60 + m; }), true);
+check('NUNCA cai entre 00:00 e 06:59 — ninguém acorda para confirmar',
+  varre((h, m) => { const r = horarioDaChecagem(h, m); return r.h >= 7; }), true);
+check('nunca passa de 3h depois da dose, salvo empurrão da madrugada',
+  varre((h, m) => { const r = horarioDaChecagem(h, m); const d = (r.h * 60 + r.m) + (r.diaSeguinte ? 1440 : 0) - (h * 60 + m); return d <= 180 || r.h === 7; }), true);
 
 console.log('\n  A JANELA CEDE, AS BORDAS NÃO\n');
 check('casa vazia: cartela leva a janela inteira', diasDeCartelaQueCabem(7, 1, 2, 0), 7);
