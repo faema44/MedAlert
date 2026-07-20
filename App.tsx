@@ -45,6 +45,7 @@ import HistoryScreen from './src/screens/HistoryScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import LockScreenScreen from './src/screens/LockScreenScreen';
 import BackupScreen from './src/screens/BackupScreen';
+import ShoppingListScreen from './src/screens/ShoppingListScreen';
 import CaregiverScreen from './src/screens/CaregiverScreen';
 import CaregiverHistoryScreen from './src/screens/CaregiverHistoryScreen';
 import OnboardingScreen from './src/screens/OnboardingScreen';
@@ -79,6 +80,7 @@ const TITLES: Record<string, string> = {
   Settings: 'Configurações',
   LockScreen: 'Tela de Bloqueio',
   Backup: 'Backup',
+  ShoppingList: 'Lista de compras',
   Caregiver: 'Cuidador',
   CaregiverHistory: 'Histórico dos idosos',
 };
@@ -637,6 +639,7 @@ function AppNavigator() {
           <Tab.Screen name="Help"          component={HelpScreen}          options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tab.Screen name="LockScreen"    component={LockScreenScreen}    options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tab.Screen name="Backup"        component={BackupScreen}        options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tab.Screen name="ShoppingList"  component={ShoppingListScreen}  options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tab.Screen name="Caregiver"     component={CaregiverScreen}     options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tab.Screen name="CaregiverHistory" component={CaregiverHistoryScreen} options={{ tabBarItemStyle: { display: 'none' } }} />
         </Tab.Navigator>

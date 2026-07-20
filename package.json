@@ -52,6 +52,7 @@
     "test:ficha-qr": "node tests/ficha-qr-guard.js",
     "test:ios-notif-budget": "node tests/ios-notif-budget-guard.js",
     "test:widget": "node tests/widget-guard.js",
+    "test:lista-compras": "node tests/lista-compras-guard.js",
     "sign:data": "node tools/sign-data.js",
     "test:signature": "node tests/signature-guard.js",
     "publish:data": "node tools/publish-data.js",

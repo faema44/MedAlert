@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, Modal } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { getProfile, getKV, getCaregiver } from '../database/db';
 import { getMedIdOptIn } from '../services/medicalId';
@@ -34,6 +34,7 @@ export default function SettingsScreen() {
   const [lockSubtitle, setLockSubtitle] = useState('Perfil, contato e alerta de emergência');
   const [caregiverSubtitle, setCaregiverSubtitle] = useState('Ninguém acompanha seus avisos');
   const [notif, setNotif] = useState<{ total: number; teto: number } | null>(null);
+  const [showNotifHelp, setShowNotifHelp] = useState(false);
 
   const load = useCallback(async () => {
     const [p, alertActive, cg] = await Promise.all([getProfile(), getKV(KV_ALERT_ACTIVE), getCaregiver()]);
@@ -71,6 +72,12 @@ export default function SettingsScreen() {
         onPress={() => (navigation as any).navigate('Caregiver')}
       />
       <MenuRow
+        icon="🛒"
+        title="Lista de compras"
+        subtitle="Monte a lista da farmácia e envie por WhatsApp, e-mail ou PDF"
+        onPress={() => (navigation as any).navigate('ShoppingList')}
+      />
+      <MenuRow
         icon="💾"
         title="Backup"
         subtitle="Exportar ou restaurar seus dados"
@@ -89,7 +96,11 @@ export default function SettingsScreen() {
           log, e o sintoma chega como "às vezes não avisa". Tornar o número visível é o que
           transforma isso em algo que a pessoa pode notar antes de perder uma dose. */}
       {notif && (
-        <View style={[styles.card, notif.total >= notif.teto && styles.cardAlerta]}>
+        <TouchableOpacity
+          style={[styles.card, notif.total >= notif.teto && styles.cardAlerta]}
+          activeOpacity={0.7}
+          onPress={() => setShowNotifHelp(true)}
+        >
           <Text style={styles.cardIcon}>{notif.total >= notif.teto ? '⚠️' : '🔔'}</Text>
           <View style={{ flex: 1 }}>
             <Text style={styles.cardTitle}>Lembretes do iPhone</Text>
@@ -99,8 +110,36 @@ export default function SettingsScreen() {
                 : `${notif.total} de ${notif.teto} usados`}
             </Text>
           </View>
-        </View>
+          <Text style={styles.cardChevron}>?</Text>
+        </TouchableOpacity>
       )}
+
+      <Modal visible={showNotifHelp} animationType="slide" transparent onRequestClose={() => setShowNotifHelp(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Lembretes do iPhone</Text>
+            <ScrollView>
+              <Text style={styles.modalText}>
+                A Apple limita cada aplicativo a 64 lembretes marcados ao mesmo tempo no iPhone. Esse número é do sistema — nenhum app consegue aumentá-lo.
+              </Text>
+              <Text style={styles.modalText}>
+                Cada horário de remédio, repetição de alarme e consulta agendada usa uma parte desse total. Quanto mais remédios com repetição ativa, mais rápido o limite é atingido.
+              </Text>
+              <Text style={styles.modalText}>
+                Se o total chegar a 64, o iPhone descarta os lembretes mais distantes sem avisar — por isso este contador fica sempre visível, mesmo fora do limite.
+              </Text>
+              <View style={styles.modalTip}>
+                <Text style={styles.modalTipText}>
+                  💡 Se aparecer o aviso de limite, desligue a repetição de alarme em remédios menos críticos ou reduza a quantidade de horários.
+                </Text>
+              </View>
+            </ScrollView>
+            <TouchableOpacity style={styles.modalClose} onPress={() => setShowNotifHelp(false)}>
+              <Text style={styles.modalCloseText}>Entendi</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -119,4 +158,12 @@ const styles = StyleSheet.create({
   cardChevron: { fontSize: 22, color: '#C0C5D0', lineHeight: 24 },
   cardAlerta: { borderWidth: 1.5, borderColor: '#E07B4F' },
   cardSubAlerta: { color: '#E07B4F', fontWeight: '600' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  modalBox: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '70%' },
+  modalTitle: { fontSize: 16, fontWeight: '700', color: '#1C3F7A', marginBottom: 16 },
+  modalText: { fontSize: 13, color: '#444', lineHeight: 20, marginBottom: 8 },
+  modalTip: { backgroundColor: '#FFF8E7', borderRadius: 8, padding: 10, marginTop: 8, borderLeftWidth: 3, borderLeftColor: '#E07B4F' },
+  modalTipText: { fontSize: 12, color: '#7a5200', lineHeight: 18 },
+  modalClose: { marginTop: 12, backgroundColor: '#1C3F7A', borderRadius: 10, padding: 14, alignItems: 'center' },
+  modalCloseText: { fontSize: 15, color: '#fff', fontWeight: '700' },
 });
