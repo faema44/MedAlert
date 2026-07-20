@@ -10,6 +10,9 @@ import {
 } from '../services/medicalId';
 import { Profile, Medication, EmergencyContact } from '../types';
 import EmergencyChecklist from '../components/EmergencyChecklist';
+import { montarTextoQr, cabeNoQr } from '../utils/fichaQr';
+import QRCode from 'react-native-qrcode-svg';
+import { imprimirFichaQr } from '../services/fichaQrPdf';
 
 const KV_ALERT_ACTIVE = 'alert_active';
 
@@ -78,6 +81,16 @@ function AndroidLockScreen() {
   // — ver buildEmergencyCardLines); só o nome no Perfil é realmente obrigatório,
   // pois updateEmergencyNotification usa profile.name incondicionalmente.
   const canActivateAlert = !!profile?.name;
+
+  const textoQr = montarTextoQr(profile, medications, contacts);
+
+  async function imprimirQr() {
+    try {
+      await imprimirFichaQr(textoQr, profile);
+    } catch (e: any) {
+      Alert.alert('Não foi possível imprimir', e?.message ?? 'Tente novamente.');
+    }
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -174,6 +187,30 @@ function AndroidLockScreen() {
         </View>
       </Modal>
 
+      {/* QR da ficha — o socorrista aponta a câmera e lê tudo de uma vez, sem depender de o
+          celular estar destravado nem de internet (é TEXTO, não link). O botão de imprimir
+          existe porque o caso que mais importa é o celular DESLIGADO ou destruído: um QR na
+          carteira funciona quando o aparelho não funciona. */}
+      <View style={styles.qrCard}>
+        <Text style={styles.qrTitulo}>Ficha em QR code</Text>
+        <Text style={styles.qrSub}>
+          O socorrista aponta a câmera e lê seus dados na hora — sem internet e sem destravar o
+          celular. Imprima e guarde na carteira: funciona até com o celular sem bateria.
+        </Text>
+        <View style={styles.qrCaixa}>
+          <QRCode value={textoQr} size={190} backgroundColor="#fff" color="#1A1F2E" />
+        </View>
+        {!cabeNoQr(textoQr) && (
+          <Text style={styles.qrAviso}>
+            Sua lista é longa e o código ficou denso. O essencial (alergias, contato e remédios
+            críticos) está garantido.
+          </Text>
+        )}
+        <TouchableOpacity style={styles.qrBtn} onPress={imprimirQr}>
+          <Text style={styles.qrBtnText}>🖨  Imprimir / salvar em PDF</Text>
+        </TouchableOpacity>
+      </View>
+
     </ScrollView>
   );
 }
@@ -184,14 +221,21 @@ function AndroidLockScreen() {
 function IOSMedicalIdScreen() {
   const [optIn, setOptIn] = useState(false);
   const [meds, setMeds] = useState<Medication[]>([]);
+  // Perfil e contatos existem aqui só por causa do QR: a Ficha Médica da Apple o app não
+  // consegue preencher, mas o QR ele consegue — e no iPhone é a ÚNICA ficha que o app
+  // realmente entrega. Ver project_ios_medical_id na memória do projeto.
+  const [perfilIos, setPerfilIos] = useState<Profile | null>(null);
+  const [contatosIos, setContatosIos] = useState<EmergencyContact[]>([]);
   const [pending, setPending] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const load = useCallback(async () => {
-    const [on, m] = await Promise.all([getMedIdOptIn(), getMedications()]);
+    const [on, m, p, c] = await Promise.all([getMedIdOptIn(), getMedications(), getProfile(), getContacts()]);
     const active = m.filter(x => !x.suspended);
     setOptIn(on);
     setMeds(active);
+    setPerfilIos(p);
+    setContatosIos(c);
     setPending(on ? await isMedicalIdPending(m) : false);
   }, []);
 
@@ -289,11 +333,47 @@ function IOSMedicalIdScreen() {
           </View>
         </>
       )}
+
+      {/* No iPhone este QR é a ÚNICA ficha que o app consegue entregar de fato: a Ficha
+          Médica da Apple nenhum app preenche, e notificação na tela de bloqueio o iOS não
+          permite. Aqui a pessoa imprime e leva na carteira — que, aliás, funciona melhor que
+          qualquer das duas, porque não depende do aparelho estar vivo. */}
+      <View style={ios.qrCard}>
+        <Text style={ios.qrTitulo}>Ficha em QR code</Text>
+        <Text style={ios.qrSub}>
+          O socorrista aponta a câmera e lê seus dados na hora — sem internet e sem destravar o
+          iPhone. Imprima e guarde na carteira: funciona até com o celular sem bateria.
+        </Text>
+        <View style={ios.qrCaixa}>
+          <QRCode value={montarTextoQr(perfilIos, meds, contatosIos)} size={190} backgroundColor="#fff" color="#1A1F2E" />
+        </View>
+        <TouchableOpacity
+          style={ios.qrBtn}
+          onPress={async () => {
+            try { await imprimirFichaQr(montarTextoQr(perfilIos, meds, contatosIos), perfilIos); }
+            catch (e: any) { Alert.alert('Não foi possível imprimir', e?.message ?? 'Tente novamente.'); }
+          }}
+        >
+          <Text style={ios.qrBtnText}>🖨  Imprimir / salvar em PDF</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 }
 
 const ios = StyleSheet.create({
+  qrCard: {
+    backgroundColor: '#fff', borderRadius: 12, padding: 16, marginTop: 12,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)', alignItems: 'center',
+  },
+  qrTitulo: { fontSize: 15, fontWeight: '700', color: '#1C3F7A', alignSelf: 'flex-start' },
+  qrSub: { fontSize: 12, color: '#666', marginTop: 4, lineHeight: 17, alignSelf: 'flex-start' },
+  qrCaixa: { marginTop: 14, padding: 10, backgroundColor: '#fff', borderRadius: 8 },
+  qrBtn: {
+    marginTop: 14, alignSelf: 'stretch', backgroundColor: '#1C3F7A',
+    borderRadius: 10, paddingVertical: 12, alignItems: 'center',
+  },
+  qrBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
   container: { flex: 1, backgroundColor: '#F2F4F8' },
   content: { padding: 14, paddingBottom: 32, gap: 10 },
   card: {
@@ -335,6 +415,19 @@ const ios = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
+  qrCard: {
+    backgroundColor: '#fff', borderRadius: 12, padding: 16, marginTop: 12,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.06)', alignItems: 'center',
+  },
+  qrTitulo: { fontSize: 15, fontWeight: '700', color: '#1C3F7A', alignSelf: 'flex-start' },
+  qrSub: { fontSize: 12, color: '#666', marginTop: 4, lineHeight: 17, alignSelf: 'flex-start' },
+  qrCaixa: { marginTop: 14, padding: 10, backgroundColor: '#fff', borderRadius: 8 },
+  qrAviso: { fontSize: 11, color: '#8A6D1F', marginTop: 8, textAlign: 'center', lineHeight: 15 },
+  qrBtn: {
+    marginTop: 14, alignSelf: 'stretch', backgroundColor: '#1C3F7A',
+    borderRadius: 10, paddingVertical: 12, alignItems: 'center',
+  },
+  qrBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
   container: { flex: 1, backgroundColor: '#F2F4F8' },
   content: { padding: 14, paddingBottom: 32, gap: 10 },
 

@@ -49,6 +49,7 @@
     "test:cycle": "node tests/med-cycle-guard.js",
     "test:caregiver-inbox": "node tests/caregiver-inbox-guard.js",
     "test:relatorio": "node tests/relatorio-guard.js",
+    "test:ficha-qr": "node tests/ficha-qr-guard.js",
     "test:ios-notif-budget": "node tests/ios-notif-budget-guard.js",
     "sign:data": "node tools/sign-data.js",
     "test:signature": "node tests/signature-guard.js",
