@@ -156,6 +156,36 @@ export default function HelpScreen() {
         </>
       )}
 
+      {/* QR da ficha — fica FORA do ternário porque vale nas duas plataformas. No iPhone é a
+          única ficha que o app consegue entregar de fato (a Medical ID nenhum app preenche). */}
+      <Section title="🔳 Ficha em QR code — imprima e leve na carteira">
+        <Text style={styles.bodyText}>
+          A mesma ficha vira um QR code. O socorrista aponta a câmera e lê tudo de uma vez: nome,
+          tipo sanguíneo, alergias, contato e medicamentos, com os críticos marcados. O código é
+          texto, não link — abre sem internet e sem instalar nada.
+        </Text>
+        <Text style={styles.bodyText}>
+          Você encontra em Configurações → {IS_IOS ? 'Ficha Médica (Apple)' : 'Tela de Bloqueio'},
+          no fim da tela, junto do botão de imprimir.
+        </Text>
+        <Text style={styles.warningLabel}>O código na tela não basta</Text>
+        <Text style={styles.bodyText}>
+          Para alguém ver este QR no seu celular, o aparelho precisa estar destravado e o app
+          aberto nesta tela — justamente o que ninguém consegue num acidente. Na tela, ele serve
+          para você mostrar a um médico ou farmacêutico. Impresso, ele funciona nos casos em que
+          o celular não ajuda:
+        </Text>
+        <Bullet text="Celular travado com senha" />
+        <Bullet text="Celular sem bateria ou desligado" />
+        <Bullet text="Celular quebrado no acidente" />
+        <Bullet text="Celular longe de você — na bolsa, no carro, em outro cômodo" />
+        <Text style={styles.tip}>
+          💡 Toque em "Imprimir / salvar em PDF", recorte e guarde na carteira junto do documento —
+          é onde socorristas procuram. E reimprima quando seus remédios ou alergias mudarem: o
+          papel não se atualiza sozinho.
+        </Text>
+      </Section>
+
       {/* Interações */}
       <Section title="⚡ Interações medicamentosas">
         <Text style={styles.bodyText}>
