@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { getMedications } from '../database/db';
 import {
   checkInteractions, getAllInteractions, isPhytotherapicInteraction,
@@ -56,6 +56,7 @@ function MedCard({ item, isPhyto, onOpenBula }: { item: DbEntry; isPhyto?: boole
 }
 
 export default function InteractionsScreen() {
+  const navigation = useNavigation();
   const { openBula, modal: bulaModal } = useBulaViewer();
   const [tab, setTab] = useState<Tab>('interactions');
   const [search, setSearch] = useState('');
@@ -74,6 +75,16 @@ export default function InteractionsScreen() {
   // sempre funcionou porque lá ele abre num TOQUE — false → true — que é o que falta aqui.
   const [montado, setMontado] = useState(false);
   useEffect(() => { setMontado(true); }, []);
+
+  // Quem recusou o termo sai da tela — e o Modal precisa FECHAR junto.
+  //
+  // Este navegador é de ABAS: sair daqui não desmonta a tela, ela só perde o foco. E um Modal
+  // do React Native é uma janela por cima de tudo, alheia ao navegador — se ele continuasse
+  // visible, o termo ficaria cobrindo a tela de Configurações, sem nada por trás para tocar.
+  const [recusado, setRecusado] = useState(false);
+  // Ao voltar às Tabelas o termo tem de aparecer de novo: recusar vale para aquela visita, não
+  // é um "não" permanente que daria acesso silencioso à base depois.
+  useFocusEffect(useCallback(() => { setRecusado(false); }, []));
 
   const intFiltered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -161,10 +172,15 @@ export default function InteractionsScreen() {
       </View>
 
       {/* A aba de interações lista a base inteira — passa pelo termo antes de exibir.
-          "Voltar" leva para a aba de remédios em vez de deixar a tela vazia. */}
+
+          "Voltar" SAI das Tabelas. Antes ele chamava switchTab('meds') para não deixar a tela
+          vazia, mas isso fazia o botão andar para FRENTE: quem recusava o termo era depositado
+          na aba Medicamentos, dentro do mesmo conteúdo que acabara de recusar. Recusar tem que
+          ter o efeito de recusar. Tabelas só é alcançável por Configurações, então é para lá
+          que se volta (o navegador é de abas, e goBack() daqui cairia no Início). */}
       <InteractionConsentModal
-        visible={montado && tab === 'interactions' && !consentDone}
-        onCancel={() => switchTab('meds')}
+        visible={montado && tab === 'interactions' && !consentDone && !recusado}
+        onCancel={() => { setRecusado(true); (navigation as any).navigate('Settings'); }}
         onAccept={() => { acceptInteractionTerms(); setConsentDone(true); }}
       />
 
