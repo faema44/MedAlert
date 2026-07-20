@@ -30,6 +30,23 @@ function withKotlinFiles(config) {
         fs.copyFileSync(path.join(nativeDir, arquivo), path.join(javaDir, arquivo));
       }
 
+      // Os recursos do WIDGET (layouts, metadata, drawables) seguem a MESMA regra dos .kt:
+      // vivem versionados em native/android/res e são copiados a cada prebuild. Deixá-los só
+      // em android/res seria perdê-los no primeiro prebuild — android/ é gitignored.
+      const resOrigem = path.join(nativeDir, 'res');
+      if (fs.existsSync(resOrigem)) {
+        const resDestino = path.join(cfg.modRequest.platformProjectRoot, 'app/src/main/res');
+        for (const pasta of fs.readdirSync(resOrigem)) {
+          const de = path.join(resOrigem, pasta);
+          if (!fs.statSync(de).isDirectory()) continue;
+          const para = path.join(resDestino, pasta);
+          fs.mkdirSync(para, { recursive: true });
+          for (const arquivo of fs.readdirSync(de)) {
+            fs.copyFileSync(path.join(de, arquivo), path.join(para, arquivo));
+          }
+        }
+      }
+
       const mainAppPath = path.join(javaDir, 'MainApplication.kt');
       let src = fs.readFileSync(mainAppPath, 'utf8');
       if (!src.includes('MedNotificationPackage')) {
@@ -192,9 +209,43 @@ function withPairingDeepLink(config) {
   });
 }
 
+
+// O widget precisa estar declarado no manifesto, senão o Android nem o oferece na lista de
+// widgets do launcher — e não há erro nenhum, ele simplesmente não existe para o sistema.
+function withWidgetReceiver(config) {
+  return withAndroidManifest(config, (cfg) => {
+    const application = cfg.modResults.manifest.application[0];
+    if (!application.receiver) application.receiver = [];
+    const jaTem = application.receiver.some(
+      r => r.$?.['android:name'] === '.MedWidgetProvider'
+    );
+    if (!jaTem) {
+      application.receiver.push({
+        $: {
+          'android:name': '.MedWidgetProvider',
+          // exported=true é OBRIGATÓRIO para widget: quem envia o APPWIDGET_UPDATE é o
+          // launcher, que é outro app. Com false, o widget nunca atualiza.
+          'android:exported': 'true',
+        },
+        'intent-filter': [{
+          action: [{ $: { 'android:name': 'android.appwidget.action.APPWIDGET_UPDATE' } }],
+        }],
+        'meta-data': [{
+          $: {
+            'android:name': 'android.appwidget.provider',
+            'android:resource': '@xml/med_widget_info',
+          },
+        }],
+      });
+    }
+    return cfg;
+  });
+}
+
 module.exports = function withMedNotification(config) {
   config = withKotlinFiles(config);
   config = withBootReceiver(config);
+  config = withWidgetReceiver(config);
   config = withCompatResizability(config);
   config = withReleaseSigning(config);
   config = withGoogleServices(config);

@@ -74,3 +74,21 @@ export function requestIgnoreBatteryOptimizations(): void {
   if (Platform.OS !== 'android') return;
   MedNotification?.requestIgnoreBatteryOptimizations?.()?.catch?.(() => {});
 }
+
+/**
+ * Entrega ao widget o que ele deve mostrar.
+ *
+ * Só Android: no iOS o widget exigiria um target WidgetKit, que é outra história (ver
+ * project_widget_adiado). O `?.` protege quem está num build sem o módulo nativo — melhor o
+ * widget ficar parado que o app quebrar por causa dele.
+ */
+export function setWidgetData(json: string): void {
+  if (Platform.OS !== 'android') return;
+  // console.warn e não catch vazio: se a gravação falha, o widget continua mostrando o plano
+  // antigo na tela inicial e NADA dentro do app contradiz isso. Sem o aviso, a falha é
+  // literalmente invisível. (Não usa relatarFalhaSilenciosa para não criar import circular
+  // com notifications.ts, que importa este arquivo.)
+  MedNotification?.setWidgetData?.(json)?.catch?.((e: unknown) => {
+    console.warn('[widget] setWidgetData falhou — a tela inicial fica com o dado antigo', e);
+  });
+}

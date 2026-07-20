@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget pequeno: SÓ a próxima dose. Um widget de 1 linha que tenta mostrar duas fica
+     ilegível, e ilegível num lembrete de remédio é pior que ausente. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_raiz"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="12dp"
+    android:background="@drawable/med_widget_fundo">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="PRÓXIMA DOSE" android:textSize="9sp" android:textColor="#8A8F9D"
+        android:letterSpacing="0.08" android:textStyle="bold" />
+
+    <LinearLayout android:id="@+id/linha1"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:layout_marginTop="4dp">
+        <TextView android:id="@+id/linha1_nome"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textSize="14sp" android:textColor="#1A1F2E" android:textStyle="bold"
+            android:maxLines="1" android:ellipsize="end" />
+        <TextView android:id="@+id/linha1_hora"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textSize="13sp" android:textColor="#1C3F7A" android:maxLines="1" />
+    </LinearLayout>
+</LinearLayout>

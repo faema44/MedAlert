@@ -31,7 +31,7 @@ import {
   updateEmergencyNotification, nextReminderInfo,
   cancelAllRemindersForMedication, cancelAllRemindersForActivity, cancelRepeatAlarm,
   rescheduleRemindersForMedication, rescheduleRemindersForActivity, notifyLowStock,
-  dismissPresentedForMedication, clearBadge,
+  dismissPresentedForMedication, clearBadge, atualizarWidget, relatarFalhaSilenciosa,
 } from '../services/notifications';
 import { Profile, Medication, MedicationReminder, ActivityReminder, Appointment, ACTIVITY_PRESETS, EmergencyContact } from '../types';
 import { isPhytotherapic } from '../utils/drugSearch';
@@ -530,6 +530,9 @@ export default function HomeScreen() {
         if (daysLeft < daysUntilEnd) notifyLowStock(med.id, medDisplayName, daysLeft).catch(() => {});
       }
       if (next === 0) Alert.alert('Estoque zerado', `O estoque de ${medDisplayName} acabou. Providencie a reposição e ajuste em Medicamentos > Editar card > Controle de Estoque.`);
+      // Tomar a dose muda o estoque, e o widget mostra "acabando" — mas ele não roda JS e só
+      // relê quando alguém reescreve. Sem isto, a tela inicial seguiria com a contagem antiga.
+      atualizarWidget().catch(e => relatarFalhaSilenciosa('widget após tomar', e));
     }
     cancelRepeatAlarm(med.id).catch(() => {});
     dismissPresentedForMedication(med.id).catch(() => {});
@@ -554,6 +557,7 @@ export default function HomeScreen() {
       // tinha subtraído). stockBefore vem capturado no momento da resposta.
       if (opts.taken && opts.stockBefore != null) {
         await updateMedicationStock(item.id, opts.stockBefore).catch(() => {});
+        atualizarWidget().catch(e => relatarFalhaSilenciosa('widget após desfazer', e));
       }
       dismissedAlertsRef.current.delete(alertKey(item));
       load();

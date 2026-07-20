@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget grande: três próximas doses e, no rodapé, os remédios acabando. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_raiz"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="12dp" android:gravity="top"
+    android:background="@drawable/med_widget_fundo">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="PRÓXIMAS DOSES" android:textSize="9sp" android:textColor="#8A8F9D"
+        android:letterSpacing="0.08" android:textStyle="bold" />
+
+    <LinearLayout android:id="@+id/linha1"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:layout_marginTop="4dp">
+        <TextView android:id="@+id/linha1_nome"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textSize="14sp" android:textColor="#1A1F2E" android:textStyle="bold"
+            android:maxLines="1" android:ellipsize="end" />
+        <TextView android:id="@+id/linha1_hora"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textSize="13sp" android:textColor="#1C3F7A" android:maxLines="1" />
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/linha2"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:layout_marginTop="8dp">
+        <TextView android:id="@+id/linha2_nome"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textSize="14sp" android:textColor="#1A1F2E" android:textStyle="bold"
+            android:maxLines="1" android:ellipsize="end" />
+        <TextView android:id="@+id/linha2_hora"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textSize="13sp" android:textColor="#1C3F7A" android:maxLines="1" />
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/linha3"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:layout_marginTop="8dp">
+        <TextView android:id="@+id/linha3_nome"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textSize="14sp" android:textColor="#1A1F2E" android:textStyle="bold"
+            android:maxLines="1" android:ellipsize="end" />
+        <TextView android:id="@+id/linha3_hora"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textSize="13sp" android:textColor="#1C3F7A" android:maxLines="1" />
+    </LinearLayout>
+    <!-- Empurra o bloco de estoque para o rodapé: sem isto ele flutua logo abaixo das doses e
+         o vazio restante faz o widget parecer quebrado.
+
+         FrameLayout e NÃO <View>: RemoteViews só aceita uma lista FECHADA de views, e View
+         não está nela. Com <View> o widget nem infla — o launcher mostra "Can't load widget"
+         e não há erro nenhum no logcat para explicar. -->
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <LinearLayout android:id="@+id/estoque_bloco"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:layout_marginTop="10dp"
+        android:paddingTop="8dp" android:background="@drawable/med_widget_divisor">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="ACABANDO" android:textSize="9sp" android:textColor="#E07B4F"
+            android:letterSpacing="0.08" android:textStyle="bold" />
+        <TextView android:id="@+id/estoque_texto"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textSize="12sp" android:textColor="#8A6D1F" android:maxLines="2"
+            android:ellipsize="end" android:layout_marginTop="2dp" />
+    </LinearLayout>
+</LinearLayout>

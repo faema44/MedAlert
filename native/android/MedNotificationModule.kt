@@ -53,6 +53,25 @@ class MedNotificationModule(private val reactContext: ReactApplicationContext) :
         }
     }
 
+    /**
+     * Grava o recado do widget e manda redesenhar.
+     *
+     * O widget roda no processo do LAUNCHER e não alcança o nosso JS — então o app não pede
+     * para desenhar, ele deixa escrito. Chamado a cada reagendamento: `updatePeriodMillis` é
+     * 0 de propósito, porque o mínimo do Android (30 min) mostraria dose velha.
+     */
+    @ReactMethod
+    fun setWidgetData(json: String, promise: Promise) {
+        try {
+            reactContext.getSharedPreferences(MedWidgetProvider.PREFS, Context.MODE_PRIVATE)
+                .edit().putString(MedWidgetProvider.KEY_DADOS, json).apply()
+            MedWidgetProvider.atualizarTodos(reactContext)
+            promise.resolve(true)
+        } catch (e: Exception) {
+            promise.reject("WIDGET_ERR", e.message, e)
+        }
+    }
+
     @ReactMethod
     fun cancelNotification(promise: Promise) {
         try {

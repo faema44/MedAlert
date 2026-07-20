@@ -2,10 +2,11 @@ import * as Notifications from 'expo-notifications';
 import * as Sentry from '@sentry/react-native';
 import { Platform } from 'react-native';
 import { Profile, Medication, MedicationReminder, ActivityReminder } from '../types';
-import { postMedNotification, cancelMedNotification, isEmergencyActive, setNextMedSchedule, cancelNextMedBanner } from './medNotification';
+import { postMedNotification, cancelMedNotification, isEmergencyActive, setNextMedSchedule, cancelNextMedBanner, setWidgetData } from './medNotification';
+import { montarDadosWidget, ItemParaWidget } from '../utils/widgetDados';
 import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity, getAppointments, getContacts, getKV, setKV, addMedicationLowStockLog } from '../database/db';
 import { isPhytotherapic } from '../utils/drugSearch';
-import { cicloDoMedicamento, cycleState, diaTemDose, ComCiclo } from '../utils/medCycle';
+import { cicloDoMedicamento, cycleState, diaTemDose, diasDeEstoque, ComCiclo } from '../utils/medCycle';
 import { CAREGIVER_CHANNEL } from './caregiver';
 
 const CHANNEL_ID = 'medalert_emergency_v5';
@@ -1263,6 +1264,11 @@ export async function cancelAllRemindersForMedication(medicationId: number): Pro
         n.identifier.startsWith(`cartelanag_${medicationId}_`))
       .map(n => Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {}))
   );
+
+  // Remover ou suspender também muda o que o widget deve mostrar — e por este caminho não
+  // passa nenhum reagendamento. Sem isto, um remédio já removido continuava anunciado na
+  // tela inicial até o app ser reaberto.
+  await atualizarWidget().catch(e => relatarFalhaSilenciosa('widget após cancelar', e));
 }
 
 // Cancela as repetições pré-agendadas do medicamento (todas as séries; o id legado
@@ -1498,6 +1504,31 @@ export async function rescheduleRemindersForMedication(
         .catch(e => relatarFalhaSilenciosa(`livre ${med.id} ${r.time}`, e));
     }
   }
+
+  // O widget precisa ser reescrito AQUI, e não só no start do app.
+  //
+  // Ele não roda JS e não tem como perguntar nada: mostra o que ficou escrito da última vez.
+  // Enquanto isso só acontecia em rescheduleAllActiveNotifications (start do app e restore),
+  // quem editasse um remédio ficava com a tela inicial anunciando o plano ANTIGO — horário
+  // velho, ou "acabando" de um estoque que já foi reposto — até reabrir o app. Era invisível
+  // dentro do app, porque toda tela do app mostrava o dado novo.
+  //
+  // `existing` só chega pelo caminho em massa, que alimenta o widget uma vez no fim. Pular
+  // aqui nesse caso evita reescrevê-lo uma vez por medicamento.
+  if (!existing) {
+    await atualizarWidget().catch(e => relatarFalhaSilenciosa('widget após editar', e));
+  }
+}
+
+/** Relê o quadro inteiro e reescreve o recado do widget. Um medicamento só não basta: o
+ *  widget mostra as próximas doses de TODOS. */
+export async function atualizarWidget(): Promise<void> {
+  if (Platform.OS !== 'android') return;
+  const meds = await getMedications();
+  const medRs = await Promise.all(
+    meds.map(m => getRemindersForMedication(m.id).catch(() => [] as MedicationReminder[])),
+  );
+  await alimentarWidget(meds, medRs);
 }
 
 // O iOS guarda no máximo 64 notificações locais PENDENTES e descarta o excedente sozinho —
@@ -1627,6 +1658,10 @@ export async function rescheduleAllActiveNotifications(): Promise<void> {
     await Promise.all(acts.map(async (act, i) => {
       await rescheduleRemindersForActivity(act.id, act.name, actRs[i]);
     }));
+    // O widget é alimentado AQUI e não por conta própria: este é o ponto em que o app acabou
+    // de recalcular tudo (ciclo, pausa, próxima dose). O widget não roda JS e não tem como
+    // perguntar — ele só lê o que ficou escrito.
+    await alimentarWidget(meds, medRs).catch(e => relatarFalhaSilenciosa('widget', e));
     await reportIOSNotificationBudget().catch(() => {});
   } catch {}
 }
@@ -1826,3 +1861,37 @@ Notifications.setNotificationHandler({
     };
   },
 });
+
+/** Monta e entrega o recado do widget. Reusa o que a agenda já calculou — não recalcula. */
+async function alimentarWidget(meds: Medication[], medRs: MedicationReminder[][]): Promise<void> {
+  if (Platform.OS !== 'android') return;
+  const itens: ItemParaWidget[] = [];
+  meds.forEach((med, i) => {
+    const rs = (medRs[i] ?? []).filter(r => r.is_active);
+    if (!rs.length || med.suspended) return;
+    // A próxima dose respeita a PAUSA: sem isto o widget anunciaria a dose de amanhã de uma
+    // cartela que amanhã ainda está em descanso.
+    let info = nextReminderInfo(rs);
+    const ciclo = cicloDoMedicamento(med);
+    if (info && ciclo) {
+      for (let k = 0; k < 400 && info && !diaTemDose(med, new Date(info.sortMs)); k++) {
+        const seguinte = new Date(info.sortMs);
+        seguinte.setDate(seguinte.getDate() + 1);
+        seguinte.setHours(0, 0, 0, 0);
+        info = nextReminderInfo(rs, seguinte);
+      }
+    }
+    const dosePorDia = rs.length * (med.units_per_dose || 1);
+    const dias = med.stock_quantity == null ? null
+      : ciclo ? diasDeEstoque(ciclo, med.stock_quantity, dosePorDia)
+      : Math.floor(med.stock_quantity / Math.max(1, dosePorDia));
+    itens.push({
+      nome: med.commercial_name?.trim() || med.generic_name,
+      dose: med.dose,
+      quandoMs: info?.sortMs ?? null,
+      critico: !!med.is_critical,
+      diasDeEstoque: dias,
+    });
+  });
+  setWidgetData(JSON.stringify(montarDadosWidget(itens)));
+}
