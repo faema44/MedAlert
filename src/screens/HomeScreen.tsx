@@ -204,6 +204,11 @@ export default function HomeScreen() {
   const [medsHintDismissedAt, setMedsHintDismissedAt] = useState<string | null>(null);
   const [emergencyHintDismissedAt, setEmergencyHintDismissedAt] = useState<string | null>(null);
   const [foregroundAlerts, setForegroundAlerts] = useState<UnifiedItem[]>([]);
+  // O alerta vencido é renderizado ACIMA da lista de lembretes, mas o ScrollView guarda a
+  // rolagem de antes. Sem estes três, o alerta nasce fora da viewport e some sem avisar.
+  const scrollRef = useRef<ScrollView>(null);
+  const alertasVistosRef = useRef<Set<string>>(new Set());
+  const subirAoAlertaRef = useRef(false);
   const [staleStockMeds, setStaleStockMeds] = useState(0);
   const [medIdPending, setMedIdPending] = useState(false);
   const [cycleStatus, setCycleStatus] = useState<{ activityId: number; name: string; phase: CyclePhaseInfo; cycleLength: number } | null>(null);
@@ -438,14 +443,33 @@ export default function HomeScreen() {
     setCiclos(ciclos);
   }, []);
 
-  useFocusEffect(useCallback(() => { load(); clearBadge(); }, [load]));
+  useFocusEffect(useCallback(() => { subirAoAlertaRef.current = true; load(); clearBadge(); }, [load]));
+
+  // Um alerta vencido é a coisa mais urgente desta tela, e ele entra ACIMA da lista de
+  // lembretes — que é longa. Se o ScrollView estiver rolado, ele nasce fora da viewport e a
+  // pessoa não descobre que existe: foi assim que o alerta ficou escondido ao abrir pela
+  // notificação da tela de bloqueio (app volta do background com a rolagem de antes).
+  //
+  // Sobe ao topo em dois casos, e SÓ neles: quando surge um alerta que ainda não estava na
+  // tela, e quando a tela ganha foco ou o app volta do background. Não a cada load(), que
+  // roda de 60 em 60 s e arrancaria a rolagem da pessoa no meio da leitura. E não quando a
+  // lista só ENCOLHE: aí a pessoa acabou de responder um alerta, e já está olhando para ele.
+  useEffect(() => {
+    const chaves = foregroundAlerts.map(alertKey);
+    const surgiuNovo = chaves.some(k => !alertasVistosRef.current.has(k));
+    if (chaves.length > 0 && (surgiuNovo || subirAoAlertaRef.current)) {
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
+    }
+    alertasVistosRef.current = new Set(chaves);
+    subirAoAlertaRef.current = false;
+  }, [foregroundAlerts]);
 
   useEffect(() => () => { if (snackTimerRef.current) clearTimeout(snackTimerRef.current); }, []);
 
   // Re-check when app returns from background (useFocusEffect doesn't fire in this case)
   useEffect(() => {
     const sub = AppState.addEventListener('change', state => {
-      if (state === 'active') { load(); clearBadge(); }
+      if (state === 'active') { subirAoAlertaRef.current = true; load(); clearBadge(); }
     });
     return () => sub.remove();
   }, [load]);
@@ -626,7 +650,7 @@ export default function HomeScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView ref={scrollRef} style={styles.container} contentContainerStyle={styles.content}>
 
       {/* Dismissable setup hints — no forced onboarding */}
       {showMedsHint && (
