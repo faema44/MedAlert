@@ -150,6 +150,14 @@ perguntar.
 - Três ferramentas novas: `test:bula-forma`, `test:bula-combo` e
   `classificar-sangramento-fda.js`.
 
+## Atenção: dois gates novos nascem VERMELHOS
+
+`npm run test:bula-forma` e `npm run test:bula-combo` saem com erro **de propósito** — eles estão
+reprovando os 7 rótulos de forma e o ferro. É o comportamento certo, mas gate que fica vermelho
+por semanas vira ruído e para de ser lido. Eles ficam verdes assim que as perguntas 1 e 2 forem
+respondidas e as correções aplicadas. Se preferir, dá para deixá-los fora do `--gate` até lá —
+mas aí perdem o efeito de trava.
+
 ## O que NÃO fiz de propósito
 
 - Não publiquei nada (`publish:data` não rodou) nem dei push.
