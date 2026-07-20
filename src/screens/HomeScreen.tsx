@@ -13,6 +13,7 @@ import {
 } from '../database/db';
 import { cicloDoMedicamento, cycleState, diaTemDose, diasDeEstoque, ComCiclo } from '../utils/medCycle';
 import { temFoto } from '../services/fotoMedicamento';
+import { FotoMini, ModalFoto } from '../components/FotoMedicamento';
 import EmergencyChecklist from '../components/EmergencyChecklist';
 import { getMedIdOptIn, isMedicalIdPending } from '../services/medicalId';
 import { getCyclePhase, CyclePhaseInfo } from '../utils/cyclePhase';
@@ -214,6 +215,8 @@ export default function HomeScreen() {
   // (tremor, dedo grosso), a única saída era caçar o registro no Histórico.
   const [ciclos, setCiclos] = useState<CicloNaTela[]>([]);
   const [snack, setSnack] = useState<{ text: string; undo: () => void } | null>(null);
+  // Foto ampliada. Fica na RAIZ da tela porque o iOS só mostra um Modal por vez.
+  const [fotoZoom, setFotoZoom] = useState<{ uri: string; nome: string } | null>(null);
   const snackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dismissedAlertsRef = useRef<Set<string>>(new Set());
 
@@ -733,9 +736,11 @@ export default function HomeScreen() {
           {/* Na véspera e na pausa o SÍMBOLO é a informação (recomeça / parado), então ele
               vence a foto. No dia comum quem manda é a foto: o card diz "dia 12 de 21" e a
               pessoa precisa saber de QUAL comprimido. */}
-          {c.ativo && !c.vespera && temFoto(c.foto)
-            ? <Image source={{ uri: c.foto as string }} style={styles.cicloFoto} />
-            : <Text style={styles.cicloIcone}>{c.vespera ? '▶' : c.ativo ? '💊' : '⏸'}</Text>}
+          <FotoMini
+            uri={c.ativo && !c.vespera ? c.foto : null} size={30} radius={6}
+            fallback={<Text style={styles.cicloIcone}>{c.vespera ? '▶' : c.ativo ? '💊' : '⏸'}</Text>}
+            onAmpliar={uri => setFotoZoom({ uri, nome: c.nome })}
+          />
           <View style={{ flex: 1 }}>
             <Text style={styles.cicloNome}>{c.nome}</Text>
             <Text style={[styles.cicloTexto, c.vespera && styles.cicloTextoVespera]}>
@@ -760,9 +765,11 @@ export default function HomeScreen() {
             {/* A foto substitui o emoji quando existe: é aqui, no instante de tomar, que a
                 pessoa confunde dois comprimidos brancos. O emoji volta se o arquivo sumiu
                 (restore de outro celular sem a foto). */}
-            {temFoto(alert.medObj?.photo_uri)
-              ? <Image source={{ uri: alert.medObj!.photo_uri as string }} style={styles.fgAlertFoto} />
-              : <Text style={styles.fgAlertIcon}>{alert.icon}</Text>}
+            <FotoMini
+              uri={alert.medObj?.photo_uri} size={44} radius={8}
+              fallback={<Text style={styles.fgAlertIcon}>{alert.icon}</Text>}
+              onAmpliar={uri => setFotoZoom({ uri, nome: alert.name })}
+            />
             <View style={{ flex: 1 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Text style={styles.fgAlertName} numberOfLines={1}>{alert.name}</Text>
@@ -855,9 +862,12 @@ export default function HomeScreen() {
                         layout. Vale aqui e não só no cartão da dose: é esta lista que o idoso
                         olha para se preparar ("o que vem agora?"), e reconhecer o comprimido
                         antes de ir até a gaveta é metade do problema resolvido. */}
-                    {item.type === 'med' && temFoto(item.medObj?.photo_uri)
-                      ? <Image source={{ uri: item.medObj!.photo_uri as string }} style={styles.reminderFoto} />
-                      : <Text style={styles.reminderIcon}>{item.icon}</Text>}
+                    <FotoMini
+                      uri={item.type === 'med' ? item.medObj?.photo_uri : null} size={22} radius={4}
+                      style={{ marginRight: 8 }}
+                      fallback={<Text style={styles.reminderIcon}>{item.icon}</Text>}
+                      onAmpliar={uri => setFotoZoom({ uri, nome: item.name })}
+                    />
                     <View style={styles.reminderContent}>
                       <View style={styles.reminderTopRow}>
                         <Text style={styles.reminderName} numberOfLines={1}>{item.name}</Text>
@@ -947,6 +957,8 @@ export default function HomeScreen() {
       )}
 
     </ScrollView>
+
+      <ModalFoto uri={fotoZoom?.uri ?? null} nome={fotoZoom?.nome} onFechar={() => setFotoZoom(null)} />
 
       {snack && (
         <View style={styles.snackbar}>

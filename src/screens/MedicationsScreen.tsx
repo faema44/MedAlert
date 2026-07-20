@@ -29,6 +29,7 @@ import { Medication, MedicationReminder } from '../types';
 import { DrugSuggestion, getSuggestions, getBulaUrl, getPhytoBulaUrl, isPhytotherapic, nomeDaBaseParaBula } from '../utils/drugSearch';
 import { cicloDoMedicamento, cycleState, ancoraPorDiaAtual, validarCiclo, diasDeEstoque } from '../utils/medCycle';
 import { tirarFoto, escolherFoto, apagarFoto, temFoto, consolidarFoto } from '../services/fotoMedicamento';
+import { FotoMini, ModalFoto } from '../components/FotoMedicamento';
 import { useBulaViewer } from '../utils/useBulaViewer';
 import { reportMissingDrug } from '../services/reportMissing';
 // ──────────────────────────────────────────────────────────────────────────────
@@ -208,6 +209,8 @@ export default function MedicationsScreen() {
   const [cycleDiaAtual, setCycleDiaAtual] = useState('1');
   // Caminho da foto enquanto o assistente está aberto. Só vai para o banco no salvar.
   const [fotoUri, setFotoUri] = useState<string | null>(null);
+  // Na RAIZ da tela, fora do Modal do assistente: o iOS só mostra um Modal por vez.
+  const [fotoZoom, setFotoZoom] = useState<{ uri: string; nome: string } | null>(null);
 
   // O arquivo da foto é nomeado por id do medicamento, mas um cadastro NOVO ainda não tem id.
   // Um negativo estável resolve: o arquivo nasce com esse nome e é renomeado no salvar, sem
@@ -1807,9 +1810,13 @@ export default function MedicationsScreen() {
               {/* Mesma troca da Home: a foto entra no lugar do emoji, no mesmo tamanho.
                   Quem tem seis remédios cadastrados precisa distinguir as LINHAS da lista,
                   não só a dose da vez. */}
-              {temFoto(item.photo_uri)
-                ? <Image source={{ uri: item.photo_uri as string }} style={styles.medFoto} />
-                : <Text style={styles.criticalIcon}>{isPhytotherapic(item.generic_name) ? '🌿' : '💊'}</Text>}
+              {/* O card inteiro abre a edição; a foto tem toque PRÓPRIO para ampliar. Em RN o
+                  Touchable interno vence e não propaga, então um não atrapalha o outro. */}
+              <FotoMini
+                uri={item.photo_uri} size={26} radius={5} style={{ marginRight: 6 }}
+                fallback={<Text style={styles.criticalIcon}>{isPhytotherapic(item.generic_name) ? '🌿' : '💊'}</Text>}
+                onAmpliar={uri => setFotoZoom({ uri, nome: item.commercial_name || item.generic_name })}
+              />
               <Text style={styles.medGeneric} numberOfLines={2}>
                 {item.commercial_name ? `${item.commercial_name} — ${item.generic_name}` : item.generic_name}
               </Text>
@@ -1965,6 +1972,11 @@ export default function MedicationsScreen() {
       </Modal>
 
       {!showModal && bulaModal}
+
+      {/* Ampliar a foto só existe na LISTA, que fica fora do wizard — então o modal vai no
+          root, sem a condição que a bula precisa. Se um dia der para ampliar de dentro do
+          wizard, terá de seguir o mesmo padrão do bulaModal acima. */}
+      <ModalFoto uri={fotoZoom?.uri ?? null} nome={fotoZoom?.nome} onFechar={() => setFotoZoom(null)} />
 
       {/* Stock help modal */}
       <Modal visible={showStockHelp} animationType="slide" transparent onRequestClose={() => setShowStockHelp(false)}>
