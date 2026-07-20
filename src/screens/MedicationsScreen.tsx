@@ -115,7 +115,13 @@ function computeTimes(startTime: string, timesPerDay: number): string[] {
   });
 }
 
-function getStepSequence(period: ReminderPeriod, isNew: boolean, skipTime = false, comPausa = false): WizardStep[] {
+function getStepSequence(
+  period: ReminderPeriod,
+  isNew: boolean,
+  skipTime = false,
+  comPausa = false,
+  cycleKind: 'pill' | 'patch' | 'ring' | 'custom' = 'pill',
+): WizardStep[] {
   const base: WizardStep[] = isNew
     ? ['type', 'name', 'dose', 'period']
     : ['name', 'dose', 'period'];
@@ -127,7 +133,11 @@ function getStepSequence(period: ReminderPeriod, isNew: boolean, skipTime = fals
   else if (period === 'month') base.push('month_days');
   else base.push('n_months');
   if (!skipTime) base.push('time');
-  base.push('deadline', 'sound', 'stock');
+  // Cartela/adesivo/anel recomeçam sozinhos — são indefinidos. Um prazo aqui arquivaria o
+  // tratamento no meio de um ciclo ativo. "Outro" cobre corticoide/reposição hormonal/quimio,
+  // que TÊM fim real, então mantém o passo.
+  if (!(comPausa && cycleKind !== 'custom')) base.push('deadline');
+  base.push('sound', 'stock');
   return base;
 }
 
@@ -819,12 +829,13 @@ export default function MedicationsScreen() {
 
   // overridePeriod: pass the new period when calling from the period tap handler,
   // because React state won't have updated yet at call time.
-  function wizGoNext(overridePeriod?: ReminderPeriod, overrideComPausa?: boolean) {
+  function wizGoNext(overridePeriod?: ReminderPeriod, overrideComPausa?: boolean, overrideCycleKind?: typeof cycleKind) {
     const p = overridePeriod ?? reminderPeriod;
     const isNew = editingId === null;
-    // overrideComPausa: o setState do card ⏸ ainda não refletiu quando wizGoNext roda no
-    // mesmo toque — sem passar o valor à mão, a sequência sairia sem os passos do ciclo.
-    const seq = getStepSequence(p, isNew, mealMode, overrideComPausa ?? comPausa);
+    // overrideComPausa/overrideCycleKind: o setState do card ⏸ e do preset ainda não refletiu
+    // quando wizGoNext roda no mesmo toque — sem passar o valor à mão, a sequência sairia
+    // sem os passos do ciclo, ou decidindo o passo "deadline" com o preset velho.
+    const seq = getStepSequence(p, isNew, mealMode, overrideComPausa ?? comPausa, overrideCycleKind ?? cycleKind);
     const idx = seq.indexOf(wizardStep);
 
     if (wizardStep === 'name' && !form.generic_name.trim()) {
@@ -889,7 +900,7 @@ export default function MedicationsScreen() {
       return;
     }
     const isNew = editingId === null;
-    const seq = getStepSequence(reminderPeriod, isNew, mealMode, comPausa);
+    const seq = getStepSequence(reminderPeriod, isNew, mealMode, comPausa, cycleKind);
     const idx = seq.indexOf(wizardStep);
     if (idx <= 0) {
       setShowModal(false);
@@ -928,11 +939,14 @@ export default function MedicationsScreen() {
     const stockWarn = !!stockInput.trim() && doseCaps > 1 && units === 1
       ? `A dose diz ${doseCaps} cáps, mas o estoque desconta 1 por vez.`
       : undefined;
+    // Cartela/adesivo/anel são indefinidos (recomeçam sozinhos) — a linha de prazo some do
+    // resumo pelo mesmo motivo que some do wizard: ver getStepSequence.
+    const mostraDeadline = !(comPausa && cycleKind !== 'custom');
     return [
       { icon: '💊', label: 'Nome', value: form.commercial_name.trim() ? `${form.commercial_name.trim()} — ${form.generic_name}` : form.generic_name, step: 'name' },
       { icon: '⚖️', label: 'Dose e observações', value: [form.dose, form.notes].filter(Boolean).join('  ·  ') || 'Não informada', step: 'dose' },
       { icon: '🗓', label: 'Frequência e horários', value: schedText, step: 'period' },
-      { icon: '📅', label: 'Prazo do tratamento', value: hasDeadline && !isNaN(deadlineDays) ? `${deadlineDays} dia${deadlineDays !== 1 ? 's' : ''} · termina ${formatEndDate(addDays(deadlineDays))}` : 'Sem prazo', step: 'deadline' },
+      ...(mostraDeadline ? [{ icon: '📅', label: 'Prazo do tratamento', value: hasDeadline && !isNaN(deadlineDays) ? `${deadlineDays} dia${deadlineDays !== 1 ? 's' : ''} · termina ${formatEndDate(addDays(deadlineDays))}` : 'Sem prazo', step: 'deadline' as WizardStep }] : []),
       { icon: withSound ? '🔔' : '🔕', label: 'Alarme', value: `${withSound ? 'Sim' : 'Não'}  ·  Repete: ${repeatInterval > 0 ? 'Sim' : 'Não'}`, step: 'sound' },
       { icon: '📦', label: 'Estoque', value: stockInput.trim() ? `${stockInput.trim()} restantes  ·  1 dose = ${unitsPerDoseInput.trim() || '1'}` : 'Sem controle de estoque', step: 'stock', warn: stockWarn },
     ];
@@ -1273,7 +1287,7 @@ export default function MedicationsScreen() {
                   // O anel é 1 colocação por ciclo: 1 horário basta, e "vezes por dia" perde
                   // o sentido. O adesivo cai em 'week' e a pessoa escolhe o dia da semana.
                   if (p.kind === 'ring') { setTimesPerDay(1); setTimesPerDayTouched(true); }
-                  wizGoNext(p.period, true);
+                  wizGoNext(p.period, true, p.kind);
                 }}
               >
                 <Text style={styles.presetIcon}>{p.icon}</Text>
@@ -1890,7 +1904,7 @@ export default function MedicationsScreen() {
             <View style={styles.wizModalBox}>
               {/* Progress bar — só no cadastro novo; a edição navega pelo resumo */}
               {editingId === null && (() => {
-                const seq = getStepSequence(reminderPeriod, true, mealMode, comPausa);
+                const seq = getStepSequence(reminderPeriod, true, mealMode, comPausa, cycleKind);
                 const idx = Math.max(0, seq.indexOf(wizardStep));
                 const pct = `${Math.round((idx + 1) / seq.length * 100)}%`;
                 return (
@@ -1952,7 +1966,7 @@ export default function MedicationsScreen() {
                               if (wizardStep === 'summary') return 'Salvar ✓';
                               return editNextStep(wizardStep, reminderPeriod) === 'summary' ? 'OK ✓' : 'Próximo ›';
                             }
-                            const seq = getStepSequence(reminderPeriod, true, mealMode, comPausa);
+                            const seq = getStepSequence(reminderPeriod, true, mealMode, comPausa, cycleKind);
                             const idx = seq.indexOf(wizardStep);
                             return idx >= seq.length - 1 ? 'Salvar ✓' : 'Próximo ›';
                           })()}

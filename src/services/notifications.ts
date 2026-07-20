@@ -1648,7 +1648,11 @@ export async function rescheduleAllActiveNotifications(): Promise<void> {
       let stockWarning: string | undefined;
       if (med.stock_quantity != null) {
         const activeDoses = reminders.filter(r => r.is_active).length || 1;
-        const daysLeft = Math.floor(med.stock_quantity / (activeDoses * (med.units_per_dose || 1)));
+        const dosePorDia = activeDoses * (med.units_per_dose || 1);
+        // Ciclo com pausa: contar todo dia como dia de dose superestima o consumo e antecipa
+        // o aviso de estoque baixo — mesma conta cíclica do widget (ver alimentarWidget).
+        const ciclo = cicloDoMedicamento(med);
+        const daysLeft = ciclo ? diasDeEstoque(ciclo, med.stock_quantity, dosePorDia) : Math.floor(med.stock_quantity / dosePorDia);
         if (daysLeft <= 3) {
           stockWarning = `⚠️ Estoque: ~${daysLeft}d`;
         }
