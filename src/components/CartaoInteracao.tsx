@@ -94,6 +94,9 @@ function textoDaFonte(item: DrugInteraction): string {
     // (Varfarina), e o app não tem como saber — "de" serve para os dois.
     case 'ANVISA':  return ref ? `Fonte: bula de ${ref} (ANVISA)` : 'Fonte: bula da ANVISA';
     case 'FDA':     return ref ? `Fonte: bula do FDA — ${ref}` : 'Fonte: bulas do FDA';
+    // O Poison Control publica ORIENTAÇÃO AO PÚBLICO, não bula. Dizer "bula" aqui prometeria
+    // um documento regulatório e entregaria um artigo — as outras fontes criam essa expectativa.
+    case 'poison.org': return ref ? `Fonte: Poison Control — ${ref}` : 'Fonte: Poison Control';
     case undefined:
     case 'desconhecida': return 'Sem fonte verificada';
     default:        return `Fonte: ${item.source}`;
