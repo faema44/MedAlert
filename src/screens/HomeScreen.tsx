@@ -118,6 +118,7 @@ type MedSlot = { at: Date; r: MedicationReminder };
 type CicloNaTela = {
   medId: number;
   nome: string;
+  foto: string | null;   // a mesma foto dos outros cards — sem ela este ficava com 💊 sozinho
   kind: string;
   ativo: boolean;
   diaDoBloco: number;
@@ -383,6 +384,7 @@ export default function HomeScreen() {
         ciclos.push({
           medId: med.id,
           nome: med.commercial_name?.trim() || med.generic_name,
+          foto: med.photo_uri ?? null,
           kind: ciclo.kind,
           ativo: st.active,
           diaDoBloco: st.dayOfBlock,
@@ -728,7 +730,12 @@ export default function HomeScreen() {
           que o app continua contando. */}
       {ciclos.map(c => (
         <View key={`ciclo_${c.medId}`} style={[styles.cicloCard, c.vespera && styles.cicloCardVespera]}>
-          <Text style={styles.cicloIcone}>{c.vespera ? '▶' : c.ativo ? '💊' : '⏸'}</Text>
+          {/* Na véspera e na pausa o SÍMBOLO é a informação (recomeça / parado), então ele
+              vence a foto. No dia comum quem manda é a foto: o card diz "dia 12 de 21" e a
+              pessoa precisa saber de QUAL comprimido. */}
+          {c.ativo && !c.vespera && temFoto(c.foto)
+            ? <Image source={{ uri: c.foto as string }} style={styles.cicloFoto} />
+            : <Text style={styles.cicloIcone}>{c.vespera ? '▶' : c.ativo ? '💊' : '⏸'}</Text>}
           <View style={{ flex: 1 }}>
             <Text style={styles.cicloNome}>{c.nome}</Text>
             <Text style={[styles.cicloTexto, c.vespera && styles.cicloTextoVespera]}>
@@ -844,7 +851,13 @@ export default function HomeScreen() {
                     }}
                   >
                     <Text style={styles.reminderTimeLeft}>{item.time}</Text>
-                    <Text style={styles.reminderIcon}>{item.icon}</Text>
+                    {/* A foto ocupa o MESMO slot do emoji — mesmo tamanho, zero custo de
+                        layout. Vale aqui e não só no cartão da dose: é esta lista que o idoso
+                        olha para se preparar ("o que vem agora?"), e reconhecer o comprimido
+                        antes de ir até a gaveta é metade do problema resolvido. */}
+                    {item.type === 'med' && temFoto(item.medObj?.photo_uri)
+                      ? <Image source={{ uri: item.medObj!.photo_uri as string }} style={styles.reminderFoto} />
+                      : <Text style={styles.reminderIcon}>{item.icon}</Text>}
                     <View style={styles.reminderContent}>
                       <View style={styles.reminderTopRow}>
                         <Text style={styles.reminderName} numberOfLines={1}>{item.name}</Text>
@@ -992,6 +1005,7 @@ const styles = StyleSheet.create({
   },
   cicloCardVespera: { borderWidth: 1.5, borderColor: '#E07B4F' },
   cicloIcone: { fontSize: 22 },
+  cicloFoto: { width: 30, height: 30, borderRadius: 6, backgroundColor: '#eee' },
   cicloNome: { fontSize: 15, fontWeight: '700', color: '#1C3F7A' },
   cicloTexto: { fontSize: 13, color: '#666', marginTop: 2 },
   cicloTextoVespera: { color: '#E07B4F', fontWeight: '700' },
@@ -1030,6 +1044,7 @@ const styles = StyleSheet.create({
   },
   reminderTimeLeft: { fontSize: 14, color: '#1C3F7A', fontWeight: '800', width: 56, paddingTop: 1, marginRight: 6 },
   reminderIcon: { fontSize: 17, marginRight: 8, width: 22, textAlign: 'center', paddingTop: 1 },
+  reminderFoto: { width: 22, height: 22, borderRadius: 4, marginRight: 8, backgroundColor: '#eee' },
   reminderContent: { flex: 1 },
   reminderTopRow: { flexDirection: 'row', alignItems: 'center' },
   reminderName: { fontSize: 13, color: '#1A1F2E', fontWeight: '500', flex: 1, marginRight: 4 },

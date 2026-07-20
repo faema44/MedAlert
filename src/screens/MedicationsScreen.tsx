@@ -1804,7 +1804,12 @@ export default function MedicationsScreen() {
           <TouchableOpacity style={styles.medCard} activeOpacity={0.85} onPress={() => openEdit(item)}>
             {/* Header: name + delete */}
             <View style={styles.medHeader}>
-              <Text style={styles.criticalIcon}>{isPhytotherapic(item.generic_name) ? '🌿' : '💊'}</Text>
+              {/* Mesma troca da Home: a foto entra no lugar do emoji, no mesmo tamanho.
+                  Quem tem seis remédios cadastrados precisa distinguir as LINHAS da lista,
+                  não só a dose da vez. */}
+              {temFoto(item.photo_uri)
+                ? <Image source={{ uri: item.photo_uri as string }} style={styles.medFoto} />
+                : <Text style={styles.criticalIcon}>{isPhytotherapic(item.generic_name) ? '🌿' : '💊'}</Text>}
               <Text style={styles.medGeneric} numberOfLines={2}>
                 {item.commercial_name ? `${item.commercial_name} — ${item.generic_name}` : item.generic_name}
               </Text>
@@ -2158,6 +2163,7 @@ const styles = StyleSheet.create({
   presetHint: { fontSize: 12, color: '#888', marginTop: 2 },
 
   cycleRow: { flexDirection: 'row', gap: 12, marginTop: 8 },
+  medFoto: { width: 26, height: 26, borderRadius: 5, marginRight: 6, backgroundColor: '#eee' },
   fotoRow: { flexDirection: 'row', gap: 10, marginTop: 8, alignItems: 'center' },
   fotoPreview: { width: 84, height: 84, borderRadius: 10, backgroundColor: '#eee' },
   fotoBtn: {
