@@ -8878,21 +8878,6 @@
     ]
   },
   {
-    "id": "int_596",
-    "source": "desconhecida",
-    "drug1": "Omeprazol",
-    "drug2": "Rivaroxabana",
-    "risk_level": "moderate",
-    "risk_description": "Aumento do risco de sangramento grave",
-    "mechanism": "O omeprazol bloqueia as vias que eliminam a rivaroxabana, e o anticoagulante se acumula acima da dose segura. O resultado é risco de sangramento que não estanca. Conduta: Evitar.",
-    "drug1_rxcuis": [
-      "7646"
-    ],
-    "drug2_rxcuis": [
-      "1114195"
-    ]
-  },
-  {
     "id": "int_597",
     "source": "ANVISA",
     "source_ref": "Esomeprazol",
@@ -13535,18 +13520,6 @@
     "mechanism": "A morfina reduz o estímulo que o cérebro manda para respirar, e o álcool/etanol aprofunda essa depressão. Juntos, a respiração pode ficar lenta demais — sobretudo durante o sono — com risco de parada respiratória. Idosos e quem tem doença pulmonar correm mais risco. Conduta: Contraindicado.",
     "drug1_rxcuis": [
       "7052"
-    ]
-  },
-  {
-    "id": "int_915",
-    "source": "desconhecida",
-    "drug1": "Nadroparina",
-    "drug2": "Álcool/etanol",
-    "risk_level": "moderate",
-    "risk_description": "Hemorragia grave",
-    "mechanism": "A nadroparina impede a formação do coágulo e o álcool agride a mucosa do estômago, além de afetar as plaquetas. O risco de sangramento digestivo aumenta. Conduta: Evitar uso concomitante.",
-    "drug1_rxcuis": [
-      "67031"
     ]
   },
   {

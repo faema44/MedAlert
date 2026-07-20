@@ -31,7 +31,32 @@ disponível, não de queda.
 
 De passagem: 3 mecanismos tinham "Os barbitúricos aceleram acelera as enzimas".
 
-## Pendente — 17 entradas de SANGRAMENTO: é o NÍVEL, não o texto
+## Resolvido em 20/07/2026 — sangramento: 6 promovidas, 2 removidas
+
+Consulta ao openFDA (`tools/classificar-sangramento-fda.js`) e, para o que ele não cobria, ao
+drugs.com. Do drugs.com veio só a CLASSIFICAÇÃO — nunca o texto, mesma regra do Micromedex.
+
+| par | evidência | ação |
+|---|---|---|
+| `int_202`, `int_397`, `int_446`, `int_634` | boxed warning do FDA | → `high` |
+| `int_725`, `int_774` | warnings and cautions | → `high` |
+| `int_595`, `int_775`, `int_886` | drugs.com: Moderate | mantidas em `moderate` |
+| `int_596` Omeprazol + Rivaroxabana | FDA não cita **e** drugs.com não acha interação nenhuma | **REMOVIDA** |
+| `int_915` Nadroparina + Álcool | FDA não cita; nadroparina não existe no drugs.com (não é comercializada nos EUA) | **REMOVIDA** |
+
+As duas removidas eram `source: "desconhecida"` — sem fonte citável desde o início, e sem apoio
+de nenhuma das duas consultas.
+
+> ⚠️ **Remoção não viaja por OTA.** O piso do `dbSync` é o conjunto de IDs **embarcado no app
+> instalado** (`PISO_IDS`). Publicar dados sem `int_596`/`int_915` faz o `acceptInteractions`
+> de quem ainda tem a versão antiga rejeitar o **lote inteiro** — e em silêncio: essa pessoa
+> para de receber QUALQUER atualização de dados até trocar de versão pela Play Store. A ordem
+> obrigatória é: **APK novo na loja primeiro, `publish:data` depois.**
+
+Os fitoterápicos (`int_116` Arnica + Varfarina, `int_211` Alho + Aspirina) seguem em `moderate`:
+o openFDA não cobre suplemento, então "não citado" ali não é evidência de nada.
+
+## Histórico — 17 entradas de SANGRAMENTO: era o NÍVEL, não o texto
 
 Estas **não foram tocadas de propósito**. Amaciar o texto de um anticoagulante somado a um
 antiagregante seria errar na direção perigosa: aqui "grave" provavelmente não é enlatado, é o
