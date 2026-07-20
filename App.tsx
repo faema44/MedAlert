@@ -564,6 +564,16 @@ function AppNavigator() {
       <NavigationContainer ref={navRef} onReady={gastarRotaPendente} onStateChange={refreshHasPatients}>
         <StatusBar style="light" />
         <Tab.Navigator
+          // O padrão do navegador é `firstRoute`: o voltar do Android salta de QUALQUER aba
+          // direto para o Início. Como as telas sem ícone (Backup, Tabelas, Lista de compras,
+          // Cuidador…) também são abas, voltar delas jogava a pessoa no Início em vez de
+          // Configurações, que é de onde ela veio. Somado a modal que engolia o voltar, o
+          // sintoma chegava como "do nada foi para o Início".
+          //
+          // `history` volta para onde a pessoa estava de fato. O custo é que o voltar demora
+          // mais para sair do app — e esse é o lado certo para errar num app de idoso: sair
+          // sem querer é pior que voltar uma tela a mais.
+          backBehavior="history"
           screenOptions={({ route, navigation }) => ({
             headerStyle: { backgroundColor: '#1C3F7A' },
             headerTintColor: '#fff',

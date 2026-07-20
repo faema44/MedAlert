@@ -2687,7 +2687,7 @@
     "source_bula": "ibuprofeno",
     "drug1": "Ácido acetilsalicílico",
     "drug2": "Ibuprofeno",
-    "risk_level": "moderate",
+    "risk_level": "high",
     "risk_description": "Hemorragia grave",
     "mechanism": "O ibuprofeno ocupa o mesmo ponto da plaqueta em que o AAS age e impede o AAS de fazer seu efeito protetor do coração; ao mesmo tempo, os dois somam agressão ao estômago. Tomar o AAS ao menos 30 minutos antes do ibuprofeno reduz o problema. Conduta: Evitar.",
     "drug1_rxcuis": [
@@ -5765,7 +5765,7 @@
     "source_ref": "Enoxaparina",
     "drug1": "Enoxaparina",
     "drug2": "Ibuprofeno",
-    "risk_level": "moderate",
+    "risk_level": "high",
     "risk_description": "Hemorragia grave",
     "mechanism": "A enoxaparina impede a formação do coágulo e o ibuprofeno age sobre as plaquetas e a mucosa do estômago. Atacando a coagulação por frentes diferentes, um sangramento pode não parar sozinho. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
@@ -6565,7 +6565,7 @@
     "source": "desconhecida",
     "drug1": "Fondaparinux",
     "drug2": "Aspirina",
-    "risk_level": "moderate",
+    "risk_level": "high",
     "risk_description": "Hemorragia grave",
     "mechanism": "O fondaparinux impede a formação do coágulo e a aspirina age sobre as plaquetas e a mucosa do estômago. Atacando a coagulação por frentes diferentes, um sangramento pode não parar sozinho. Conduta: Evitar uso concomitante.",
     "drug1_rxcuis": [
@@ -9485,7 +9485,7 @@
     "source_bula": "prasugrel",
     "drug1": "Prasugrel",
     "drug2": "Varfarina",
-    "risk_level": "moderate",
+    "risk_level": "high",
     "risk_description": "Hemorragia grave",
     "mechanism": "A varfarina impede a formação do coágulo e o prasugrel age sobre as plaquetas e a mucosa do estômago. Atacando a coagulação por frentes diferentes, um sangramento pode não parar sozinho. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
@@ -10933,7 +10933,7 @@
     "source_bula": "dabigatrana",
     "drug1": "Ticagrelor",
     "drug2": "Dabigatrana",
-    "risk_level": "moderate",
+    "risk_level": "high",
     "risk_description": "Aumento do risco de hemorragia grave",
     "mechanism": "A dabigatrana impede a formação do coágulo e o ticagrelor age sobre as plaquetas e a mucosa do estômago. Atacando a coagulação por frentes diferentes, um sangramento pode não parar sozinho. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
@@ -11624,7 +11624,7 @@
     "source_bula": "cefazolina",
     "drug1": "Varfarina",
     "drug2": "Cefazolina",
-    "risk_level": "moderate",
+    "risk_level": "high",
     "risk_description": "Hemorragia grave",
     "mechanism": "A cefazolina altera a flora do intestino que produz vitamina K, e a varfarina depende justamente dessa vitamina. O efeito anticoagulante pode aumentar de forma imprevisível. Conduta: Evitar.",
     "drug1_rxcuis": [

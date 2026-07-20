@@ -32,8 +32,11 @@ const FORMAS = {
   capsula:     /c[áa]psula/i,
   gotas:       /gotas/i,
   xarope:      /xarope/i,
+  'solucao-oral': /solu[çc][ãa]o oral/i,
+  elixir:      /elixir/i,
   suspensao:   /suspens[ãa]o/i,
   po:          /\bp[óo]\b|liofilizad/i,
+  granulado:   /granulad/i,
   creme:       /creme/i,
   pomada:      /pomada/i,
   gel:         /\bgel\b/i,
@@ -57,7 +60,9 @@ function textoDe(base) {
 }
 
 const arquivos = fs.readdirSync(BULAS_DIR).filter(f => f.endsWith('.pdf'));
-const sufixos = Object.keys(FORMAS);
+// Do mais LONGO para o mais curto: senão "solucao-oral" nunca seria reconhecido, porque um
+// sufixo mais curto casaria antes e o arquivo seria julgado contra a forma errada.
+const sufixos = Object.keys(FORMAS).sort((a, b) => b.length - a.length);
 const comForma = arquivos.filter(f => sufixos.some(s => f.endsWith(`-${s}.pdf`)));
 
 const semTexto = [];

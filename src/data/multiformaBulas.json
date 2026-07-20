@@ -4,8 +4,8 @@
     "creme"
   ],
   "acetilcisteina": [
+    "granulado",
     "injetavel",
-    "po",
     "xarope"
   ],
   "aciclovir": [
@@ -48,8 +48,8 @@
   ],
   "betametasona": [
     "creme",
-    "pomada",
-    "xarope"
+    "elixir",
+    "pomada"
   ],
   "bromoprida": [
     "capsula",
@@ -67,7 +67,7 @@
   ],
   "cetirizina": [
     "comprimido",
-    "suspensao"
+    "solucao-oral"
   ],
   "cetoprofeno": [
     "capsula",
@@ -113,8 +113,8 @@
   "dexametasona": [
     "comprimido",
     "creme",
-    "ocular",
-    "xarope"
+    "elixir",
+    "ocular"
   ],
   "dexclorfeniramina": [
     "comprimido",
@@ -129,7 +129,7 @@
     "comprimido",
     "gotas",
     "injetavel",
-    "suspensao"
+    "solucao-oral"
   ],
   "domperidona": [
     "comprimido",
@@ -157,7 +157,7 @@
   ],
   "hidroxizina": [
     "comprimido",
-    "suspensao"
+    "solucao-oral"
   ],
   "ibuprofeno": [
     "comprimido",
@@ -250,11 +250,15 @@
   ],
   "risperidona": [
     "comprimido",
-    "suspensao"
+    "solucao-oral"
   ],
   "salbutamol": [
     "injetavel",
     "xarope"
+  ],
+  "sulfato-ferroso": [
+    "comprimido",
+    "solucao-oral"
   ],
   "tacrolimo": [
     "capsula",

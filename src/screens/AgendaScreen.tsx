@@ -730,7 +730,7 @@ export default function AgendaScreen() {
       </TouchableOpacity>
 
       {/* ─── MEASUREMENT MODAL ─── */}
-      <Modal visible={showMeasureModal} animationType="slide" transparent>
+      <Modal visible={showMeasureModal} animationType="slide" transparent onRequestClose={() => setShowMeasureModal(false)}>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
           <View style={styles.modalOverlay}>
             <ScrollView
@@ -939,7 +939,7 @@ export default function AgendaScreen() {
       </Modal>
 
       {/* ─── ACTIVITY MODAL ─── */}
-      <Modal visible={showActivityModal} animationType="slide" transparent>
+      <Modal visible={showActivityModal} animationType="slide" transparent onRequestClose={() => setShowActivityModal(false)}>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
           <View style={styles.modalOverlay}>
             <ScrollView
@@ -1136,7 +1136,7 @@ export default function AgendaScreen() {
       </Modal>
 
       {/* ─── APPOINTMENT MODAL ─── */}
-      <Modal visible={showApptModal} animationType="slide" transparent>
+      <Modal visible={showApptModal} animationType="slide" transparent onRequestClose={() => setShowApptModal(false)}>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
           <View style={styles.modalOverlay}>
             <ScrollView

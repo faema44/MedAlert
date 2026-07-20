@@ -26,10 +26,25 @@ const { getBulaUrl } = mod.exports;
 const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
   .replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
 
+// Grafias que são o MESMO fármaco. Espelha SINONIMOS de tools/audit-bulas.js — se divergir,
+// um gate aprova o que o outro reprova.
+const SINONIMOS = {
+  amlodipino: ['anlodipino'],   // a DCB oficial brasileira escreve com N
+};
+
+// Slugs já olhados NA MÃO, com o motivo. Diferente de sinônimo de propósito: sinônimo vale para
+// a base inteira e esconderia o mesmo erro em outro lugar; a exceção vale só para este arquivo.
+const REVISADOS = {
+  'emtricitabina-tenofovir.pdf':
+    'É o TRUVADA correto (emtricitabina + tenofovir). O typo "entricitabina" está no PDF ORIGINAL ' +
+    'da Gilead, não na nossa atribuição. Não vira sinônimo: "entricitabina" não é grafia alternativa, ' +
+    'é erro de digitação — aceitá-la globalmente esconderia bula errada de verdade.',
+};
+
 const { medications } = require(path.join(ROOT, 'src/data/medications-db.json'));
 const combos = medications.filter(m => (m.genericName || '').includes('+'));
 
-let temTudo = 0, semPdf = [], soUm = [], semTexto = [];
+let temTudo = 0, semPdf = [], soUm = [], semTexto = [], revisados = [];
 
 for (const m of combos) {
   const url = getBulaUrl(m.genericName, m.brandNames && m.brandNames[0]);
@@ -44,9 +59,11 @@ for (const m of combos) {
   const ings = m.genericName.split('+').map(s => s.trim());
   // Radical de 8 letras: casa "hidroclorotiazida" com a grafia da bula sem casar coisas curtas.
   const faltando = ings.filter(i => {
-    const raiz = norm(i).split(' ').filter(w => w.length >= 5).map(w => w.slice(0, 8));
+    const grafias = [norm(i), ...(SINONIMOS[norm(i)] || [])];
+    const raiz = grafias.flatMap(g => g.split(' ').filter(w => w.length >= 5).map(w => w.slice(0, 8)));
     return raiz.length > 0 && !raiz.some(r => txt.includes(r));
   });
+  if (faltando.length && REVISADOS[arquivo]) { revisados.push(`${arquivo} — ${REVISADOS[arquivo]}`); continue; }
   if (faltando.length) soUm.push(`${arquivo}  → não cita: ${faltando.join(', ')}  (de "${m.genericName}")`);
   else temTudo++;
 }
@@ -61,6 +78,10 @@ if (soUm.length) {
   for (const l of soUm) console.log(`      ${l}`);
 } else {
   console.log('\n  ✓ Nenhum combo abrindo bula que esquece um dos ativos.');
+}
+if (revisados.length) {
+  console.log(`\n  · já revisados na mão (não reprovam): ${revisados.length}`);
+  for (const l of revisados) console.log(`      ${l}`);
 }
 console.log('');
 if (process.argv.includes('--gate') && soUm.length) process.exit(1);

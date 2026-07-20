@@ -1898,7 +1898,12 @@ export default function MedicationsScreen() {
       </TouchableOpacity>
 
       {/* Wizard modal */}
-      <Modal visible={showModal} animationType="slide" transparent>
+      {/* onRequestClose = wizGoBack, e não fechar o modal: o voltar do Android tem de fazer o
+          MESMO que o botão "‹ Voltar" da tela, que é recuar um passo. Sem isto o voltar era
+          simplesmente ENGOLIDO — apertar não fazia nada, e a única saída do wizard era andar
+          até o primeiro passo. Fechar tudo de uma vez seria o outro extremo: jogaria fora o
+          que a pessoa já preencheu, sem perguntar. */}
+      <Modal visible={showModal} animationType="slide" transparent onRequestClose={wizGoBack}>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
           <View style={styles.modalOverlay}>
             <View style={styles.wizModalBox}>

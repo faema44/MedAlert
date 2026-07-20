@@ -43,8 +43,14 @@ const FORMA_INFO: Record<string, { label: string; icon: string }> = {
   capsula:     { label: 'Cápsula',                   icon: '💊' },
   gotas:       { label: 'Gotas',                     icon: '💧' },
   xarope:      { label: 'Xarope',                    icon: '🥄' },
+  // "Solução oral" e "elixir" NÃO são sinônimos de xarope/suspensão, e o rótulo tem de dizer
+  // o que está escrito na bula: é por ele que a pessoa confere se o PDF é o remédio da mão dela.
+  // Sete arquivos prometiam a forma errada (auditoria de 20/07 — ver test:bula-forma).
+  'solucao-oral': { label: 'Solução oral',           icon: '🥤' },
+  elixir:      { label: 'Elixir',                    icon: '🥄' },
   suspensao:   { label: 'Suspensão oral',            icon: '🥤' },
   po:          { label: 'Pó para solução/suspensão', icon: '🧂' },
+  granulado:   { label: 'Granulado',                 icon: '🧂' },
   creme:       { label: 'Creme',                     icon: '🧴' },
   pomada:      { label: 'Pomada',                    icon: '🧴' },
   gel:         { label: 'Gel',                       icon: '🧴' },
