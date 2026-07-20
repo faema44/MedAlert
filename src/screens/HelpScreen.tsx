@@ -285,6 +285,76 @@ export default function HelpScreen() {
       </Section>
 
       {/* Busca de medicamentos */}
+      <Section title="📷 Foto do remédio — para reconhecer o comprimido">
+        <Text style={styles.bodyText}>
+          Ao cadastrar ou editar um medicamento, no passo da dose, você pode tirar uma foto
+          da cartela ou escolher uma da galeria. É opcional.
+        </Text>
+        <Text style={styles.bodyText}>
+          A foto passa a aparecer no lugar do desenho 💊 em quatro lugares: no aviso da hora de
+          tomar, na lista "Próximos lembretes", na aba Medicamentos e no cartão da cartela.
+          Toque na foto para vê-la grande.
+        </Text>
+        <Text style={styles.tip}>
+          💡 Serve para quem tem três comprimidos brancos e redondos na gaveta: o nome na tela
+          não diferencia, a foto do que está na cartela sim. A foto vai junto no backup.
+        </Text>
+      </Section>
+
+      <Section title="🛒 Lista de compras da farmácia">
+        <Text style={styles.bodyText}>
+          Em Configurações → Lista de compras, o app monta a lista do que você precisa comprar.
+          Marque os remédios, ajuste a quantidade e escolha como levar: gerar um PDF, enviar o
+          texto por WhatsApp ou e-mail, ou copiar para colar onde quiser.
+        </Text>
+        <Text style={styles.bodyText}>
+          Quem está acabando nos próximos 7 dias já vem marcado, e aparece primeiro na lista.
+          Para isso funcionar, o remédio precisa ter o controle de estoque preenchido.
+        </Text>
+        <Text style={styles.tip}>
+          ⚠️ A lista é um lembrete de compra feito por você — não é receita e não substitui
+          prescrição médica. Isso vai escrito no PDF e na mensagem, porque quem recebe pode
+          não saber de onde veio.
+        </Text>
+      </Section>
+
+      {!IS_IOS && (
+        <Section title="📱 Atalho na tela inicial do celular (Android)">
+          <Text style={styles.bodyText}>
+            Você pode colocar um quadro do Alerta Médico na tela inicial do celular, junto dos
+            outros ícones — sem precisar abrir o aplicativo para ver o que vem agora.
+          </Text>
+          <Text style={styles.bodyText}>
+            Para adicionar: toque e segure num espaço vazio da tela inicial, escolha "Widgets",
+            procure Alerta Médico e arraste para onde quiser.
+          </Text>
+          <Text style={styles.bodyText}>
+            O tamanho decide quanto ele mostra: pequeno mostra a próxima dose, médio mostra
+            duas, e grande mostra três mais os remédios que estão acabando.
+          </Text>
+          <Text style={styles.tip}>
+            💡 O quadro se atualiza sozinho quando você toma uma dose ou muda algum remédio.
+            No iPhone ele não existe — a Apple não permite esse tipo de atalho para este app.
+          </Text>
+        </Section>
+      )}
+
+      <Section title="💊 Cartela, adesivo e anel (com pausa)">
+        <Text style={styles.bodyText}>
+          Anticoncepcional de cartela, adesivo semanal e anel têm dias de uso e dias de pausa.
+          Ao escolher a frequência, toque em "Com pausa" e depois no tipo — os números já vêm
+          preenchidos (cartela: 21 dias tomando + 7 de pausa) e você confere na tela seguinte.
+        </Text>
+        <Text style={styles.bodyText}>
+          O app avisa só nos dias de uso e fica quieto na pausa. Na tela inicial aparece em que
+          dia da cartela você está, quando começa a pausa e quando recomeça.
+        </Text>
+        <Text style={styles.tip}>
+          💡 Se você já começou a cartela, informe em que dia está — o app se ajusta a partir
+          daí. Esses tratamentos não têm prazo de término, porque recomeçam sozinhos.
+        </Text>
+      </Section>
+
       <Section title="🔍 Busca e bula de medicamentos">
         <Text style={styles.bodyText}>
           Ao cadastrar um medicamento, o app sugere nomes automaticamente conforme você digita,
@@ -295,9 +365,18 @@ export default function HelpScreen() {
           — sem sair do aplicativo. Se o PDF da bula não estiver disponível,
           o app abre uma busca no navegador.
         </Text>
+        <Text style={styles.bodyText}>
+          Quando o mesmo remédio existe em várias apresentações, o app pergunta qual é a sua
+          antes de abrir: comprimido, gotas, solução oral, creme, colírio, injetável e assim
+          por diante. A bula muda conforme a forma, e a errada traz dose errada.
+        </Text>
         <Text style={styles.tip}>
           💡 A busca funciona por nome genérico e comercial. Se um medicamento não aparecer,
           verifique a grafia ou consulte o Bulário em bulario.anvisa.gov.br.
+        </Text>
+        <Text style={styles.tip}>
+          ⚠️ A bula que o app mostra é de UM fabricante e UMA apresentação. Confira sempre o
+          cabeçalho dela contra a caixa que você tem na mão.
         </Text>
       </Section>
 
