@@ -19588,7 +19588,8 @@
     "drug2": "Hypericum perforatum (Erva de São João)",
     "risk_level": "high",
     "risk_description": "Pode diminuir a eficácia contraceptiva e aumentar sangramento de escape.",
-    "mechanism": "Indução enzimática (CYP3A4). Recomendar método contraceptivo alternativo ou de reserva durante o uso e por 28 dias após a descontinuação."
+    "mechanism": "Indução enzimática (CYP3A4). Recomendar método contraceptivo alternativo ou de reserva durante o uso e por 28 dias após a descontinuação.",
+    "source_ref": "Dienogeste"
   },
   {
     "id": "int_1593",
@@ -21186,7 +21187,8 @@
     "drug2": "Hypericum perforatum (Erva de São João)",
     "risk_level": "moderate",
     "risk_description": "Podem reduzir as concentrações plasmáticas de estrogênios, diminuindo o efeito terapêutico e alterando o padrão de sangramento uterino.",
-    "mechanism": "Indução do CYP3A4, aumentando o metabolismo dos estrogênios. Recomenda-se monitorar a eficácia terapêutica e ajustar a dose se necessário."
+    "mechanism": "Indução do CYP3A4, aumentando o metabolismo dos estrogênios. Recomenda-se monitorar a eficácia terapêutica e ajustar a dose se necessário.",
+    "source_ref": "Estrogênios conjugados"
   },
   {
     "id": "int_1784",
@@ -22158,7 +22160,8 @@
     "drug2": "Hypericum perforatum (Erva de São João)",
     "risk_level": "high",
     "risk_description": "Pode reduzir o efeito terapêutico de MAVYRET.",
-    "mechanism": "St. John's wort induz P-gp/CYP3A, diminuindo as concentrações plasmáticas de glecaprevir e pibrentasvir. A coadministração não é recomendada."
+    "mechanism": "St. John's wort induz P-gp/CYP3A, diminuindo as concentrações plasmáticas de glecaprevir e pibrentasvir. A coadministração não é recomendada.",
+    "source_ref": "Glecaprevir"
   },
   {
     "id": "int_1909",
@@ -24069,7 +24072,8 @@
     "drug2": "Hypericum perforatum (Erva de São João)",
     "risk_level": "high",
     "risk_description": "Indutores de P-gp podem diminuir as concentrações plasmáticas de ledipasvir e sofosbuvir, reduzindo o efeito terapêutico.",
-    "mechanism": "Indutores de P-gp diminuem as concentrações plasmáticas de ledipasvir e sofosbuvir. O uso com indutores de P-gp não é recomendado."
+    "mechanism": "Indutores de P-gp diminuem as concentrações plasmáticas de ledipasvir e sofosbuvir. O uso com indutores de P-gp não é recomendado.",
+    "source_ref": "Ledipasvir"
   },
   {
     "id": "int_2124",
@@ -26179,7 +26183,8 @@
     "drug2": "Hypericum perforatum (Erva de São João)",
     "risk_level": "high",
     "risk_description": "Redução da biodisponibilidade e eficácia da nifedipina.",
-    "mechanism": "Indução do CYP3A, aumentando o metabolismo da nifedipina. Nifedipina não deve ser usada em combinação com indutores fortes de CYP3A, como rifampicina (ver CONTRAINDICAÇÕES)."
+    "mechanism": "Indução do CYP3A, aumentando o metabolismo da nifedipina. Nifedipina não deve ser usada em combinação com indutores fortes de CYP3A, como rifampicina (ver CONTRAINDICAÇÕES).",
+    "source_ref": "Nifedipino"
   },
   {
     "id": "int_2418",
@@ -27169,7 +27174,8 @@
     "drug2": "Hypericum perforatum (Erva de São João)",
     "risk_level": "high",
     "risk_description": "Pode reduzir o efeito terapêutico de MAVYRET.",
-    "mechanism": "St. John's wort induz P-gp/CYP3A, diminuindo as concentrações plasmáticas de glecaprevir e pibrentasvir. A coadministração não é recomendada."
+    "mechanism": "St. John's wort induz P-gp/CYP3A, diminuindo as concentrações plasmáticas de glecaprevir e pibrentasvir. A coadministração não é recomendada.",
+    "source_ref": "Pibrentasvir"
   },
   {
     "id": "int_2536",
@@ -27876,7 +27882,8 @@
     "drug2": "Hypericum perforatum (Erva de São João)",
     "risk_level": "critical",
     "risk_description": "Aumenta o risco de síndrome serotoninérgica.",
-    "mechanism": "Mecanismo serotoninérgico. Conduta: uso contraindicado. Aguardar pelo menos 14 dias entre a descontinuação da safinamida e o início desse fármaco."
+    "mechanism": "Mecanismo serotoninérgico. Conduta: uso contraindicado. Aguardar pelo menos 14 dias entre a descontinuação da safinamida e o início desse fármaco.",
+    "source_ref": "Safinamida"
   },
   {
     "id": "int_2622",
