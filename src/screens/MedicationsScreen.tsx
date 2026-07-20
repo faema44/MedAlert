@@ -1219,11 +1219,19 @@ export default function MedicationsScreen() {
                 wizGoNext(undefined, true);
               }}
             >
-              <Text style={styles.periodCardIcon}>⏸</Text>
+              {/* NÃO usar ⏸ aqui: o símbolo de pause significa "parado", e o card acabava
+                  sendo lido como "este remédio está pausado" — estado, não ritmo. O padrão
+                  •••‖••• mostra o que de fato acontece: toma uma sequência, interrompe,
+                  volta a tomar. A barra sai no laranja de alerta, que é a interrupção. */}
+              <Text style={styles.periodPausaIcone}>
+                •••<Text style={styles.periodPausaBarra}>‖</Text>•••
+              </Text>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.periodCardText, comPausa && styles.periodCardTextActive]}>Com pausa</Text>
+                {/* Exemplos de TRATAMENTO, não de formato: é assim que a pessoa reconhece a
+                    própria situação. Cartela/adesivo/anel já aparecem no passo seguinte. */}
                 <Text style={[styles.periodWideHint, comPausa && styles.periodCardTextActive]}>
-                  cartela, adesivo, anel
+                  ex.: anticoncepcional, quimioterápico
                 </Text>
               </View>
             </TouchableOpacity>
@@ -2136,6 +2144,8 @@ const styles = StyleSheet.create({
   },
   periodWideBtnActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
   periodWideHint: { fontSize: 12, color: '#888', marginTop: 2 },
+  periodPausaIcone: { fontSize: 15, color: '#1C3F7A', letterSpacing: 1, fontWeight: '900' },
+  periodPausaBarra: { color: '#E07B4F' },
 
   presetBtn: {
     marginTop: 10, borderWidth: 1.5, borderColor: '#ddd', borderRadius: 12,
