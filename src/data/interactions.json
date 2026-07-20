@@ -1137,7 +1137,7 @@
     "drug1": "Sulfametoxazol + Trimetoprima (TMP-SMX)",
     "drug2": "Captopril / Enalapril (IECA)",
     "risk_level": "moderate",
-    "risk_description": "Hipercalemia grave — especialmente em pacientes com disfunção renal",
+    "risk_description": "Potássio alto no sangue — principalmente com função renal reduzida",
     "mechanism": "A trimetoprima bloqueia canais de potássio no túbulo distal, agindo como poupadora de potássio. Combinada com IECAs (que já reduzem a aldosterona), pode causar hipercalemia grave. Evitar o uso concomitante, principalmente em pacientes com disfunção renal. Monitorar potássio sérico e função renal."
   },
   {
@@ -1358,7 +1358,7 @@
     "drug1": "Panax ginseng (Ginseng)",
     "drug2": "Glibenclamida",
     "risk_level": "moderate",
-    "risk_description": "Risco de hipoglicemia grave",
+    "risk_description": "Queda acentuada do açúcar no sangue",
     "mechanism": "Ginseng combinado com sulfonilureias (glibenclamida), que estimulam a secreção de insulina, pode resultar em hipoglicemia grave. Monitorar intensivamente a glicemia.",
     "drug1_rxcuis": [
       "259470",
@@ -2769,7 +2769,7 @@
     "drug1": "Adalimumabe",
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
-    "risk_description": "Imunossupressão grave",
+    "risk_description": "A imunidade cai demais — risco de infecção",
     "mechanism": "O adalimumabe e a ciclosporina reduzem a defesa do organismo por caminhos diferentes. Somados, a imunidade cai demais: infecções graves, incluindo germes que normalmente não causariam doença, e reativação de tuberculose ou herpes-zóster. Conduta: Evitar.",
     "drug1_rxcuis": [
       "327361"
@@ -3318,7 +3318,7 @@
     "drug1": "Aripiprazol",
     "drug2": "Clorpromazina",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de arritmias graves",
+    "risk_description": "Prolongamento do intervalo QT, com risco de arritmia",
     "mechanism": "O aripiprazol e a clorpromazina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma arritmia grave (torsades de pointes), que causa desmaio. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "89013"
@@ -3349,7 +3349,7 @@
     "drug1": "Aripiprazol",
     "drug2": "Eritromicina",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de arritmias graves",
+    "risk_description": "Prolongamento do intervalo QT, com risco de arritmia",
     "mechanism": "O aripiprazol e a eritromicina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma arritmia grave (torsades de pointes), que causa desmaio. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "89013"
@@ -3414,7 +3414,7 @@
     "drug1": "Asenapina",
     "drug2": "Clorpromazina",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de arritmias graves",
+    "risk_description": "Prolongamento do intervalo QT, com risco de arritmia",
     "mechanism": "A asenapina e a clorpromazina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma arritmia grave (torsades de pointes), que causa desmaio. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "784649"
@@ -3657,7 +3657,7 @@
     "drug1": "Betametasona",
     "drug2": "Rifampicina",
     "risk_level": "moderate",
-    "risk_description": "Insuficiência adrenal grave",
+    "risk_description": "O corticoide perde efeito — risco de insuficiência adrenal",
     "mechanism": "A rifampicina acelera as enzimas do fígado que destroem a betametasona, e o corticoide cai a níveis insuficientes. Em quem depende dele, isso pode desencadear crise por falta de cortisol: fraqueza intensa, queda de pressão, vômitos e desmaio — sobretudo em situação de infecção ou cirurgia. Conduta: Monitorar função adrenal.",
     "drug1_rxcuis": [
       "1514"
@@ -3704,7 +3704,7 @@
     "drug1": "Bisoprolol",
     "drug2": "Clorpromazina",
     "risk_level": "moderate",
-    "risk_description": "hipotensão grave",
+    "risk_description": "A pressão pode cair demais",
     "mechanism": "O bisoprolol e a clorpromazina baixam a pressão por caminhos diferentes, e a clorpromazina ainda eleva o nível do betabloqueador. A pressão pode cair demais, sobretudo ao levantar. Conduta: Monitorar pressão.",
     "drug1_rxcuis": [
       "19484"
@@ -3721,7 +3721,7 @@
     "drug1": "Bortezomibe",
     "drug2": "Cetoconazol",
     "risk_level": "moderate",
-    "risk_description": "Reação adversa grave (neuropatia grave)",
+    "risk_description": "A neuropatia piora — formigamento e dor nos pés e nas mãos",
     "mechanism": "O cetoconazol bloqueia a enzima do fígado que elimina o bortezomibe, que se acumula. O excesso agrava a neuropatia: formigamento, dor e perda de sensibilidade nas mãos e nos pés. Conduta: Evitar.",
     "drug1_rxcuis": [
       "358258"
@@ -3738,7 +3738,7 @@
     "drug1": "Bortezomibe",
     "drug2": "Ritonavir",
     "risk_level": "moderate",
-    "risk_description": "Reação adversa grave (neuropatia grave)",
+    "risk_description": "A neuropatia piora — formigamento e dor nos pés e nas mãos",
     "mechanism": "O ritonavir bloqueia a enzima do fígado que elimina o bortezomibe, que se acumula. O excesso agrava a neuropatia: formigamento, dor e perda de sensibilidade nas mãos e nos pés. Conduta: Evitar.",
     "drug1_rxcuis": [
       "358258"
@@ -3984,7 +3984,7 @@
     "drug1": "Caspofungina",
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
-    "risk_description": "Nefrotoxicidade grave",
+    "risk_description": "Lesão nos rins — a função renal pode cair",
     "mechanism": "A caspofungina eleva o nível de ciclosporina no sangue. A ciclosporina já é tóxica para o rim na dose certa; acima dela a lesão vem mais rápido e pode ser permanente — por isso o nível precisa ser dosado. Conduta: Monitorar função renal.",
     "drug1_rxcuis": [
       "140108"
@@ -4165,7 +4165,7 @@
     "drug1": "Ciclofosfamida",
     "drug2": "Cimetidina",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de mielossupressão grave",
+    "risk_description": "Queda das células do sangue — risco de infecção e sangramento",
     "mechanism": "A cimetidina altera as enzimas do fígado que ativam e eliminam a ciclofosfamida, tornando o efeito sobre a medula óssea imprevisível: pode faltar glóbulo branco, plaqueta e glóbulo vermelho. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "3002"
@@ -4197,7 +4197,7 @@
     "drug1": "Ciclofosfamida",
     "drug2": "Voriconazol",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de mielossupressão grave",
+    "risk_description": "Queda das células do sangue — risco de infecção e sangramento",
     "mechanism": "O voriconazol altera a eliminação da ciclofosfamida e ambos podem deprimir a medula óssea. Risco de faltar glóbulos brancos (infecção) e plaquetas (sangramento). Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "3002"
@@ -5297,7 +5297,7 @@
     "drug1": "Diltiazem",
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
-    "risk_description": "Nefrotoxicidade grave",
+    "risk_description": "Lesão nos rins — a função renal pode cair",
     "mechanism": "O diltiazem bloqueia a enzima do fígado que elimina a ciclosporina, que se acumula. Esse imunossupressor já é tóxico para o rim na dose certa; acima dela, a lesão renal vem mais rápido e pode ser permanente — por isso o nível no sangue precisa ser dosado. Conduta: Monitorar função renal.",
     "drug1_rxcuis": [
       "3443"
@@ -5348,7 +5348,7 @@
     "drug1": "Dipirona",
     "drug2": "Metotrexato",
     "risk_level": "moderate",
-    "risk_description": "toxicidade hematológica grave",
+    "risk_description": "Queda das células do sangue — risco de infecção e sangramento",
     "mechanism": "A dipirona pode deprimir a medula óssea por conta própria, e o metotrexato faz o mesmo. Somados, o risco de faltar glóbulos brancos e plaquetas aumenta. Conduta: Evitar.",
     "drug1_rxcuis": [
       "3523"
@@ -5575,7 +5575,7 @@
     "drug1": "Dronabinol",
     "drug2": "Alprazolam",
     "risk_level": "moderate",
-    "risk_description": "Sedação respiratória grave",
+    "risk_description": "Sedação profunda, com respiração mais lenta",
     "mechanism": "O dronabinol e o alprazolam deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda, confusão e respiração perigosamente lenta. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "10402"
@@ -6713,7 +6713,7 @@
     "drug1": "Glibenclamida",
     "drug2": "Cimetidina",
     "risk_level": "moderate",
-    "risk_description": "Risco de hipoglicemia grave",
+    "risk_description": "Queda acentuada do açúcar no sangue",
     "mechanism": "A cimetidina reduz a eliminação da glibenclamida, que se acumula e baixa o açúcar mais do que o previsto. A hipoglicemia pode ser demorada: tremor, suor frio, confusão. Conduta: Monitorar glicemia.",
     "drug1_rxcuis": [
       "4815"
@@ -6962,7 +6962,7 @@
     "drug1": "Hidrocortisona",
     "drug2": "Fenitoína",
     "risk_level": "moderate",
-    "risk_description": "Insuficiência adrenal grave",
+    "risk_description": "O corticoide perde efeito — risco de insuficiência adrenal",
     "mechanism": "A fenitoína acelera as enzimas do fígado que destroem a hidrocortisona, e o corticoide cai a níveis insuficientes. Em quem depende dele, isso pode desencadear crise por falta de cortisol: fraqueza intensa, queda de pressão, vômitos e desmaio — sobretudo em situação de infecção ou cirurgia. Conduta: Monitorar função adrenal.",
     "drug1_rxcuis": [
       "5492"
@@ -6978,7 +6978,7 @@
     "drug1": "Hidrocortisona",
     "drug2": "Rifampicina",
     "risk_level": "moderate",
-    "risk_description": "Insuficiência adrenal grave",
+    "risk_description": "O corticoide perde efeito — risco de insuficiência adrenal",
     "mechanism": "A rifampicina acelera as enzimas do fígado que destroem a hidrocortisona, e o corticoide cai a níveis insuficientes. Em quem depende dele, isso pode desencadear crise por falta de cortisol: fraqueza intensa, queda de pressão, vômitos e desmaio — sobretudo em situação de infecção ou cirurgia. Conduta: Monitorar função adrenal.",
     "drug1_rxcuis": [
       "5492"
@@ -7011,7 +7011,7 @@
     "drug1": "Hidroxicloroquina",
     "drug2": "Digoxina",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de arritmias graves",
+    "risk_description": "Digoxina acima da faixa segura, com risco de arritmia",
     "mechanism": "A hidroxicloroquina bloqueia a glicoproteína-P, a bomba que retira a digoxina do organismo. Ela se acumula e sua margem de segurança é estreita: enjoo, alterações na visão (halos amarelados), batimentos lentos e arritmias. Conduta: Monitorar níveis de digoxina.",
     "drug1_rxcuis": [
       "5521"
@@ -7658,7 +7658,7 @@
     "drug1": "Loperamida",
     "drug2": "Eritromicina",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de arritmias graves",
+    "risk_description": "Loperamida em excesso, com efeito sobre o ritmo do coração",
     "mechanism": "A eritromicina bloqueia a enzima e a bomba que eliminam a loperamida, que se acumula. Em excesso, a loperamida afeta o ritmo do coração e pode causar arritmia grave. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "6468"
@@ -7873,7 +7873,7 @@
     "drug1": "Memantina",
     "drug2": "Dextrometorfano",
     "risk_level": "moderate",
-    "risk_description": "Risco de convulsão grave",
+    "risk_description": "Risco de confusão, alucinação e convulsão",
     "mechanism": "A memantina e o dextrometorfano agem sobre o mesmo receptor cerebral (NMDA). Somados, aumentam o risco de confusão, alucinações e convulsão. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "6719"
@@ -8113,7 +8113,7 @@
     "drug1": "Metilprednisolona",
     "drug2": "Eritromicina",
     "risk_level": "moderate",
-    "risk_description": "Insuficiência adrenal grave",
+    "risk_description": "O corticoide se acumula e o efeito se prolonga",
     "mechanism": "A eritromicina bloqueia a enzima do fígado que elimina a metilprednisolona, e o corticoide se acumula por muito mais tempo do que deveria. O corpo então para de produzir o próprio cortisol: surgem sinais de excesso (rosto inchado, ganho de peso) e, ao suspender, risco de crise por falta de cortisol. Conduta: Evitar, usar alternativa.",
     "drug1_rxcuis": [
       "6902"
@@ -8147,7 +8147,7 @@
     "drug1": "Metimazol",
     "drug2": "Teofilina",
     "risk_level": "moderate",
-    "risk_description": "Agranulocitose grave",
+    "risk_description": "Queda acentuada dos glóbulos brancos (agranulocitose)",
     "mechanism": "O metimazol pode causar queda grave dos glóbulos brancos (agranulocitose), e a teofilina tem sua eliminação alterada quando a tireoide muda de estado. Febre e dor de garganta durante o uso exigem hemograma imediato. Conduta: Evitar.",
     "drug1_rxcuis": [
       "6835"
@@ -8181,7 +8181,7 @@
     "drug1": "Metoprolol",
     "drug2": "Clorpromazina",
     "risk_level": "moderate",
-    "risk_description": "hipotensão grave",
+    "risk_description": "A pressão pode cair demais",
     "mechanism": "O metoprolol e a clorpromazina baixam a pressão por caminhos diferentes, e cada um eleva o nível do outro. A pressão pode cair demais, sobretudo ao levantar. Conduta: Monitorar pressão.",
     "drug1_rxcuis": [
       "6918"
@@ -8213,7 +8213,7 @@
     "drug1": "Metoprolol Succinato",
     "drug2": "Ergotamina",
     "risk_level": "moderate",
-    "risk_description": "Crise hipertensiva grave",
+    "risk_description": "Aperto dos vasos, com a pressão subindo muito",
     "mechanism": "O metoprolol succinato bloqueia a via que dilata os vasos, e a ergotamina já é um potente vasoconstritor. Juntos, o aperto se intensifica: dor, palidez e frio nas mãos e nos pés, com risco de isquemia. Conduta: Evitar.",
     "drug1_rxcuis": [
       "6918"
@@ -8228,7 +8228,7 @@
     "drug1": "Metoprolol Succinato",
     "drug2": "Dihidroergotamina",
     "risk_level": "moderate",
-    "risk_description": "Crise hipertensiva grave",
+    "risk_description": "Aperto dos vasos, com a pressão subindo muito",
     "mechanism": "O metoprolol succinato bloqueia a via que dilata os vasos, e a dihidroergotamina já é um potente vasoconstritor. Juntos, o aperto se intensifica: dor, palidez e frio nas mãos e nos pés, com risco de isquemia. Conduta: Evitar.",
     "drug1_rxcuis": [
       "6918"
@@ -8654,7 +8654,7 @@
     "drug1": "Nifedipina",
     "drug2": "Cimetidina",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de hipotensão grave",
+    "risk_description": "A pressão pode cair demais",
     "mechanism": "A cimetidina bloqueia a enzima do fígado que elimina a nifedipina, que se acumula. O efeito sobre a pressão fica exagerado: tontura, rubor e risco de queda. Conduta: Monitorar pressão arterial.",
     "drug1_rxcuis": [
       "7417"
@@ -8915,7 +8915,7 @@
     "drug1": "Ondansetrona",
     "drug2": "Fentanila",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de arritmias graves",
+    "risk_description": "Prolongamento do intervalo QT e respiração mais lenta",
     "mechanism": "A ondansetrona alonga o intervalo QT do coração e a fentanila soma efeito sobre o ritmo cardíaco, além de deprimir a respiração. Vigiar o ECG e a respiração. Conduta: Monitorar a função cardíaca.",
     "drug1_rxcuis": [
       "26225"
@@ -8981,7 +8981,7 @@
     "drug1": "Paclitaxel",
     "drug2": "Cisplatina",
     "risk_level": "moderate",
-    "risk_description": "neutropenia prolongada e grave",
+    "risk_description": "Queda prolongada dos glóbulos brancos",
     "mechanism": "A ordem importa: dar cisplatina antes do paclitaxel reduz a eliminação do paclitaxel e aprofunda a queda dos glóbulos brancos. Invertendo a ordem, o efeito sobre a medula é menor. Conduta: Administrar cisplatina antes do paclitaxel.",
     "drug1_rxcuis": [
       "56946"
@@ -8998,7 +8998,7 @@
     "drug1": "Paclitaxel",
     "drug2": "Doxorrubicina",
     "risk_level": "moderate",
-    "risk_description": "mielossupressão grave",
+    "risk_description": "Queda das células do sangue — risco de infecção e sangramento",
     "mechanism": "O paclitaxel e a doxorrubicina freiam a produção de células na medula óssea. Somados, podem faltar glóbulos brancos (infecção), plaquetas (sangramento) e glóbulos vermelhos (anemia) — por isso o hemograma precisa ser acompanhado. Conduta: Monitorar contagem sanguínea.",
     "drug1_rxcuis": [
       "56946"
@@ -9013,7 +9013,7 @@
     "drug1": "Paclitaxel",
     "drug2": "Eritromicina",
     "risk_level": "moderate",
-    "risk_description": "mielossupressão grave",
+    "risk_description": "Queda das células do sangue — risco de infecção e sangramento",
     "mechanism": "A eritromicina bloqueia a enzima do fígado que elimina o paclitaxel, que se acumula. O excesso aprofunda a queda dos glóbulos brancos, com risco de infecção grave. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "56946"
@@ -9028,7 +9028,7 @@
     "drug1": "Paliperidona",
     "drug2": "Clorpromazina",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de arritmias graves",
+    "risk_description": "Prolongamento do intervalo QT, com risco de arritmia",
     "mechanism": "A paliperidona e a clorpromazina alongam o intervalo QT — o tempo que o coração leva para se recarregar entre batimentos. Somados, esse tempo pode ficar longo a ponto de disparar uma arritmia grave (torsades de pointes), que causa desmaio. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "679314"
@@ -9520,7 +9520,7 @@
     "drug1": "Prednisolona",
     "drug2": "Rifampicina",
     "risk_level": "moderate",
-    "risk_description": "Insuficiência adrenal grave",
+    "risk_description": "O corticoide perde efeito — risco de insuficiência adrenal",
     "mechanism": "A rifampicina acelera as enzimas do fígado que destroem a prednisolona, e o corticoide cai a níveis insuficientes. Em quem depende dele, isso pode desencadear crise por falta de cortisol: fraqueza intensa, queda de pressão, vômitos e desmaio — sobretudo em situação de infecção ou cirurgia. Conduta: Monitorar função adrenal.",
     "drug1_rxcuis": [
       "8638"
@@ -9537,7 +9537,7 @@
     "drug1": "Prednisolona",
     "drug2": "Fenitoína",
     "risk_level": "moderate",
-    "risk_description": "Insuficiência adrenal grave",
+    "risk_description": "O corticoide perde efeito — risco de insuficiência adrenal",
     "mechanism": "A fenitoína acelera as enzimas do fígado que destroem a prednisolona, e o corticoide cai a níveis insuficientes. Em quem depende dele, isso pode desencadear crise por falta de cortisol: fraqueza intensa, queda de pressão, vômitos e desmaio — sobretudo em situação de infecção ou cirurgia. Conduta: Monitorar função adrenal.",
     "drug1_rxcuis": [
       "8638"
@@ -9553,7 +9553,7 @@
     "drug1": "Prednisona",
     "drug2": "Eritromicina",
     "risk_level": "moderate",
-    "risk_description": "Insuficiência adrenal grave",
+    "risk_description": "O corticoide se acumula e o efeito se prolonga",
     "mechanism": "A eritromicina bloqueia a enzima do fígado que elimina a prednisona, e o corticoide se acumula por muito mais tempo do que deveria. O corpo então para de produzir o próprio cortisol: surgem sinais de excesso (rosto inchado, ganho de peso) e, ao suspender, risco de crise por falta de cortisol. Conduta: Evitar.",
     "drug1_rxcuis": [
       "8640"
@@ -9664,7 +9664,7 @@
     "drug1": "Propofol",
     "drug2": "Clorpromazina",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de hipotensão grave",
+    "risk_description": "A pressão pode cair demais durante a sedação",
     "mechanism": "O propofol e a clorpromazina relaxam os vasos e deprimem o coração. Juntos, a pressão pode despencar durante a sedação. Conduta: Monitorar pressão arterial.",
     "drug1_rxcuis": [
       "8782"
@@ -10097,7 +10097,7 @@
     "drug1": "Ropinirol",
     "drug2": "Cimetidina",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de reações adversas graves",
+    "risk_description": "Sonolência súbita, alucinações e queda de pressão",
     "mechanism": "A cimetidina bloqueia a enzima do fígado que elimina o ropinirol, que se acumula. O excesso causa sonolência súbita, alucinações, náusea e queda de pressão. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "72302"
@@ -10479,7 +10479,7 @@
     "drug1": "Sirolimo",
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
-    "risk_description": "Nefrotoxicidade grave",
+    "risk_description": "Lesão nos rins — a função renal pode cair",
     "mechanism": "O sirolimo e a ciclosporina agridem o rim, cada um por um caminho. Somados, a filtração pode cair de forma acelerada — muitas vezes sem sintoma no início, aparecendo só no exame de creatinina. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "35302"
@@ -10833,7 +10833,7 @@
     "drug1": "Tapentadol",
     "drug2": "Fluoxetina",
     "risk_level": "moderate",
-    "risk_description": "Síndrome serotoninérgica grave",
+    "risk_description": "Risco de síndrome serotoninérgica",
     "mechanism": "O tapentadol e a fluoxetina elevam a serotonina no cérebro por caminhos diferentes. Somados, ela pode chegar a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão. Conduta: Monitorar sinais de síndrome serotoninérgica.",
     "drug1_rxcuis": [
       "787390"
@@ -10850,7 +10850,7 @@
     "drug1": "Teicoplanina",
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
-    "risk_description": "Nefrotoxicidade grave",
+    "risk_description": "Lesão nos rins — a função renal pode cair",
     "mechanism": "A teicoplanina e a ciclosporina agridem o rim, cada uma por um caminho. Somadas, a filtração pode cair de forma acelerada — muitas vezes sem sintoma no início. Conduta: Monitorar função renal.",
     "drug1_rxcuis": [
       "57021"
@@ -11093,7 +11093,7 @@
     "drug1": "Tocilizumabe",
     "drug2": "Ciclosporina",
     "risk_level": "moderate",
-    "risk_description": "Imunossupressão grave",
+    "risk_description": "A imunidade cai demais — risco de infecção",
     "mechanism": "O tocilizumabe e a ciclosporina reduzem a defesa do organismo por caminhos diferentes. Somados, a imunidade cai demais: infecções graves, incluindo germes que normalmente não causariam doença, e reativação de tuberculose ou herpes-zóster. Conduta: Evitar.",
     "drug1_rxcuis": [
       "612865"
@@ -11139,7 +11139,7 @@
     "drug1": "Tocilizumabe",
     "drug2": "Tacrolimo",
     "risk_level": "moderate",
-    "risk_description": "Imunossupressão grave",
+    "risk_description": "A imunidade cai demais — risco de infecção",
     "mechanism": "O tocilizumabe e o tacrolimo reduzem a defesa do organismo por caminhos diferentes. Somados, a imunidade cai demais: infecções graves, incluindo germes que normalmente não causariam doença, e reativação de tuberculose ou herpes-zóster. Conduta: Evitar.",
     "drug1_rxcuis": [
       "612865"
@@ -11186,7 +11186,7 @@
     "drug1": "Topiramato",
     "drug2": "Carbonato de lítio",
     "risk_level": "moderate",
-    "risk_description": "toxicidade por lítio grave",
+    "risk_description": "Lítio acima da faixa segura (intoxicação)",
     "mechanism": "O topiramato altera o equilíbrio de sais e água no corpo, o que pode elevar o lítio no sangue. O lítio tem margem estreita: em excesso causa tremor grosseiro, vômitos, confusão e fala arrastada. Conduta: Monitorar níveis de lítio.",
     "drug1_rxcuis": [
       "38404"
@@ -11785,7 +11785,7 @@
     "drug1": "Vonoprazana",
     "drug2": "Posaconazol",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de arritmias graves",
+    "risk_description": "Prolongamento do intervalo QT, com risco de arritmia",
     "mechanism": "O posaconazol bloqueia a enzima do fígado que elimina a vonoprazana e ambos afetam o intervalo QT. O risco de arritmia grave aumenta. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "2604577"
@@ -11800,7 +11800,7 @@
     "drug1": "Vonoprazana",
     "drug2": "Voriconazol",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de arritmias graves",
+    "risk_description": "Prolongamento do intervalo QT, com risco de arritmia",
     "mechanism": "O voriconazol bloqueia a enzima do fígado que elimina a vonoprazana e ambos afetam o intervalo QT. O risco de arritmia grave aumenta. Conduta: Evitar a combinação.",
     "drug1_rxcuis": [
       "2604577"
@@ -11895,7 +11895,7 @@
     "drug1": "Zinco",
     "drug2": "Cisplatina",
     "risk_level": "moderate",
-    "risk_description": "nefrotoxicidade grave",
+    "risk_description": "Lesão nos rins — a função renal pode cair",
     "mechanism": "O zinco em excesso compete com a eliminação da cisplatina e soma agressão ao rim, que já é o órgão mais afetado por ela. A função renal precisa ser acompanhada. Conduta: Evitar.",
     "drug1_rxcuis": [
       "11416"
@@ -11991,7 +11991,7 @@
     "drug1": "Zolmitriptano",
     "drug2": "Fluoxetina",
     "risk_level": "moderate",
-    "risk_description": "Síndrome serotoninérgica grave",
+    "risk_description": "Risco de síndrome serotoninérgica",
     "mechanism": "O zolmitriptano e a fluoxetina elevam a serotonina no cérebro por caminhos diferentes. Somados, ela pode chegar a níveis tóxicos: agitação, tremor, rigidez muscular, febre alta e confusão. Conduta: Evitar.",
     "drug1_rxcuis": [
       "135775"
@@ -12654,7 +12654,7 @@
     "drug1": "Betametasona",
     "drug2": "Estrógenos",
     "risk_level": "moderate",
-    "risk_description": "Insuficiência adrenal grave",
+    "risk_description": "Muda quanto corticoide fica disponível — a dose pode precisar de ajuste",
     "mechanism": "Os estrógenos aumentam a proteína que carrega o cortisol no sangue, alterando quanto corticoide fica de fato disponível. O ajuste da dose fica menos previsível e o eixo hormonal pode se desregular. Conduta: Monitorar função adrenal.",
     "drug1_rxcuis": [
       "1514"
@@ -12668,8 +12668,8 @@
     "drug1": "Betametasona",
     "drug2": "Barbitúricos",
     "risk_level": "moderate",
-    "risk_description": "Insuficiência adrenal grave",
-    "mechanism": "Os barbitúricos aceleram acelera as enzimas do fígado que destroem a betametasona, e o corticoide cai a níveis insuficientes. Em quem depende dele, isso pode desencadear crise por falta de cortisol: fraqueza intensa, queda de pressão, vômitos e desmaio — sobretudo em infecção ou cirurgia. Conduta: Monitorar função adrenal.",
+    "risk_description": "O corticoide perde efeito — risco de insuficiência adrenal",
+    "mechanism": "Os barbitúricos aceleram as enzimas do fígado que destroem a betametasona, e o corticoide cai a níveis insuficientes. Em quem depende dele, isso pode desencadear crise por falta de cortisol: fraqueza intensa, queda de pressão, vômitos e desmaio — sobretudo em infecção ou cirurgia. Conduta: Monitorar função adrenal.",
     "drug1_rxcuis": [
       "1514"
     ]
@@ -12895,7 +12895,7 @@
     "drug1": "Clorzoxazona",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
-    "risk_description": "depressão respiratória grave",
+    "risk_description": "Sedação profunda, com respiração mais lenta",
     "mechanism": "A clorzoxazona e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda, confusão e respiração perigosamente lenta — com risco de queda em idosos. Conduta: Evitar.",
     "drug1_rxcuis": [
       "2410"
@@ -13028,7 +13028,7 @@
     "drug1": "Doxepina",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
-    "risk_description": "Aumento do risco de depressão respiratória grave",
+    "risk_description": "Sedação profunda, com respiração mais lenta",
     "mechanism": "A doxepina e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda, confusão e respiração perigosamente lenta — com risco de queda em idosos. Conduta: Evitar.",
     "drug1_rxcuis": [
       "3638"
@@ -13041,7 +13041,7 @@
     "drug1": "Dronabinol",
     "drug2": "Etanol",
     "risk_level": "moderate",
-    "risk_description": "Sedação respiratória grave",
+    "risk_description": "Sedação profunda, com respiração mais lenta",
     "mechanism": "O dronabinol e o álcool deprimem o sistema nervoso central. O efeito soma e pode chegar a sedação profunda, confusão e respiração perigosamente lenta — com risco de queda em idosos. Conduta: Evitar combinação.",
     "drug1_rxcuis": [
       "10402"
@@ -13270,7 +13270,7 @@
     "drug2": "Barbitúricos",
     "risk_level": "high",
     "risk_description": "Insuficiência adrenal grave",
-    "mechanism": "Os barbitúricos aceleram acelera as enzimas do fígado que destroem a hidrocortisona, e o corticoide cai a níveis insuficientes. Em quem depende dele, isso pode desencadear crise por falta de cortisol: fraqueza intensa, queda de pressão, vômitos e desmaio — sobretudo em infecção ou cirurgia. Conduta: Monitorar função adrenal.",
+    "mechanism": "Os barbitúricos aceleram as enzimas do fígado que destroem a hidrocortisona, e o corticoide cai a níveis insuficientes. Em quem depende dele, isso pode desencadear crise por falta de cortisol: fraqueza intensa, queda de pressão, vômitos e desmaio — sobretudo em infecção ou cirurgia. Conduta: Monitorar função adrenal.",
     "drug1_rxcuis": [
       "5492"
     ]
@@ -13450,7 +13450,7 @@
     "drug1": "Metilprednisolona",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
-    "risk_description": "Úlcera péptica grave",
+    "risk_description": "Úlcera no estômago, com risco de sangramento",
     "mechanism": "O corticoide e o álcool agridem a mucosa do estômago pelo mesmo caminho. Juntos, aumentam o risco de úlcera e de sangramento digestivo — que pode ocorrer sem dor que avise. Conduta: Evitar consumo excessivo.",
     "drug1_rxcuis": [
       "6902"
@@ -13667,8 +13667,8 @@
     "drug1": "Prednisolona",
     "drug2": "Barbitúricos",
     "risk_level": "moderate",
-    "risk_description": "Insuficiência adrenal grave",
-    "mechanism": "Os barbitúricos aceleram acelera as enzimas do fígado que destroem a prednisolona, e o corticoide cai a níveis insuficientes. Em quem depende dele, isso pode desencadear crise por falta de cortisol: fraqueza intensa, queda de pressão, vômitos e desmaio — sobretudo em infecção ou cirurgia. Conduta: Monitorar função adrenal.",
+    "risk_description": "O corticoide perde efeito — risco de insuficiência adrenal",
+    "mechanism": "Os barbitúricos aceleram as enzimas do fígado que destroem a prednisolona, e o corticoide cai a níveis insuficientes. Em quem depende dele, isso pode desencadear crise por falta de cortisol: fraqueza intensa, queda de pressão, vômitos e desmaio — sobretudo em infecção ou cirurgia. Conduta: Monitorar função adrenal.",
     "drug1_rxcuis": [
       "8638"
     ]
@@ -13735,7 +13735,7 @@
     "drug1": "Selegilina",
     "drug2": "Álcool/etanol",
     "risk_level": "moderate",
-    "risk_description": "Reação adversa grave",
+    "risk_description": "Pico de pressão com bebidas fermentadas",
     "mechanism": "A selegilina em doses maiores perde a seletividade e passa a agir como IMAO não seletivo; com bebidas fermentadas, há risco de pico de pressão, além da sedação somada. Conduta: Evitar.",
     "drug1_rxcuis": [
       "9639"

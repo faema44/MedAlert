@@ -1,93 +1,68 @@
 # Pendência — redação contraditória (Classe 6b da auditoria)
 
 Entradas com `risk_level: moderate` cuja `risk_description` usa as palavras "grave" ou "fatal".
+O selo do cartão diz "Moderado" e o título logo ao lado dizia "grave" — a pessoa lê os dois juntos.
 
-**Não foram alteradas automaticamente.** Nesses textos vindos das bulas do FDA, "grave" costuma ser uma frase enlatada ("Imunossupressão grave", "Nefrotoxicidade grave") e não um juízo de severidade — subir todas para `high` inflaria o alarme falso, que é o oposto do objetivo da auditoria. **A correção certa é revisar a REDAÇÃO, não o nível.**
+## Resolvido em 20/07/2026 — 56 reescritas
 
-Total: **83 entradas**. Contexto em [AUDITORIA_INTERACOES.md](AUDITORIA_INTERACOES.md).
+A contradição é entre o SELO (quão séria é a interação) e o ADJETIVO (quão ruim é o desfecho).
+Como o selo já comunica o nível e o `mechanism` já carrega o detalhe, a descrição passou a dizer
+o que ACONTECE com a pessoa, sem o adjetivo enlatado herdado das bulas do FDA:
 
-| ID | Par | risk_description atual |
-|---|---|---|
-| `int_081` | Sulfametoxazol + Trimetoprima (TMP-SMX) + Captopril / Enalapril (IECA) | Hipercalemia grave — especialmente em pacientes com disfunção renal |
-| `int_097` | Panax ginseng (Ginseng) + Glibenclamida | Risco de hipoglicemia grave |
-| `int_202` | Ácido acetilsalicílico + Ibuprofeno | Hemorragia grave |
-| `int_207` | Adalimumabe + Ciclosporina | Imunossupressão grave |
-| `int_211` | Allium sativum (Alho medicinal) + Aspirina | Hemorragia grave |
-| `int_241` | Aripiprazol + Clorpromazina | Aumento do risco de arritmias graves |
-| `int_243` | Aripiprazol + Eritromicina | Aumento do risco de arritmias graves |
-| `int_247` | Asenapina + Clorpromazina | Aumento do risco de arritmias graves |
-| `int_262` | Betametasona + Rifampicina | Insuficiência adrenal grave |
-| `int_266` | Bisoprolol + Clorpromazina | hipotensão grave |
-| `int_267` | Bortezomibe + Cetoconazol | Reação adversa grave (neuropatia grave) |
-| `int_268` | Bortezomibe + Ritonavir | Reação adversa grave (neuropatia grave) |
-| `int_271` | Bromoprida + Eritromicina | Aumento risco de arritmia grave |
-| `int_283` | Caspofungina + Ciclosporina | Nefrotoxicidade grave |
-| `int_294` | Ciclofosfamida + Cimetidina | Aumento do risco de mielossupressão grave |
-| `int_296` | Ciclofosfamida + Voriconazol | Aumento do risco de mielossupressão grave |
-| `int_347` | Dabigatrana + Ritonavir | Hemorragia grave |
-| `int_353` | Dalteparina + Itraconazol | Hemorragia grave |
-| `int_368` | Diltiazem + Ciclosporina | Nefrotoxicidade grave |
-| `int_371` | Dipirona + Metotrexato | toxicidade hematológica grave |
-| `int_379` | Doxepina + Clorpromazina | Aumento do risco de arritmias graves |
-| `int_385` | Dronabinol + Alprazolam | Sedação respiratória grave |
-| `int_397` | Enoxaparina + Ibuprofeno | Hemorragia grave |
-| `int_446` | Fondaparinux + Aspirina | Hemorragia grave |
-| `int_456` | Glibenclamida + Cimetidina | Risco de hipoglicemia grave |
-| `int_459` | Golimumabe + Rituximabe | supressão medular grave |
-| `int_460` | Golimumabe + Tocilizumabe | supressão medular grave |
-| `int_463` | Griseofulvina + Varfarina | Hemorragia grave |
-| `int_465` | Heparina + Ticlopidina | Hemorragia grave |
-| `int_472` | Hidrocortisona + Fenitoína | Insuficiência adrenal grave |
-| `int_473` | Hidrocortisona + Rifampicina | Insuficiência adrenal grave |
-| `int_475` | Hidroxicloroquina + Digoxina | Aumento do risco de arritmias graves |
-| `int_492` | Isavuconazol + Ergotamina | Risco de ergotismo grave |
-| `int_500` | Lasmiditan + Ergotamina | Crise hipertensiva grave |
-| `int_517` | Loperamida + Eritromicina | Aumento do risco de arritmias graves |
-| `int_530` | Memantina + Dextrometorfano | Risco de convulsão grave |
-| `int_545` | Metilprednisolona + Eritromicina | Insuficiência adrenal grave |
-| `int_547` | Metimazol + Teofilina | Agranulocitose grave |
-| `int_549` | Metoprolol + Clorpromazina | hipotensão grave |
-| `int_551` | Metoprolol Succinato + Ergotamina | Crise hipertensiva grave |
-| `int_552` | Metoprolol Succinato + Dihidroergotamina | Crise hipertensiva grave |
-| `int_582` | Nifedipina + Cimetidina | Aumento do risco de hipotensão grave |
-| `int_594` | Omeprazol + Cilostazol | Aumento do risco de sangramento grave |
-| `int_595` | Omeprazol + Dabigatrana | Aumento do risco de sangramento grave |
-| `int_596` | Omeprazol + Rivaroxabana | Aumento do risco de sangramento grave |
-| `int_598` | Ondansetrona + Fentanila | Aumento do risco de arritmias graves |
-| `int_602` | Paclitaxel + Cisplatina | neutropenia prolongada e grave |
-| `int_603` | Paclitaxel + Doxorrubicina | mielossupressão grave |
-| `int_604` | Paclitaxel + Eritromicina | mielossupressão grave |
-| `int_605` | Paliperidona + Clorpromazina | Aumento do risco de arritmias graves |
-| `int_634` | Prasugrel + Varfarina | Hemorragia grave |
-| `int_636` | Prednisolona + Rifampicina | Insuficiência adrenal grave |
-| `int_637` | Prednisolona + Fenitoína | Insuficiência adrenal grave |
-| `int_638` | Prednisona + Eritromicina | Insuficiência adrenal grave |
-| `int_645` | Propofol + Clorpromazina | Aumento do risco de hipotensão grave |
-| `int_661` | Risperidona + Cetoconazol | Aumento do risco de arritmia fatal (torsades de pointes) |
-| `int_669` | Rivaroxabana + Tacrolimo | Hemorragia grave |
-| `int_673` | Ropinirol + Cimetidina | Aumento do risco de reações adversas graves |
-| `int_697` | Sirolimo + Ciclosporina | Nefrotoxicidade grave |
-| `int_719` | Tapentadol + Fluoxetina | Síndrome serotoninérgica grave |
-| `int_720` | Teicoplanina + Ciclosporina | Nefrotoxicidade grave |
-| `int_725` | Ticagrelor + Dabigatrana | Aumento do risco de hemorragia grave |
-| `int_730` | Tigecilina + Varfarina | Risco de sangramento grave |
-| `int_739` | Tocilizumabe + Ciclosporina | Imunossupressão grave |
-| `int_742` | Tocilizumabe + Tacrolimo | Imunossupressão grave |
-| `int_745` | Topiramato + Carbonato de lítio | toxicidade por lítio grave |
-| `int_774` | Varfarina + Cefazolina | Hemorragia grave |
-| `int_775` | Varfarina + Ceftriaxona | Hemorragia grave |
-| `int_785` | Vonoprazana + Posaconazol | Aumento do risco de arritmias graves |
-| `int_786` | Vonoprazana + Voriconazol | Aumento do risco de arritmias graves |
-| `int_792` | Zinco + Cisplatina | nefrotoxicidade grave |
-| `int_798` | Zolmitriptano + Fluoxetina | Síndrome serotoninérgica grave |
-| `int_817` | Almotriptano + Clorfeniramina | Síndrome serotoninérgica grave |
-| `int_846` | Betametasona + Estrógenos | Insuficiência adrenal grave |
-| `int_847` | Betametasona + Barbitúricos | Insuficiência adrenal grave |
-| `int_865` | Clorzoxazona + Álcool/etanol | depressão respiratória grave |
-| `int_876` | Doxepina + Álcool/etanol | Aumento do risco de depressão respiratória grave |
-| `int_877` | Dronabinol + Etanol | Sedação respiratória grave |
-| `int_886` | Fluoxetina + Álcool/etanol | Aumento risco de hemorragia grave |
-| `int_906` | Metilprednisolona + Álcool/etanol | Úlcera péptica grave |
-| `int_915` | Nadroparina + Álcool/etanol | Hemorragia grave |
-| `int_924` | Prednisolona + Barbitúricos | Insuficiência adrenal grave |
-| `int_929` | Selegilina + Álcool/etanol | Reação adversa grave |
+| antes | depois |
+|---|---|
+| Insuficiência adrenal grave | O corticoide perde efeito — risco de insuficiência adrenal |
+| Nefrotoxicidade grave | Lesão nos rins — a função renal pode cair |
+| Imunossupressão grave | A imunidade cai demais — risco de infecção |
+| mielossupressão grave | Queda das células do sangue — risco de infecção e sangramento |
+| Aumento do risco de arritmias graves | Prolongamento do intervalo QT, com risco de arritmia |
+| hipotensão grave | A pressão pode cair demais |
+| Sedação respiratória grave | Sedação profunda, com respiração mais lenta |
+| Risco de hipoglicemia grave | Queda acentuada do açúcar no sangue |
+| Síndrome serotoninérgica grave | Risco de síndrome serotoninérgica |
+
+Três entradas do grupo de arritmia **não eram QT somado** e a frase genérica escondia isso — o
+mecanismo delas é ACÚMULO. Foram reescritas de acordo: `int_475` (digoxina acima da faixa
+segura), `int_517` (loperamida em excesso) e `int_598` (QT + respiração mais lenta).
+
+Corticoide + inibidor (`int_545`, `int_638`) segue o caminho OPOSTO ao do indutor — o corticoide
+se acumula, não cai — e por isso tem texto próprio. `int_846` (estrógenos) é questão de dose
+disponível, não de queda.
+
+De passagem: 3 mecanismos tinham "Os barbitúricos aceleram acelera as enzimas".
+
+## Pendente — 17 entradas de SANGRAMENTO: é o NÍVEL, não o texto
+
+Estas **não foram tocadas de propósito**. Amaciar o texto de um anticoagulante somado a um
+antiagregante seria errar na direção perigosa: aqui "grave" provavelmente não é enlatado, é o
+próprio motivo do alerta. A suspeita é a inversa — `moderate` é que está baixo demais.
+
+O precedente da própria base apoia isso: na leva anterior, `int_347` (dabigatrana + ritonavir)
+subiu para `high` e `int_271`/`int_379`/`int_492` para `critical` — não foram reescritas.
+
+Atenção especial às cinco em que o mecanismo diz "atacando a coagulação por frentes diferentes"
+(`int_397`, `int_446`, `int_465`, `int_634`, `int_725`): anticoagulante + antiagregante é
+classificado como interação MAIOR nas bases de referência.
+
+**Decisão necessária:** subir de nível (e para qual) ou manter. Enquanto não se decide, o texto
+fica como está — dizendo a verdade clínica, ainda que brigue com o selo.
+
+| ID | Par | risk_description atual | mecanismo (início) |
+|---|---|---|---|
+| `int_116` | Arnica montana + Varfarina | Hemorragia grave | A arnica montana interfere na função das plaquetas, e a varfarina já reduz a coagulação |
+| `int_202` | Ácido acetilsalicílico + Ibuprofeno | Hemorragia grave | O ibuprofeno ocupa o mesmo ponto da plaqueta em que o AAS age e impede o AAS de fazer seu efeito protetor do c |
+| `int_211` | Allium sativum (Alho medicinal) + Aspirina | Hemorragia grave | O allium sativum interfere na função das plaquetas, e a aspirina já reduz a coagulação |
+| `int_353` | Dalteparina + Itraconazol | Hemorragia grave | O itraconazol bloqueia as vias que eliminam a dalteparina, e o anticoagulante se acumula acima da dose segura |
+| `int_397` | Enoxaparina + Ibuprofeno | Hemorragia grave | A enoxaparina impede a formação do coágulo e o ibuprofeno age sobre as plaquetas e a mucosa do estômago |
+| `int_446` | Fondaparinux + Aspirina | Hemorragia grave | O fondaparinux impede a formação do coágulo e a aspirina age sobre as plaquetas e a mucosa do estômago |
+| `int_463` | Griseofulvina + Varfarina | Hemorragia grave | A griseofulvina altera a flora do intestino que produz vitamina K e mexe nas enzimas que eliminam a varfarina |
+| `int_465` | Heparina + Ticlopidina | Hemorragia grave | A heparina impede a formação do coágulo e a ticlopidina age sobre as plaquetas e a mucosa do estômago |
+| `int_594` | Omeprazol + Cilostazol | Aumento do risco de sangramento grave | O omeprazol bloqueia a enzima do fígado que elimina o cilostazol, que se acumula |
+| `int_595` | Omeprazol + Dabigatrana | Aumento do risco de sangramento grave | O omeprazol bloqueia as vias que eliminam a dabigatrana, e o anticoagulante se acumula acima da dose segura |
+| `int_596` | Omeprazol + Rivaroxabana | Aumento do risco de sangramento grave | O omeprazol bloqueia as vias que eliminam a rivaroxabana, e o anticoagulante se acumula acima da dose segura |
+| `int_634` | Prasugrel + Varfarina | Hemorragia grave | A varfarina impede a formação do coágulo e o prasugrel age sobre as plaquetas e a mucosa do estômago |
+| `int_725` | Ticagrelor + Dabigatrana | Aumento do risco de hemorragia grave | A dabigatrana impede a formação do coágulo e o ticagrelor age sobre as plaquetas e a mucosa do estômago |
+| `int_774` | Varfarina + Cefazolina | Hemorragia grave | A cefazolina altera a flora do intestino que produz vitamina K, e a varfarina depende justamente dessa vitamin |
+| `int_775` | Varfarina + Ceftriaxona | Hemorragia grave | A ceftriaxona altera a flora do intestino que produz vitamina K e mexe nas enzimas que eliminam a varfarina |
+| `int_886` | Fluoxetina + Álcool/etanol | Aumento risco de hemorragia grave | A fluoxetina reduz a serotonina das plaquetas, que é o que as faz se agregarem, e o álcool agride a mucosa do  |
+| `int_915` | Nadroparina + Álcool/etanol | Hemorragia grave | A nadroparina impede a formação do coágulo e o álcool agride a mucosa do estômago, além de afetar as plaquetas |
