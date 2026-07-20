@@ -187,15 +187,19 @@ function AndroidLockScreen() {
         </View>
       </Modal>
 
-      {/* QR da ficha — o socorrista aponta a câmera e lê tudo de uma vez, sem depender de o
-          celular estar destravado nem de internet (é TEXTO, não link). O botão de imprimir
-          existe porque o caso que mais importa é o celular DESLIGADO ou destruído: um QR na
-          carteira funciona quando o aparelho não funciona. */}
+      {/* QR da ficha — o socorrista aponta a câmera e lê tudo de uma vez, sem internet (é
+          TEXTO, não link). ATENÇÃO ao que este QR NÃO faz: ele vive DENTRO desta tela, então
+          vê-lo exige o celular destravado — o cartão da tela de bloqueio é o módulo nativo, e
+          lá não há QR nenhum. Por isso o botão de imprimir não é acessório: no papel o código
+          funciona com o aparelho travado, sem bateria ou destruído, que é o caso que mais
+          importa. Não prometer "sem destravar" no texto abaixo: quem acredita não imprime. */}
       <View style={styles.qrCard}>
         <Text style={styles.qrTitulo}>Ficha em QR code</Text>
         <Text style={styles.qrSub}>
-          O socorrista aponta a câmera e lê seus dados na hora — sem internet e sem destravar o
-          celular. Imprima e guarde na carteira: funciona até com o celular sem bateria.
+          O socorrista aponta a câmera e lê seus dados na hora, sem internet — é texto, não link.
+          Mas este código, na tela, só aparece com o celular destravado. Imprima e guarde na
+          carteira: no papel ele funciona com o aparelho travado, sem bateria ou destruído — que
+          é justamente quando você mais precisa dele.
         </Text>
         <View style={styles.qrCaixa}>
           <QRCode value={textoQr} size={190} backgroundColor="#fff" color="#1A1F2E" />
@@ -341,8 +345,10 @@ function IOSMedicalIdScreen() {
       <View style={ios.qrCard}>
         <Text style={ios.qrTitulo}>Ficha em QR code</Text>
         <Text style={ios.qrSub}>
-          O socorrista aponta a câmera e lê seus dados na hora — sem internet e sem destravar o
-          iPhone. Imprima e guarde na carteira: funciona até com o celular sem bateria.
+          O socorrista aponta a câmera e lê seus dados na hora, sem internet — é texto, não link.
+          Mas este código, na tela, só aparece com o iPhone destravado. Imprima e guarde na
+          carteira: no papel ele funciona com o aparelho travado, sem bateria ou destruído — que
+          é justamente quando você mais precisa dele.
         </Text>
         <View style={ios.qrCaixa}>
           <QRCode value={montarTextoQr(perfilIos, meds, contatosIos)} size={190} backgroundColor="#fff" color="#1A1F2E" />
