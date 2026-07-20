@@ -59,7 +59,9 @@
     "test:ota": "node tools/check-ota.js",
     "test:bulas": "node tools/audit-bulas.js --gate",
     "test:interactions": "node tools/audit-interactions.js --gate",
-    "test:bula-slug": "node tools/audit-bula-slug.js --gate"
+    "test:bula-slug": "node tools/audit-bula-slug.js --gate",
+    "test:bula-forma": "node tools/audit-bula-forma.js --gate",
+    "test:bula-combo": "node tools/audit-combo-bula.js --gate"
   },
   "private": true
 }
