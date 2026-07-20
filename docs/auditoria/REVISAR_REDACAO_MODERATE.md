@@ -59,8 +59,14 @@ o openFDA não cobre suplemento, então "não citado" ali não é evidência de 
 ## Histórico — 17 entradas de SANGRAMENTO: era o NÍVEL, não o texto
 
 Estas **não foram tocadas de propósito**. Amaciar o texto de um anticoagulante somado a um
-antiagregante seria errar na direção perigosa: aqui "grave" provavelmente não é enlatado, é o
-próprio motivo do alerta. A suspeita é a inversa — `moderate` é que está baixo demais.
+antiagregante seria errar na direção perigosa: aqui "grave" provavelmente não é enlatado, é a
+razão de o par estar na tabela. A suspeita é a inversa — `moderate` é que está baixo demais.
+
+> Nota de escopo: desde 13/07 as interações **não disparam alerta nenhum** — o que existe é a
+> tabela de consulta (`docs/interacoes-suspensas.md`). Então `risk_level` hoje governa o selo e
+> a ordenação da tabela, não um aviso que persegue a pessoa. Isso muda a natureza do dano, não a
+> exigência de acerto: quem abre a tabela vai lá de propósito para conferir, e leva o que ler
+> para o balcão ou para a consulta.
 
 O precedente da própria base apoia isso: na leva anterior, `int_347` (dabigatrana + ritonavir)
 subiu para `high` e `int_271`/`int_379`/`int_492` para `critical` — não foram reescritas.
