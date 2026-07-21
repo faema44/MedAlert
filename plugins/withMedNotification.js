@@ -132,19 +132,45 @@ function withCompatResizability(config) {
 //
 // Sem essas propriedades, o build de release cai no debug signing em vez de quebrar — quem
 // clonar o repo sem a chave ainda consegue compilar.
+// As DUAS substituições abaixo são independentes e cada uma verifica o próprio resultado.
+// Em 20/07/2026 elas estavam acopladas por um `return` antecipado, e isso custou um AAB:
+// o template do React Native ganhou uma 2ª linha de comentário antes do `signingConfig`,
+// o regex parou de casar, `String.replace` não reclamou (sem correspondência = no-op), e a
+// guarda fazia o plugin sair antes de tentar de novo. Resultado: o bloco `release` existia,
+// o build.gradle PARECIA configurado, e o release saía assinado com a chave de DEBUG.
+// Só descobrimos porque a Play Store recusou o upload comparando impressões digitais.
+// Por isso agora falha alto: assinatura errada é invisível até ser tarde.
 function withReleaseSigning(config) {
   return withAppBuildGradle(config, (cfg) => {
     let gradle = cfg.modResults.contents;
-    if (gradle.includes('MEDALERT_STORE_FILE')) return cfg;
 
-    gradle = gradle.replace(
-      /signingConfigs \{\s*debug \{/,
-      `signingConfigs {\n        release {\n            if (project.hasProperty('MEDALERT_STORE_FILE')) {\n                storeFile rootProject.file(MEDALERT_STORE_FILE)\n                storePassword MEDALERT_STORE_PASSWORD\n                keyAlias MEDALERT_KEY_ALIAS\n                keyPassword MEDALERT_KEY_PASSWORD\n            }\n        }\n        debug {`
-    );
-    gradle = gradle.replace(
-      /\/\/ Caution.*\n.*signingConfig signingConfigs\.debug/,
-      `// Assina com a chave de upload quando ela estiver configurada (ver acima).\n            signingConfig project.hasProperty('MEDALERT_STORE_FILE') ? signingConfigs.release : signingConfigs.debug`
-    );
+    if (!gradle.includes('MEDALERT_STORE_FILE')) {
+      gradle = gradle.replace(
+        /signingConfigs \{\s*debug \{/,
+        `signingConfigs {\n        release {\n            if (project.hasProperty('MEDALERT_STORE_FILE')) {\n                storeFile rootProject.file(MEDALERT_STORE_FILE)\n                storePassword MEDALERT_STORE_PASSWORD\n                keyAlias MEDALERT_KEY_ALIAS\n                keyPassword MEDALERT_KEY_PASSWORD\n            }\n        }\n        debug {`
+      );
+      if (!gradle.includes('MEDALERT_STORE_FILE')) {
+        throw new Error(
+          '[withMedNotification] não achei onde inserir signingConfigs.release — ' +
+            'o template do build.gradle mudou. Corrija o plugin antes de gerar release.'
+        );
+      }
+    }
+
+    // Tolera qualquer número de linhas de comentário entre o "// Caution" e o signingConfig.
+    if (!gradle.includes('signingConfigs.release')) {
+      gradle = gradle.replace(
+        /\/\/ Caution[\s\S]*?signingConfig signingConfigs\.debug/,
+        `// Assina com a chave de upload quando ela estiver configurada (ver acima).\n            signingConfig project.hasProperty('MEDALERT_STORE_FILE') ? signingConfigs.release : signingConfigs.debug`
+      );
+      if (!gradle.includes('signingConfigs.release')) {
+        throw new Error(
+          '[withMedNotification] buildTypes.release continua apontando para signingConfigs.debug. ' +
+            'O template mudou e o release sairia assinado com a chave de DEBUG — a Play Store recusa. ' +
+            'Corrija o regex antes de continuar.'
+        );
+      }
+    }
 
     cfg.modResults.contents = gradle;
     return cfg;
