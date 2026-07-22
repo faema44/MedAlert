@@ -15,7 +15,7 @@ import {
 } from '../database/db';
 import {
   scheduleActivityReminder, scheduleActivityReminderWeekly, cancelAllRemindersForActivity,
-  scheduleAppointmentReminders, cancelAppointmentReminders,
+  scheduleAppointmentReminders, cancelAppointmentReminders, atualizarWidget, relatarFalhaSilenciosa,
 } from '../services/notifications';
 import { Activity, ActivityReminder, ActivityType, ACTIVITY_PRESETS, Appointment } from '../types';
 import { getCyclePhase } from '../utils/cyclePhase';
@@ -407,6 +407,9 @@ export default function AgendaScreen() {
 
     setShowActivityModal(false);
     loadActivities();
+    // O widget mostra atividades agora, e ele não roda JS: só sabe o que ficou escrito. Sem
+    // isto, a atividade recém-criada só apareceria na tela inicial no próximo start do app.
+    atualizarWidget().catch(e => relatarFalhaSilenciosa('widget após salvar atividade', e));
   }
 
   async function handleDeleteActivity(a: Activity) {
@@ -417,6 +420,7 @@ export default function AgendaScreen() {
           await cancelAllRemindersForActivity(a.id);
           await deleteActivity(a.id);
           loadActivities();
+          atualizarWidget().catch(e => relatarFalhaSilenciosa('widget após remover atividade', e));
         },
       },
     ]);

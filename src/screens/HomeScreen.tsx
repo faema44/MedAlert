@@ -282,7 +282,7 @@ export default function HomeScreen() {
       const { time: medTime, dayDiff: medDayDiff } = extractTimeDayDiff(info.sortMs);
       const dailyDoses = activeReminders.length || 1;
       items.push({
-        id: med.id, type: 'med', icon: med.is_critical ? '⚠️' : isPhytotherapic(med.generic_name) ? '🌿' : '💊',
+        id: med.id, type: 'med', icon: isPhytotherapic(med.generic_name) ? '🌿' : '💊',
         name: med.commercial_name?.trim() || med.generic_name,
         label: info.label,
         time: medTime,
@@ -429,7 +429,7 @@ export default function HomeScreen() {
       const isMuted = active.every(r => !r.with_sound);
       overdue.push({
         id: med.id, type: 'med',
-        icon: med.is_critical ? '⚠️' : isPhytotherapic(med.generic_name) ? '🌿' : '💊',
+        icon: isPhytotherapic(med.generic_name) ? '🌿' : '💊',
         name: med.commercial_name?.trim() || med.generic_name,
         label: `${dayDiff === 0 ? 'hoje' : 'ontem'} às ${time}`,
         time, dayDiff, sortMs: slot.at.getTime(), isMuted,

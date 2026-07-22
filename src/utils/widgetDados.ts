@@ -14,7 +14,10 @@ export interface LinhaWidget {
   nome: string;
   dose: string;
   quandoMs: number;   // instante da dose; o Kotlin formata na hora de desenhar
-  critico: boolean;
+  // Remédio e atividade dividem a mesma lista, e "Caminhada" ao lado de "Mirtazapina" sem
+  // nada que os separe faz a pessoa ler os dois como remédio. O ícone é o que distingue —
+  // o widget não tem largura para uma segunda linha explicando.
+  icone: string;
 }
 
 export interface EstoqueBaixoWidget {
@@ -41,7 +44,8 @@ export interface ItemParaWidget {
   nome: string;
   dose?: string | null;
   quandoMs: number | null;
-  critico?: boolean;
+  icone?: string | null;
+  // Só medicamento tem estoque. Atividade manda null e some da lista de "acabando".
   diasDeEstoque?: number | null;
 }
 
@@ -61,7 +65,7 @@ export function montarDadosWidget(itens: ItemParaWidget[], agora = Date.now()): 
       nome: i.nome,
       dose: (i.dose ?? '').trim(),
       quandoMs: i.quandoMs as number,
-      critico: !!i.critico,
+      icone: (i.icone ?? '💊').trim(),
     }));
 
   const estoqueBaixo = itens

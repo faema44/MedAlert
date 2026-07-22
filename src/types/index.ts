@@ -14,7 +14,6 @@ export interface Medication {
   commercial_name: string;
   dose: string;
   frequency: string;
-  is_critical: boolean;
   notes: string;
   stock_quantity: number | null;
   units_per_dose?: number; // quantas unidades (cápsulas/comprimidos) equivalem a 1 dose (default 1)

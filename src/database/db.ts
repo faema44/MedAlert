@@ -368,7 +368,6 @@ export async function getMedications(includeSuspended = false): Promise<Medicati
   );
   const meds = rows.map(r => ({
     ...r,
-    is_critical: Boolean(r.is_critical),
     stock_quantity: r.stock_quantity ?? null,
     units_per_dose: r.units_per_dose ?? 1,
     end_date: r.end_date ?? null,
@@ -395,8 +394,8 @@ export async function setMedicationSuspended(id: number, suspended: boolean): Pr
 export async function addMedication(med: Omit<Medication, 'id'>): Promise<number> {
   const database = await getDb();
   const result = await database.runAsync(
-    `INSERT INTO medications (generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, units_per_dose, end_date, home_reminder, save_history, meal_mode, cycle_kind, cycle_days_on, cycle_days_off, cycle_anchor, photo_uri) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [med.generic_name ?? '', med.commercial_name ?? '', med.dose ?? '', med.frequency ?? '', med.is_critical ? 1 : 0, med.notes ?? '', med.stock_quantity ?? null, med.units_per_dose ?? 1, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1, med.meal_mode ?? 0, med.cycle_kind ?? null, med.cycle_days_on ?? null, med.cycle_days_off ?? null, med.cycle_anchor ?? null, med.photo_uri ?? null]
+    `INSERT INTO medications (generic_name, commercial_name, dose, frequency, notes, stock_quantity, units_per_dose, end_date, home_reminder, save_history, meal_mode, cycle_kind, cycle_days_on, cycle_days_off, cycle_anchor, photo_uri) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [med.generic_name ?? '', med.commercial_name ?? '', med.dose ?? '', med.frequency ?? '', med.notes ?? '', med.stock_quantity ?? null, med.units_per_dose ?? 1, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1, med.meal_mode ?? 0, med.cycle_kind ?? null, med.cycle_days_on ?? null, med.cycle_days_off ?? null, med.cycle_anchor ?? null, med.photo_uri ?? null]
   );
   return result.lastInsertRowId;
 }
@@ -404,8 +403,8 @@ export async function addMedication(med: Omit<Medication, 'id'>): Promise<number
 export async function updateMedication(med: Medication): Promise<void> {
   const database = await getDb();
   await database.runAsync(
-    `UPDATE medications SET generic_name=?, commercial_name=?, dose=?, frequency=?, is_critical=?, notes=?, stock_quantity=?, units_per_dose=?, end_date=?, home_reminder=?, save_history=?, meal_mode=?, cycle_kind=?, cycle_days_on=?, cycle_days_off=?, cycle_anchor=?, photo_uri=? WHERE id=?`,
-    [med.generic_name, med.commercial_name, med.dose, med.frequency, med.is_critical ? 1 : 0, med.notes, med.stock_quantity ?? null, med.units_per_dose ?? 1, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1, med.meal_mode ?? 0, med.cycle_kind ?? null, med.cycle_days_on ?? null, med.cycle_days_off ?? null, med.cycle_anchor ?? null, med.photo_uri ?? null, med.id]
+    `UPDATE medications SET generic_name=?, commercial_name=?, dose=?, frequency=?, notes=?, stock_quantity=?, units_per_dose=?, end_date=?, home_reminder=?, save_history=?, meal_mode=?, cycle_kind=?, cycle_days_on=?, cycle_days_off=?, cycle_anchor=?, photo_uri=? WHERE id=?`,
+    [med.generic_name, med.commercial_name, med.dose, med.frequency, med.notes, med.stock_quantity ?? null, med.units_per_dose ?? 1, med.end_date ?? null, med.home_reminder ?? 1, med.save_history ?? 1, med.meal_mode ?? 0, med.cycle_kind ?? null, med.cycle_days_on ?? null, med.cycle_days_off ?? null, med.cycle_anchor ?? null, med.photo_uri ?? null, med.id]
   );
 }
 
@@ -418,7 +417,7 @@ export async function getMedicationById(id: number): Promise<Medication | null> 
   const database = await getDb();
   const row = await database.getFirstAsync<Medication>('SELECT * FROM medications WHERE id=?', [id]);
   if (!row) return null;
-  return { ...row, is_critical: Boolean(row.is_critical), stock_quantity: row.stock_quantity ?? null, units_per_dose: row.units_per_dose ?? 1, end_date: row.end_date ?? null, save_history: row.save_history ?? 1 };
+  return { ...row, stock_quantity: row.stock_quantity ?? null, units_per_dose: row.units_per_dose ?? 1, end_date: row.end_date ?? null, save_history: row.save_history ?? 1 };
 }
 
 export async function deleteMedication(id: number): Promise<void> {
@@ -1119,7 +1118,6 @@ export async function getExpiredUnarchivedMedications(): Promise<Medication[]> {
   );
   return rows.map(r => ({
     ...r,
-    is_critical: Boolean(r.is_critical),
     stock_quantity: r.stock_quantity ?? null,
     end_date: r.end_date ?? null,
   }));
@@ -1264,10 +1262,12 @@ export async function importBackup(json: string): Promise<void> {
     }
     for (const m of (medications ?? [])) {
       await database.runAsync(
-        'INSERT INTO medications (id, generic_name, commercial_name, dose, frequency, is_critical, notes, stock_quantity, units_per_dose, end_date, archived, home_reminder, save_history, suspended, meal_mode, cycle_kind, cycle_days_on, cycle_days_off, cycle_anchor, photo_uri) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        // is_critical fica de fora: a coluna continua na tabela (DEFAULT 0) para backups
+        // antigos não quebrarem, mas o app não lê mais o flag em lugar nenhum.
+        'INSERT INTO medications (id, generic_name, commercial_name, dose, frequency, notes, stock_quantity, units_per_dose, end_date, archived, home_reminder, save_history, suspended, meal_mode, cycle_kind, cycle_days_on, cycle_days_off, cycle_anchor, photo_uri) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
         // O caminho do backup é do OUTRO celular e não vale aqui: recria-se o arquivo e
         // grava-se o caminho local. Sem foto no backup, fica null e o app mostra o ícone.
-        [m.id, m.generic_name ?? '', m.commercial_name ?? '', m.dose ?? '', m.frequency ?? '', m.is_critical ?? 0, m.notes ?? '', m.stock_quantity ?? null, m.units_per_dose ?? 1, m.end_date ?? null, m.archived ?? 0, m.home_reminder ?? 1, m.save_history ?? 1, m.suspended ?? 0, m.meal_mode ?? 0, m.cycle_kind ?? null, m.cycle_days_on ?? null, m.cycle_days_off ?? null, m.cycle_anchor ?? null, base64ParaFoto(m.id, (m as any).photo_b64)]
+        [m.id, m.generic_name ?? '', m.commercial_name ?? '', m.dose ?? '', m.frequency ?? '', m.notes ?? '', m.stock_quantity ?? null, m.units_per_dose ?? 1, m.end_date ?? null, m.archived ?? 0, m.home_reminder ?? 1, m.save_history ?? 1, m.suspended ?? 0, m.meal_mode ?? 0, m.cycle_kind ?? null, m.cycle_days_on ?? null, m.cycle_days_off ?? null, m.cycle_anchor ?? null, base64ParaFoto(m.id, (m as any).photo_b64)]
       );
     }
     for (const r of (medication_reminders ?? [])) {

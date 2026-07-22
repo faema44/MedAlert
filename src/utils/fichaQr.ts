@@ -57,10 +57,8 @@ export function montarTextoQr(
   const c = contatos.find(x => x.is_primary) ?? contatos[0];
   if (c?.name && c?.phone) linhas.push(`CONTATO: ${c.name} ${c.phone}`);
 
-  // 3º: remédios, os CRÍTICOS primeiro — são os que explicam o quadro (anticoagulante,
-  // insulina, antiarrítmico) e os que não podem ser suspensos às cegas.
-  const ativos = meds.filter(m => !m.suspended);
-  const ordenados = [...ativos].sort((x, y) => Number(!!y.is_critical) - Number(!!x.is_critical));
+  // 3º: remédios, na ordem em que estão cadastrados.
+  const ordenados = meds.filter(m => !m.suspended);
 
   const cabecalho = linhas.join('\n');
   const usadas: string[] = [];
@@ -71,7 +69,7 @@ export function montarTextoQr(
     const nomeM = (m.commercial_name || m.generic_name || '').trim();
     if (!nomeM) continue;
     const dose = (m.dose || '').trim();
-    const linha = (m.is_critical ? '! ' : '') + (dose ? `${nomeM} ${dose}` : nomeM);
+    const linha = dose ? `${nomeM} ${dose}` : nomeM;
     // Reserva espaço para o aviso de corte: melhor caber "+3 outros" do que perder a
     // informação de que existem outros.
     if (linha.length + 1 > sobra - 14) { cortados++; continue; }
@@ -80,7 +78,7 @@ export function montarTextoQr(
   }
 
   if (usadas.length) linhas.push('MEDICAMENTOS:', ...usadas);
-  else if (ativos.length) cortados = ativos.length;
+  else if (ordenados.length) cortados = ordenados.length;
 
   // Silenciar o corte seria pior que cortar: o socorrista precisa saber que a lista está
   // incompleta, senão ele decide como se fosse completa.

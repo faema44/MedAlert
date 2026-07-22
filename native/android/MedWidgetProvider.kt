@@ -117,9 +117,11 @@ class MedWidgetProvider : AppWidgetProvider() {
                 val item = proximas!!.getJSONObject(i)
                 val nome = item.optString("nome")
                 val dose = item.optString("dose")
-                val critico = item.optBoolean("critico", false)
+                // O ícone separa remédio de atividade na mesma lista. Default 💊 para dado
+                // gravado por uma versão anterior, que não tinha este campo.
+                val icone = item.optString("icone", "💊")
                 val rotulo = if (dose.isBlank()) nome else "$nome · $dose"
-                views.setTextViewText(idsNome[i], if (critico) "⚠ $rotulo" else rotulo)
+                views.setTextViewText(idsNome[i], if (icone.isBlank()) rotulo else "$icone $rotulo")
                 views.setTextViewText(idsHora[i], textoDeQuando(item.optLong("quandoMs")))
                 views.setViewVisibility(idsLinha[i], View.VISIBLE)
             } else if (i == 0) {

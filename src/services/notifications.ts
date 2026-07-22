@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import * as Sentry from '@sentry/react-native';
 import { Platform } from 'react-native';
-import { Profile, Medication, MedicationReminder, ActivityReminder } from '../types';
+import { Profile, Medication, MedicationReminder, ActivityReminder, Activity, ACTIVITY_PRESETS } from '../types';
 import { postMedNotification, cancelMedNotification, isEmergencyActive, setNextMedSchedule, cancelNextMedBanner, setWidgetData } from './medNotification';
 import { montarDadosWidget, ItemParaWidget } from '../utils/widgetDados';
 import { getRemindersForMedication, getMedications, getActivities, getRemindersForActivity, getAppointments, getContacts, getKV, setKV, addMedicationLowStockLog } from '../database/db';
@@ -360,7 +360,7 @@ function medDosesInWindow(reminders: MedicationReminder[], now: Date, windowEndM
 // reagenda um alarme exato em cada horário para AVANÇAR/limpar o banner sozinho, mesmo
 // com o app fechado. Android apenas (no iOS não há notificação ongoing).
 async function updateNextMedBanner(
-  doses: { ms: number; name: string; critical: boolean }[]
+  doses: { ms: number; name: string }[]
 ): Promise<void> {
   if (Platform.OS !== 'android') return;
   const now = new Date();
@@ -374,7 +374,7 @@ async function updateNextMedBanner(
     return {
       ms: x.ms,
       title: 'Próximo medicamento',
-      body: `${x.critical ? '⚠️' : '💊'} ${x.name} · ${label}`,
+      body: `💊 ${x.name} · ${label}`,
     };
   });
   setNextMedSchedule(JSON.stringify(schedule));
@@ -399,7 +399,6 @@ export function calculateAge(birthDate: string): number | null {
 // de Emergência conseguir mostrar uma prévia idêntica.
 export async function buildEmergencyCardLines(profile: Profile, medications: Medication[]): Promise<string[]> {
   const sortedMeds = [...medications].sort((a, b) => {
-    if (a.is_critical !== b.is_critical) return a.is_critical ? -1 : 1;
     const nameA = a.commercial_name || a.generic_name;
     const nameB = b.commercial_name || b.generic_name;
     return nameA.localeCompare(nameB, 'pt');
@@ -410,7 +409,7 @@ export async function buildEmergencyCardLines(profile: Profile, medications: Med
   if (meds8.length) {
     meds8.forEach(m => {
       const name = m.commercial_name ? m.commercial_name : m.generic_name;
-      lines.push(`${m.is_critical ? '⚠️' : '💊'} ${name}${m.dose ? '  ' + m.dose : ''}`);
+      lines.push(`💊 ${name}${m.dose ? '  ' + m.dose : ''}`);
     });
     if (medications.length > 8) lines.push(`+${medications.length - 8} medicamentos no app`);
   }
@@ -461,9 +460,8 @@ export async function updateEmergencyNotification(
     return;
   }
 
-  // Ordena: críticos primeiro, depois alfabético pelo nome principal
+  // Ordena alfabeticamente pelo nome principal
   const sortedMeds = [...medications].sort((a, b) => {
-    if (a.is_critical !== b.is_critical) return a.is_critical ? -1 : 1;
     const nameA = a.commercial_name || a.generic_name;
     const nameB = b.commercial_name || b.generic_name;
     return nameA.localeCompare(nameB, 'pt');
@@ -484,10 +482,10 @@ export async function updateEmergencyNotification(
   // em cada horário; amanhã entra para o banner não morrer depois da última dose do dia.
   const now = new Date();
   const windowEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 23, 59, 59, 999);
-  const doses: { ms: number; name: string; critical: boolean }[] = [];
+  const doses: { ms: number; name: string }[] = [];
   meds8.forEach((m, idx) => {
     for (const ms of medDosesInWindow(medReminders[idx] ?? [], now, windowEnd.getTime())) {
-      doses.push({ ms, name: m.commercial_name?.trim() || m.generic_name, critical: m.is_critical });
+      doses.push({ ms, name: m.commercial_name?.trim() || m.generic_name });
     }
   });
   doses.sort((a, b) => a.ms - b.ms);
@@ -1478,6 +1476,12 @@ export async function rescheduleRemindersForMedication(
       console.warn('[cartela] scheduleCartela estourou', e);
       Sentry.captureException(e);
     });
+    // O `return` daqui pulava o atualizarWidget() do fim da função: cartela, adesivo e anel
+    // nunca reescreviam o widget ao serem salvos ou editados. É a mesma regra do caminho
+    // comum — quem muda o plano realimenta.
+    if (!existing) {
+      await atualizarWidget().catch(e => relatarFalhaSilenciosa('widget após editar cartela', e));
+    }
     return;
   }
 
@@ -1524,11 +1528,12 @@ export async function rescheduleRemindersForMedication(
  *  widget mostra as próximas doses de TODOS. */
 export async function atualizarWidget(): Promise<void> {
   if (Platform.OS !== 'android') return;
-  const meds = await getMedications();
-  const medRs = await Promise.all(
-    meds.map(m => getRemindersForMedication(m.id).catch(() => [] as MedicationReminder[])),
-  );
-  await alimentarWidget(meds, medRs);
+  const [meds, acts] = await Promise.all([getMedications(), getActivities()]);
+  const [medRs, actRs] = await Promise.all([
+    Promise.all(meds.map(m => getRemindersForMedication(m.id).catch(() => [] as MedicationReminder[]))),
+    Promise.all(acts.map(a => getRemindersForActivity(a.id).catch(() => [] as ActivityReminder[]))),
+  ]);
+  await alimentarWidget(meds, medRs, acts, actRs);
 }
 
 // O iOS guarda no máximo 64 notificações locais PENDENTES e descarta o excedente sozinho —
@@ -1665,9 +1670,15 @@ export async function rescheduleAllActiveNotifications(): Promise<void> {
     // O widget é alimentado AQUI e não por conta própria: este é o ponto em que o app acabou
     // de recalcular tudo (ciclo, pausa, próxima dose). O widget não roda JS e não tem como
     // perguntar — ele só lê o que ficou escrito.
-    await alimentarWidget(meds, medRs).catch(e => relatarFalhaSilenciosa('widget', e));
+    await alimentarWidget(meds, medRs, acts, actRs).catch(e => relatarFalhaSilenciosa('widget', e));
     await reportIOSNotificationBudget().catch(() => {});
-  } catch {}
+  } catch (e) {
+    // Era `catch {}`. Esta função agenda TUDO e alimenta o widget no fim — um erro no meio
+    // deixava o aparelho sem lembrete e a tela inicial com o plano velho, sem uma linha de
+    // log em lugar nenhum. É o mesmo catch vazio que escondeu por meses o CALENDAR
+    // estourando no Android (ver comentário em scheduleReminderMonthly).
+    relatarFalhaSilenciosa('reagendamento geral', e);
+  }
 }
 
 export async function rescheduleRemindersForActivity(
@@ -1867,7 +1878,12 @@ Notifications.setNotificationHandler({
 });
 
 /** Monta e entrega o recado do widget. Reusa o que a agenda já calculou — não recalcula. */
-async function alimentarWidget(meds: Medication[], medRs: MedicationReminder[][]): Promise<void> {
+async function alimentarWidget(
+  meds: Medication[],
+  medRs: MedicationReminder[][],
+  acts: Activity[] = [],
+  actRs: ActivityReminder[][] = [],
+): Promise<void> {
   if (Platform.OS !== 'android') return;
   const itens: ItemParaWidget[] = [];
   meds.forEach((med, i) => {
@@ -1893,9 +1909,29 @@ async function alimentarWidget(meds: Medication[], medRs: MedicationReminder[][]
       nome: med.commercial_name?.trim() || med.generic_name,
       dose: med.dose,
       quandoMs: info?.sortMs ?? null,
-      critico: !!med.is_critical,
+      icone: isPhytotherapic(med.generic_name) ? '🌿' : '💊',
       diasDeEstoque: dias,
     });
   });
+
+  // Atividades entram na MESMA lista, e não numa seção própria: quem olha o widget quer saber
+  // o que vem agora, não se o que vem agora é remédio ou caminhada. Elas não têm dose nem
+  // estoque — só nome, ícone e hora.
+  acts.forEach((act, i) => {
+    // O ciclo menstrual não é um compromisso com hora marcada; ele é um acompanhamento, e
+    // apareceria no widget como um alerta que não pede ação nenhuma.
+    if (act.type === 'cycle') return;
+    const rs = (actRs[i] ?? []).filter(r => r.is_active);
+    if (!rs.length) return;
+    const info = nextReminderInfo(rs);
+    itens.push({
+      nome: act.name,
+      dose: null,
+      quandoMs: info?.sortMs ?? null,
+      icone: ACTIVITY_PRESETS[act.type]?.icon ?? '📌',
+      diasDeEstoque: null,
+    });
+  });
+
   setWidgetData(JSON.stringify(montarDadosWidget(itens)));
 }

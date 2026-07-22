@@ -8,7 +8,7 @@
     android:background="@drawable/med_widget_fundo">
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="PRÓXIMA DOSE" android:textSize="9sp" android:textColor="#8A8F9D"
+        android:text="PRÓXIMO ALERTA" android:textSize="9sp" android:textColor="#8A8F9D"
         android:letterSpacing="0.08" android:textStyle="bold" />
 
     <LinearLayout android:id="@+id/linha1"

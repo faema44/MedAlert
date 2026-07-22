@@ -37,7 +37,7 @@ import { reportMissingDrug } from '../services/reportMissing';
 const IS_IOS = Platform.OS === 'ios';
 
 const EMPTY_MED: Omit<Medication, 'id'> = {
-  generic_name: '', commercial_name: '', dose: '', frequency: '', is_critical: false, notes: '',
+  generic_name: '', commercial_name: '', dose: '', frequency: '', notes: '',
   stock_quantity: null, units_per_dose: 1, end_date: null, home_reminder: 1, save_history: 1,
 };
 
@@ -740,7 +740,6 @@ export default function MedicationsScreen() {
       commercial_name: item.commercial_name,
       dose: item.dose,
       frequency: item.frequency,
-      is_critical: item.is_critical,
       notes: item.notes,
       stock_quantity: item.stock_quantity,
       units_per_dose: item.units_per_dose ?? 1,
