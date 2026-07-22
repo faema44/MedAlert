@@ -7,10 +7,8 @@ import { useFocusEffect, useNavigation, useRoute, RouteProp, NavigationProp } fr
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   getMedicationLog, deleteMedicationLog, updateMedicationLogEntry, getActivityLogs, MedicationLogEntry,
-  getProfile,
+  deleteActivityLogsBefore, clearAllActivityLogs,
 } from '../database/db';
-import { montarRelatorio } from '../utils/relatorioMedico';
-import { gerarRelatorioPdf } from '../services/relatorioPdf';
 import { ActivityLog } from '../database/db';
 
 type Tab = 'medications' | 'activities';
@@ -61,35 +59,6 @@ export default function HistoryScreen() {
   const navigation = useNavigation<NavigationProp<HistoryParams>>();
   const route = useRoute<RouteProp<HistoryParams, 'History'>>();
   const [tab, setTab] = useState<Tab>('medications');
-  const [gerandoPdf, setGerandoPdf] = useState(false);
-
-  // HISTÓRICO INTEIRO: um remédio que a pessoa tomou ano passado pode ser a pista que falta
-  // para o médico que a conhece há dez minutos. É resumo por medicamento, então incluir tudo
-  // custa uma linha a mais na tabela, não uma página.
-  //
-  // `limit: null` é obrigatório aqui — o padrão de 500 do getMedicationLog serviria à tela e
-  // faria o relatório dizer "histórico completo" mostrando só os últimos ~100 dias de quem
-  // toma vários remédios.
-  async function gerarPdf() {
-    if (gerandoPdf) return;
-    setGerandoPdf(true);
-    try {
-      const [log, perfil] = await Promise.all([getMedicationLog({ limit: null }), getProfile()]);
-      const rel = montarRelatorio(log);
-      if (rel.medicamentos.length === 0) {
-        Alert.alert('Sem dados', 'Ainda não há doses registradas para montar o relatório.');
-        return;
-      }
-      await gerarRelatorioPdf(rel, perfil);
-    } catch (e: any) {
-      // Sem catch silencioso: um relatório que não sai e não avisa faz a pessoa chegar na
-      // consulta de mãos vazias achando que levou.
-      Alert.alert('Não foi possível gerar', e?.message ?? 'Tente novamente.');
-    } finally {
-      setGerandoPdf(false);
-    }
-  }
-
   // Medication log state
   const [medLogs, setMedLogs] = useState<MedicationLogEntry[]>([]);
   const [medFilter, setMedFilter] = useState<string | null>(null);
@@ -278,6 +247,39 @@ export default function HistoryScreen() {
     ]);
   }
 
+  function handleDeleteActLogs() {
+    Alert.alert('Apagar histórico de atividades', 'Escolha o período a apagar:', [
+      {
+        text: 'Registros com mais de 1 ano',
+        onPress: () => {
+          Alert.alert('Confirmar', 'Apagar registros com mais de 1 ano?', [
+            { text: 'Cancelar', style: 'cancel' },
+            {
+              text: 'Apagar', style: 'destructive',
+              onPress: async () => {
+                const corte = new Date();
+                corte.setFullYear(corte.getFullYear() - 1);
+                await deleteActivityLogsBefore(corte.toISOString());
+                loadActLogs();
+              },
+            },
+          ]);
+        },
+      },
+      {
+        text: 'Tudo',
+        style: 'destructive',
+        onPress: () => {
+          Alert.alert('Confirmar', 'Apagar todo o histórico de atividades?', [
+            { text: 'Cancelar', style: 'cancel' },
+            { text: 'Apagar tudo', style: 'destructive', onPress: async () => { await clearAllActivityLogs(); loadActLogs(); } },
+          ]);
+        },
+      },
+      { text: 'Cancelar', style: 'cancel' },
+    ]);
+  }
+
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       {/* Tab toggle */}
@@ -294,24 +296,20 @@ export default function HistoryScreen() {
         >
           <Text style={[styles.tabBtnText, tab === 'activities' && styles.tabBtnTextActive]}>Atividades</Text>
         </TouchableOpacity>
+        {/* Apaga o histórico da aba ABERTA. O rótulo diz qual é: a lixeira fica na linha das
+            abas, e sem isso não haveria nada distinguindo apagar remédios de apagar atividades. */}
+        <TouchableOpacity
+          style={styles.histIconBtn}
+          onPress={tab === 'medications' ? handleDeleteMedLogs : handleDeleteActLogs}
+          accessibilityLabel={tab === 'medications' ? 'Apagar histórico de medicamentos' : 'Apagar histórico de atividades'}
+          accessibilityRole="button"
+        >
+          <Text style={styles.histIconBtnText}>🗑️</Text>
+        </TouchableOpacity>
       </View>
 
       {tab === 'medications' ? (
         <>
-          {/* Levar à consulta. Fica no Histórico porque é aqui que vivem os dados que o
-              médico quer — e é onde a pessoa está quando lembra da consulta. */}
-          <TouchableOpacity
-            style={styles.pdfBtn}
-            onPress={gerarPdf}
-            disabled={gerandoPdf}
-            accessibilityRole="button"
-            accessibilityLabel="Gerar relatório em PDF para levar ao médico"
-          >
-            <Text style={styles.pdfBtnText}>
-              {gerandoPdf ? 'Gerando…' : '📄  Relatório para o médico (PDF)'}
-            </Text>
-          </TouchableOpacity>
-
           {/* Medication name filter chips */}
           {medNames.length > 0 && (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll} contentContainerStyle={styles.filterContent}>
@@ -348,19 +346,18 @@ export default function HistoryScreen() {
             ))}
           </View>
 
-          {/* Header row */}
-          <View style={styles.histHeader}>
-            <Text style={styles.histCount}>{filteredMedLogs.length} registro(s)</Text>
-            <TouchableOpacity style={[styles.histIconBtn, { backgroundColor: '#E07B4F' }]} onPress={handleDeleteMedLogs} accessibilityLabel="Apagar histórico de medicamentos" accessibilityRole="button">
-              <Text style={styles.histIconBtnText}>🗑️</Text>
-            </TouchableOpacity>
-          </View>
-
+          {/* A contagem rola junto com a lista: como linha fixa ela roubava altura das
+              telas pequenas para dizer o que o estado vazio já diz. */}
           <FlatList
             data={medListData}
             keyExtractor={(item, idx) => String(idx)}
             style={{ flex: 1 }}
             contentContainerStyle={styles.list}
+            ListHeaderComponent={
+              filteredMedLogs.length > 0
+                ? <Text style={styles.histCount}>{filteredMedLogs.length} registro(s)</Text>
+                : null
+            }
             ListEmptyComponent={
               // Com filtro ativo, "nenhum registro ainda" seria mentira — e em "Sem
               // resposta" a lista vazia é a boa notícia, não a ausência de dados.
@@ -471,15 +468,16 @@ export default function HistoryScreen() {
             ))}
           </ScrollView>
 
-          <View style={styles.histHeader}>
-            <Text style={styles.histCount}>{filteredActLogs.length} registro(s)</Text>
-          </View>
-
           <FlatList
             data={filteredActLogs}
             keyExtractor={item => String(item.id)}
             style={{ flex: 1 }}
             contentContainerStyle={styles.list}
+            ListHeaderComponent={
+              filteredActLogs.length > 0
+                ? <Text style={styles.histCount}>{filteredActLogs.length} registro(s)</Text>
+                : null
+            }
             ListEmptyComponent={
               <View style={styles.empty}>
                 <Text style={styles.emptyIcon}>📋</Text>
@@ -573,15 +571,10 @@ export default function HistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  pdfBtn: {
-    marginHorizontal: 12, marginTop: 10, marginBottom: 2,
-    backgroundColor: '#1C3F7A', borderRadius: 10, paddingVertical: 13, alignItems: 'center',
-  },
-  pdfBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
   container: { flex: 1, backgroundColor: '#F2F4F8' },
 
   tabRow: {
-    flexDirection: 'row', backgroundColor: '#fff',
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
     borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.08)',
   },
   tabBtn: {
@@ -612,13 +605,11 @@ const styles = StyleSheet.create({
   statusChipText: { fontSize: 11.5, color: '#444', fontWeight: '600' },
   statusChipTextActive: { color: '#fff' },
 
-  histHeader: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 14, paddingVertical: 8,
-  },
-  histCount: { fontSize: 12, color: '#888' },
-  histIconBtn: { width: 34, height: 34, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
-  histIconBtnText: { fontSize: 15 },
+  histCount: { fontSize: 12, color: '#888', paddingHorizontal: 2, paddingBottom: 6 },
+  // Sem preenchimento: apagar é raro e irreversível, não pode ser o elemento mais chamativo
+  // da linha das abas. A área de toque continua a mesma — só o peso visual sai.
+  histIconBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', marginRight: 8 },
+  histIconBtnText: { fontSize: 17, opacity: 0.55 },
 
   list: { paddingHorizontal: 12, paddingBottom: 24 },
 

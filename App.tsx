@@ -65,6 +65,8 @@ import {
   contarRecadosNaoVistos, subscribeInbox,
 } from './src/services/caregiver';
 import { syncMedicationsDb, syncInteractionsDb } from './src/services/dbSync';
+import { montarRelatorio } from './src/utils/relatorioMedico';
+import { gerarRelatorioPdf } from './src/services/relatorioPdf';
 
 const Tab = createBottomTabNavigator();
 
@@ -117,9 +119,16 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
     Interactions: '📋',
     History:      '📋',
   };
+  // O ponto de 4px embaixo do ícone ninguém via. A aba atual agora ganha uma
+  // pílula atrás do ÍCONE — ela cabe na área do ícone e não encosta na legenda.
+  const pill = {
+    width: 46, height: 30, borderRadius: 15,
+    alignItems: 'center' as const, justifyContent: 'center' as const,
+    backgroundColor: focused ? '#D7E0EF' : 'transparent',
+  };
   if (name === 'Settings') {
     return (
-      <View style={{ alignItems: 'center' }}>
+      <View style={pill}>
         <View style={{
           width: 22, height: 22, borderRadius: 5,
           backgroundColor: '#CC0000', alignItems: 'center', justifyContent: 'center',
@@ -127,26 +136,14 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
         }}>
           <Text style={{ color: '#fff', fontSize: 13, fontWeight: '800', lineHeight: 15 }}>+</Text>
         </View>
-        {focused && (
-          <View style={{
-            width: 4, height: 4, borderRadius: 2,
-            backgroundColor: '#1C3F7A', marginTop: 2,
-          }} />
-        )}
       </View>
     );
   }
   return (
-    <View style={{ alignItems: 'center' }}>
+    <View style={pill}>
       <Text style={{ fontSize: focused ? 22 : 20, opacity: focused ? 1 : 0.55 }}>
         {icons[name] ?? '•'}
       </Text>
-      {focused && (
-        <View style={{
-          width: 4, height: 4, borderRadius: 2,
-          backgroundColor: '#1C3F7A', marginTop: 2,
-        }} />
-      )}
     </View>
   );
 }
@@ -224,6 +221,36 @@ function AppNavigator() {
   // passageira: quem não olhou na hora perde o aviso e nada mais chama a atenção. O selo é o
   // que sobrevive a isso — fica no 👥 até ele abrir a lista.
   const [recadosNovos, setRecadosNovos] = useState(0);
+  // O relatório mora no cabeçalho do Histórico: a faixa de filtros da tela já tinha quatro
+  // linhas fixas e sobrava pouca tela para os registros. Vive aqui, e não na tela, porque
+  // quem desenha o cabeçalho é o navegador.
+  const [gerandoPdf, setGerandoPdf] = useState(false);
+  // HISTÓRICO INTEIRO: um remédio que a pessoa tomou ano passado pode ser a pista que falta
+  // para o médico que a conhece há dez minutos. É resumo por medicamento, então incluir tudo
+  // custa uma linha a mais na tabela, não uma página.
+  //
+  // `limit: null` é obrigatório aqui — o padrão de 500 do getMedicationLog serviria à tela e
+  // faria o relatório dizer "histórico completo" mostrando só os últimos ~100 dias de quem
+  // toma vários remédios.
+  async function gerarPdf() {
+    if (gerandoPdf) return;
+    setGerandoPdf(true);
+    try {
+      const [log, perfil] = await Promise.all([getMedicationLog({ limit: null }), getProfile()]);
+      const rel = montarRelatorio(log);
+      if (rel.medicamentos.length === 0) {
+        Alert.alert('Sem dados', 'Ainda não há doses registradas para montar o relatório.');
+        return;
+      }
+      await gerarRelatorioPdf(rel, perfil);
+    } catch (e: any) {
+      // Sem catch silencioso: um relatório que não sai e não avisa faz a pessoa chegar na
+      // consulta de mãos vazias achando que levou.
+      Alert.alert('Não foi possível gerar', e?.message ?? 'Tente novamente.');
+    } finally {
+      setGerandoPdf(false);
+    }
+  }
   const refreshHasPatients = () => {
     getPatients().then(ps => setHasPatients(ps.length > 0)).catch(() => {});
     contarRecadosNaoVistos().then(setRecadosNovos).catch(() => {});
@@ -580,6 +607,23 @@ function AppNavigator() {
             headerTitle: () => <HeaderTitle route={route} />,
             headerRight: (route.name !== 'Help') ? () => (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginRight: 12 }}>
+                {route.name === 'History' && (
+                  <TouchableOpacity
+                    onPress={gerarPdf}
+                    disabled={gerandoPdf}
+                    style={{
+                      paddingHorizontal: 12, paddingVertical: 5, borderRadius: 14,
+                      borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.5)',
+                      opacity: gerandoPdf ? 0.6 : 1,
+                    }}
+                    accessibilityLabel="Gerar relatório em PDF para levar ao médico"
+                    accessibilityRole="button"
+                  >
+                    <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700' }}>
+                      {gerandoPdf ? 'Gerando…' : 'Relatório'}
+                    </Text>
+                  </TouchableOpacity>
+                )}
                 {hasPatients && route.name !== 'Caregiver' && route.name !== 'CaregiverHistory' && (
                   <TouchableOpacity
                     onPress={() => navigation.navigate('CaregiverHistory' as never)}
