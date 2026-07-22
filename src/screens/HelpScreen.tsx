@@ -130,7 +130,6 @@ export default function HelpScreen() {
             </Text>
             <Bullet text="Seu nome e tipo sanguíneo" />
             <Bullet text="Todos os medicamentos cadastrados (com dose)" />
-            <Bullet text="Medicamentos críticos sinalizados com ⚠️" />
             <Bullet text="Alergias e observações médicas" />
             <Bullet text="Contatos de emergência" />
             <Bullet text="Próximo lembrete do dia (ex.: 🔔 Zyloric hoje às 14:00)" />
@@ -161,7 +160,7 @@ export default function HelpScreen() {
       <Section title="🔳 Ficha em QR code — imprima e leve na carteira">
         <Text style={styles.bodyText}>
           A mesma ficha vira um QR code. O socorrista aponta a câmera e lê tudo de uma vez: nome,
-          tipo sanguíneo, alergias, contato e medicamentos, com os críticos marcados. O código é
+          tipo sanguíneo, alergias, contato e medicamentos. O código é
           texto, não link — abre sem internet e sem instalar nada.
         </Text>
         <Text style={styles.bodyText}>
@@ -215,8 +214,8 @@ export default function HelpScreen() {
         <View style={styles.aiWarnBox}>
           <Text style={styles.aiWarnTitle}>⚕️ Não altere seu tratamento por conta própria</Text>
           <Text style={styles.aiWarnText}>
-            Estes alertas são gerados por inteligência artificial a partir de bulas e podem conter
-            erros, imprecisões ou informações inventadas. Eles servem para você{' '}
+            As informações desta tabela são geradas por inteligência artificial a partir de bulas
+            e podem conter erros, imprecisões ou informações inventadas. Elas servem para você{' '}
             <Text style={styles.aiWarnBold}>levar a dúvida ao profissional</Text> — nunca para decidir sozinho.
             {'\n\n'}
             Nunca comece, suspenda ou mude a dose de um medicamento sem falar com seu médico ou
@@ -225,7 +224,7 @@ export default function HelpScreen() {
           </Text>
         </View>
         <Text style={styles.tip}>
-          💡 Na tela Tabelas você tem busca e filtros por risco, além das listas completas de medicamentos e fitoterápicos cadastrados na base (mais de 2.800 interações).
+          💡 Na tela Tabelas você tem busca e filtros por risco, além das listas completas de medicamentos e fitoterápicos cadastrados na base.
         </Text>
       </Section>
 
@@ -253,9 +252,9 @@ export default function HelpScreen() {
         <Bullet text="Dias específicos da semana (ex.: seg, qua e sex)" />
         <Bullet text="Dias específicos do mês (ex.: dias 1 e 15)" />
         <Bullet text="Intervalo livre (ex.: a cada 2 meses, no dia 10)" />
-        <Bullet text="Repetição do alarme a cada 5 min até confirmar Tomei / Não tomei" />
+        <Bullet text="Cobrança se você não responder Tomei / Não tomei: o alarme volta 5 min, 20 min, 1 hora e 3 horas depois da dose, e para aí" />
         <Bullet text="Prazo do tratamento e controle de estoque com aviso de reposição" />
-        <Bullet text="Stand-by (⏸) — suspenda um medicamento sem apagar: ele sai dos alarmes, da tela de bloqueio e das interações, e volta com um toque em Retomar" />
+        <Bullet text="Stand-by (⏸) — suspenda um medicamento sem apagar: ele sai dos alarmes e da tela de bloqueio, e volta com um toque em Retomar" />
         <Text style={styles.tip}>
           💡 O ícone 🔔 / 🔕 no cartão do medicamento silencia ou reativa o som do lembrete sem apagá-lo. Lembretes funcionam offline — nenhuma conexão é necessária.
         </Text>
@@ -268,12 +267,19 @@ export default function HelpScreen() {
           vizinho. Cada lado tem um papel:
         </Text>
         <Text style={[styles.bodyText, styles.bold, { color: '#1A1F2E' }]}>Se alguém cuida de você:</Text>
-        <Bullet text="Peça para essa pessoa abrir o Alerta Médico dela, ir em Cuidador → Eu cuido de alguém, e mandar o convite" />
-        <Bullet text="Toque no link que ela mandar para conectar — sem criar conta nem digitar nada" />
+        <Bullet text="Peça para essa pessoa abrir o Alerta Médico dela, ir em Cuidador → Eu cuido de alguém, e gerar o convite" />
+        <Bullet text="Aponte a câmera do seu celular para o código que aparecer na tela dela — sem criar conta nem digitar nada" />
         <Bullet text="Escolha um apelido para você e o prazo de tolerância (15 min a 2h) antes dela ser avisada" />
         <Text style={[styles.bodyText, styles.bold, { color: '#1A1F2E', marginTop: 10 }]}>Se você cuida de alguém:</Text>
-        <Bullet text="Em Cuidador → Eu cuido de alguém, gere um convite e mande pelo WhatsApp — a pessoa só precisa tocar no link" />
+        <Bullet text="Em Cuidador → Eu cuido de alguém, gere um convite e mostre o código na tela para a pessoa apontar a câmera" />
         <Bullet text="Você pode acompanhar mais de uma pessoa, cada uma com seu próprio histórico (ícone 👥 no topo)" />
+        <Text style={styles.warningLabel}>Prefira o código na tela ao envio por link</Text>
+        <Text style={styles.bodyText}>
+          Pelo código, o convite vai direto de um celular ao outro, sem passar por nenhum
+          servidor. O convite carrega a chave que decifra os avisos — então quem receber o
+          link consegue se conectar no seu lugar. Use "A pessoa está longe? Enviar por link"
+          só quando não der para estarem juntos, e mande por um canal em que você confie.
+        </Text>
         <Text style={[styles.bodyText, styles.bold, { color: '#1A1F2E', marginTop: 10 }]}>Como funciona o aviso:</Text>
         <Bullet text="Um aviso a cada dose tomada ou pulada — e um aviso separado se a pessoa NÃO responder no prazo combinado, mesmo com o celular dela desligado ou sem internet" />
         <Bullet text="O conteúdo é cifrado; chegam só o nome do remédio, a dose e o horário — nunca o resto do perfil médico (alergias, contatos, tipo sanguíneo)" />
@@ -510,9 +516,9 @@ export default function HelpScreen() {
       <View style={styles.finalCard}>
         <Text style={styles.finalTitle}>Mostre ao seu médico</Text>
         <Text style={styles.finalText}>
-          Na sua próxima consulta, mostre a lista de medicamentos cadastrada e os alertas de
-          interação ao seu médico. Ele pode confirmar se a lista está correta e se há riscos
-          que precisam de atenção especial.
+          Na sua próxima consulta, mostre a lista de medicamentos cadastrada ao seu médico —
+          ou leve o relatório em PDF, que sai pronto na aba Histórico. Ele pode confirmar se a
+          lista está correta e se há riscos que precisam de atenção especial.
         </Text>
       </View>
 
