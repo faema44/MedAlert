@@ -609,7 +609,7 @@ const styles = StyleSheet.create({
   // Sem preenchimento: apagar é raro e irreversível, não pode ser o elemento mais chamativo
   // da linha das abas. A área de toque continua a mesma — só o peso visual sai.
   histIconBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', marginRight: 8 },
-  histIconBtnText: { fontSize: 17, opacity: 0.55 },
+  histIconBtnText: { fontSize: 17 },
 
   list: { paddingHorizontal: 12, paddingBottom: 24 },
 
