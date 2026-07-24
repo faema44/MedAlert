@@ -45,7 +45,7 @@ const mod = { exports: {} };
 new Function('module', 'exports', 'require', js)(mod, mod.exports, require);
 const { basesDoPeriodo, calcularNagsPorLembrete, custoDaCartela, diasDeCartelaQueCabem, horarioDaChecagem,
         JANELA_CICLO_DIAS, BORDAS_CICLO, CURVA_COBRANCA, COBRANCAS_MAX, COBRANCAS_HISTORICO, instanteDaCobranca,
-        ratearHorariosDeAtividade, rarefazerHorarios, slotsDeAtividade, livreParaAtividade } = mod.exports;
+        ratearHorariosDeAtividade, rarefazerHorarios, slotsDeAtividade, livreParaAtividade, COBRANCA_RESERVADA } = mod.exports;
 
 for (const [nome, fn] of [['basesDoPeriodo', basesDoPeriodo], ['calcularNagsPorLembrete', calcularNagsPorLembrete],
                           ['custoDaCartela', custoDaCartela], ['diasDeCartelaQueCabem', diasDeCartelaQueCabem],
@@ -290,18 +290,26 @@ const CASOS_ATIVIDADE = [
   [agua, pressao, peso],
   [aguaSem, { id: 4, horarios: 7, porHorario: 1, medicao: false }, pressao],
 ];
-let piorAtiv = 0, estourouAtiv = null, rareou = false, medicaoCortada = null;
+let piorAtiv = 0, estourouAtiv = null, rareou = false, medicaoCortada = null, cobrancaVendida = null;
 for (let horarios = 1; horarios <= 40; horarios++) {
   for (const consultas of [0, 3, 8]) {
     for (const cartelas of [0, 1, 2]) {
       for (const pedidos of CASOS_ATIVIDADE) {
-        const concedidos = ratearHorariosDeAtividade(pedidos, livreParaAtividade(horarios, consultas, cartelas));
+        const concedidos = ratearHorariosDeAtividade(pedidos, livreParaAtividade(horarios, consultas, cartelas, horarios));
         const slotsAtiv = slotsDeAtividade(pedidos, concedidos);
         const comprometido = horarios + slotsAtiv;
-        const dias = diasDeCartelaQueCabem(JANELA_CICLO_DIAS, cartelas, comprometido, consultas);
+        // A reserva da 1ª cobrança conta como slot comprometido também para a cartela, senão
+        // ela reserva de um lado e a cartela come do outro.
+        const dias = diasDeCartelaQueCabem(JANELA_CICLO_DIAS, cartelas, comprometido + horarios * COBRANCA_RESERVADA, consultas);
         const slotsCartela = cartelas > 0 ? cartelas * custoDaCartela(dias) : 0;
         const nags = calcularNagsPorLembrete(comprometido, horarios, consultas, slotsCartela);
         const total = horarios + horarios * nags + consultas * 2 + slotsAtiv + slotsCartela;
+        // A casa SEM atividade nenhuma é a régua: a atividade pode comprar da 2ª cobrança em
+        // diante, nunca da 1ª. Sem esta trava a água era servida inteira e zerava a cobrança
+        // — o avesso da hierarquia que o rateio existe para defender.
+        const nagsSemAtiv = calcularNagsPorLembrete(horarios, horarios, consultas, cartelas > 0
+          ? cartelas * custoDaCartela(diasDeCartelaQueCabem(JANELA_CICLO_DIAS, cartelas, horarios, consultas)) : 0);
+        if (nagsSemAtiv >= 1 && nags < 1 && !cobrancaVendida) cobrancaVendida = { horarios, consultas, cartelas, nags, nagsSemAtiv };
         if (total > piorAtiv) piorAtiv = total;
         if (total > TETO && !estourouAtiv) estourouAtiv = { horarios, consultas, cartelas, slotsAtiv, total };
         for (const p of pedidos) {
@@ -318,6 +326,8 @@ for (let horarios = 1; horarios <= 40; horarios++) {
 check(`casa cheia × cadência de atividade cabe em 64 (pior: ${piorAtiv})`, estourouAtiv, null);
 check('e a rarefação REALMENTE morde em algum setup', rareou, true);
 check('medição não é cortada para financiar cadência', medicaoCortada, null);
+check('a 1ª cobrança nunca é vendida para a atividade', cobrancaVendida, null);
+check('a atividade compra da 2ª cobrança em diante', COBRANCA_RESERVADA, 1);
 
 console.log('');
 if (falhas) {

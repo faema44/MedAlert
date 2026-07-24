@@ -815,9 +815,32 @@ export function slotsDeAtividade(pedidos: PedidoDeAtividade[], dado: Map<number,
   return pedidos.reduce((acc, p) => acc + (dado.get(p.id) ?? 0) * Math.max(1, p.porHorario), 0);
 }
 
-/** O que sobra para a atividade depois do que não cede: dose, consulta e bordas de cartela. */
-export function livreParaAtividade(bases: number, consultasFuturas: number, cartelas: number): number {
-  return TETO_IOS - RESERVA_AVULSOS - bases - consultasFuturas * 2 - cartelas * BORDAS_CICLO;
+/**
+ * Cobranças por lembrete que a atividade NÃO pode consumir.
+ *
+ * Sem esta reserva a atividade era servida inteira e a conta caía toda na cobrança: numa casa
+ * de 6 remédios 2x/dia a água derrubava a cobrança de 4 para 2, e com dias da semana marcados
+ * zerava. Isso é o avesso da hierarquia — a 1ª cobrança dispara aos 5 min e é a que recupera a
+ * dose esquecida; a 9ª água do dia não recupera nada.
+ *
+ * É 1, e não a curva inteira: reservar as 4 daria zero orçamento de atividade para qualquer
+ * casa com 12 horários de remédio, e o app pararia de lembrar da água em silêncio. A 1ª
+ * cobrança é intocável; da 2ª em diante, a água pode comprar.
+ */
+export const COBRANCA_RESERVADA = 1;
+
+/**
+ * O que sobra para a atividade depois do que não cede: dose, consulta, bordas de cartela e a
+ * primeira cobrança de cada lembrete.
+ */
+export function livreParaAtividade(
+  bases: number,
+  consultasFuturas: number,
+  cartelas: number,
+  lembretesComRepeticao = 0,
+): number {
+  return TETO_IOS - RESERVA_AVULSOS - bases - consultasFuturas * 2
+    - cartelas * BORDAS_CICLO - lembretesComRepeticao * COBRANCA_RESERVADA;
 }
 
 export function calcularNagsPorLembrete(
@@ -1757,13 +1780,22 @@ export async function rescheduleAllActiveNotifications(): Promise<void> {
           medicao: MEASURE_ACTIVITY_TYPES.includes(a.type),
         };
       }).filter(p => p.horarios > 0);
-      const concedidos = ratearHorariosDeAtividade(pedidos, livreParaAtividade(bases, futuras, comCiclo.length));
+      const concedidos = ratearHorariosDeAtividade(
+        pedidos,
+        livreParaAtividade(bases, futuras, comCiclo.length, comRepeticao),
+      );
       horariosPorAtividade = concedidos;
       const slotsAtividade = slotsDeAtividade(pedidos, concedidos);
       // A janela da cartela encolhe conforme a casa aperta — e só depois disso o que restou
       // vira cobrança. Zerar cobrança sozinho não bastava: 2 cartelas numa casa cheia
       // chegavam a 88 de 64, e o iOS descartaria as distantes, matando dose de outro morador.
-      janelaDeCartelaDias = diasDeCartelaQueCabem(JANELA_CICLO_DIAS, comCiclo.length, bases + slotsAtividade, futuras);
+      // A reserva da 1ª cobrança entra aqui como slot JÁ COMPROMETIDO. Sem isso ela sobrevivia
+      // ao rateio da atividade e a cartela a comia de volta logo em seguida: 1 horário de
+      // remédio + 1 cartela + cadência semanal zerava a cobrança que a reserva tinha guardado.
+      // A janela da cartela é o que cede — ela se reabastece a cada abertura do app, enquanto
+      // uma cobrança perdida não volta.
+      const comprometido = bases + slotsAtividade + comRepeticao * COBRANCA_RESERVADA;
+      janelaDeCartelaDias = diasDeCartelaQueCabem(JANELA_CICLO_DIAS, comCiclo.length, comprometido, futuras);
       const slotsDeCartela = comCiclo.reduce(
         (acc, med) => acc + custoDaCartela(Math.min(janelaDeCartelaDias, diasComDoseNaJanela(med))),
         0,
