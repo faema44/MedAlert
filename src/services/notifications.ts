@@ -731,6 +731,95 @@ export function diasComDoseNaJanela(med: ComCiclo, hoje = new Date()): number {
   return n;
 }
 
+// ─── Atividade de cadência: rarefação em vez de estouro ──────────────────────
+//
+// Uma atividade com cadência ("a cada 1 h das 08:00 às 20:00") vira 13 lembretes DAILY —
+// 13 dos 64 slots, para sempre. Com dias da semana marcados são 13 × 5 = 65 requests, porque
+// o WEEKLY gasta um por dia marcado: UMA atividade estoura o aparelho inteiro.
+//
+// Até aqui a atividade era contada como dose (entrava em `bases`) e nunca cedia. Quem cedia
+// era a cobrança do remédio, depois a cartela — e, esgotados os dois, o iOS escolhia sozinho,
+// ficando com as 64 MAIS PRÓXIMAS. Ou seja: a água das 09:00 derrubando o remédio das 21:00.
+//
+// Beber água às 09:00 e às 10:00 é a mesma água: perder uma ocorrência de uma cadência não
+// custa nada, e perder a dose custa tudo. Por isso a atividade é o PRIMEIRO amortecedor —
+// cede antes da cartela e antes da cobrança. A 4ª cobrança (aos 180 min) ainda alcança quem
+// estava no banho e salva a dose; a 9ª água do dia não salva nada.
+//
+// E cede RAREANDO, não truncando: das 13 pedidas ficam 08:00, 12:00, 16:00 e 20:00. Cortar a
+// cauda deixaria a tarde inteira muda, que é justamente quando se esquece de beber água.
+
+/** O que uma atividade pede do orçamento. `porHorario` é 1 no diário e N no semanal. */
+export interface PedidoDeAtividade {
+  id: number;
+  horarios: number;
+  porHorario: number;
+  medicao: boolean;
+}
+
+/**
+ * Divide os slots livres entre as atividades, uma ocorrência por vez.
+ *
+ * Rodízio, e não divisão proporcional, porque proporcional pune quem pede pouco: numa casa
+ * com água 13× e pressão 2×, dar "metade para cada" cortaria a pressão ao meio para financiar
+ * água. No rodízio quem pede 2 recebe 2 enquanto houver orçamento para qualquer um receber 2 —
+ * quem sangra é a cadência grande, que é exatamente onde a perda não dói.
+ *
+ * Medição (pressão/glicose/peso) entra primeiro em cada rodada: cada ocorrência dela é um dado
+ * que não se recupera depois, e são poucas por natureza.
+ */
+export function ratearHorariosDeAtividade(
+  pedidos: PedidoDeAtividade[],
+  livre: number,
+): Map<number, number> {
+  const dado = new Map<number, number>(pedidos.map(p => [p.id, 0]));
+  const ordem = [...pedidos].sort((a, b) => Number(b.medicao) - Number(a.medicao));
+  let restante = Math.max(0, livre);
+  let deuAlgum = true;
+  while (restante > 0 && deuAlgum) {
+    deuAlgum = false;
+    for (const p of ordem) {
+      const atual = dado.get(p.id) ?? 0;
+      if (atual >= p.horarios) continue;
+      const custo = Math.max(1, p.porHorario);
+      // `continue`, não `break`: um semanal caro pode não caber no que restou e um diário
+      // barato ainda caber. Parar aqui deixaria slot livre sobrando sem uso.
+      if (custo > restante) continue;
+      dado.set(p.id, atual + 1);
+      restante -= custo;
+      deuAlgum = true;
+    }
+  }
+  return dado;
+}
+
+/**
+ * Escolhe QUAIS horários sobrevivem, espalhados pelo dia e guardando as duas pontas.
+ *
+ * `horarios` precisa vir ordenado por hora. Com 13 pedidos e 4 vagas devolve os índices
+ * 0, 4, 8 e 12 — o primeiro e o último aviso do dia nunca se perdem, porque são eles que
+ * ancoram a rotina ("ao acordar" e "antes de dormir").
+ */
+export function rarefazerHorarios<T>(horarios: T[], quantos: number): T[] {
+  if (quantos >= horarios.length) return horarios;
+  if (quantos <= 0) return [];
+  if (quantos === 1) return [horarios[0]];
+  const passo = (horarios.length - 1) / (quantos - 1);
+  const out: T[] = [];
+  for (let i = 0; i < quantos; i++) out.push(horarios[Math.round(i * passo)]);
+  return out;
+}
+
+/** Slots que o rateio efetivamente comprometeu — o que sobra vai para cartela e cobrança. */
+export function slotsDeAtividade(pedidos: PedidoDeAtividade[], dado: Map<number, number>): number {
+  return pedidos.reduce((acc, p) => acc + (dado.get(p.id) ?? 0) * Math.max(1, p.porHorario), 0);
+}
+
+/** O que sobra para a atividade depois do que não cede: dose, consulta e bordas de cartela. */
+export function livreParaAtividade(bases: number, consultasFuturas: number, cartelas: number): number {
+  return TETO_IOS - RESERVA_AVULSOS - bases - consultasFuturas * 2 - cartelas * BORDAS_CICLO;
+}
+
 export function calcularNagsPorLembrete(
   bases: number,
   lembretesComRepeticao: number,
@@ -754,6 +843,24 @@ let nagsPorLembrete = REPEAT_COUNT;
 // porque lá não existe teto — ver [[project_ciclico_com_pausa]], a cobrança crescente do
 // Android ficou guardada para depois.
 let janelaDeCartelaDias = JANELA_CICLO_DIAS;
+
+// Quantos horários cada atividade pode agendar neste aparelho. `null` = sem teto, que é o
+// estado permanente fora do iOS: no Android inventar limite seria criar uma restrição que
+// não existe. Preenchido em rescheduleAllActiveNotifications, lido em
+// rescheduleRemindersForActivity (que também é chamado direto pela HomeScreen).
+let horariosPorAtividade: Map<number, number> | null = null;
+
+/**
+ * Quantos horários couberam para esta atividade, contra os que ela pediu. `null` quando não
+ * há teto (Android) ou quando o rateio ainda não rodou.
+ *
+ * Existe para a tela poder DIZER que cortou. Corte silencioso aqui seria o mesmo modo de
+ * falha que o teto do iOS já é: a pessoa configura 13 avisos, recebe 4, e não tem como
+ * descobrir por quê.
+ */
+export function horariosConcedidos(activityId: number): number | null {
+  return horariosPorAtividade?.get(activityId) ?? null;
+}
 
 async function scheduleRepeatSeries(
   medicationId: number,
@@ -1628,24 +1735,40 @@ export async function rescheduleAllActiveNotifications(): Promise<void> {
           if ((r.repeat_interval ?? 0) > 0) comRepeticao++;
         }
       });
-      for (const rs of actRs) for (const r of rs) {
-        if (!r.is_active) continue;
-        bases += basesDoPeriodo(r.period);
-      }
       const agora = Date.now();
       const futuras = appts.filter(a => {
         const t = new Date(`${a.date}T${a.time || '00:00'}:00`).getTime();
         return !isNaN(t) && t > agora;
       }).length;
+      // Atividade NÃO entra mais em `bases`. Ela era somada ali como se fosse dose —
+      // intocável — e o resultado era o avesso: a cadência de água empurrava a cobrança e a
+      // cartela para zero e, esgotados os dois, derrubava dose pela mão do iOS. Agora ela
+      // tem orçamento próprio, que sai depois da dose e antes de tudo o mais.
+      const pedidos: PedidoDeAtividade[] = acts.map((a, i) => {
+        const ativos = (actRs[i] ?? []).filter(r => r.is_active);
+        // A tela grava o mesmo `period` em todos os horários de uma atividade, mas o banco
+        // aceita divergir (backup antigo, edição parcial). O maior custo manda: subestimar
+        // aqui volta a estourar o teto em silêncio, que é o que estamos consertando.
+        const porHorario = ativos.reduce((mx, r) => Math.max(mx, basesDoPeriodo(r.period)), 1);
+        return {
+          id: a.id,
+          horarios: ativos.length,
+          porHorario,
+          medicao: MEASURE_ACTIVITY_TYPES.includes(a.type),
+        };
+      }).filter(p => p.horarios > 0);
+      const concedidos = ratearHorariosDeAtividade(pedidos, livreParaAtividade(bases, futuras, comCiclo.length));
+      horariosPorAtividade = concedidos;
+      const slotsAtividade = slotsDeAtividade(pedidos, concedidos);
       // A janela da cartela encolhe conforme a casa aperta — e só depois disso o que restou
       // vira cobrança. Zerar cobrança sozinho não bastava: 2 cartelas numa casa cheia
       // chegavam a 88 de 64, e o iOS descartaria as distantes, matando dose de outro morador.
-      janelaDeCartelaDias = diasDeCartelaQueCabem(JANELA_CICLO_DIAS, comCiclo.length, bases, futuras);
+      janelaDeCartelaDias = diasDeCartelaQueCabem(JANELA_CICLO_DIAS, comCiclo.length, bases + slotsAtividade, futuras);
       const slotsDeCartela = comCiclo.reduce(
         (acc, med) => acc + custoDaCartela(Math.min(janelaDeCartelaDias, diasComDoseNaJanela(med))),
         0,
       );
-      nagsPorLembrete = calcularNagsPorLembrete(bases, comRepeticao, futuras, slotsDeCartela);
+      nagsPorLembrete = calcularNagsPorLembrete(bases + slotsAtividade, comRepeticao, futuras, slotsDeCartela);
     }
 
     await Promise.all(meds.map(async (med, i) => {
@@ -1665,7 +1788,7 @@ export async function rescheduleAllActiveNotifications(): Promise<void> {
       await rescheduleRemindersForMedication(med, reminders, stockWarning, existing);
     }));
     await Promise.all(acts.map(async (act, i) => {
-      await rescheduleRemindersForActivity(act.id, act.name, actRs[i]);
+      await rescheduleRemindersForActivity(act.id, act.name, actRs[i], act.type);
     }));
     // O widget é alimentado AQUI e não por conta própria: este é o ponto em que o app acabou
     // de recalcular tudo (ciclo, pausa, próxima dose). O widget não roda JS e não tem como
@@ -1681,21 +1804,58 @@ export async function rescheduleAllActiveNotifications(): Promise<void> {
   }
 }
 
+/** Os identifiers que UM horário de atividade ocupa — um por dia marcado, no semanal. */
+function idsDoHorarioDeAtividade(activityId: number, r: ActivityReminder): string[] {
+  const [h, m] = r.time.split(':').map(Number);
+  const tp = timePart(h, m);
+  const p = r.period ?? 'day';
+  if (p.startsWith('week:')) {
+    return p.split(':')[1].split(',').filter(Boolean).map(wd => `activity_${activityId}_w${wd}_${tp}`);
+  }
+  return [`activity_${activityId}_${tp}`];
+}
+
 export async function rescheduleRemindersForActivity(
   activityId: number,
   activityName: string,
   reminders: ActivityReminder[],
+  // Sem o tipo, todo reagendamento (ou seja, toda abertura do app) rebaixava pressão/glicose
+  // à categoria básica: a notificação perdia o botão "📋 Medir" e virava "✓ Realizei", com o
+  // texto "Hora da sua atividade" no lugar de "Hora de medir".
+  activityType = 'custom',
 ): Promise<void> {
-  for (const r of reminders) {
-    if (!r.is_active) continue;
+  // Ordenado por hora: a rarefação espalha pelo dia e guarda as duas pontas, e "ponta" só
+  // quer dizer alguma coisa se a lista estiver em ordem cronológica.
+  const ativos = reminders
+    .filter(r => r.is_active && !isNaN(Number(r.time?.split(':')[0])))
+    .sort((a, b) => a.time.localeCompare(b.time));
+  const teto = horariosPorAtividade?.get(activityId);
+  const manter = teto == null ? ativos : rarefazerHorarios(ativos, teto);
+
+  for (const r of manter) {
     const [h, m] = r.time.split(':').map(Number);
-    if (isNaN(h)) continue;
     const p = r.period ?? 'day';
     if (p.startsWith('week:')) {
       const wds = p.split(':')[1].split(',').map(Number);
-      await scheduleActivityReminderWeekly(activityId, activityName, wds, h, m, r.with_sound ?? true).catch(() => {});
+      await scheduleActivityReminderWeekly(activityId, activityName, wds, h, m, r.with_sound ?? true, activityType).catch(() => {});
     } else {
-      await scheduleActivityReminder(activityId, activityName, h, m, r.with_sound ?? true).catch(() => {});
+      await scheduleActivityReminder(activityId, activityName, h, m, r.with_sound ?? true, activityType).catch(() => {});
+    }
+  }
+
+  // Cancelar o que não coube não é higiene, é o que faz o corte valer: o orçamento encolhe
+  // quando a pessoa cadastra mais remédio, e o horário agendado numa passada anterior segue
+  // PENDENTE ocupando o slot que acabamos de tentar liberar. É a mesma armadilha das
+  // cobranças 5 e 6 em scheduleRepeatSeries.
+  //
+  // Comparado por IDENTIFIER e não por linha do banco: o identifier vem do horário, então
+  // duas linhas com o mesmo horário (backup restaurado, edição parcial) apontam para a mesma
+  // notificação — e cancelar "a que não coube" apagaria a que acabamos de agendar.
+  const mantidos = new Set(manter.flatMap(r => idsDoHorarioDeAtividade(activityId, r)));
+  for (const r of ativos) {
+    for (const id of idsDoHorarioDeAtividade(activityId, r)) {
+      if (mantidos.has(id)) continue;
+      await Notifications.cancelScheduledNotificationAsync(id).catch(() => {});
     }
   }
 }

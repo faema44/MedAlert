@@ -44,11 +44,14 @@ const js = ts.transpileModule(prelude + src, {
 const mod = { exports: {} };
 new Function('module', 'exports', 'require', js)(mod, mod.exports, require);
 const { basesDoPeriodo, calcularNagsPorLembrete, custoDaCartela, diasDeCartelaQueCabem, horarioDaChecagem,
-        JANELA_CICLO_DIAS, BORDAS_CICLO, CURVA_COBRANCA, COBRANCAS_MAX, COBRANCAS_HISTORICO, instanteDaCobranca } = mod.exports;
+        JANELA_CICLO_DIAS, BORDAS_CICLO, CURVA_COBRANCA, COBRANCAS_MAX, COBRANCAS_HISTORICO, instanteDaCobranca,
+        ratearHorariosDeAtividade, rarefazerHorarios, slotsDeAtividade, livreParaAtividade } = mod.exports;
 
 for (const [nome, fn] of [['basesDoPeriodo', basesDoPeriodo], ['calcularNagsPorLembrete', calcularNagsPorLembrete],
                           ['custoDaCartela', custoDaCartela], ['diasDeCartelaQueCabem', diasDeCartelaQueCabem],
-                          ['instanteDaCobranca', instanteDaCobranca]]) {
+                          ['instanteDaCobranca', instanteDaCobranca], ['ratearHorariosDeAtividade', ratearHorariosDeAtividade],
+                          ['rarefazerHorarios', rarefazerHorarios], ['slotsDeAtividade', slotsDeAtividade],
+                          ['livreParaAtividade', livreParaAtividade]]) {
   if (typeof fn !== 'function') {
     console.log(`  ✗ FALHOU  notifications.ts não exporta ${nome} — o gate não testa nada.`);
     process.exit(1);
@@ -227,6 +230,94 @@ check('cartela some do rateio quando não existe',
 const nagsLotada = calcularNagsPorLembrete(30, 30, 0, CARTELA_7D);
 check('casa de 30 horários + cartela: cobrança cede a 0', nagsLotada, 0);
 check('…e as doses + cartela ainda cabem', 30 + 30 * nagsLotada + CARTELA_7D <= TETO, true);
+
+// ---------------------------------------------------------------------------
+// ATIVIDADE DE CADÊNCIA (água, alongamento) — o caso que estourava na prática
+//
+// "A cada 1 h das 08:00 às 20:00" gera 13 lembretes DAILY. Com dias da semana marcados são
+// 13 × 5 = 65 requests: UMA atividade passava do aparelho inteiro. E ela era contada como
+// dose (entrava em `bases`), então nunca cedia — cedia a cobrança, cedia a cartela, e depois
+// o iOS escolhia, guardando as MAIS PRÓXIMAS: água da manhã derrubando remédio da noite.
+// ---------------------------------------------------------------------------
+console.log('\n  RAREFAÇÃO — quais horários sobrevivem\n');
+const H13 = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
+const j = (a) => a.join(' ');
+check('cabendo tudo, não mexe', j(rarefazerHorarios(H13, 13)), j(H13));
+check('teto maior que o pedido não inventa horário', rarefazerHorarios(H13, 20).length, 13);
+check('13 → 4 espalha pelo dia', j(rarefazerHorarios(H13, 4)), '08:00 12:00 16:00 20:00');
+check('13 → 2 guarda as duas pontas', j(rarefazerHorarios(H13, 2)), '08:00 20:00');
+check('13 → 1 guarda o primeiro (âncora do dia)', j(rarefazerHorarios(H13, 1)), '08:00');
+check('teto 0 não agenda nada', rarefazerHorarios(H13, 0).length, 0);
+// Truncar a cauda ("as 4 primeiras") deixaria a tarde inteira muda — que é justamente
+// quando se esquece de beber água. Este é o teste que separa rarefar de cortar.
+check('NÃO é truncamento: o último horário sobrevive', rarefazerHorarios(H13, 4).includes('20:00'), true);
+check('espaçamento uniforme (nenhum salto duplo)', (() => {
+  const idx = rarefazerHorarios(H13.map((_, i) => i), 5);
+  const saltos = idx.slice(1).map((v, i) => v - idx[i]);
+  return Math.max(...saltos) - Math.min(...saltos) <= 1;
+})(), true);
+
+console.log('\n  RATEIO ENTRE ATIVIDADES — quem pede muito é quem cede\n');
+const agua    = { id: 1, horarios: 13, porHorario: 1, medicao: false };
+const aguaSem = { id: 1, horarios: 13, porHorario: 5, medicao: false };  // seg a sex
+const pressao = { id: 2, horarios: 2,  porHorario: 1, medicao: true  };
+const peso    = { id: 3, horarios: 1,  porHorario: 1, medicao: true  };
+const dado = (pedidos, livre) => ratearHorariosDeAtividade(pedidos, livre);
+check('sobrando espaço, todo mundo leva o que pediu',
+  j([...dado([agua, pressao], 40).values()]), j([13, 2]));
+check('no aperto quem pede 13 cede…', dado([agua, pressao], 6).get(1), 4);
+check('…e quem pede 2 continua com 2', dado([agua, pressao], 6).get(2), 2);
+// Rodízio, e não "medição até saciar": com 3 vagas para 3 atividades, cada uma leva 1 e
+// NENHUMA fica muda. Saciar a medição primeiro daria pressão 2 + peso 1 e água zero — a
+// atividade sumiria inteira do aparelho, que é pior que perder ocorrências dela.
+check('3 vagas para 3 atividades: ninguém fica mudo', j([...dado([agua, pressao, peso], 3).values()]), j([1, 1, 1]));
+// A prioridade da medição aparece na rodada em que o orçamento acaba no meio: as duas
+// medições levam a vaga, a cadência fica sem.
+check('acabando no meio da rodada, a medição leva a vaga', j([...dado([agua, pressao, peso], 2).values()]), j([0, 1, 1]));
+check('semanal custa por dia marcado (13×5 não cabe em 20)', dado([aguaSem], 20).get(1), 4);
+check('orçamento zero não agenda nada', dado([agua], 0).get(1), 0);
+check('orçamento negativo não vira crédito', dado([agua], -10).get(1), 0);
+// Um semanal caro pode não caber no que restou enquanto um diário barato ainda cabe: parar
+// na primeira recusa deixaria slot livre sobrando sem uso.
+check('slot que sobra vai para quem cabe', dado([aguaSem, pressao], 7).get(2), 2);
+
+console.log('\n  A TRAVA — atividade nenhuma pode derrubar dose\n');
+// O caso real que motivou tudo: água a cada 1 h, seg a sex, numa casa com remédios.
+const CASOS_ATIVIDADE = [
+  [],
+  [agua],
+  [aguaSem],
+  [agua, pressao, peso],
+  [aguaSem, { id: 4, horarios: 7, porHorario: 1, medicao: false }, pressao],
+];
+let piorAtiv = 0, estourouAtiv = null, rareou = false, medicaoCortada = null;
+for (let horarios = 1; horarios <= 40; horarios++) {
+  for (const consultas of [0, 3, 8]) {
+    for (const cartelas of [0, 1, 2]) {
+      for (const pedidos of CASOS_ATIVIDADE) {
+        const concedidos = ratearHorariosDeAtividade(pedidos, livreParaAtividade(horarios, consultas, cartelas));
+        const slotsAtiv = slotsDeAtividade(pedidos, concedidos);
+        const comprometido = horarios + slotsAtiv;
+        const dias = diasDeCartelaQueCabem(JANELA_CICLO_DIAS, cartelas, comprometido, consultas);
+        const slotsCartela = cartelas > 0 ? cartelas * custoDaCartela(dias) : 0;
+        const nags = calcularNagsPorLembrete(comprometido, horarios, consultas, slotsCartela);
+        const total = horarios + horarios * nags + consultas * 2 + slotsAtiv + slotsCartela;
+        if (total > piorAtiv) piorAtiv = total;
+        if (total > TETO && !estourouAtiv) estourouAtiv = { horarios, consultas, cartelas, slotsAtiv, total };
+        for (const p of pedidos) {
+          const c = concedidos.get(p.id);
+          if (c < p.horarios) rareou = true;
+          // Pressão e peso são poucos por natureza: se ELES estão sendo cortados numa casa
+          // que ainda tem folga, o rodízio está servindo a cadência antes da medição.
+          if (p.medicao && c < p.horarios && slotsAtiv > 20) medicaoCortada = { horarios, id: p.id, c };
+        }
+      }
+    }
+  }
+}
+check(`casa cheia × cadência de atividade cabe em 64 (pior: ${piorAtiv})`, estourouAtiv, null);
+check('e a rarefação REALMENTE morde em algum setup', rareou, true);
+check('medição não é cortada para financiar cadência', medicaoCortada, null);
 
 console.log('');
 if (falhas) {

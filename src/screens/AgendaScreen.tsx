@@ -14,7 +14,7 @@ import {
   getKV, setKV,
 } from '../database/db';
 import {
-  scheduleActivityReminder, scheduleActivityReminderWeekly, cancelAllRemindersForActivity,
+  cancelAllRemindersForActivity, rescheduleAllActiveNotifications, horariosConcedidos,
   scheduleAppointmentReminders, cancelAppointmentReminders, atualizarWidget, relatarFalhaSilenciosa,
 } from '../services/notifications';
 import { Activity, ActivityReminder, ActivityType, ACTIVITY_PRESETS, Appointment } from '../types';
@@ -394,22 +394,39 @@ export default function AgendaScreen() {
     const sortedWd = [...actWeekdays].sort((a, b) => a - b);
     const period = hasWeekdays ? `week:${sortedWd.join(',')}` : 'day';
 
+    let salvos = 0;
     for (const t of times) {
       const parsed = parseTime(t);
       if (!parsed) continue;
       await addActivityReminder({ activity_id: actId, time: t, is_active: true, with_sound: true, period });
-      if (hasWeekdays) {
-        await scheduleActivityReminderWeekly(actId, actForm.name.trim(), sortedWd, parsed.hour, parsed.minute, true, actForm.type).catch(() => {});
-      } else {
-        await scheduleActivityReminder(actId, actForm.name.trim(), parsed.hour, parsed.minute, true, actForm.type).catch(() => {});
-      }
+      salvos++;
+    }
+
+    // Agendar aqui, um horário por vez, furava o teto do iPhone: o rateio é do APARELHO
+    // inteiro — a atividade nova muda quanto cabe para todas as outras — então quem agenda é
+    // a passada completa. Ela também alimenta o widget (que não roda JS e só sabe o que ficou
+    // escrito), por isso o atualizarWidget avulso saiu daqui.
+    await rescheduleAllActiveNotifications().catch(e => relatarFalhaSilenciosa('reagendar após salvar atividade', e));
+
+    // No iPhone o corte precisa ser dito. Ela pediu 13 avisos e vai receber 4: sem esta
+    // linha, não existe nenhum lugar no app onde essa diferença apareça.
+    const coube = horariosConcedidos(actId);
+    if (coube != null && coube < salvos) {
+      const teto = 'A Apple deixa cada app manter 64 lembretes marcados ao mesmo tempo, somando todos os seus remédios e atividades. Esse número é do sistema — nenhum app consegue aumentá-lo.';
+      const intervalo = coube > 1 ? Math.round(((salvos - 1) * itv.hour) / (coube - 1)) : 0;
+      Alert.alert(
+        'Limite do iPhone',
+        coube === 0
+          // Sem nenhum aviso a atividade fica MUDA, e dizer só "cortamos" esconderia isso.
+          ? `${teto}\n\nSeu iPhone já está com esse limite ocupado, então "${actForm.name.trim()}" ficou sem nenhum aviso marcado. Ela continua na agenda e no histórico. Para abrir espaço, reduza os horários de alguma outra atividade.`
+          : `${teto}\n\nVocê pediu ${salvos} avisos para "${actForm.name.trim()}" e cabem ${coube}` +
+            (intervalo > 1 ? `, de ${intervalo} em ${intervalo} horas` : ', espalhados ao longo do dia') +
+            `. O primeiro e o último horário foram mantidos.`,
+      );
     }
 
     setShowActivityModal(false);
     loadActivities();
-    // O widget mostra atividades agora, e ele não roda JS: só sabe o que ficou escrito. Sem
-    // isto, a atividade recém-criada só apareceria na tela inicial no próximo start do app.
-    atualizarWidget().catch(e => relatarFalhaSilenciosa('widget após salvar atividade', e));
   }
 
   async function handleDeleteActivity(a: Activity) {
