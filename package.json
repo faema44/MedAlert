@@ -38,6 +38,9 @@
     "@types/react": "~19.2.2",
     "typescript": "~6.0.3"
   },
+  "overrides": {
+    "brace-expansion": "5.0.7"
+  },
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
