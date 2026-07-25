@@ -87,6 +87,13 @@ const TITLES: Record<string, string> = {
   CaregiverHistory: 'Histórico dos idosos',
 };
 
+// Abas com ícone na barra de baixo. Todo o RESTO (Tela de Bloqueio, Backup, Cuidador,
+// Tabelas, Lista de compras, Perfil, Contatos, Ajuda, Histórico dos idosos) também é aba,
+// mas escondida: só se chega lá por navigate, e navegador de abas não desenha voltar
+// nenhum. No Android sobrava o voltar do sistema; no iPhone, que não tem esse botão,
+// a pessoa ficava presa na tela.
+const ABAS_VISIVEIS = ['Home', 'Medications', 'Agenda', 'Settings', 'History'];
+
 const TAB_ICONS: Record<string, { icon: string; activeIcon: string }> = {
   Home:         { icon: '⌂',  activeIcon: '⌂' },
   Profile:      { icon: '◯',  activeIcon: '●' },
@@ -605,6 +612,16 @@ function AppNavigator() {
             headerStyle: { backgroundColor: '#1C3F7A' },
             headerTintColor: '#fff',
             headerTitle: () => <HeaderTitle route={route} />,
+            headerLeft: ABAS_VISIVEIS.includes(route.name) ? undefined : () => (
+              <TouchableOpacity
+                onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Home' as never))}
+                style={{ paddingHorizontal: 14, paddingVertical: 8 }}
+                accessibilityLabel="Voltar"
+                accessibilityRole="button"
+              >
+                <Text style={{ color: '#fff', fontSize: 30, lineHeight: 32, fontWeight: '300' }}>‹</Text>
+              </TouchableOpacity>
+            ),
             headerRight: (route.name !== 'Help') ? () => (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginRight: 12 }}>
                 {route.name === 'History' && (
