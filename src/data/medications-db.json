@@ -1,5 +1,5 @@
 {
-  "version": "2026-07-10-referencia",
+  "version": "2026-07-24-canabidiol",
   "source": "Curadoria manual + ANVISA (base expandida) + ANVISA/CMED referencia.csv (marcas) + ANVISA/CMED referencia.csv (marcas) + bulas.med.br (consenso multi-LLM Gemini-3.1-pro/DeepSeek-V4-Flash/GLM-4.6)",
   "medications": [
     {
@@ -5750,7 +5750,10 @@
     },
     {
       "genericName": "Canabidiol",
-      "brands": [],
+      "brands": [
+        "Cannabidiol",
+        "CBD"
+      ],
       "category": "Anticonvulsivante",
       "rxcui": "2045371"
     },
