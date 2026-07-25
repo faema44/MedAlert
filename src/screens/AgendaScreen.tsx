@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
-  Modal, TextInput, Alert, ScrollView, KeyboardAvoidingView,
+  Modal, TextInput, Alert, ScrollView, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import PickerDataHora from '../components/PickerDataHora';
 import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -162,15 +162,23 @@ function fmtHM(h: number, m: number) {
 /**
  * Quantos horários uma atividade aceita.
  *
- * Não é limite do iPhone — desse cuida o rateio em `notifications.ts`. É a forma da tela:
- * horários avulsos, escolhidos um a um, sem gerador de cadência. Atividade não tem intervalo
- * regular (caminhada é 07:00 e 18:00, fisioterapia é 09:00 e 15:30) e cessa à noite, então
- * qualquer gerador acerta por acaso ou marca hora de dormir.
+ * A FORMA é a mesma nas duas plataformas — horários avulsos, escolhidos um a um, sem gerador
+ * de cadência — porque o motivo não é da Apple: atividade não tem intervalo regular (caminhada
+ * é 07:00 e 18:00, fisioterapia é 09:00 e 15:30) e cessa à noite, então qualquer gerador acerta
+ * por acaso ou marca hora de dormir.
  *
- * 4 e não 3 por causa da glicose: quem usa insulina mede antes das três refeições e antes de
- * dormir. Cortar em 3 tiraria uma medição de quem mais precisa registrar.
+ * Só o NÚMERO muda, e é a única coisa aqui que depende de plataforma:
+ *
+ * - 4 no iPhone, porque lá cada horário é um slot dos 64 do sistema, disputado com as doses.
+ *   4 e não 3 por causa da glicose: quem usa insulina mede antes das três refeições e antes de
+ *   dormir, e cortar em 3 tiraria uma medição de quem mais precisa registrar.
+ * - 6 no Android, onde não existe teto nenhum. Segurar em 4 ali seria impor um limite da Apple
+ *   a quem não tem o problema da Apple.
+ *
+ * Isto NÃO é o rateio das 64 — desse cuida `notifications.ts`, e ele só roda no iOS. Aqui é só
+ * a forma da tela.
  */
-const MAX_HORARIOS_ATIVIDADE = 4;
+const MAX_HORARIOS_ATIVIDADE = Platform.OS === 'ios' ? 4 : 6;
 
 // ─── MAIN SCREEN ──────────────────────────────────────────────────────────────
 
