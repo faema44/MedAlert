@@ -612,14 +612,24 @@ function AppNavigator() {
             headerStyle: { backgroundColor: '#1C3F7A' },
             headerTintColor: '#fff',
             headerTitle: () => <HeaderTitle route={route} />,
+            // Mesmo desenho do "?" da direita — círculo branco contornado. A primeira
+            // tentativa foi um "‹" solto (U+2039): ele desenha com um terço da altura da
+            // fonte e, em peso 300, sumiu na borda da barra azul. O botão estava lá e
+            // ninguém via. Aqui a forma é que anuncia "isto se toca", não o glifo.
             headerLeft: ABAS_VISIVEIS.includes(route.name) ? undefined : () => (
               <TouchableOpacity
                 onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Home' as never))}
-                style={{ paddingHorizontal: 14, paddingVertical: 8 }}
+                style={{ paddingHorizontal: 12, paddingVertical: 8 }}
                 accessibilityLabel="Voltar"
                 accessibilityRole="button"
               >
-                <Text style={{ color: '#fff', fontSize: 30, lineHeight: 32, fontWeight: '300' }}>‹</Text>
+                <View style={{
+                  width: 30, height: 30, borderRadius: 15,
+                  borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.5)',
+                  alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Text style={{ color: '#fff', fontSize: 17, fontWeight: '700', lineHeight: 20 }}>←</Text>
+                </View>
               </TouchableOpacity>
             ),
             headerRight: (route.name !== 'Help') ? () => (
