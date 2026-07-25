@@ -748,6 +748,11 @@ export function diasComDoseNaJanela(med: ComCiclo, hoje = new Date()): number {
 //
 // E cede RAREANDO, não truncando: das 13 pedidas ficam 08:00, 12:00, 16:00 e 20:00. Cortar a
 // cauda deixaria a tarde inteira muda, que é justamente quando se esquece de beber água.
+//
+// A cadência saiu da tela depois disto (a atividade passou a ter no máximo 4 horários avulsos),
+// mas o rateio continua necessário por dois motivos: quem já tinha 13 horários gravados
+// continua com eles no banco, e o semanal ainda multiplica cada horário pelos dias marcados —
+// 5 atividades × 4 horários × 5 dias são 100 requests.
 
 /** O que uma atividade pede do orçamento. `porHorario` é 1 no diário e N no semanal. */
 export interface PedidoDeAtividade {

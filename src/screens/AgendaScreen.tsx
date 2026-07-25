@@ -159,18 +159,18 @@ function fmtHM(h: number, m: number) {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 }
 
-function generateRepeatTimes(fromH: number, fromM: number, toH: number, toM: number, itvH: number, itvM: number): string[] {
-  const step = itvH * 60 + itvM;
-  if (step <= 0) return [fmtHM(fromH, fromM)];
-  const times: string[] = [];
-  let cur = fromH * 60 + fromM;
-  const end = toH * 60 + toM;
-  while (cur <= end) {
-    times.push(fmtHM(Math.floor(cur / 60) % 24, cur % 60));
-    cur += step;
-  }
-  return times.length ? times : [fmtHM(fromH, fromM)];
-}
+/**
+ * Quantos horários uma atividade aceita.
+ *
+ * Não é limite do iPhone — desse cuida o rateio em `notifications.ts`. É a forma da tela:
+ * horários avulsos, escolhidos um a um, sem gerador de cadência. Atividade não tem intervalo
+ * regular (caminhada é 07:00 e 18:00, fisioterapia é 09:00 e 15:30) e cessa à noite, então
+ * qualquer gerador acerta por acaso ou marca hora de dormir.
+ *
+ * 4 e não 3 por causa da glicose: quem usa insulina mede antes das três refeições e antes de
+ * dormir. Cortar em 3 tiraria uma medição de quem mais precisa registrar.
+ */
+const MAX_HORARIOS_ATIVIDADE = 4;
 
 // ─── MAIN SCREEN ──────────────────────────────────────────────────────────────
 
@@ -236,12 +236,9 @@ export default function AgendaScreen() {
   const [actWeekdays, setActWeekdays] = useState<number[]>([]);
 
   // Activity time state
-  const [actTimeStr, setActTimeStr] = useState('08:00');
-  const [actRepeat, setActRepeat] = useState(false);
-  const [actItvInput, setActItvInput] = useState('1');
-  const [actToStr, setActToStr] = useState('20:00');
-  const [showActTimePicker, setShowActTimePicker] = useState(false);
-  const [showToTimePicker, setShowToTimePicker] = useState(false);
+  // Qual horário da lista está com o seletor aberto. Um índice e não um booleano por campo:
+  // no iOS o seletor é uma view INLINE, e dois abertos ao mesmo tempo empilhariam na tela.
+  const [actTimePickerIdx, setActTimePickerIdx] = useState<number | null>(null);
 
   // Appointment time
   const [apptH, setApptH] = useState(8);
@@ -294,27 +291,29 @@ export default function AgendaScreen() {
 
   // ─── ACTIVITY HANDLERS ──────────────────────────────────────────────────────
 
-  function initActWheelFromTimes(times: string[]) {
-    if (times.length === 0) {
-      setActRepeat(false); setActTimeStr('08:00'); return;
-    }
-    if (times.length === 1) {
-      setActRepeat(false); setActTimeStr(times[0]); return;
-    }
-    const sorted = [...times].sort();
-    const mins = sorted.map(t => { const [h, m] = t.split(':').map(Number); return (h || 0) * 60 + (m || 0); });
-    const interval = mins[1] - mins[0];
-    setActRepeat(true);
-    setActTimeStr(sorted[0]);
-    setActToStr(sorted[sorted.length - 1]);
-    setActItvInput(String(Math.max(1, Math.round(interval / 60)) || 1));
+  function alterarHorario(i: number, valor: string) {
+    setActForm(f => ({ ...f, times: f.times.map((t, k) => (k === i ? valor : t)) }));
+  }
+
+  function adicionarHorario() {
+    setActForm(f => {
+      if (f.times.length >= MAX_HORARIOS_ATIVIDADE) return f;
+      // Sugere 3 h depois do último em vez de 08:00: girar o seletor desde a manhã toda vez
+      // é o tipo de atrito que faz a pessoa desistir do segundo horário.
+      const ultimo = parseTime(f.times[f.times.length - 1]) ?? { hour: 8, minute: 0 };
+      return { ...f, times: [...f.times, fmtHM((ultimo.hour + 3) % 24, ultimo.minute)] };
+    });
+  }
+
+  function removerHorario(i: number) {
+    setActTimePickerIdx(null);
+    setActForm(f => (f.times.length <= 1 ? f : { ...f, times: f.times.filter((_, k) => k !== i) }));
   }
 
   function openNewActivity() {
     setEditingActivity(null);
     setActForm(EMPTY_ACTIVITY);
-    setActRepeat(false); setActTimeStr('08:00');
-    setActItvInput('1'); setActToStr('20:00');
+    setActTimePickerIdx(null);
     setActWeekdays([]);
     const now = new Date();
     setCycleStartDateBR(`${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`);
@@ -326,9 +325,12 @@ export default function AgendaScreen() {
   function openEditActivity(a: Activity) {
     setEditingActivity(a);
     const reminders = remindersMap[a.id] ?? [];
-    const times = reminders.map(r => r.time);
-    setActForm({ type: a.type, name: a.name, notes: a.notes, times: times.length ? times : [''] });
-    initActWheelFromTimes(times);
+    // Carrega TODOS os horários gravados, mesmo acima do teto: quem já tinha água de 1 em 1 h
+    // vê os 13 e apaga os que quiser. Cortar na abertura tiraria horário que ela não pediu
+    // para mexer — o teto vale para ADICIONAR.
+    const times = reminders.map(r => r.time).filter(Boolean).sort();
+    setActForm({ type: a.type, name: a.name, notes: a.notes, times: times.length ? times : ['08:00'] });
+    setActTimePickerIdx(null);
     const firstR = reminders[0];
     if (firstR?.period?.startsWith('week:')) {
       setActWeekdays(firstR.period.split(':')[1].split(',').map(Number));
@@ -373,12 +375,9 @@ export default function AgendaScreen() {
       return;
     }
 
-    const itv = { hour: Math.max(1, parseInt(actItvInput) || 1), minute: 0 };
-    const from = parseTime(actTimeStr) ?? { hour: 8, minute: 0 };
-    const to = parseTime(actToStr) ?? { hour: 20, minute: 0 };
-    const times = actRepeat
-      ? generateRepeatTimes(from.hour, from.minute, to.hour, to.minute, itv.hour, itv.minute)
-      : [actTimeStr || '08:00'];
+    // Ordenados e sem repetido: dois lembretes no mesmo horário virariam o mesmo identifier
+    // no agendamento (`activity_<id>_<HHMM>`), e um apagaria o outro em silêncio.
+    const times = Array.from(new Set(actForm.times.filter(t => parseTime(t)))).sort();
 
     let actId: number;
     if (editingActivity) {
@@ -408,20 +407,18 @@ export default function AgendaScreen() {
     // escrito), por isso o atualizarWidget avulso saiu daqui.
     await rescheduleAllActiveNotifications().catch(e => relatarFalhaSilenciosa('reagendar após salvar atividade', e));
 
-    // No iPhone o corte precisa ser dito. Ela pediu 13 avisos e vai receber 4: sem esta
-    // linha, não existe nenhum lugar no app onde essa diferença apareça.
+    // No iPhone o corte precisa ser dito: sem esta linha não existe nenhum lugar no app onde
+    // a diferença entre o que ela marcou e o que ficou agendado apareça. Com a lista de 4 isso
+    // ficou raro — sobra a casa lotada de remédio e quem ainda tem a cadência antiga gravada.
     const coube = horariosConcedidos(actId);
     if (coube != null && coube < salvos) {
       const teto = 'A Apple deixa cada app manter 64 lembretes marcados ao mesmo tempo, somando todos os seus remédios e atividades. Esse número é do sistema — nenhum app consegue aumentá-lo.';
-      const intervalo = coube > 1 ? Math.round(((salvos - 1) * itv.hour) / (coube - 1)) : 0;
       Alert.alert(
         'Limite do iPhone',
         coube === 0
           // Sem nenhum aviso a atividade fica MUDA, e dizer só "cortamos" esconderia isso.
           ? `${teto}\n\nSeu iPhone já está com esse limite ocupado, então "${actForm.name.trim()}" ficou sem nenhum aviso marcado. Ela continua na agenda e no histórico. Para abrir espaço, reduza os horários de alguma outra atividade.`
-          : `${teto}\n\nVocê pediu ${salvos} avisos para "${actForm.name.trim()}" e cabem ${coube}` +
-            (intervalo > 1 ? `, de ${intervalo} em ${intervalo} horas` : ', espalhados ao longo do dia') +
-            `. O primeiro e o último horário foram mantidos.`,
+          : `${teto}\n\nVocê marcou ${salvos} horários para "${actForm.name.trim()}" e cabem ${coube}, espalhados ao longo do dia. O primeiro e o último foram mantidos.`,
       );
     }
 
@@ -459,7 +456,6 @@ export default function AgendaScreen() {
   }
 
   function onTypeSelect(type: ActivityType) {
-    if (!['water', 'bp', 'glucose'].includes(type)) setActRepeat(false);
     setActForm(f => ({
       ...f,
       type,
@@ -1059,59 +1055,44 @@ export default function AgendaScreen() {
               ) : (
                 <>
                   <View style={styles.actTimeRow}>
-                    <Text style={styles.actTimeLabel}>Horário da Atividade</Text>
-                    <TouchableOpacity onPress={() => setShowActTimePicker(v => !v)}>
-                      <Text style={styles.actTimeDisplay}>{actTimeStr || '08:00'}</Text>
-                    </TouchableOpacity>
-                  </View>
-                  {showActTimePicker && (
-                    <PickerDataHora
-                      aoAparecer={revelarPicker(activityScrollRef)}
-                      valor={(() => { const d = new Date(); const p = parseTime(actTimeStr); d.setHours(p?.hour ?? 8, p?.minute ?? 0, 0, 0); return d; })()}
-                      onMudar={(d) => setActTimeStr(fmtHM(d.getHours(), d.getMinutes()))}
-                      onFechar={() => setShowActTimePicker(false)}
-                    />
-                  )}
-
-                  {['water', 'bp', 'glucose'].includes(actForm.type) && (
-                    <TouchableOpacity
-                      style={[styles.repeatToggleBtn, actRepeat && styles.repeatToggleBtnActive]}
-                      onPress={() => setActRepeat(v => !v)}
-                      activeOpacity={0.8}
-                    >
-                      <Text style={[styles.repeatToggleBtnText, actRepeat && styles.repeatToggleBtnTextActive]}>
-                        🔁  Repetir lembrete{actRepeat ? ' — Ativado' : ''}
-                      </Text>
-                      <Text style={[styles.repeatToggleBtnHint, actRepeat && { color: 'rgba(255,255,255,0.65)' }]}>
-                        {actRepeat ? 'Toque para desativar' : 'Repete o aviso em intervalos durante o dia'}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-
-                  {actRepeat && ['water', 'bp', 'glucose'].includes(actForm.type) && (
-                    <View style={styles.repeatInlineRow}>
-                      <Text style={styles.repeatInlineText}>Repete a cada </Text>
-                      <TextInput
-                        style={styles.repeatItvInput}
-                        value={actItvInput}
-                        onChangeText={v => setActItvInput(v.replace(/\D/g,''))}
-                        onEndEditing={() => { const n = Math.max(1, parseInt(actItvInput) || 1); setActItvInput(String(n)); }}
-                        keyboardType="numeric"
-                      />
-                      <Text style={styles.repeatInlineText}>h  das {actTimeStr}  às </Text>
-                      <TouchableOpacity onPress={() => setShowToTimePicker(v => !v)}>
-                        <Text style={styles.repeatTimeDisplay}>{actToStr || '20:00'}</Text>
+                    <Text style={styles.actTimeLabel}>
+                      {actForm.times.length > 1 ? 'Horários da Atividade' : 'Horário da Atividade'}
+                    </Text>
+                    {actForm.times.length < MAX_HORARIOS_ATIVIDADE && (
+                      <TouchableOpacity onPress={adicionarHorario} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                        <Text style={styles.addHorarioBtn}>+ Adicionar</Text>
                       </TouchableOpacity>
+                    )}
+                  </View>
+
+                  {actForm.times.map((t, i) => (
+                    <View key={i}>
+                      <View style={styles.horarioRow}>
+                        <TouchableOpacity
+                          style={styles.horarioToque}
+                          onPress={() => setActTimePickerIdx(idx => (idx === i ? null : i))}
+                        >
+                          <Text style={styles.actTimeDisplay}>{t || '08:00'}</Text>
+                        </TouchableOpacity>
+                        {actForm.times.length > 1 && (
+                          <TouchableOpacity
+                            onPress={() => removerHorario(i)}
+                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                          >
+                            <Text style={styles.horarioRemover}>✕</Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                      {actTimePickerIdx === i && (
+                        <PickerDataHora
+                          aoAparecer={revelarPicker(activityScrollRef)}
+                          valor={(() => { const d = new Date(); const p = parseTime(t); d.setHours(p?.hour ?? 8, p?.minute ?? 0, 0, 0); return d; })()}
+                          onMudar={(d) => alterarHorario(i, fmtHM(d.getHours(), d.getMinutes()))}
+                          onFechar={() => setActTimePickerIdx(null)}
+                        />
+                      )}
                     </View>
-                  )}
-                  {showToTimePicker && (
-                    <PickerDataHora
-                      aoAparecer={revelarPicker(activityScrollRef)}
-                      valor={(() => { const d = new Date(); const p = parseTime(actToStr); d.setHours(p?.hour ?? 20, p?.minute ?? 0, 0, 0); return d; })()}
-                      onMudar={(d) => setActToStr(fmtHM(d.getHours(), d.getMinutes()))}
-                      onFechar={() => setShowToTimePicker(false)}
-                    />
-                  )}
+                  ))}
 
                   <Text style={styles.fieldLabel}>
                     Dias da semana <Text style={styles.fieldLabelOpt}>(vazio = todos os dias)</Text>
@@ -1408,28 +1389,14 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   repeatToggleLabel: { fontSize: 13, color: '#555', flex: 1, marginRight: 10 },
-  repeatToggleBtn: {
-    borderWidth: 1.5, borderColor: '#D1D5DB', borderRadius: 10,
-    paddingVertical: 12, paddingHorizontal: 14, marginTop: 10,
-    backgroundColor: '#F9FAFB',
+  addHorarioBtn: { fontSize: 14, fontWeight: '700', color: '#E07B4F' },
+  horarioRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: '#F2F4F8', borderRadius: 10,
+    paddingVertical: 6, paddingHorizontal: 12, marginBottom: 6,
   },
-  repeatToggleBtnActive: { backgroundColor: '#1C3F7A', borderColor: '#1C3F7A' },
-  repeatToggleBtnText: { fontSize: 14, fontWeight: '700', color: '#374151' },
-  repeatToggleBtnTextActive: { color: '#fff' },
-  repeatToggleBtnHint: { fontSize: 12, color: '#9CA3AF', marginTop: 3 },
-  repeatInlineRow: {
-    flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',
-    backgroundColor: '#F2F4F8', borderRadius: 10, padding: 10, marginTop: 4, gap: 2,
-  },
-  repeatInlineText: { fontSize: 13, color: '#444' },
-  repeatItvInput: {
-    fontSize: 14, fontWeight: '700', color: '#1C3F7A',
-    textAlign: 'center', minWidth: 32, paddingVertical: 2,
-  },
-  repeatTimeDisplay: {
-    fontSize: 14, fontWeight: '700', color: '#1C3F7A',
-    textAlign: 'center', minWidth: 48, paddingVertical: 2,
-  },
+  horarioToque: { flex: 1 },
+  horarioRemover: { fontSize: 16, color: '#9CA3AF', paddingHorizontal: 4 },
 
   actWeekdayRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8, marginBottom: 4 },
   actWeekdayBtn: {
