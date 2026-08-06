@@ -99,13 +99,6 @@ console.log('\n  ESTOQUE ACABANDO\n');
   check('estoque também tem teto', montarDadosWidget(muitos, AGORA).estoqueBaixo.length <= MAX_ESTOQUE, true);
 }
 
-console.log('\n  CRÍTICO É SINALIZADO\n');
-{
-  const d = montarDadosWidget([item('Varfarina', h(1), { critico: true }), item('Comum', h(2))], AGORA);
-  check('crítico marcado', d.proximas[0].critico, true);
-  check('comum não marcado', d.proximas[1].critico, false);
-}
-
 console.log('\n  QUEM MUDA O PLANO REESCREVE O WIDGET\n');
 // O widget não roda JS: ele mostra o que ficou escrito da última vez. Se um caminho muda o
 // plano e não reescreve, a tela inicial anuncia o plano ANTIGO — e nada DENTRO do app

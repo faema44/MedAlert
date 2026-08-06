@@ -42,6 +42,14 @@ const BULAS = new Set(
 
 const slugDe = (nome, marca) => getBulaUrl(nome, marca).split('/').pop().replace(/\.pdf$/, '');
 
+// Sal com bula POR FORMA não tem arquivo no slug base: "Sulfato Ferroso" resolve para
+// sulfato-ferroso, e o acervo publica sulfato-ferroso-comprimido.pdf e -solucao-oral.pdf.
+// É o useBulaViewer que pergunta a forma antes de abrir (ver multiformaBulas.json). Procurar
+// só o arquivo do slug base reprova link que funciona.
+const MULTIFORMA = require(path.join(ROOT, 'src/data/multiformaBulas.json'));
+const temBula = slug =>
+  BULAS.has(slug) || (MULTIFORMA[slug] || []).some(forma => BULAS.has(`${slug}-${forma}`));
+
 // ── 1. todo nome da base tem que continuar achando a sua bula ────────────────
 const semBula = [];
 for (const e of DB) {
@@ -69,7 +77,7 @@ const CAIXA_AMBIGUA = {
 };
 const caixa = CAIXA.map(nome => {
   const slug = slugDe(nome);
-  return { nome, slug, base: nomeDaBaseParaBula(nome), ok: BULAS.has(slug) };
+  return { nome, slug, base: nomeDaBaseParaBula(nome), ok: temBula(slug) };
 });
 
 console.log(`${DB.length} medicamentos · ${BULAS.size} bulas publicadas\n`);
