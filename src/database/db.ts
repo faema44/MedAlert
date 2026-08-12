@@ -357,14 +357,19 @@ export async function saveProfile(data: Partial<Profile>): Promise<void> {
 }
 
 // Medications
-// Por padrão exclui suspensos (stand-by): Home, tela de bloqueio, ficha de
-// emergência e reagendamento ignoram o medicamento sem precisar filtrar.
-// Só a lista de medicamentos passa includeSuspended=true para exibi-los.
-export async function getMedications(includeSuspended = false): Promise<Medication[]> {
+// Por padrão exclui os PARADOS — suspensos (stand-by) e com o tratamento encerrado (prazo
+// vencido): Home, tela de bloqueio, ficha de emergência, widget e reagendamento ignoram os
+// dois sem precisar filtrar.
+// O encerrado era ARQUIVADO sozinho no start do app, e aí sumia de toda parte, inclusive da
+// lista de medicamentos, sem o usuário ter removido nada e sem como desfazer. Agora ele
+// continua existindo: some só de onde um tratamento terminado não deve mais aparecer, e a
+// lista de medicamentos o mostra marcado como "encerrado" — quem remove é o usuário, no ✕.
+export async function getMedications(includeSuspended = false, includeEncerrados = false): Promise<Medication[]> {
   const database = await getDb();
   const rows = await database.getAllAsync<Medication>(
     'SELECT * FROM medications WHERE (archived=0 OR archived IS NULL)' +
-    (includeSuspended ? '' : ' AND (suspended=0 OR suspended IS NULL)')
+    (includeSuspended ? '' : ' AND (suspended=0 OR suspended IS NULL)') +
+    (includeEncerrados ? '' : " AND (end_date IS NULL OR end_date >= date('now'))")
   );
   const meds = rows.map(r => ({
     ...r,
@@ -389,6 +394,15 @@ export async function getMedications(includeSuspended = false): Promise<Medicati
 export async function setMedicationSuspended(id: number, suspended: boolean): Promise<void> {
   const database = await getDb();
   await database.runAsync('UPDATE medications SET suspended=? WHERE id=?', [suspended ? 1 : 0, id]);
+}
+
+// O prazo que venceu enquanto o medicamento estava em stand-by é o que o fazia SUMIR ao
+// voltar: a varredura de tratamento encerrado (App.tsx) ignora suspensos, então o vencimento
+// fica esperando, e no primeiro start depois do Retomar o medicamento é arquivado em silêncio.
+// Retomar zera o prazo e nada mais — horários, estoque e ciclo continuam como estavam.
+export async function clearMedicationEndDate(id: number): Promise<void> {
+  const database = await getDb();
+  await database.runAsync('UPDATE medications SET end_date=NULL WHERE id=?', [id]);
 }
 
 export async function addMedication(med: Omit<Medication, 'id'>): Promise<number> {
@@ -832,14 +846,19 @@ export async function addMedicationLowStockLog(medicationId: number, medicationN
   );
 }
 
-// notification_id fixo (igual ao da notificação de "Tratamento encerrado") para o
-// INSERT OR IGNORE evitar duplicar o registro se o app reiniciar antes do medicamento ser arquivado.
-export async function addMedicationTreatmentEndedLog(medicationId: number, medicationName: string): Promise<void> {
+// O medicamento encerrado NÃO é mais arquivado — ele fica na lista até o usuário remover.
+// Então este registro é também a marca de "este tratamento já foi encerrado": sem ela, o start
+// seguinte reencontraria o mesmo medicamento vencido e repetiria o aviso todo dia.
+// O prazo entra no notification_id porque o INSERT OR IGNORE é a dedup: um prazo NOVO no mesmo
+// medicamento é um encerramento novo, e precisa poder avisar de novo.
+// Retorna true só na primeira vez — é o que autoriza cancelar os alarmes e notificar.
+export async function addMedicationTreatmentEndedLog(medicationId: number, medicationName: string, endDate: string): Promise<boolean> {
   const database = await getDb();
-  await database.runAsync(
+  const r = await database.runAsync(
     `INSERT OR IGNORE INTO medication_log (medication_id, medication_name, dose, notification_id, scheduled_at, status) VALUES (?, ?, '', ?, ?, 'treatment_ended')`,
-    [medicationId, medicationName, `treatment_ended_${medicationId}`, new Date().toISOString()]
+    [medicationId, medicationName, `treatment_ended_${medicationId}_${endDate}`, new Date().toISOString()]
   );
+  return r.changes > 0;
 }
 
 // Resposta dada pelo card da Home: se o disparo da notificação já criou uma linha "sem

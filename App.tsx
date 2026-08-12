@@ -57,7 +57,7 @@ import {
   snoozeActivityReminder, getLastResponse, notifyTreatmentEnded, notifyLowStock, cancelAllRemindersForMedication,
   resetEmergencySignature, updateEmergencyNotification,
 } from './src/services/notifications';
-import { getDb, getMedications, getMedicationById, updateMedicationStock, addActivityLog, getKV, setKV, addMedicationLog, addMedicationTreatmentEndedLog, upsertMedicationLogTaken, archiveMedication, getExpiredUnarchivedMedications, getRemindersForMedication, getMedicationLog, getProfile, reconcileMissedDoses, falhaDeBanco, getCaregiver, setCaregiver, setLogHook } from './src/database/db';
+import { getDb, getMedications, getMedicationById, updateMedicationStock, addActivityLog, getKV, setKV, addMedicationLog, addMedicationTreatmentEndedLog, upsertMedicationLogTaken, getExpiredUnarchivedMedications, getRemindersForMedication, getMedicationLog, getProfile, reconcileMissedDoses, falhaDeBanco, getCaregiver, setCaregiver, setLogHook } from './src/database/db';
 import * as Notifications from 'expo-notifications';
 import {
   parsePairingLink, ingestCaregiverPush, notifyCaregiver, syncCaregiverSchedule,
@@ -285,19 +285,32 @@ function AppNavigator() {
       if (!onboardingSeen || !aceiteOk) setShowOnboarding(true);
       setDbReady(true);
 
-      // Check for medications with expired treatment date
+      // Tratamentos cujo prazo venceu. Isto ARQUIVAVA o medicamento: ele sumia da lista sem
+      // o usuário ter removido nada, sem aviso na tela e sem nenhuma forma de desfazer
+      // (archived=1 não é lido em tela nenhuma). Quem parava um remédio em stand-by perdia
+      // ainda mais fácil, porque o prazo vencia durante a pausa e o arquivamento vinha no
+      // primeiro start depois do Retomar. Agora o tratamento só ENCERRA — alarmes cancelados,
+      // aviso e registro no histórico — e o card fica na lista marcado como "encerrado"
+      // (getMedications já o tira da Home, da tela de bloqueio, do widget e da ficha).
+      // Remover é decisão de quem usa, no ✕.
       try {
+        let encerrados = 0;
         const expired = await getExpiredUnarchivedMedications();
         for (const med of expired) {
-          await cancelAllRemindersForMedication(med.id).catch(() => {});
-          await archiveMedication(med.id).catch(() => {});
           const displayName = med.commercial_name?.trim() || med.generic_name;
-          await addMedicationTreatmentEndedLog(med.id, displayName).catch(() => {});
+          // O registro é a dedup: sem medicamento para arquivar, é ele que impede o mesmo
+          // tratamento de ser "encerrado" de novo (e avisar de novo) a cada abertura do app.
+          const primeiraVez = await addMedicationTreatmentEndedLog(med.id, displayName, med.end_date!)
+            .catch(() => false);
+          if (!primeiraVez) continue;
+          encerrados++;
+          await cancelAllRemindersForMedication(med.id).catch(() => {});
           await notifyTreatmentEnded(med.id, displayName).catch(() => {});
         }
         // Reflete o fim do(s) tratamento(s) no banner "Próximo medicamento" — sem isso ele
         // continua mostrando a dose do medicamento já encerrado até o usuário abrir uma tela.
-        if (expired.length) {
+        // Só quando algo encerrou AGORA: `expired` agora nunca esvazia (o medicamento fica).
+        if (encerrados) {
           const [profile, meds] = await Promise.all([getProfile().catch(() => null), getMedications().catch(() => [])]);
           await updateEmergencyNotification(profile, meds).catch(() => {});
         }
@@ -376,14 +389,21 @@ function AppNavigator() {
       if (med?.end_date) {
         const ended = new Date(med.end_date + 'T23:59:59') < new Date();
         if (ended) {
-          await cancelAllRemindersForMedication(data.medicationId).catch(() => {});
-          await archiveMedication(data.medicationId).catch(() => {});
+          // Mesmo encerramento do start do app (ver o laço em init): cancela os alarmes e
+          // avisa, mas NÃO arquiva — o medicamento fica na lista marcado como "encerrado".
+          // Este caminho é também a rede: o cancelamento fica FORA da dedup, então um alarme
+          // que tenha sobrevivido (app morto no meio do encerramento) morre no primeiro toque,
+          // sem repetir o aviso de tratamento encerrado.
           const displayName = med.commercial_name?.trim() || med.generic_name;
-          await addMedicationTreatmentEndedLog(data.medicationId, displayName).catch(() => {});
-          await notifyTreatmentEnded(data.medicationId, displayName).catch(() => {});
+          const primeiraVez = await addMedicationTreatmentEndedLog(data.medicationId, displayName, med.end_date)
+            .catch(() => false);
+          await cancelAllRemindersForMedication(data.medicationId).catch(() => {});
           dismissNotification(data.notificationId).catch(() => {});
-          const [profile, meds] = await Promise.all([getProfile().catch(() => null), getMedications().catch(() => [])]);
-          await updateEmergencyNotification(profile, meds).catch(() => {});
+          if (primeiraVez) {
+            await notifyTreatmentEnded(data.medicationId, displayName).catch(() => {});
+            const [profile, meds] = await Promise.all([getProfile().catch(() => null), getMedications().catch(() => [])]);
+            await updateEmergencyNotification(profile, meds).catch(() => {});
+          }
           return;
         }
       }
@@ -453,9 +473,7 @@ function AppNavigator() {
       onActivityDefault: (payload) => {
         setActivityAlert(payload);
       },
-      onTreatmentEndedOk: async (medicationId) => {
-        await archiveMedication(medicationId).catch(() => {});
-      },
+      onTreatmentEndedTap: (medicationId) => navegarQuandoPuder('Medications', { openMedId: medicationId }),
       onMedicalIdTap: () => navegarQuandoPuder('LockScreen'),
     });
 

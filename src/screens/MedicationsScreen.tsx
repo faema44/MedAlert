@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   getMedications, addMedication, updateMedication, archiveMedication,
   getRemindersForMedication, addReminder, deleteReminder, updateAllRemindersSound, updateMedicationStock,
-  setMedicationSuspended,
+  setMedicationSuspended, clearMedicationEndDate,
 } from '../database/db';
 import {
   scheduleReminderWeekly, scheduleReminderMonthly, scheduleReminderEveryNMonths,
@@ -302,7 +302,7 @@ export default function MedicationsScreen() {
     setLoading(true);
     let meds: Medication[] = [];
     try {
-      meds = await getMedications(true);
+      meds = await getMedications(true, true);
       setMedications(meds);
     } catch {}
     setLoading(false);
@@ -391,7 +391,7 @@ export default function MedicationsScreen() {
         text: 'Remover', style: 'destructive', onPress: async () => {
           await cancelAllRemindersForMedication(id).catch(() => {});
           await archiveMedication(id);
-          const updated = await getMedications(true);
+          const updated = await getMedications(true, true);
           setMedications(updated);
           await syncNotification(updated);
         },
@@ -416,7 +416,7 @@ export default function MedicationsScreen() {
             await cancelAllRemindersForMedication(id).catch(() => {});
             setShowModal(false);
             setEditingId(null);
-            const updated = await getMedications(true);
+            const updated = await getMedications(true, true);
             setMedications(updated);
             loadExtras(updated);
             await syncNotification(updated);
@@ -427,13 +427,46 @@ export default function MedicationsScreen() {
   }
 
   async function handleResume(item: Medication) {
+    // O prazo do tratamento vence enquanto o medicamento está parado — e ninguém vê, porque o
+    // card de stand-by só mostra o nome. Retomar sem zerá-lo devolvia o medicamento já vencido:
+    // no primeiro start seguinte a varredura de App.tsx o arquivava, calada, e ele sumia da
+    // lista sem que o usuário tivesse removido nada. O resto volta intacto — os lembretes nunca
+    // foram apagados, e o estoque não é tocado aqui.
+    const prazoVencido = !!item.end_date && daysRemaining(item.end_date) <= 0;
+    if (prazoVencido) {
+      await clearMedicationEndDate(item.id)
+        .catch(err => relatarFalhaSilenciosa(`limpar prazo vencido ao retomar ${item.id}`, err));
+    }
     await setMedicationSuspended(item.id, false).catch(() => {});
+    const retomado = { ...item, suspended: 0, end_date: prazoVencido ? null : item.end_date };
     const rs = await getRemindersForMedication(item.id).catch(() => [] as MedicationReminder[]);
-    await rescheduleRemindersForMedication({ ...item, suspended: 0 }, rs).catch(() => {});
-    const updated = await getMedications(true);
+    await rescheduleRemindersForMedication(retomado, rs).catch(() => {});
+    const updated = await getMedications(true, true);
     setMedications(updated);
     loadExtras(updated);
     await syncNotification(updated);
+
+    if (!prazoVencido) return;
+    // Cartela com preset não tem prazo no formulário (mostraDeadline): oferecer o passo levaria
+    // a uma tela que o resumo nem lista.
+    const podeDefinirPrazo = !(item.cycle_kind && item.cycle_kind !== 'custom');
+    const nome = item.commercial_name?.trim() || item.generic_name;
+    Alert.alert(
+      'Medicamento retomado',
+      `"${nome}" voltou com os horários e o estoque de antes. O prazo anterior terminou em ${formatEndDate(item.end_date!)}, durante a pausa: ele está sem prazo até você definir um novo.`,
+      podeDefinirPrazo
+        ? [
+            { text: 'Depois', style: 'cancel' },
+            {
+              text: 'Definir prazo',
+              onPress: () => {
+                const atual = updated.find(m => m.id === item.id);
+                if (atual) openEdit(atual, 'deadline');
+              },
+            },
+          ]
+        : [{ text: 'OK' }]
+    );
   }
 
   async function refreshReminderTimes(medId: number) {
@@ -673,7 +706,7 @@ export default function MedicationsScreen() {
       // existirem no banco — scheduleCartela lê os horários de lá.
       if (temCiclo && !isSuspendedMed) {
         const rs = await getRemindersForMedication(savedMedId).catch(() => [] as MedicationReminder[]);
-        const salvo = (await getMedications(true)).find(mm => mm.id === savedMedId);
+        const salvo = (await getMedications(true, true)).find(mm => mm.id === savedMedId);
         if (salvo) {
           await rescheduleRemindersForMedication(salvo, rs)
             .catch(err => relatarFalhaSilenciosa(`agendar cartela ${savedMedId}`, err));
@@ -681,7 +714,7 @@ export default function MedicationsScreen() {
       }
 
       const isNew = editingId === null;
-      const updated = await getMedications(true);
+      const updated = await getMedications(true, true);
       setMedications(updated);
       setShowModal(false);
 
@@ -734,7 +767,7 @@ export default function MedicationsScreen() {
     setShowModal(true);
   }
 
-  function openEdit(item: Medication) {
+  function openEdit(item: Medication, step: WizardStep = 'summary') {
     setForm({
       generic_name: item.generic_name,
       commercial_name: item.commercial_name,
@@ -776,7 +809,7 @@ export default function MedicationsScreen() {
       setCycleKind('pill'); setCycleOn('21'); setCycleOff('7'); setCycleDiaAtual('1');
     }
     setEditSnapshot(null);
-    setWizardStep('summary');
+    setWizardStep(step);
     setShowModal(true);
     getRemindersForMedication(item.id).then(rs => {
       setReminders(rs);

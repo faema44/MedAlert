@@ -1907,7 +1907,7 @@ export interface NotificationResponseHandlers {
   onActivitySkip:      (activityId: number, activityName: string, activityType: string, notifId: string) => void;
   onActivityMeasure:   (activityId: number, notifId: string) => void;
   onActivityDefault:   (payload: ActivityAlertPayload) => void;
-  onTreatmentEndedOk:  (medicationId: number) => void;
+  onTreatmentEndedTap: (medicationId: number) => void;
   onMedicalIdTap:      () => void;
 }
 
@@ -1957,10 +1957,11 @@ export function initResponseListeners(handlers: NotificationResponseHandlers): (
       }
     }
 
-    if (data?.type === 'treatment_ended') {
-      if (actionIdentifier === 'END_OK' || actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) {
-        handlers.onTreatmentEndedOk(data.medicationId as number);
-      }
+    // Tocar no aviso ARQUIVAVA o medicamento — ler a notificação já executava a remoção, e o
+    // botão dizia só "OK". Agora o toque abre o medicamento para a pessoa decidir (renovar o
+    // prazo ou remover); o "OK" continua sendo só um OK.
+    if (data?.type === 'treatment_ended' && actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) {
+      handlers.onTreatmentEndedTap(data.medicationId as number);
     }
 
     // Aviso de estoque baixo é sticky — só o OK (ou toque) remove
