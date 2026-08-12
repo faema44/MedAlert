@@ -9,7 +9,7 @@ import { isPhytotherapic } from '../utils/drugSearch';
 import { cicloDoMedicamento, cycleState, diaTemDose, diasDeEstoque, ComCiclo } from '../utils/medCycle';
 import { CAREGIVER_CHANNEL } from './caregiver';
 
-const CHANNEL_ID = 'medalert_emergency_v5';
+const CHANNEL_ID = 'medalert_emergency_v6';
 const NOTIF_ID = 'emergency';
 const EMERGENCY_SIGNATURE_KV = 'emergency_notif_signature';
 const KV_ALERT_ACTIVE = 'alert_active';
@@ -95,6 +95,10 @@ export async function setupNotificationChannels(): Promise<void> {
   if (Platform.OS !== 'android') return;
 
   // Clean up channels from previous installs (v1 med/activity channels get PUBLIC replacements)
+  // O v5 fica de PROPÓSITO fora desta lista por um release: o BootReceiver e o keepalive
+  // repostam a ficha lendo o canal gravado em SharedPrefs, que só vira v6 quando o app é
+  // aberto uma vez. Apagar o v5 agora faria a ficha ser postada num canal inexistente —
+  // ou seja, sumir em silêncio — em quem atualizou e reiniciou o celular sem abrir o app.
   for (const old of [
     'medalert_emergency', 'medalert_emergency_v2', 'medalert_emergency_v3', 'medalert_emergency_v4', 'medalert_lockscreen', 'medalert_detail',
     'medalert_med_sound_v1', 'medalert_activity_sound_v1',
@@ -102,14 +106,16 @@ export async function setupNotificationChannels(): Promise<void> {
     await Notifications.deleteNotificationChannelAsync(old).catch(() => {});
   }
 
-  // MAX: com DEFAULT (v4) o Samsung rebaixava o card ongoing para a fileira de
-  // ícones da tela de bloqueio quando havia outras notificações. O banner heads-up
-  // repetido é evitado por setOnlyAlertOnce(true) no módulo nativo + atualização
-  // in-place (mesmo NOTIF_ID, sem cancelar antes) — só alerta quando a notificação
-  // não está na tela (primeira ativação, pós-boot).
+  // DEFAULT (v6) — a aposta do v5 não se sustentou. O v5 subiu para MAX para o Samsung
+  // não rebaixar o card na tela de bloqueio, confiando em setOnlyAlertOnce(true) para
+  // não repetir o banner. Só que onlyAlertOnce só cala ATUALIZAÇÃO de uma notificação que
+  // ainda está na bandeja; quando o One UI a remove, isEmergencyActive() manda repostar e
+  // aquilo é uma notificação NOVA — heads-up a cada ação no app. No Android não existe
+  // notificação de importância alta sem pop-up: a única garantia é o canal ser DEFAULT.
+  // Canal existente não muda de importância por código — por isso o id novo.
   await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
     name: 'Alerta de Emergência Médica',
-    importance: Notifications.AndroidImportance.MAX,
+    importance: Notifications.AndroidImportance.DEFAULT,
     lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
     bypassDnd: true,
     sound: null,
