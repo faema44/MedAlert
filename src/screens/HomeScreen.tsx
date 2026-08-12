@@ -132,6 +132,14 @@ type CicloNaTela = {
 // "retire o adesivo/anel" só existe para quem tem algo aplicado; a pílula só para de tomar.
 const RETIRAR: Record<string, string> = { patch: 'Retire o adesivo', ring: 'Retire o anel' };
 
+// O card dizia "cartela nova" para todo mundo — inclusive para o anel e para o corticoide
+// cíclico, que não têm cartela alguma. Mesma redação da notificação de véspera.
+const REINICIO: Record<string, string> = {
+  patch: 'Amanhã começa o adesivo novo',
+  ring: 'Amanhã começa o anel novo',
+  custom: 'Amanhã recomeça o tratamento',
+};
+
 // Próxima dose REAL de quem tem pausa. Sem isto, "próximos lembretes" anunciava a dose de
 // amanhã para um medicamento que amanhã ainda está em pausa — contradizendo, na mesma tela,
 // o card que dizia "faltam 4 dias". Anda dia a dia até achar um que tenha dose; o teto de
@@ -773,7 +781,7 @@ export default function HomeScreen() {
             <Text style={styles.cicloNome}>{c.nome}</Text>
             <Text style={[styles.cicloTexto, c.vespera && styles.cicloTextoVespera]}>
               {c.vespera
-                ? 'Amanhã começa a cartela nova'
+                ? (REINICIO[c.kind] ?? 'Amanhã começa a cartela nova')
                 : c.ativo
                   ? `Dia ${c.diaDoBloco} de ${c.totalDoBloco}${
                       c.ultimoAtivo

@@ -1315,7 +1315,11 @@ async function scheduleCartela(
   const idRei = `cartelarei_${med.id}_${ymd(vespera)}`;
   const cRei = {
     title: nome,
-    body: ciclo.kind === 'ring' ? 'Amanhã começa o anel novo' : ciclo.kind === 'patch' ? 'Amanhã começa o adesivo novo' : 'Amanhã começa a cartela nova',
+    // 'custom' é corticoide cíclico, quimio, reposição hormonal — não tem cartela para começar.
+    body: ciclo.kind === 'ring' ? 'Amanhã começa o anel novo'
+      : ciclo.kind === 'patch' ? 'Amanhã começa o adesivo novo'
+      : ciclo.kind === 'custom' ? 'Amanhã recomeça o tratamento'
+      : 'Amanhã começa a cartela nova',
     data: { type: 'reminder', medicationId: med.id, name: nome, dose: '', repeatInterval: 0 },
     sticky: true, categoryIdentifier: MED_ACTION_CATEGORY, ...soundFor(canal0),
   };

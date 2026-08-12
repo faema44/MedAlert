@@ -73,8 +73,20 @@ const CYCLE_PRESETS = [
   { kind: 'pill'   as const, icon: '💊', label: 'Cartela / pílula', hint: 'Todo dia · 21 tomando + 7 de pausa', on: 21, off: 7, period: 'day'  as ReminderPeriod },
   { kind: 'patch'  as const, icon: '🩹', label: 'Adesivo',          hint: '1 por semana · 3 semanas + 1 de pausa', on: 21, off: 7, period: 'week' as ReminderPeriod },
   { kind: 'ring'   as const, icon: '⭕', label: 'Anel',             hint: 'Coloca e retira · 21 dias + 7 de pausa', on: 21, off: 7, period: 'day'  as ReminderPeriod },
-  { kind: 'custom' as const, icon: '⚙️', label: 'Outro tratamento com pausa', hint: 'Você escolhe os dias', on: 21, off: 7, period: 'day' as ReminderPeriod },
+  // "Outro" nasce EM BRANCO: 21/7 é a cartela, e vir preenchido assim fazia o corticoide
+  // cíclico ser tratado como anticoncepcional — contra o que o próprio hint promete.
+  { kind: 'custom' as const, icon: '⚙️', label: 'Outro tratamento com pausa', hint: 'Você escolhe os dias', on: 0, off: 0, period: 'day' as ReminderPeriod },
 ];
+
+// A MESMA resposta ("hoje é o dia N do ciclo") dita com as palavras de cada tratamento:
+// quem toma corticoide cíclico não tem cartela nenhuma para contar, e perguntar por ela
+// deixa a pessoa sem saber o que responder.
+const PERGUNTA_DIA_ATUAL: Record<'pill' | 'patch' | 'ring' | 'custom', string> = {
+  pill:   'Que dia da cartela você está HOJE?',
+  patch:  'Que dia do ciclo você está HOJE?',
+  ring:   'Há quantos dias está com o anel?',
+  custom: 'Que dia do ciclo você está HOJE?',
+};
 
 const WEEKDAYS = [
   { label: 'Dom', value: 1 }, { label: 'Seg', value: 2 }, { label: 'Ter', value: 3 },
@@ -565,13 +577,17 @@ export default function MedicationsScreen() {
     setReminderHasSound(prev => new Map(prev).set(item.id, newSound));
   }
 
-  function cicloValidoDoForm(): boolean {
+  function erroDoCicloDoForm(): string | null {
     return validarCiclo({
       kind: cycleKind,
       daysOn: parseInt(cycleOn, 10),
       daysOff: parseInt(cycleOff, 10),
       anchor: ancoraPorDiaAtual(1),
-    }) === null;
+    });
+  }
+
+  function cicloValidoDoForm(): boolean {
+    return erroDoCicloDoForm() === null;
   }
 
   async function doSaveWizard() {
@@ -844,10 +860,18 @@ export default function MedicationsScreen() {
 
   // Edição via resumo: cada passo confirma e volta ao resumo, exceto o sub-fluxo
   // de frequência (period → dias/vezes → horário), que precisa encadear.
-  function editNextStep(cur: WizardStep, p: ReminderPeriod): WizardStep {
+  function editNextStep(cur: WizardStep, p: ReminderPeriod, pausa = comPausa): WizardStep {
+    const porPeriodo: WizardStep = p === 'day' ? 'times_per_day' : p === 'week' ? 'weekdays' : p === 'month' ? 'month_days' : 'n_months';
     switch (cur) {
       case 'period':
-        return p === 'day' ? 'times_per_day' : p === 'week' ? 'weekdays' : p === 'month' ? 'month_days' : 'n_months';
+        // Na EDIÇÃO o "Com pausa" pulava direto para os horários: os dois passos do ciclo
+        // nunca apareciam e o salvar gravava 21/7 começando hoje — uma cartela que ninguém
+        // configurou, em silêncio. Aqui a edição segue o mesmo caminho do cadastro novo.
+        return pausa ? 'cycle_preset' : porPeriodo;
+      case 'cycle_preset':
+        return 'cycle_setup';
+      case 'cycle_setup':
+        return porPeriodo;
       case 'times_per_day':
         return mealMode ? 'summary' : 'time';
       case 'weekdays':
@@ -888,6 +912,16 @@ export default function MedicationsScreen() {
       setTimesPerDay(times.length);
       setTimesPerDayTouched(true);
     }
+    // Ciclo inválido não travava nada, e o salvar cai no ramo dos NULLs (ver doSaveWizard):
+    // o remédio virava um diário comum, sem pausa nenhuma e sem ninguém avisar. Com "Outro"
+    // abrindo em branco, passar batido aqui deixou de ser hipótese.
+    if (wizardStep === 'cycle_setup') {
+      const erroCiclo = erroDoCicloDoForm();
+      if (erroCiclo) {
+        Alert.alert('Ciclo incompleto', erroCiclo);
+        return;
+      }
+    }
     if (wizardStep === 'weekdays' && selectedWeekdays.length === 0) {
       Alert.alert('Selecione', 'Selecione ao menos um dia da semana.');
       return;
@@ -914,7 +948,7 @@ export default function MedicationsScreen() {
     }
 
     if (!isNew) {
-      setWizardStep(editNextStep(wizardStep, p));
+      setWizardStep(editNextStep(wizardStep, p, overrideComPausa ?? comPausa));
       return;
     }
 
@@ -1246,7 +1280,11 @@ export default function MedicationsScreen() {
                   <TouchableOpacity
                     key={p}
                     style={[styles.periodCardBtn, isActive && styles.periodCardBtnActive]}
-                    onPress={() => { lockOnlyRef.current = false; homeReminderRef.current = true; setHomeReminderEnabled(true); setReminderPeriod(p); wizGoNext(p); }}
+                    // Voltar do "Com pausa" e escolher outra frequência não desligava o ciclo:
+                    // `comPausa` continuava true, a sequência recolocava os dois passos do
+                    // ciclo e a pessoa caía de volta no mesmo lugar, sem saída. Desliga aqui —
+                    // e passa `false` à mão, porque o setState não vale no mesmo toque.
+                    onPress={() => { lockOnlyRef.current = false; homeReminderRef.current = true; setHomeReminderEnabled(true); setComPausa(false); setReminderPeriod(p); wizGoNext(p, false); }}
                   >
                     <Text style={styles.periodCardIcon}>{icon}</Text>
                     <Text style={[styles.periodCardText, isActive && styles.periodCardTextActive]}>{label}</Text>
@@ -1313,8 +1351,8 @@ export default function MedicationsScreen() {
                 style={[styles.presetBtn, cycleKind === p.kind && styles.presetBtnActive]}
                 onPress={() => {
                   setCycleKind(p.kind);
-                  setCycleOn(String(p.on));
-                  setCycleOff(String(p.off));
+                  setCycleOn(p.on ? String(p.on) : '');
+                  setCycleOff(p.off ? String(p.off) : '');
                   setReminderPeriod(p.period);
                   // O anel é 1 colocação por ciclo: 1 horário basta, e "vezes por dia" perde
                   // o sentido. O adesivo cai em 'week' e a pessoa escolhe o dia da semana.
@@ -1339,6 +1377,9 @@ export default function MedicationsScreen() {
         const diaAtual = Math.min(Math.max(parseInt(cycleDiaAtual, 10) || 1, 1), Math.max(1, on + off));
         const ancora = ancoraPorDiaAtual(diaAtual);
         const valido = on >= 1 && off >= 1;
+        // "Outro" abre em branco: o erro só aparece depois que a pessoa escreveu algo, senão
+        // ela é recebida por uma mensagem vermelha antes de digitar a primeira tecla.
+        const cicloEmBranco = !cycleOn.trim() && !cycleOff.trim();
         // Prévia com DATAS REAIS: é a única forma de a pessoa conferir o que configurou contra
         // a cartela que tem na mão. Sem isto, um erro de 1 dia só aparece semanas depois.
         const prev = valido ? (() => {
@@ -1350,7 +1391,10 @@ export default function MedicationsScreen() {
         })() : null;
         return (
           <>
-            <Text style={styles.wizLabel}>Confira o ciclo</Text>
+            {/* "Confira" pressupõe números prontos, e em "Outro" não há nenhum para conferir. */}
+            <Text style={styles.wizLabel}>
+              {cycleKind === 'custom' ? 'Quantos dias tomando e quantos de pausa?' : 'Confira o ciclo'}
+            </Text>
             <View style={styles.cycleRow}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.fieldLabel}>Dias tomando</Text>
@@ -1363,9 +1407,10 @@ export default function MedicationsScreen() {
             </View>
 
             {/* Perguntar "em que dia você está" em vez de pedir a data de início: quem tem a
-                cartela na mão sabe o comprimido, mas erra o calendário. */}
+                cartela na mão sabe o comprimido, mas erra o calendário. A pergunta muda com o
+                tratamento — ver PERGUNTA_DIA_ATUAL. */}
             <Text style={[styles.fieldLabel, { marginTop: 18 }]}>
-              {cycleKind === 'ring' ? 'Há quantos dias está com o anel?' : 'Que dia da cartela você está HOJE?'}
+              {PERGUNTA_DIA_ATUAL[cycleKind]}
             </Text>
             <TextInput style={styles.fieldInput} value={cycleDiaAtual} onChangeText={setCycleDiaAtual} keyboardType="number-pad" maxLength={3} />
             <Text style={styles.wizHint}>
@@ -1373,7 +1418,7 @@ export default function MedicationsScreen() {
             </Text>
 
             {prev && <View style={styles.cyclePreview}><Text style={styles.cyclePreviewText}>{prev}</Text></View>}
-            {!valido && <Text style={styles.cycleErro}>Tomando e pausa precisam de pelo menos 1 dia cada.</Text>}
+            {!valido && !cicloEmBranco && <Text style={styles.cycleErro}>Tomando e pausa precisam de pelo menos 1 dia cada.</Text>}
           </>
         );
       }
