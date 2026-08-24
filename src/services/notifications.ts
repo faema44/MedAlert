@@ -1302,12 +1302,15 @@ async function scheduleCartela(
     const idRet = `cartelaret_${med.id}_${ymd(inicioPausa)}`;
     const corpo = ciclo.kind === 'ring' ? 'Hoje é dia de retirar o anel' : 'Hoje é dia de retirar o adesivo';
     const cRet = { title: nome, body: corpo, data: { type: 'reminder', medicationId: med.id, name: nome, dose: '', repeatInterval: 0 }, sticky: true, categoryIdentifier: MED_ACTION_CATEGORY, ...soundFor(canal0) };
-    if (!sameScheduled(existing?.get(idRet), cRet, canal0)) {
+    // data+hora completa, não só o dia: se a retirada é hoje mas h0:m0 já passou, o iOS rejeita
+    // o trigger (NSInternalInconsistencyException em UNNotificationTrigger.m).
+    const dataRet = new Date(inicioPausa.getFullYear(), inicioPausa.getMonth(), inicioPausa.getDate(), h0, m0, 0, 0);
+    if (dataRet > hoje && !sameScheduled(existing?.get(idRet), cRet, canal0)) {
       await agendar({
         identifier: idRet, content: cRet,
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DATE,
-            date: new Date(inicioPausa.getFullYear(), inicioPausa.getMonth(), inicioPausa.getDate(), h0, m0, 0, 0),
+            date: dataRet,
             channelId: canal0,
         } as any,
       });
@@ -1329,13 +1332,14 @@ async function scheduleCartela(
     data: { type: 'reminder', medicationId: med.id, name: nome, dose: '', repeatInterval: 0 },
     sticky: true, categoryIdentifier: MED_ACTION_CATEGORY, ...soundFor(canal0),
   };
-  if (vespera.getTime() >= new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()).getTime()
-      && !sameScheduled(existing?.get(idRei), cRei, canal0)) {
+  // data+hora completa, não só o dia: mesmo risco da retirada acima.
+  const dataRei = new Date(vespera.getFullYear(), vespera.getMonth(), vespera.getDate(), h0, m0, 0, 0);
+  if (dataRei > hoje && !sameScheduled(existing?.get(idRei), cRei, canal0)) {
     await agendar({
       identifier: idRei, content: cRei,
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DATE,
-            date: new Date(vespera.getFullYear(), vespera.getMonth(), vespera.getDate(), h0, m0, 0, 0),
+            date: dataRei,
             channelId: canal0,
       } as any,
     });
