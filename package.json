@@ -42,9 +42,18 @@
     "brace-expansion": "5.0.9",
     "nanoid": "3.3.18",
     "postcss": "8.5.23",
-    "js-yaml": "4.3.1",
+    "js-yaml": "4.3.2",
     "undici": "6.28.0",
-    "shell-quote": "1.9.0"
+    "shell-quote": "1.9.0",
+    "browserslist": "4.28.7",
+    "baseline-browser-mapping": "2.11.18",
+    "decode-uri-component": "0.5.0",
+    "@expo/plist": {
+      "@xmldom/xmldom": "0.8.15"
+    },
+    "plist": {
+      "@xmldom/xmldom": "0.9.12"
+    }
   },
   "scripts": {
     "start": "expo start",
