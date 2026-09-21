@@ -47,10 +47,13 @@ export default function CaregiverScreen() {
       // lugar, um pareamento que falha vira "tente de novo" para sempre, e ninguém descobre
       // por quê. Vai para o logcat e para o Sentry, que já está ligado.
       console.warn('[cuidador] falha ao gerar convite:', e?.code, e?.message, e);
-      Sentry.captureException(e);
+      const semPermissao = e?.message === 'SEM_PERMISSAO_NOTIFICACAO';
+      // Recusar a permissão é decisão da pessoa, não falha do app: já tem a mensagem na tela
+      // e reportar só enche o Sentry (issue 7742122294).
+      if (!semPermissao) Sentry.captureException(e);
       Alert.alert(
         'Não deu para gerar o convite',
-        e?.message === 'SEM_PERMISSAO_NOTIFICACAO'
+        semPermissao
           ? 'Você precisa permitir notificações — é por elas que os avisos chegam.'
           : `Não foi possível obter o endereço de notificação deste celular.\n\n${e?.message ?? e}`
       );
