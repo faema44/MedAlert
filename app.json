@@ -19,7 +19,7 @@
     },
     "android": {
       "package": "com.alertamedico.app",
-      "versionCode": 23,
+      "versionCode": 24,
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#1a3a6b",
