@@ -69,13 +69,17 @@ type WizardStep = 'type' | 'name' | 'dose' | 'period' | 'cycle_preset' | 'cycle_
 // Os números vêm prontos — num remédio em que errar custa gravidez, o padrão certo de fábrica
 // vale mais que um formulário em branco. "Outro" existe para corticoide cíclico, reposição
 // hormonal e quimio não virarem cidadãos de segunda classe num card rotulado de cartela.
+// `id` identifica o CARD (chave de lista e destaque de seleção); `kind` é o que é GRAVADO
+// no banco. "Dia sim, Dia não" e "Outro tratamento" gravam o mesmo kind ('custom' — é o
+// motor genérico de ciclo), então precisam de `id` próprio ou colidiriam na lista.
 const CYCLE_PRESETS = [
-  { kind: 'pill'   as const, icon: '💊', label: 'Cartela / pílula', hint: 'Todo dia · 21 tomando + 7 de pausa', on: 21, off: 7, period: 'day'  as ReminderPeriod },
-  { kind: 'patch'  as const, icon: '🩹', label: 'Adesivo',          hint: '1 por semana · 3 semanas + 1 de pausa', on: 21, off: 7, period: 'week' as ReminderPeriod },
-  { kind: 'ring'   as const, icon: '⭕', label: 'Anel',             hint: 'Coloca e retira · 21 dias + 7 de pausa', on: 21, off: 7, period: 'day'  as ReminderPeriod },
+  { id: 'pill'    as const, kind: 'pill'   as const, icon: '💊', label: 'Cartela / pílula', hint: 'Todo dia · 21 tomando + 7 de pausa', on: 21, off: 7, period: 'day'  as ReminderPeriod },
+  { id: 'patch'   as const, kind: 'patch'  as const, icon: '🩹', label: 'Adesivo',          hint: '1 por semana · 3 semanas + 1 de pausa', on: 21, off: 7, period: 'week' as ReminderPeriod },
+  { id: 'ring'    as const, kind: 'ring'   as const, icon: '⭕', label: 'Anel',             hint: 'Coloca e retira · 21 dias + 7 de pausa', on: 21, off: 7, period: 'day'  as ReminderPeriod },
+  { id: 'altdays' as const, kind: 'custom' as const, icon: '🌓', label: 'Dia sim, Dia não', hint: 'Toma um dia, pausa no outro', on: 1, off: 1, period: 'day' as ReminderPeriod },
   // "Outro" nasce EM BRANCO: 21/7 é a cartela, e vir preenchido assim fazia o corticoide
   // cíclico ser tratado como anticoncepcional — contra o que o próprio hint promete.
-  { kind: 'custom' as const, icon: '⚙️', label: 'Outro tratamento com pausa', hint: 'Você escolhe os dias', on: 0, off: 0, period: 'day' as ReminderPeriod },
+  { id: 'custom'  as const, kind: 'custom' as const, icon: '⚙️', label: 'Outro tratamento com pausa', hint: 'Você escolhe os dias', on: 0, off: 0, period: 'day' as ReminderPeriod },
 ];
 
 // A MESMA resposta ("hoje é o dia N do ciclo") dita com as palavras de cada tratamento:
@@ -140,7 +144,11 @@ function getStepSequence(
   // Com pausa, os dois passos do ciclo entram ANTES da frequência: é o preset que decide se
   // depois vem "vezes por dia" (pílula, anel) ou "dias da semana" (adesivo).
   if (comPausa) base.push('cycle_preset', 'cycle_setup');
-  if (period === 'day') base.push('times_per_day');
+  // "Vezes por dia" some quando há pausa: depois de dizer quantos dias toma e quantos
+  // pausa, cair numa tela de 1x/2x/3x/4x/6x parecia desfazer a pausa e voltar pro diário
+  // solto. Cartela/anel/dia-sim-dia-não assumem 1x — quem precisar de mais de um horário
+  // por dia com pausa segue coberto por "Outro tratamento" mais o campo de dose.
+  if (period === 'day') { if (!comPausa) base.push('times_per_day'); }
   else if (period === 'week') base.push('weekdays');
   else if (period === 'month') base.push('month_days');
   else base.push('n_months');
@@ -871,7 +879,8 @@ export default function MedicationsScreen() {
       case 'cycle_preset':
         return 'cycle_setup';
       case 'cycle_setup':
-        return porPeriodo;
+        // Com pausa não tem "vezes por dia" (ver getStepSequence) — direto pro horário.
+        return p === 'day' ? 'time' : porPeriodo;
       case 'times_per_day':
         return mealMode ? 'summary' : 'time';
       case 'weekdays':
@@ -992,7 +1001,15 @@ export default function MedicationsScreen() {
         : (pickerDisplay ? computeTimes(startTime, timesPerDay) : []);
       // "Refeições" só é dito quando o meal_mode foi GRAVADO. Não se deduz da hora:
       // 07:00/12:00/19:00 e 08:00/14:00/20:00 são indistinguíveis pelo relógio.
-      if (times.length > 0) return `${mealMode ? '🍽 Refeições' : 'Diário'} · ${times.join(' · ')}`;
+      // Mesmo rótulo cíclico do card da lista (ver renderItem): sem isto o resumo dizia
+      // "Diário" pra um tratamento com pausa — a única tela onde a pessoa confere ANTES
+      // de salvar, mentindo bem na hora que mais importa.
+      const cicloLabel = !comPausa ? null
+        : cycleOn === '1' && cycleOff === '1' ? 'dia sim, dia não'
+        : cycleKind === 'pill' ? 'cartela'
+        : cycleKind === 'ring' ? 'anel'
+        : `com pausa (${cycleOn}d/${cycleOff}d)`;
+      if (times.length > 0) return `${mealMode ? '🍽 Refeições' : (cicloLabel ?? 'Diário')} · ${times.join(' · ')}`;
       return IS_IOS ? 'Sem lembrete — só na Ficha Médica' : 'Sem lembrete — só tela de bloqueio';
     })();
     const deadlineDays = parseInt(durationDays, 10);
@@ -1275,7 +1292,12 @@ export default function MedicationsScreen() {
             <Text style={styles.wizLabel}>Com que frequência?</Text>
             <View style={[styles.periodCardRow, { marginTop: 16 }]}>
               {periodOptions.map(({ p, icon, label }) => {
-                const isActive = editingId !== null && homeReminderEnabled && reminderPeriod === p;
+                // !comPausa: um dia-cíclico (pílula/anel/dia-sim-dia-não) tem period==='day'
+                // igual ao "Todo Dia" solto. Sem esta condição os dois cards acendiam juntos,
+                // e reabrir a edição convidava a tocar aqui "só pra confirmar" — o toque
+                // desliga o ciclo (comentário abaixo) e o tratamento virava diário comum
+                // em silêncio. Com isto só "Com pausa" acende, e o toque certo continua ali.
+                const isActive = editingId !== null && homeReminderEnabled && reminderPeriod === p && !comPausa;
                 return (
                   <TouchableOpacity
                     key={p}
@@ -1347,16 +1369,25 @@ export default function MedicationsScreen() {
             <Text style={styles.wizHint}>Os números já vêm prontos — você confere na próxima tela</Text>
             {CYCLE_PRESETS.map(p => (
               <TouchableOpacity
-                key={p.kind}
+                key={p.id}
                 style={[styles.presetBtn, cycleKind === p.kind && styles.presetBtnActive]}
                 onPress={() => {
                   setCycleKind(p.kind);
                   setCycleOn(p.on ? String(p.on) : '');
                   setCycleOff(p.off ? String(p.off) : '');
                   setReminderPeriod(p.period);
-                  // O anel é 1 colocação por ciclo: 1 horário basta, e "vezes por dia" perde
-                  // o sentido. O adesivo cai em 'week' e a pessoa escolhe o dia da semana.
-                  if (p.kind === 'ring') { setTimesPerDay(1); setTimesPerDayTouched(true); }
+                  // Todo preset de period==='day' pula "vezes por dia" agora (ver
+                  // getStepSequence/editNextStep) — sem isto um timesPerDay de 2x/3x deixado
+                  // por outro cadastro na mesma sessão vazava pro cálculo do horário em
+                  // silêncio, porque a tela que o confirmaria nunca mais aparece.
+                  if (p.period === 'day') { setTimesPerDay(1); setTimesPerDayTouched(true); }
+                  // "Com pausa" não tem mais a tela de refeições (mesmo motivo acima). Sem
+                  // isto, editar um remédio salvo ANTES desta mudança — que ainda carregava
+                  // meal_mode=1 de quando "Usar horários das refeições" vivia aqui — reabria
+                  // com esse valor velho, o resumo dizia "Refeições" no lugar do ciclo, e
+                  // salvar de novo o mantinha preso nisso para sempre (nada neste fluxo
+                  // volta a tocar em mealMode).
+                  setMealMode(false);
                   wizGoNext(p.period, true, p.kind);
                 }}
               >
@@ -1878,10 +1909,21 @@ export default function MedicationsScreen() {
               : Math.floor(item.stock_quantity / (dailyDoses * unitsPerDose));
           const stockLow = daysLeft != null && daysLeft <= 3;
 
+          // "Diário" mentia pra quem tem pausa: cartela, anel e dia-sim-dia-não têm
+          // period==='day' igual a um remédio comum, e o card ficava indistinguível de um
+          // tratamento que a pessoa toma TODO santo dia — inclusive nos dias de pausa.
+          const cicloLabel = cicloItem == null ? null
+            : cicloItem.daysOn === 1 && cicloItem.daysOff === 1 ? 'dia sim, dia não'
+            : cicloItem.kind === 'pill' ? 'cartela'
+            : cicloItem.kind === 'ring' ? 'anel'
+            : `com pausa (${cicloItem.daysOn}d/${cicloItem.daysOff}d)`;
+
           let scheduleStr = '';
           if (times.length > 0) {
             if (periodType === 'day') {
-              scheduleStr = times.join('  ·  ') + (times.length > 1 ? `  (${times.length}×/dia)` : '  · diário');
+              scheduleStr = times.join('  ·  ') + (times.length > 1
+                ? `  (${times.length}×/dia${cicloLabel ? ` · ${cicloLabel}` : ''})`
+                : `  · ${cicloLabel ?? 'diário'}`);
             } else if (periodType === 'week') {
               const t = times[0]?.split(' · ')[0] ?? '';
               const days = times.map(s => s.split(' · ')[1] ?? '').filter(Boolean);
