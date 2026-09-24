@@ -57,9 +57,57 @@ function withKotlinFiles(config) {
         fs.writeFileSync(mainAppPath, src);
       }
 
+      // Regras do R8 pros nossos próprios .kt: ficam AQUI, não num segundo arquivo em
+      // android/ (mesma razão do resto desta função — android/ é gitignored e some no
+      // próximo prebuild). BootReceiver/NextMedReceiver/NotifRefreshReceiver/
+      // MedWidgetProvider já são mantidos de graça pelo AGP (tudo que o AndroidManifest
+      // declara vira keep automático), mas o MODULE do bridge não: @ReactMethod é achado
+      // por REFLEXÃO em tempo de execução, e o nome do método precisa sobreviver ao R8.
+      // Ofuscar `postNotification` faria o alerta da tela de bloqueio sumir sem nenhum
+      // erro visível — a mesma classe de falha silenciosa do BootReceiver (ver git log).
+      const proguardPath = path.join(cfg.modRequest.platformProjectRoot, 'app/proguard-rules.pro');
+      const proguardMarker = '# --- MedAlert: nativo próprio ---';
+      let proguardSrc = fs.existsSync(proguardPath) ? fs.readFileSync(proguardPath, 'utf8') : '';
+      if (!proguardSrc.includes(proguardMarker)) {
+        proguardSrc += `\n${proguardMarker}\n` +
+          '-keep class com.alertamedico.app.MedNotificationModule { *; }\n' +
+          '-keep class com.alertamedico.app.MedNotificationPackage { *; }\n' +
+          '-keepclassmembers class * {\n' +
+          '    @com.facebook.react.bridge.ReactMethod <methods>;\n' +
+          '}\n';
+        fs.writeFileSync(proguardPath, proguardSrc);
+      }
+
       return cfg;
     },
   ]);
+}
+
+// Liga a ofuscação/redução de código no release. O Play Console reclama de qualquer app
+// abaixo de 25% de ofuscação — o nosso estava em 2%, ou seja, nunca foi ligado.
+// As regras próprias que protegem o bridge nativo vivem em withKotlinFiles, logo acima:
+// ligar isto SEM elas quebraria a notificação da tela de bloqueio em silêncio.
+function withProguard(config) {
+  return withAppBuildGradle(config, (cfg) => {
+    let gradle = cfg.modResults.contents;
+    const antes = gradle;
+    gradle = gradle.replace(
+      "(findProperty('android.enableMinifyInReleaseBuilds') ?: false)",
+      "(findProperty('android.enableMinifyInReleaseBuilds') ?: true)"
+    );
+    gradle = gradle.replace(
+      "findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false'",
+      "findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'true'"
+    );
+    if (gradle === antes) {
+      throw new Error(
+        '[withMedNotification] não achei os defaults de enableMinify/ShrinkResources — ' +
+          'o template do build.gradle mudou. Corrija o plugin antes de gerar release.'
+      );
+    }
+    cfg.modResults.contents = gradle;
+    return cfg;
+  });
 }
 
 function withBootReceiver(config) {
@@ -274,6 +322,7 @@ module.exports = function withMedNotification(config) {
   config = withWidgetReceiver(config);
   config = withCompatResizability(config);
   config = withReleaseSigning(config);
+  config = withProguard(config);
   config = withGoogleServices(config);
   config = withGoogleServicesApp(config);
   config = withPairingDeepLink(config);
