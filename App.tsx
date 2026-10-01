@@ -386,6 +386,12 @@ function AppNavigator() {
       }
       // Check if treatment has already ended while app was closed
       const med = await getMedicationById(data.medicationId).catch(() => null);
+      // Em stand-by não deveria haver alarme: se um sobreviveu, morre no primeiro disparo.
+      if (med?.suspended) {
+        await cancelAllRemindersForMedication(data.medicationId).catch(() => {});
+        dismissNotification(data.notificationId).catch(() => {});
+        return;
+      }
       if (med?.end_date) {
         const ended = new Date(med.end_date + 'T23:59:59') < new Date();
         if (ended) {

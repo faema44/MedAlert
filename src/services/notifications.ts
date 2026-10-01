@@ -1842,6 +1842,14 @@ export async function rescheduleAllActiveNotifications(): Promise<void> {
     await Promise.all(acts.map(async (act, i) => {
       await rescheduleRemindersForActivity(act.id, act.name, actRs[i], act.type);
     }));
+    // Rede do stand-by: lembrete de medicamento suspenso que tenha sobrevivido ao cancelamento
+    // morre aqui. Relido AGORA, depois de agendar: quem suspende enquanto este reagendamento
+    // está no meio (logo após abrir o app) cancelava antes de o laço acima reagendar a partir
+    // da lista lida no início — e a dose voltava a tocar no dia seguinte.
+    const suspensos = (await getMedications(true, true).catch(() => [] as Medication[])).filter(m => m.suspended);
+    for (const m of suspensos) {
+      await cancelAllRemindersForMedication(m.id).catch(e => relatarFalhaSilenciosa(`limpar suspenso ${m.id}`, e));
+    }
     // O widget é alimentado AQUI e não por conta própria: este é o ponto em que o app acabou
     // de recalcular tudo (ciclo, pausa, próxima dose). O widget não roda JS e não tem como
     // perguntar — ele só lê o que ficou escrito.
