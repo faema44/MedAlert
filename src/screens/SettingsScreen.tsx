@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, Modal }
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { getProfile, getKV, getCaregiver } from '../database/db';
 import { getMedIdOptIn } from '../services/medicalId';
-import { contarNotificacoesIOS } from '../services/notifications';
+import { contarNotificacoesIOS, ALARMES_PERSONALIZAVEIS, abrirAjusteDoAlarme } from '../services/notifications';
 
 const IS_IOS = Platform.OS === 'ios';
 
@@ -35,6 +35,7 @@ export default function SettingsScreen() {
   const [caregiverSubtitle, setCaregiverSubtitle] = useState('Ninguém acompanha seus avisos');
   const [notif, setNotif] = useState<{ total: number; teto: number } | null>(null);
   const [showNotifHelp, setShowNotifHelp] = useState(false);
+  const [showSons, setShowSons] = useState(false);
 
   const load = useCallback(async () => {
     const [p, alertActive, cg] = await Promise.all([getProfile(), getKV(KV_ALERT_ACTIVE), getCaregiver()]);
@@ -71,6 +72,15 @@ export default function SettingsScreen() {
         subtitle={caregiverSubtitle}
         onPress={() => (navigation as any).navigate('Caregiver')}
       />
+      {/* Só no Android: o iOS não deixa app nenhum usar os toques do iPhone nem mexer na vibração. */}
+      {!IS_IOS && (
+        <MenuRow
+          icon="🔔"
+          title="Sons dos alarmes"
+          subtitle="Escolha o toque e a vibração de cada alarme"
+          onPress={() => setShowSons(true)}
+        />
+      )}
       <MenuRow
         icon="🛒"
         title="Lista de compras"
@@ -113,6 +123,34 @@ export default function SettingsScreen() {
           <Text style={styles.cardChevron}>?</Text>
         </TouchableOpacity>
       )}
+
+      <Modal visible={showSons} animationType="slide" transparent onRequestClose={() => setShowSons(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Sons dos alarmes</Text>
+            <ScrollView>
+              <Text style={styles.modalText}>
+                Toque num alarme para abrir o ajuste do celular. Em "Som" você escolhe qualquer toque do aparelho; na mesma tela dá para mudar a vibração.
+              </Text>
+              {ALARMES_PERSONALIZAVEIS.map(a => (
+                <TouchableOpacity
+                  key={a.canal}
+                  style={styles.alarmeRow}
+                  activeOpacity={0.7}
+                  onPress={() => abrirAjusteDoAlarme(a.canal)}
+                >
+                  <Text style={styles.cardIcon}>{a.icon}</Text>
+                  <Text style={[styles.cardTitle, { flex: 1 }]}>{a.titulo}</Text>
+                  <Text style={styles.cardChevron}>›</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity style={styles.modalClose} onPress={() => setShowSons(false)}>
+              <Text style={styles.modalCloseText}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       <Modal visible={showNotifHelp} animationType="slide" transparent onRequestClose={() => setShowNotifHelp(false)}>
         <View style={styles.modalOverlay}>
@@ -164,6 +202,10 @@ const styles = StyleSheet.create({
   modalText: { fontSize: 13, color: '#444', lineHeight: 20, marginBottom: 8 },
   modalTip: { backgroundColor: '#FFF8E7', borderRadius: 8, padding: 10, marginTop: 8, borderLeftWidth: 3, borderLeftColor: '#E07B4F' },
   modalTipText: { fontSize: 12, color: '#7a5200', lineHeight: 18 },
+  alarmeRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12,
+    borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)',
+  },
   modalClose: { marginTop: 12, backgroundColor: '#1C3F7A', borderRadius: 10, padding: 14, alignItems: 'center' },
   modalCloseText: { fontSize: 15, color: '#fff', fontWeight: '700' },
 });

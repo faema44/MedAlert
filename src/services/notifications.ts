@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import * as Sentry from '@sentry/react-native';
-import { Platform } from 'react-native';
+import { Platform, Linking } from 'react-native';
 import { Profile, Medication, MedicationReminder, ActivityReminder, Activity, ACTIVITY_PRESETS } from '../types';
 import { postMedNotification, cancelMedNotification, isEmergencyActive, setNextMedSchedule, cancelNextMedBanner, setWidgetData } from './medNotification';
 import { montarDadosWidget, ItemParaWidget } from '../utils/widgetDados';
@@ -24,6 +24,9 @@ const REMINDER_CATEGORY = 'reminder_action';
 // v3: som do canal é fixado na criação e não muda depois — precisa de um ID novo
 // sempre que o arquivo de som mudar, senão instalações existentes ficam com o
 // som antigo (era a causa de "todos os lembretes tocam o mesmo som")
+// ATENÇÃO: o id novo também APAGA o som/vibração que a pessoa escolheu em Configurações →
+// Sons dos alarmes (a escolha é do sistema e fica presa ao id do canal). Só subir a versão
+// quando não houver outro jeito — e avisar no changelog que o toque volta ao original.
 const MED_SOUND_CHANNEL = 'medalert_med_sound_v3';
 // HIGH importance sem som — usado quando home_reminder=1 e with_sound=false para exibir heads-up
 const MED_SILENT_HEADSUP_CHANNEL = 'medalert_med_silent_headsup_v1';
@@ -48,6 +51,31 @@ function soundFor(channelId: string): { sound?: string } {
   if (Platform.OS !== 'ios') return {};
   const file = CHANNEL_SOUND[channelId];
   return file ? { sound: file } : {};
+}
+
+// Alarmes cujo toque e vibração a pessoa troca em Configurações → Sons dos alarmes (Android).
+// O app não guarda a escolha: abre o ajuste do CANAL no próprio sistema, que já lista a
+// biblioteca de toques do celular. createNotificationChannel na abertura do app não desfaz
+// a escolha — em canal existente o Android não sobrescreve som nem vibração.
+export const ALARMES_PERSONALIZAVEIS = [
+  { canal: MED_SOUND_CHANNEL,      icon: '💊', titulo: 'Medicamento' },
+  { canal: HERBAL_SOUND_CHANNEL,   icon: '🌿', titulo: 'Fitoterápico' },
+  { canal: ACTIVITY_SOUND_CHANNEL, icon: '🏃', titulo: 'Atividade' },
+  { canal: APPT_SOUND_CHANNEL,     icon: '🩺', titulo: 'Consulta' },
+  { canal: REMINDER_SOUND_CHANNEL, icon: '📦', titulo: 'Estoque baixo' },
+  { canal: CAREGIVER_CHANNEL,      icon: '👤', titulo: 'Avisos de quem eu cuido' },
+];
+
+export async function abrirAjusteDoAlarme(canal: string): Promise<void> {
+  try {
+    await Linking.sendIntent('android.settings.CHANNEL_NOTIFICATION_SETTINGS', [
+      { key: 'android.provider.extra.APP_PACKAGE', value: 'com.alertamedico.app' },
+      { key: 'android.provider.extra.CHANNEL_ID', value: canal },
+    ]);
+  } catch {
+    // Aparelho sem a tela do canal: cai nos ajustes do app, de onde se chega lá à mão.
+    await Linking.openSettings();
+  }
 }
 
 const MED_ACTION_CATEGORY = 'med_action';
