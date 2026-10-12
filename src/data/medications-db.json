@@ -193,7 +193,12 @@
         "Empaflo",
         "Glempa",
         "Emprelia",
-        "Emp"
+        "Emp",
+        "Embard",
+        "Ardic",
+        "Empatiq",
+        "Emfloz",
+        "Ampoldo"
       ],
       "category": "Antidiabético",
       "rxcui": "1545653"
@@ -217,7 +222,11 @@
         "Glif",
         "Daplys",
         "Dapflow",
-        "Dapazorg"
+        "Dapazorg",
+        "Dapye",
+        "Dyarim",
+        "Iflo",
+        "Vasoglif"
       ],
       "category": "Antidiabético",
       "rxcui": "1488564"
@@ -283,7 +292,8 @@
         "Lirux",
         "Olire",
         "Saxenda",
-        "Liraclick"
+        "Liraclick",
+        "Liraglutida"
       ],
       "category": "Antidiabético",
       "rxcui": "475968"
@@ -296,7 +306,15 @@
         "Wegovy",
         "Ozivy",
         "Extensior",
-        "Poviztra"
+        "Poviztra",
+        "Semaglutida",
+        "Seemasun",
+        "Zempneo",
+        "Semaclique",
+        "Yluméc",
+        "Semavy",
+        "Owozy",
+        "Orsema"
       ],
       "category": "Antidiabético",
       "rxcui": "1991302"
@@ -418,7 +436,16 @@
       "genericName": "Telmisartana",
       "brands": [
         "Micardis",
-        "Pritor"
+        "Pritor",
+        "Telmisartana",
+        "Telmigran",
+        "Misacor",
+        "Misacardio",
+        "Telmisart",
+        "Bramicar",
+        "Telbax",
+        "Zaidan",
+        "Pressige"
       ],
       "category": "Anti-hipertensivo",
       "rxcui": "73494"
@@ -1339,7 +1366,8 @@
         "Lafesc-Hidroclorotiazida",
         "Di-Hidroclorotiazida",
         "Univali-Lapam Hidroclorotiazida",
-        "Fluxopress"
+        "Fluxopress",
+        "Cloragio"
       ],
       "category": "Diurético",
       "rxcui": "5487"
@@ -1542,7 +1570,10 @@
         "Peptrat",
         "Gasec Gastrocaps",
         "Mepraz",
-        "LOSEC MUPS"
+        "LOSEC MUPS",
+        "Omepramed Gastro",
+        "Megazol",
+        "Neprazol Gastro"
       ],
       "category": "Gastroprotetor",
       "rxcui": "7646"
@@ -2720,7 +2751,8 @@
         "Zaplam",
         "Azenpi",
         "Usempax",
-        "Zuclon"
+        "Zuclon",
+        "Cloragio"
       ],
       "category": "Benzodiazepínico",
       "rxcui": "2598"
@@ -2873,7 +2905,8 @@
         "Algyseda",
         "Ibuglobo",
         "Ibufenox",
-        "Analiv"
+        "Analiv",
+        "Aliz"
       ],
       "category": "Anti-inflamatório (AINE)",
       "rxcui": "5640"
@@ -3290,7 +3323,8 @@
         "Doralfebre",
         "Tabcin",
         "Trimedal",
-        "Valoron"
+        "Valoron",
+        "Alivium"
       ],
       "category": "Analgésico/Antipirético",
       "rxcui": "161"
@@ -3423,7 +3457,9 @@
         "Duzor",
         "Dorilen Dip",
         "Novalgina",
-        "Novalgina Infantil"
+        "Novalgina Infantil",
+        "Doraliv",
+        "Sedalive"
       ],
       "category": "Analgésico/Antipirético",
       "rxcui": "3523"
@@ -4084,7 +4120,8 @@
         "Dextaflam",
         "Unidexa",
         "Corticoidex",
-        "DEXAGIL"
+        "DEXAGIL",
+        "Maxidex"
       ],
       "category": "Corticosteroide",
       "rxcui": "3264"
@@ -4174,7 +4211,8 @@
         "Epizetol",
         "Anoril",
         "Lafergs - Carbamazepina",
-        "Teucarba"
+        "Teucarba",
+        "Proleptol"
       ],
       "category": "Anticonvulsivante",
       "rxcui": "2002"
@@ -4311,7 +4349,8 @@
         "Tam",
         "Antara Iv",
         "Elizip",
-        "Antara"
+        "Antara",
+        "Vetyr Xr"
       ],
       "category": "Anticonvulsivante",
       "rxcui": "114477"
@@ -4506,7 +4545,8 @@
         "Uniclozapin",
         "Clozapina",
         "Clopar",
-        "Xynaz"
+        "Xynaz",
+        "Vidmax"
       ],
       "category": "Antipsicótico",
       "rxcui": "2626"
@@ -4725,7 +4765,8 @@
         "Fenozan",
         "Brofentec",
         "Fenatec",
-        "Bromotec"
+        "Bromotec",
+        "Suprafen"
       ],
       "category": "Broncodilatador",
       "rxcui": "4333"
@@ -5366,7 +5407,8 @@
         "Catarse Odt",
         "Menelat Odt",
         "Myzapy",
-        "Myrtz Odt"
+        "Myrtz Odt",
+        "Myrzen"
       ],
       "category": "Antidepressivo",
       "rxcui": "15996"
@@ -6248,7 +6290,8 @@
         "Dezlorbe",
         "Superhist Odt",
         "Desotidex",
-        "Desairon"
+        "Desairon",
+        "Zalextel"
       ],
       "category": "Anti-histamínico",
       "rxcui": "275635"
@@ -6867,7 +6910,8 @@
         "Lactulona",
         "Laquixan",
         "Lactosan",
-        "Lactulosum"
+        "Lactulosum",
+        "Laxfar"
       ],
       "category": "Laxativo",
       "rxcui": "6218"
@@ -7367,7 +7411,8 @@
         "Lqfe Isoniazida",
         "Isoniazida",
         "Nuplam - Isoniazida",
-        "Iquego-Isoniazida"
+        "Iquego-Isoniazida",
+        "Ison"
       ],
       "category": "Antituberculoso",
       "rxcui": "6038"
@@ -7544,7 +7589,8 @@
         "Abelcet",
         "Fungi B",
         "Tricanfor",
-        "Fungicina"
+        "Fungicina",
+        "Anfo B"
       ],
       "category": "Antifúngico"
     },
@@ -8005,7 +8051,22 @@
         "Epivir",
         "Zeffix",
         "Lamivudina EMS",
-        "Lamivudina Eurofarma"
+        "Lamivudina Eurofarma",
+        "Furp-Lamivudina",
+        "Lamirax",
+        "Iquego-Lamivudina",
+        "Lami",
+        "Ivb - Lamivudina",
+        "Lafepe- Lamivudina Hbv",
+        "Lamivudina",
+        "Zilamax",
+        "Virtrat",
+        "Lamiden",
+        "Lamivudina (port 344/98 Lista C4)",
+        "Farmanguinhos -lamivudina",
+        "Vudirax",
+        "Lamivudina (portaria 344/98 Lista C4)",
+        "Lamivudina (port. 344/98 Lista C 4)"
       ],
       "category": "Antirretroviral",
       "rxcui": "6472"
@@ -8015,7 +8076,26 @@
       "brands": [
         "Retrovir",
         "AZT",
-        "Zidovudina EMS"
+        "Zidovudina EMS",
+        "Zidovir",
+        "Provudir",
+        "Zivudin",
+        "Zidovirax",
+        "Unizidovudax",
+        "Zidovudina (port 344/98 L-C4)",
+        "Virozid",
+        "Zivodil",
+        "Iquego-Zidovudina",
+        "Furp - Zidovudina",
+        "Lifal- Zidovudina",
+        "Zidoviral",
+        "Zidix",
+        "Lafepe Zidovudina",
+        "Zidovudina",
+        "Funed-Zidovudina",
+        "Zydovin",
+        "Revirax",
+        "Far-Manguinhos Zidovudina"
       ],
       "category": "Antirretroviral",
       "rxcui": "11781"
@@ -8903,7 +8983,16 @@
         "Resyniv",
         "Noclar",
         "Obodence",
-        "Xgeva (denosumabe)"
+        "Xgeva (denosumabe)",
+        "Stoboclo",
+        "Conexxence",
+        "Vevzuo",
+        "D Mob",
+        "Bomyntra",
+        "Osenvelt",
+        "Osvyrti",
+        "Slot",
+        "Jubereq"
       ],
       "category": "Osteoporose/Oncológico",
       "rxcui": "993449"
@@ -8922,7 +9011,8 @@
       "brands": [
         "Sandostatin",
         "Acetato de Octreotida",
-        "Octride"
+        "Octride",
+        "Octreoscan"
       ],
       "category": "Hormônio",
       "rxcui": "7515"
@@ -8930,7 +9020,12 @@
     {
       "genericName": "Ácido Tranexâmico",
       "brands": [
-        "Transamin"
+        "Transamin",
+        "Acido Tranexamico",
+        "Ryvka",
+        "Hemoblock",
+        "Trexacont",
+        "Traneger"
       ],
       "category": "Hematopoético",
       "rxcui": "10318"
@@ -9244,7 +9339,12 @@
     {
       "genericName": "Decitabina",
       "brands": [
-        "Dacogen"
+        "Dacogen",
+        "Deci",
+        "Decitabina",
+        "Altryxen",
+        "Redtibin",
+        "Dechimia"
       ],
       "category": "Oncológico",
       "rxcui": "135329"
@@ -9556,7 +9656,8 @@
         "Herzuma",
         "Trazimera",
         "Bio-Manguinhos Trastuzumabe",
-        "Ontruzant"
+        "Ontruzant",
+        "Tuznue"
       ],
       "category": "Oncológico",
       "rxcui": "224905"
@@ -10218,7 +10319,9 @@
         "Kedaxyl",
         "Pilox",
         "Meo",
-        "Revipel"
+        "Revipel",
+        "Eniagor Sec",
+        "Folius"
       ],
       "category": "Anti-hipertensivo/Dermatológico",
       "rxcui": "6984"
@@ -10374,7 +10477,8 @@
         "Sucrofer",
         "Zelazafer",
         "Ferropurum",
-        "Sacfer"
+        "Sacfer",
+        "Suprafen"
       ],
       "category": "Suplemento",
       "rxcui": "6581"
@@ -11123,7 +11227,9 @@
         "Fems",
         "Gino-Canesten",
         "Ermicotizol",
-        "Clogen"
+        "Clogen",
+        "Cystexgino",
+        "Micotrat"
       ],
       "category": "Outros",
       "rxcui": "2623"
@@ -11324,14 +11430,24 @@
     {
       "genericName": "Antitrombina III",
       "brands": [
-        "ANTITROMBINA III IMMUNO"
+        "ANTITROMBINA III IMMUNO",
+        "At Iii Baxter",
+        "Antitrombina Iii Grifols",
+        "Trhombate Iii",
+        "Kybernin P"
       ],
       "category": "Anticoagulante"
     },
     {
       "genericName": "Pamidronato dissódico",
       "brands": [
-        "AREDIA"
+        "AREDIA",
+        "Melidronato",
+        "Pamidrom",
+        "Fauldpami",
+        "Pamired",
+        "Pamidronato Dissódico",
+        "Pamilibbs"
       ],
       "category": "Osteoporose"
     },
@@ -11352,14 +11468,24 @@
     {
       "genericName": "Moclobemida",
       "brands": [
-        "AURORIX"
+        "AURORIX",
+        "Moclobemida",
+        "Vivactil",
+        "Mocloxin"
       ],
       "category": "Antidepressivo"
     },
     {
       "genericName": "Aztreonam",
       "brands": [
-        "AZACTAM"
+        "AZACTAM",
+        "Aztreonam",
+        "Azetram",
+        "Azeus",
+        "Itatreonam",
+        "Azanem",
+        "Azaxil",
+        "Uni Aztrenam"
       ],
       "category": "Antibiótico"
     },
@@ -11376,7 +11502,26 @@
     {
       "genericName": "Acebrofilina",
       "brands": [
-        "Acebrofilina"
+        "Acebrofilina",
+        "Respiran",
+        "Filinar",
+        "Melysse",
+        "Bronfilil",
+        "Broncolex",
+        "Hiflux",
+        "Brontek",
+        "Brondilat",
+        "Dilabronco",
+        "Brondyneo",
+        "Broncomucol",
+        "Brisa",
+        "Dismucal",
+        "Brismucol",
+        "Expecdilat",
+        "Acybrothos",
+        "Lisomuc",
+        "Filinar G",
+        "Acedilat"
       ],
       "category": "Mucolítico"
     },
@@ -11384,7 +11529,17 @@
       "genericName": "Aceclofenaco",
       "brands": [
         "Aceclo-gran",
-        "Aceflor"
+        "Aceflor",
+        "Aceclofenaco",
+        "Dflax",
+        "Algifenaco",
+        "Febupen",
+        "Proflam",
+        "Cecofene",
+        "Cecoflan",
+        "Flandy",
+        "Fenloc",
+        "Aceclofenac"
       ],
       "category": "Anti-inflamatório (AINE)"
     },
@@ -11406,7 +11561,12 @@
       "genericName": "Ácido zoledrônico",
       "brands": [
         "Aclasta",
-        "Zometa"
+        "Zometa",
+        "Blaztere",
+        "Ácido Zoledrônico",
+        "Zodney",
+        "Zoledra",
+        "Zobone"
       ],
       "category": "Osteoporose"
     },
@@ -11421,7 +11581,17 @@
       "genericName": "Risedronato sódico",
       "brands": [
         "Actonel",
-        "Actonel Chronos"
+        "Actonel Chronos",
+        "Risedronato Sódico",
+        "Dorto",
+        "Indosso",
+        "Risedross",
+        "Osteoblock",
+        "Fixenato",
+        "Osteotrat Xr",
+        "Risedronel",
+        "Risonato",
+        "Ridroto"
       ],
       "category": "Osteoporose"
     },
@@ -11429,7 +11599,13 @@
       "genericName": "Adapaleno",
       "brands": [
         "DIFFERIN",
-        "Deriva Micro"
+        "Deriva Micro",
+        "Adapaleno",
+        "Dalap",
+        "Belpele",
+        "Alene",
+        "Adacne",
+        "Adapel"
       ],
       "category": "Dermatológico"
     },
@@ -11437,21 +11613,62 @@
       "genericName": "Adenosina",
       "brands": [
         "Adenocard",
-        "Adenon"
+        "Adenon",
+        "Adenosina",
+        "Lowe"
       ],
       "category": "Antiarrítmico"
     },
     {
       "genericName": "Insulina humana",
       "brands": [
-        "Afrezza"
+        "Afrezza",
+        "Novolin N",
+        "Insuman",
+        "Biohulin 90/10",
+        "Novolin 90/10",
+        "Novolin 70/30",
+        "Wosulin 70/30",
+        "Insugen R",
+        "Biohulin 80/20",
+        "Exubera",
+        "Novolin R",
+        "Ivb - Insulina Humana R",
+        "Insuneo N",
+        "Novolin 80/20",
+        "Biohulin 70/30",
+        "Wosulin R",
+        "Funed Insulina R",
+        "Insunorm N",
+        "Insulina Humana Recombinante Nph",
+        "Humulin R",
+        "Biohulin Nph",
+        "Lqfex - Insulina Humana R",
+        "Insulina",
+        "Insuliv R",
+        "Biohulin U",
+        "Humulin 70n/30r",
+        "Insunorm R",
+        "Novolin L",
+        "Insunorm 70/30",
+        "Biohulin L",
+        "Insugen 70/30",
+        "Insulina Humana Recombinante R",
+        "Bahiafarma Insulina Humana Nph",
+        "Bahiafarma Insulina Humana R",
+        "Novolin U"
       ],
       "category": "Antidiabético"
     },
     {
       "genericName": "Alfaepoetina",
       "brands": [
-        "Alfaepoetina"
+        "Alfaepoetina",
+        "Eritromax",
+        "Hemoprex",
+        "Eritropoietina",
+        "Hemax Eritron",
+        "Eprex"
       ],
       "category": "Hematopoético"
     },
@@ -11480,14 +11697,20 @@
     {
       "genericName": "Ranitidina",
       "brands": [
-        "Antak"
+        "Antak",
+        "Radine",
+        "Bloculcer",
+        "Helicid",
+        "Ranitrat",
+        "Lafergs - Ranitidina"
       ],
       "category": "Gastroprotetor"
     },
     {
       "genericName": "Insulina glulisina",
       "brands": [
-        "Apidra Solostar"
+        "Apidra Solostar",
+        "Apidra"
       ],
       "category": "Antidiabético"
     },
@@ -11495,21 +11718,37 @@
       "genericName": "Citarabina",
       "brands": [
         "Aracytin",
-        "Aracytin® CS"
+        "Aracytin® CS",
+        "Cytos",
+        "Laracit",
+        "Darbin",
+        "Alexan",
+        "Fauldcita",
+        "Tabine",
+        "Serotabir",
+        "Citarabina",
+        "Bedfordcyt",
+        "Citarax",
+        "Ara-C",
+        "Depocyt"
       ],
       "category": "Oncológico"
     },
     {
       "genericName": "Sulbutiamina",
       "brands": [
-        "Arcalion"
+        "Arcalion",
+        "Sulbutiamina"
       ],
       "category": "Suplemento"
     },
     {
       "genericName": "Exemestano",
       "brands": [
-        "Aromasin"
+        "Aromasin",
+        "Exemestano",
+        "Emah",
+        "Proexty"
       ],
       "category": "Oncológico"
     },
@@ -11545,14 +11784,28 @@
     {
       "genericName": "Latanoprosta",
       "brands": [
-        "Arulatan"
+        "Arulatan",
+        "Glopol",
+        "Latanoprosta",
+        "Nolaprost",
+        "Xaloftal",
+        "Monolatan",
+        "Xalatan",
+        "Drenatan",
+        "Volata",
+        "Latanis",
+        "Tivefree"
       ],
       "category": "Oftalmológico"
     },
     {
       "genericName": "Teriflunomida",
       "brands": [
-        "Aubagio"
+        "Aubagio",
+        "Klamy",
+        "Emnyra",
+        "Teriflunomida",
+        "Ryfluna"
       ],
       "category": "Imunossupressor"
     },
@@ -11584,7 +11837,16 @@
       "brands": [
         "Bactroban",
         "Mupirox",
-        "Supirocin"
+        "Supirocin",
+        "Bactroneo",
+        "Bacrocin",
+        "Mupirocina",
+        "Dermopirox",
+        "Bactocin",
+        "Pirocitom",
+        "Mupifol",
+        "Mupir",
+        "Dermoban"
       ],
       "category": "Antibiótico"
     },
@@ -11592,7 +11854,17 @@
       "genericName": "Dipropionato de beclometasona",
       "brands": [
         "Beclonato",
-        "Beclosol Nasal Spray"
+        "Beclosol Nasal Spray",
+        "Beclosol",
+        "Clenil",
+        "Clenil Hfa",
+        "Alerfin",
+        "Beclonasal",
+        "Beclort",
+        "Diprosec",
+        "Ailuk",
+        "Dipropionato De Beclometasona",
+        "Miflasona"
       ],
       "category": "Corticosteroide"
     },
@@ -11601,7 +11873,18 @@
       "brands": [
         "BeneFix",
         "FATOR ANTI-HEMOFÍLICO IX",
-        "FATOR IX 250/500 UI"
+        "FATOR IX 250/500 UI",
+        "Immunine",
+        "Mononine",
+        "Replenine - Vf",
+        "Fator Ix De Coagulação Hemobrás",
+        "Aimafix",
+        "Octanine F",
+        "Alphanine",
+        "Berinin P",
+        "Fator Ix Grifols",
+        "Bebulin",
+        "Betafact"
       ],
       "category": "Hematopoético"
     },
@@ -11622,14 +11905,27 @@
     {
       "genericName": "Besilato de Atracúrio",
       "brands": [
-        "Besilato De Atracúrio"
+        "Besilato De Atracúrio",
+        "Tracrium",
+        "Abbottracurium",
+        "Besitrac",
+        "Litracur",
+        "Tracur",
+        "Sitrac"
       ],
       "category": "Relaxante Muscular"
     },
     {
       "genericName": "Besilato de Cisatracúrio",
       "brands": [
-        "Besilato de Cisatracúrio"
+        "Besilato de Cisatracúrio",
+        "Nimbium",
+        "Tracur Cs",
+        "Cisauni",
+        "Nosint",
+        "Cis",
+        "Bedeci",
+        "Volcis"
       ],
       "category": "Relaxante Muscular"
     },
@@ -11667,21 +11963,44 @@
     {
       "genericName": "Bezafibrato",
       "brands": [
-        "Cedur Retard"
+        "Cedur Retard",
+        "Bezafibrato",
+        "Cedur",
+        "Bezalip",
+        "Bimedol",
+        "Celip",
+        "Ludu"
       ],
       "category": "Hipolipemiante"
     },
     {
       "genericName": "Bicalutamida",
       "brands": [
-        "Casodex"
+        "Casodex",
+        "Bycal 150",
+        "Bicalutamida",
+        "Bycal",
+        "Lutamidal",
+        "Gepeprostin"
       ],
       "category": "Oncológico"
     },
     {
       "genericName": "Bimatoprosta",
       "brands": [
-        "Bimagan"
+        "Bimagan",
+        "Bimatoprosta",
+        "Glamigan",
+        "Luptas",
+        "Ocubin",
+        "Lumigan",
+        "Latisse",
+        "Visiodere",
+        "Bimaprost",
+        "Visan",
+        "Glaucur",
+        "Topgant",
+        "Ocubim"
       ],
       "category": "Oftalmológico"
     },
@@ -11695,7 +12014,15 @@
     {
       "genericName": "Alendronato de Sódio",
       "brands": [
-        "Boneprev"
+        "Boneprev",
+        "Alendronato De Sódio",
+        "Ostrazil",
+        "Fosamax",
+        "Alenost",
+        "Osteofar",
+        "Minusorb",
+        "Alendrin",
+        "Bonagran"
       ],
       "category": "Osteoporose"
     },
@@ -11709,14 +12036,22 @@
     {
       "genericName": "Brometo de Pancurônio",
       "brands": [
-        "Pancuron"
+        "Pancuron",
+        "Brometo De Pancurônio",
+        "Pancurônio"
       ],
       "category": "Relaxante Muscular"
     },
     {
       "genericName": "Brometo de Rocurônio",
       "brands": [
-        "Brometo de Rocurônio"
+        "Brometo de Rocurônio",
+        "Unirez",
+        "Esmeron",
+        "Rocuron",
+        "Bloqueron",
+        "Romeran",
+        "Misck"
       ],
       "category": "Relaxante Muscular"
     },
@@ -11737,7 +12072,10 @@
     {
       "genericName": "Bussulfano",
       "brands": [
-        "Busilvex"
+        "Busilvex",
+        "Myleran",
+        "Buxilfam",
+        "Bussulfano"
       ],
       "category": "Oncológico"
     },
@@ -11746,7 +12084,8 @@
       "brands": [
         "CEFACLOREN",
         "Ceclor",
-        "Ceclor BD"
+        "Ceclor BD",
+        "Cefaclor"
       ],
       "category": "Antibiótico"
     },
@@ -11754,7 +12093,9 @@
       "genericName": "Cefotaxima",
       "brands": [
         "CEFOTAXIMA 1.000 mg",
-        "CLAFORAN"
+        "CLAFORAN",
+        "Losporin",
+        "Cefotamax"
       ],
       "category": "Antibiótico"
     },
@@ -11769,7 +12110,26 @@
     {
       "genericName": "Clorpropamida",
       "brands": [
-        "Diabinese"
+        "Diabinese",
+        "Iquego-Clorpropamida",
+        "Panpromid",
+        "Far-Manguinhos Clorpropramida",
+        "Diabecontrol",
+        "Glicorp",
+        "Lfm - Clorpropamida",
+        "Furp - Clorpropamida",
+        "Propatom",
+        "Clorpropamida",
+        "Pramidalin",
+        "Diaclor",
+        "Amida",
+        "Lafepe - Clorpropamida",
+        "Clorpromini",
+        "Nuplam - Clorpropamida",
+        "Clorpropamin",
+        "Abinesil",
+        "Lqfex - Clorpropamida",
+        "Diapramid"
       ],
       "category": "Antidiabético"
     },
@@ -11783,14 +12143,19 @@
     {
       "genericName": "Indinavir",
       "brands": [
-        "CRIXIVAN"
+        "CRIXIVAN",
+        "Farmanguinhos-Indinavir"
       ],
       "category": "Antirretroviral"
     },
     {
       "genericName": "Cabazitaxel",
       "brands": [
-        "Cabazitaxel"
+        "Cabazitaxel",
+        "Cabazred",
+        "Jevtana",
+        "Caab",
+        "Proazitax"
       ],
       "category": "Oncológico"
     },
@@ -11805,14 +12170,27 @@
       "genericName": "Calcitriol",
       "brands": [
         "Calcijex",
-        "Rocaltrol"
+        "Rocaltrol",
+        "Silkis",
+        "Ostriol",
+        "Calcitriol",
+        "Sigmatriol",
+        "Calcitrimax",
+        "Bonefix"
       ],
       "category": "Vitamina"
     },
     {
       "genericName": "Deflazacorte",
       "brands": [
-        "Calcort"
+        "Calcort",
+        "Deflazacorte",
+        "Deflaimmun",
+        "Deflanil",
+        "Cortoid",
+        "Denacen",
+        "Flazal",
+        "Flaz-Cort"
       ],
       "category": "Corticosteroide"
     },
@@ -11862,7 +12240,18 @@
     {
       "genericName": "Ciprofibrato",
       "brands": [
-        "Cibrato"
+        "Cibrato",
+        "Cipoflou",
+        "Ciprofibrato",
+        "Ciprolip",
+        "Lipneo",
+        "Teulenn",
+        "Avencor",
+        "Lipless",
+        "Lipfite",
+        "Oroxadin",
+        "Ravuma",
+        "Cipide"
       ],
       "category": "Hipolipemiante"
     },
@@ -11882,7 +12271,16 @@
     {
       "genericName": "Ciclopirox Olamina",
       "brands": [
-        "Loprox"
+        "Loprox",
+        "Derm Prox",
+        "Ciclopirox Olamina",
+        "Celamina",
+        "Mupirox",
+        "Micofunox",
+        "Antifunox",
+        "Unesia",
+        "Ciclopirox- Olamina",
+        "Fungirox"
       ],
       "category": "Antifúngico"
     },
@@ -11903,7 +12301,8 @@
     {
       "genericName": "Clobetasol",
       "brands": [
-        "Clobesol"
+        "Clobesol",
+        "Psogreen"
       ],
       "category": "Corticosteroide"
     },
@@ -11917,14 +12316,41 @@
     {
       "genericName": "Cloreto de Potássio",
       "brands": [
-        "Slow-K"
+        "Slow-K",
+        "Cloreto De Potassio",
+        "Isofarma-Solução De Cloreto De Potássio",
+        "Santisa Cloreto De Potassio",
+        "Lento Kalium",
+        "Supritass",
+        "Comprimidos Efervescentes De Cloreto De Potássio",
+        "Nutrássio",
+        "Hypot",
+        "Solução De Cloreto De Potassio",
+        "Ionclor",
+        "Cotass",
+        "Clofan",
+        "Cloreto De Potassio  Halex Istar",
+        "Cloreto De Potássio 19,1%",
+        "Cloreto De Potássio 10%",
+        "Texon Cloreto De Potássio",
+        "Suple - K",
+        "Coreto De Potássio",
+        "Repotas",
+        "Furp - Cloreto De Potassio",
+        "Clotássio",
+        "Laqfa-Cloreto De Potassio",
+        "Liposeron"
       ],
       "category": "Suplemento"
     },
     {
       "genericName": "Colistimetato de Sódio",
       "brands": [
-        "Colistimetato de Sódio"
+        "Colistimetato de Sódio",
+        "Colis-Tek",
+        "Promixin",
+        "Colohaler",
+        "Colomycin"
       ],
       "category": "Antibiótico"
     },
@@ -11952,7 +12378,8 @@
     {
       "genericName": "Penicilamina",
       "brands": [
-        "Cuprimine"
+        "Cuprimine",
+        "Penicilamina"
       ],
       "category": "Outros"
     },
@@ -11964,7 +12391,27 @@
         "Hizentra",
         "Imunoglobulin",
         "SANDOGLOBULINA",
-        "Gammar"
+        "Gammar",
+        "Gamunex",
+        "Imunoglobulina Humana Hemobrás",
+        "Flebogamma",
+        "Tegeline",
+        "Keyven",
+        "Gammanorm",
+        "Panzyga",
+        "Venimmuna N",
+        "Octagam",
+        "Intragam P",
+        "Imunoglobulina Humana Normal Liofilizada",
+        "Imunoglobulina Humana Normal 6%",
+        "Pentaglobin",
+        "Biogam",
+        "Igvena",
+        "Gamaglobulina Im Grifols",
+        "Imunoglobulina Humana",
+        "Xembify",
+        "Blauimuno",
+        "Gammaplex"
       ],
       "category": "Imunobiológico"
     },
@@ -11982,7 +12429,16 @@
         "Hyabak 0,15%",
         "Hylo-Comod",
         "Hylo-Gel",
-        "Euflexxa"
+        "Euflexxa",
+        "Hiluropt",
+        "Biolon Prime",
+        "Hyalomb",
+        "Suplasyn",
+        "Lunah",
+        "Suprahyal",
+        "Biolon",
+        "Polireumin",
+        "Laxime"
       ],
       "category": "Urológico"
     },
@@ -12011,7 +12467,9 @@
     {
       "genericName": "Dicloridrato de quinina",
       "brands": [
-        "DICLORIDRATO DE QUININA"
+        "DICLORIDRATO DE QUININA",
+        "Plasquinin",
+        "Quinin"
       ],
       "category": "Antiparasitário"
     },
@@ -12020,21 +12478,32 @@
       "brands": [
         "DOBUTIL",
         "DOBUTREX em Bolsa Plástica",
-        "Dobutrex"
+        "Dobutrex",
+        "Inotam"
       ],
       "category": "Cardiovascular"
     },
     {
       "genericName": "Droperidol",
       "brands": [
-        "DROPERDAL 2,5MG/ML 50AP. 1ML"
+        "DROPERDAL 2,5MG/ML 50AP. 1ML",
+        "Neoperidil",
+        "Droperdal"
       ],
       "category": "Antipsicótico"
     },
     {
       "genericName": "Dacarbazina",
       "brands": [
-        "Dacarbazina"
+        "Dacarbazina",
+        "Dacarb",
+        "Baxcarbas",
+        "Evodazin",
+        "Dacarzin",
+        "Asercit",
+        "D.t.i.",
+        "Fauldacar",
+        "Detimedac"
       ],
       "category": "Oncológico"
     },
@@ -12069,14 +12538,19 @@
         "Micogyn",
         "Miconil",
         "Micozen Creme vaginal",
-        "Micofim creme"
+        "Micofim creme",
+        "Micotarin",
+        "Ketogin"
       ],
       "category": "Antifúngico"
     },
     {
       "genericName": "Flurazepam",
       "brands": [
-        "Dalmadorm"
+        "Dalmadorm",
+        "Lunipax",
+        "Diazepina",
+        "Somnitex"
       ],
       "category": "Benzodiazepínico"
     },
@@ -12097,7 +12571,9 @@
     {
       "genericName": "Desflurano",
       "brands": [
-        "Desforane"
+        "Desforane",
+        "Desflurano ( Port 344/98 Lt C1)",
+        "Desforane (port 344/98 - Lista C-1)"
       ],
       "category": "Anestésico"
     },
@@ -12118,7 +12594,21 @@
     {
       "genericName": "Dienogeste",
       "brands": [
-        "Dienogeste"
+        "Dienogeste",
+        "Pietra Ed",
+        "Dinorá",
+        "Alandre",
+        "Diost",
+        "Meluren",
+        "Visabelle",
+        "Alurax",
+        "Intime",
+        "Kalist",
+        "Dine",
+        "Ludili Ed",
+        "Allurene",
+        "Lurend",
+        "Alluny"
       ],
       "category": "Hormônio Feminino"
     },
@@ -12146,7 +12636,8 @@
     {
       "genericName": "Ácido gadotérico",
       "brands": [
-        "Dotarem"
+        "Dotarem",
+        "Clariscan"
       ],
       "category": "Outros"
     },
@@ -12160,7 +12651,9 @@
     {
       "genericName": "Didrogesterona",
       "brands": [
-        "Duphaston"
+        "Duphaston",
+        "Lumigest",
+        "Didrogesterona"
       ],
       "category": "Hormônio Feminino"
     },
@@ -12175,7 +12668,9 @@
     {
       "genericName": "Asparaginase",
       "brands": [
-        "ELSPAR"
+        "ELSPAR",
+        "Spectrila",
+        "L-Asparaginase"
       ],
       "category": "Oncológico"
     },
@@ -12210,7 +12705,9 @@
       "genericName": "Enflurano",
       "brands": [
         "ETRANE",
-        "Enfluran"
+        "Enfluran",
+        "Enuran",
+        "Enflurano"
       ],
       "category": "Anestésico"
     },
@@ -12232,7 +12729,21 @@
       "genericName": "Oxaliplatina",
       "brands": [
         "Eloxatin",
-        "Evoxali"
+        "Evoxali",
+        "Oxa-Platin",
+        "Oxaliplatina",
+        "Uxalun",
+        "Oxa",
+        "Tevaoxali",
+        "Collectro",
+        "Liboxal",
+        "Oxplaty",
+        "Oxalibbs",
+        "Bioezulen",
+        "Oxalimeiz",
+        "O - Plat",
+        "Dosaplatin",
+        "Tarckoplatin"
       ],
       "category": "Oncológico"
     },
@@ -12268,14 +12779,20 @@
     {
       "genericName": "Epinefrina",
       "brands": [
-        "Epinefrina"
+        "Epinefrina",
+        "Dyspné-Inhal",
+        "Hyfren",
+        "Adren Ped",
+        "Adren",
+        "Lqfex- Epinefrina"
       ],
       "category": "Cardiovascular"
     },
     {
       "genericName": "Eritropoietina",
       "brands": [
-        "Eritropoietina"
+        "Eritropoietina",
+        "Relipoietin"
       ],
       "category": "Hematopoético"
     },
@@ -12296,28 +12813,50 @@
     {
       "genericName": "Pirfenidona",
       "brands": [
-        "Esbriet"
+        "Esbriet",
+        "Esdona",
+        "Pirfenidona",
+        "Egurinel"
       ],
       "category": "Outros"
     },
     {
       "genericName": "Estriol",
       "brands": [
-        "Estrionil"
+        "Estrionil",
+        "Estriol",
+        "Ovestrion",
+        "Stele",
+        "Vagestril",
+        "Estriopax",
+        "Hormocervix",
+        "Estril"
       ],
       "category": "Hormônio Feminino"
     },
     {
       "genericName": "Etodolaco",
       "brands": [
-        "Etodolaco"
+        "Etodolaco",
+        "Larc",
+        "Dueforzi",
+        "Etod",
+        "Todoc",
+        "Flancox",
+        "Ketalgi",
+        "Dore",
+        "Flanolaco",
+        "Ipaglin",
+        "Zutak"
       ],
       "category": "Anti-inflamatório (AINE)"
     },
     {
       "genericName": "Etomidato",
       "brands": [
-        "Hypnomidate"
+        "Hypnomidate",
+        "Eptomydex",
+        "Etomidato"
       ],
       "category": "Anestésico"
     },
@@ -12338,7 +12877,19 @@
     {
       "genericName": "Fulvestranto",
       "brands": [
-        "FASLODEX"
+        "FASLODEX",
+        "Seletiv",
+        "Fulvafit",
+        "Fulvestranto",
+        "Eranful",
+        "Supreniq",
+        "Vequile",
+        "Fulvy",
+        "Bryst",
+        "Fuvex",
+        "Poemmy",
+        "Mylveston",
+        "Rezimorp"
       ],
       "category": "Oncológico"
     },
@@ -12346,28 +12897,58 @@
       "genericName": "Fator VIII de coagulação",
       "brands": [
         "FATOR VIII - BIOTEST SDH",
-        "Koate DVI"
+        "Koate DVI",
+        "Immunate",
+        "Hemofil",
+        "Kogenate Fs",
+        "Factane",
+        "Fator Viii De Coagulação Hemobrás",
+        "Beriate P",
+        "Kryobulin Concentrado De Fator Viii Humano",
+        "Emoclot",
+        "Fator Viii Biotest Sdh",
+        "Immunate S/d",
+        "Recombinate",
+        "Octavi Sdoptimum",
+        "Hemofil M",
+        "Fanhdi",
+        "Biostate",
+        "Alphanate"
       ],
       "category": "Hematopoético"
     },
     {
       "genericName": "Betacaroteno",
       "brands": [
-        "FDC Betacaroteno"
+        "FDC Betacaroteno",
+        "Fdc Betacaroteno 15 Mg",
+        "Zirvit Beta",
+        "Vitervit Beta"
       ],
       "category": "Vitamina"
     },
     {
       "genericName": "Cianocobalamina",
       "brands": [
-        "FDC VIT B-12"
+        "FDC VIT B-12",
+        "Amicored",
+        "Medat",
+        "Cianon B12",
+        "Bedozil",
+        "Epactiv B12",
+        "Fdc - Vit B12",
+        "Cianon -  B12",
+        "Solucao Injetavel Vitamina B 12 500 Mcg",
+        "Cianobevit",
+        "Cianocobalamina"
       ],
       "category": "Vitamina"
     },
     {
       "genericName": "Fenilbutazona",
       "brands": [
-        "Butazona Cálcica"
+        "Butazona Cálcica",
+        "Fenilbutazona"
       ],
       "category": "Anti-inflamatório (AINE)"
     },
@@ -12389,7 +12970,8 @@
     {
       "genericName": "Halotano",
       "brands": [
-        "FLUOTHANE"
+        "FLUOTHANE",
+        "Tanohalo"
       ],
       "category": "Anestésico"
     },
@@ -12405,7 +12987,12 @@
     {
       "genericName": "Isoflurano",
       "brands": [
-        "FORANE"
+        "FORANE",
+        "Isoflurano",
+        "Isoihn",
+        "Isoforine",
+        "Isothane",
+        "Isoran"
       ],
       "category": "Anestésico"
     },
@@ -12413,14 +13000,24 @@
       "genericName": "Saquinavir",
       "brands": [
         "FORTOVASE",
-        "INVIRASE"
+        "INVIRASE",
+        "Svir"
       ],
       "category": "Antirretroviral"
     },
     {
       "genericName": "Sulfadiazina",
       "brands": [
-        "FURP-Sulfadiazina"
+        "FURP-Sulfadiazina",
+        "Sulfazina",
+        "Suladrin",
+        "Sulfarocha",
+        "Furp - Sulfadiazina",
+        "Sulff",
+        "Far -manguinhos Sulfadiazina",
+        "Lifal -sulfadiazina",
+        "Sulfasedar",
+        "Sulfadiazina"
       ],
       "category": "Antibiótico"
     },
@@ -12434,7 +13031,8 @@
     {
       "genericName": "Fampridina",
       "brands": [
-        "Fampyra"
+        "Fampyra",
+        "Fampridina"
       ],
       "category": "Outros"
     },
@@ -12464,7 +13062,11 @@
       "brands": [
         "Floratil",
         "Floratil AT",
-        "Repoflor"
+        "Repoflor",
+        "Flomicin",
+        "Tamaflora",
+        "Equiflora",
+        "Pieno"
       ],
       "category": "Antidiarreico"
     },
@@ -12487,21 +13089,49 @@
         "Mucocetil",
         "Nac",
         "Pneumucil",
-        "FLUCISTEIN"
+        "FLUCISTEIN",
+        "Cetilplex",
+        "Acetilcisteina",
+        "Nacflu",
+        "Cetikline",
+        "Mucos Expec",
+        "Aires",
+        "Pulnar",
+        "Cisteil",
+        "Bromuc",
+        "Fluicis",
+        "Fluiteína",
+        "Pulmonare",
+        "Ancype",
+        "Mucolator"
       ],
       "category": "Mucolítico"
     },
     {
       "genericName": "Fluoruracila",
       "brands": [
-        "FLUORURACILA DA EUROFARMA"
+        "FLUORURACILA DA EUROFARMA",
+        "Flusan",
+        "Fluoruracila",
+        "Astafluorila",
+        "Fluoro - Uracil",
+        "Efurix",
+        "Fauldfluor",
+        "Neugrast",
+        "Fluctun"
       ],
       "category": "Oncológico"
     },
     {
       "genericName": "Flutamida",
       "brands": [
-        "Flutamida"
+        "Flutamida",
+        "Tecnoflut",
+        "Midaflut",
+        "Flutamid",
+        "Eulexin",
+        "Flulem",
+        "Teflut"
       ],
       "category": "Oncológico"
     },
@@ -12525,7 +13155,12 @@
       "brands": [
         "Fulphila",
         "Neulastim",
-        "Pelgraz"
+        "Pelgraz",
+        "Pegneucyte",
+        "Ziextenzo",
+        "Pegtima",
+        "Pegty",
+        "Bioce"
       ],
       "category": "Hematopoético"
     },
@@ -12535,7 +13170,9 @@
         "Fumarato de Cetotifeno",
         "Zaditen Solução Oral",
         "Zaditen Xarope",
-        "Zaditen Colírio"
+        "Zaditen Colírio",
+        "Asdron",
+        "Asmalgin"
       ],
       "category": "Anti-histamínico"
     },
@@ -12556,7 +13193,9 @@
     {
       "genericName": "Glipizida",
       "brands": [
-        "GLIPIZIDA"
+        "GLIPIZIDA",
+        "Glipzida",
+        "Minidiab"
       ],
       "category": "Antidiabético"
     },
@@ -12605,7 +13244,10 @@
     {
       "genericName": "Antimoniato de meglumina",
       "brands": [
-        "Glucantime"
+        "Glucantime",
+        "Megluxil",
+        "Lqfe-Antimoniato De Meglumina",
+        "Antimoniato De Meglumina"
       ],
       "category": "Antiparasitário"
     },
@@ -12619,7 +13261,30 @@
     {
       "genericName": "Guaifenesina",
       "brands": [
-        "Guaifenesina"
+        "Guaifenesina",
+        "Expectoflui",
+        "Sedatux Mel",
+        "Xarope Vick",
+        "Frenotosse",
+        "Tostrat",
+        "Mm Xarope",
+        "Transpulmin Xarope Adulto",
+        "Dimetapp Expectorante",
+        "Xarope Gfn",
+        "Glyteol",
+        "Expecvem",
+        "Pulmovic",
+        "Xarope Cimetosse",
+        "Transpulmin Xarope Infantil",
+        "Broncofenil",
+        "Expectovic",
+        "Tindagripe",
+        "Guavik",
+        "Bromax",
+        "Guaiasyl",
+        "Expectoliv",
+        "Pulmol",
+        "Glicotosse"
       ],
       "category": "Mucolítico"
     },
@@ -12633,7 +13298,14 @@
     {
       "genericName": "Ifosfamida",
       "brands": [
-        "HOLOXANE"
+        "HOLOXANE",
+        "Evolox",
+        "Ifosfamida",
+        "Seromida",
+        "Ifosmark",
+        "Lifos",
+        "Ifosmida",
+        "Ifolem"
       ],
       "category": "Oncológico"
     },
@@ -12662,7 +13334,15 @@
     {
       "genericName": "Hidroquinona",
       "brands": [
-        "SOLAQUIN"
+        "SOLAQUIN",
+        "Cleankinol",
+        "Lumiderm",
+        "Hidroquinona",
+        "Hidropeek",
+        "Claripel",
+        "Eldoquin",
+        "Limpterm",
+        "Claquinona"
       ],
       "category": "Dermatológico"
     },
@@ -12677,7 +13357,17 @@
     {
       "genericName": "Hidroxiureia",
       "brands": [
-        "Hydrea"
+        "Hydrea",
+        "Droxiureia",
+        "Hidroxiureia",
+        "Tepev",
+        "Tepev  Ff",
+        "Astadrex",
+        "Siklos",
+        "Hydrine",
+        "Hixu",
+        "Oxeron",
+        "Leux"
       ],
       "category": "Oncológico"
     },
@@ -12698,7 +13388,18 @@
         "Lidospray 10%",
         "Xylocaina",
         "Labcaína",
-        "Medicaína"
+        "Medicaína",
+        "Lidocaína",
+        "Lidospray",
+        "Lidocrem",
+        "Toperma",
+        "Xylestesin",
+        "Topcaíne",
+        "Topicaina",
+        "Lidotopic",
+        "Dermomax",
+        "Lidcal",
+        "Prodocaína"
       ],
       "category": "Anestésico"
     },
@@ -12712,7 +13413,13 @@
     {
       "genericName": "Fitomenadiona",
       "brands": [
-        "Hyvit K"
+        "Hyvit K",
+        "Vita K",
+        "Vikatron",
+        "Kanakion Mm",
+        "Kavit",
+        "Menadion",
+        "Eskavit"
       ],
       "category": "Vitamina"
     },
@@ -12735,7 +13442,11 @@
     {
       "genericName": "Palbociclibe",
       "brands": [
-        "Ibrance"
+        "Ibrance",
+        "Palbociclibe",
+        "Cydikriz",
+        "Sedecib",
+        "Agatha"
       ],
       "category": "Oncológico"
     },
@@ -12763,7 +13474,15 @@
     {
       "genericName": "Imiquimode",
       "brands": [
-        "Imiquimode"
+        "Imiquimode",
+        "Modik",
+        "Ald Mune",
+        "Abelia",
+        "Imoxy",
+        "Aldara",
+        "Imiquimode 50 Mg/g",
+        "Imik",
+        "Ixium"
       ],
       "category": "Dermatológico"
     },
@@ -12784,7 +13503,8 @@
     {
       "genericName": "Iopamidol",
       "brands": [
-        "Iopamiron"
+        "Iopamiron",
+        "Pamigraf"
       ],
       "category": "Outros"
     },
@@ -12812,7 +13532,10 @@
     {
       "genericName": "Dactinomicina",
       "brands": [
-        "K.U. DACTINOMYCIN"
+        "K.U. DACTINOMYCIN",
+        "Dactin",
+        "K. U . Dactinomycin",
+        "Cosmegen"
       ],
       "category": "Oncológico"
     },
@@ -12862,7 +13585,58 @@
         "ADEROGIL D3 Gotas",
         "Osteofix 200 UI",
         "Osteofix 400 UI",
-        "Osteofix 600 UI"
+        "Osteofix 600 UI",
+        "Vitamina D3",
+        "Ohde",
+        "Sany D Caps",
+        "Depura",
+        "Defull",
+        "Ohde Caps",
+        "Inpruv D",
+        "D3caps",
+        "Provicta D",
+        "Sany D",
+        "Damater D",
+        "Vit. D Soleil Caps",
+        "Addera D3",
+        "Font D",
+        "Degen",
+        "Vitamina D Cimed",
+        "Tryndê",
+        "Tresdê",
+        "Altad Caps Dura",
+        "Dropy-D",
+        "Altad",
+        "Dprev Caps",
+        "Invit D3",
+        "Sanusole",
+        "Dprev",
+        "Delumi",
+        "Dêlux",
+        "Decole Caps",
+        "Vit. Bio D",
+        "Vit. D Soleil",
+        "Doss",
+        "Maisol",
+        "Sof D",
+        "D.nova D3",
+        "Dphar",
+        "Dviterd3",
+        "Dvitta",
+        "Plex-D3 Vitamin",
+        "Tua D3",
+        "Demi-D",
+        "Altad Caps",
+        "Mildê",
+        "Dcol",
+        "Vitamina D",
+        "Dprev Gotas",
+        "Deforce",
+        "Cygnus D",
+        "Sany D 800",
+        "Vitdera D3",
+        "Gran-D",
+        "Vitersol Dm"
       ],
       "category": "Vitamina"
     },
@@ -12870,7 +13644,8 @@
       "genericName": "Colagenase",
       "brands": [
         "Kollagenase",
-        "Iruxol Mono"
+        "Iruxol Mono",
+        "Dbriz Uno"
       ],
       "category": "Dermatológico"
     },
@@ -12884,28 +13659,68 @@
     {
       "genericName": "Permetrina",
       "brands": [
-        "Kwell"
+        "Kwell",
+        "Permenati",
+        "Piosan",
+        "Piolêndia",
+        "Piodrex",
+        "Piolixina",
+        "Kepios",
+        "Escabipolan",
+        "Piotraty",
+        "Kaodine",
+        "Permetrina",
+        "Nedax",
+        "Keltrina",
+        "Piosay",
+        "Pyotrina",
+        "Permetrix",
+        "Piolat",
+        "Ectrin",
+        "Piolex",
+        "Pioletal",
+        "Clean Hair",
+        "Permitrat",
+        "Prenix",
+        "Piosidim",
+        "Strips",
+        "Kbot Madrevita",
+        "Piosol",
+        "Piolell",
+        "Elimin",
+        "Permetril",
+        "Pio Secto",
+        "Lendrex"
       ],
       "category": "Antiparasitário"
     },
     {
       "genericName": "Carfilzomibe",
       "brands": [
-        "Kyprolis"
+        "Kyprolis",
+        "Zyxomib",
+        "Carfilzomibe",
+        "Karfylor",
+        "Zofyserve"
       ],
       "category": "Oncológico"
     },
     {
       "genericName": "Fluvastatina",
       "brands": [
-        "LESCOL"
+        "LESCOL",
+        "Fluvasten",
+        "Fluvastat",
+        "Fluvax"
       ],
       "category": "Hipolipemiante"
     },
     {
       "genericName": "Lincomicina",
       "brands": [
-        "LINCOMICINA"
+        "LINCOMICINA",
+        "Lincomiral",
+        "Lincotax"
       ],
       "category": "Antibiótico"
     },
@@ -12926,7 +13741,18 @@
     {
       "genericName": "Benzilpenicilina benzatina",
       "brands": [
-        "LONGACILIN"
+        "LONGACILIN",
+        "Furp-Benzilpenicilina Benzatina",
+        "Benzetacil",
+        "Lqfex Benzilpenicilina Benzatina",
+        "Benzatil",
+        "Ermocilina",
+        "Benzatron",
+        "Benzilpenicilina Benzatina",
+        "Pencil B",
+        "Penretard",
+        "Itazil",
+        "Lafepe Benzilpenicilina Benzatina"
       ],
       "category": "Antibiótico"
     },
@@ -12941,7 +13767,14 @@
       "genericName": "Flumazenil",
       "brands": [
         "Lanexat",
-        "Flumazil"
+        "Flumazil",
+        "Flumazenil",
+        "Flunexil",
+        "Flumazenil (port 344/98 Lista C1)",
+        "Lenazen",
+        "Fluzantic",
+        "Flumazen",
+        "Flumilib"
       ],
       "category": "Outros"
     },
@@ -13000,7 +13833,11 @@
       "genericName": "Limeciclina",
       "brands": [
         "TETRALYSAL 300",
-        "Tetralysal"
+        "Tetralysal",
+        "Meciclin",
+        "Liaclysal",
+        "Rovicid",
+        "Limeciclina"
       ],
       "category": "Antibiótico"
     },
@@ -13021,7 +13858,9 @@
     {
       "genericName": "Olaparibe",
       "brands": [
-        "Lynparza"
+        "Lynparza",
+        "Olaparibe",
+        "Lynparza Comprimidos"
       ],
       "category": "Oncológico"
     },
@@ -13036,7 +13875,8 @@
       "genericName": "Menotropina",
       "brands": [
         "MERIONAL",
-        "Menopur"
+        "Menopur",
+        "Merional Hg"
       ],
       "category": "Hormônio"
     },
@@ -13071,7 +13911,23 @@
     {
       "genericName": "Manitol",
       "brands": [
-        "Manitol 20%"
+        "Manitol 20%",
+        "Jp Manitol",
+        "Solução De Manitol 20%",
+        "Portebro",
+        "Manitol Aster",
+        "Manitol",
+        "Solucao De Manitol Equiplex",
+        "Manitol Baxter",
+        "Isofarma - Solução De Manitol",
+        "Manitol A 20 % Basa",
+        "Manitol Beker",
+        "Endonitol",
+        "Manitol 3%",
+        "Solução Injetável Manitol 20%",
+        "Fresenitol",
+        "Manitol Farmace",
+        "Hypofarma Manitol 20%"
       ],
       "category": "Diurético"
     },
@@ -13143,7 +13999,9 @@
     {
       "genericName": "Tropicamida",
       "brands": [
-        "Mydriacyl"
+        "Mydriacyl",
+        "Tropinom",
+        "Ciclomidrin"
       ],
       "category": "Oftalmológico"
     },
@@ -13158,7 +14016,10 @@
       "genericName": "Vinorelbina",
       "brands": [
         "NAVELBINE",
-        "NORELBIN"
+        "NORELBIN",
+        "Neocitec",
+        "Evotabina",
+        "Bitartarato De Vinorelbina"
       ],
       "category": "Oncológico"
     },
@@ -13166,14 +14027,28 @@
       "genericName": "Neomicina",
       "brands": [
         "NEOMICINA PASTILHA",
-        "NEOMICINA POMADA"
+        "NEOMICINA POMADA",
+        "Tratmic",
+        "Neomicon"
       ],
       "category": "Antibiótico"
     },
     {
       "genericName": "Nifedipino",
       "brands": [
-        "NIFELAT"
+        "NIFELAT",
+        "Oxcord",
+        "Normopres",
+        "Dilaflux Retard",
+        "Nife-Bras",
+        "Nifedipress",
+        "Adalex",
+        "Nioxil",
+        "Prodopina",
+        "Furp -nifedipina",
+        "Nifedipina",
+        "Nifedipino",
+        "Vasicor"
       ],
       "category": "Anti-hipertensivo"
     },
@@ -13222,7 +14097,22 @@
     {
       "genericName": "Nimodipino",
       "brands": [
-        "Nimodipino"
+        "Nimodipino",
+        "Vasodipina",
+        "Norton",
+        "Nimovas",
+        "Nimobal",
+        "Neuron",
+        "Nadipin",
+        "Nimotop",
+        "Miocardil",
+        "Minopin",
+        "Oxigen",
+        "Noodipina",
+        "Nimopax",
+        "Nimopin",
+        "Hynim",
+        "Eugerial"
       ],
       "category": "Anti-hipertensivo"
     },
@@ -13236,7 +14126,11 @@
     {
       "genericName": "Nitrendipino",
       "brands": [
-        "Nitrendipino"
+        "Nitrendipino",
+        "Nitrencord",
+        "Caltren",
+        "Baypress",
+        "Nitrendipina"
       ],
       "category": "Anti-hipertensivo"
     },
@@ -13252,7 +14146,9 @@
       "genericName": "Piracetam",
       "brands": [
         "Nootropil",
-        "Nootron"
+        "Nootron",
+        "Piracetam",
+        "Cintilan"
       ],
       "category": "Outros"
     },
@@ -13276,7 +14172,8 @@
       "genericName": "Ferro",
       "brands": [
         "Novofer",
-        "Novofer Ped"
+        "Novofer Ped",
+        "Perfer"
       ],
       "category": "Suplemento"
     },
@@ -13306,7 +14203,11 @@
     {
       "genericName": "Ocitocina",
       "brands": [
-        "Syntocinon"
+        "Syntocinon",
+        "Naox",
+        "Ocitocina",
+        "Obstecina",
+        "Ocitoc"
       ],
       "category": "Hormônio"
     },
@@ -13315,7 +14216,22 @@
       "brands": [
         "Olmecor",
         "Olmesip",
-        "Olsar"
+        "Olsar",
+        "Hipoxomil",
+        "Olmesartana Medoxomila",
+        "Olmegran",
+        "Osaver",
+        "Asea",
+        "Holmes",
+        "Fluxocor",
+        "Benicar",
+        "Olmetrat",
+        "Belcor",
+        "Olmy",
+        "Olmedix",
+        "Olmetec",
+        "Benicar Odt",
+        "Biolme"
       ],
       "category": "Anti-hipertensivo"
     },
@@ -13336,7 +14252,20 @@
     {
       "genericName": "Triancinolona acetonida",
       "brands": [
-        "Omcilon-A Orabase"
+        "Omcilon-A Orabase",
+        "Oncileg-A",
+        "Omcilon A",
+        "Triancinolona De Acetonida",
+        "Theracort 20",
+        "Mud Oral",
+        "Triancinolona Acetonida",
+        "Coliaft",
+        "Colujet",
+        "Oralsept",
+        "Acetonida De Triancinolona",
+        "Airclin",
+        "Opthaac 40",
+        "Acsisa"
       ],
       "category": "Corticosteroide"
     },
@@ -13358,7 +14287,22 @@
       "genericName": "Orlistate",
       "brands": [
         "Orlibesi",
-        "XENICAL"
+        "XENICAL",
+        "Orlistate",
+        "Orlipid",
+        "Xenilipi",
+        "Tat",
+        "Lystate",
+        "Lipoclin",
+        "Tor",
+        "Sfinge",
+        "Lipiblock",
+        "Corpore",
+        "Orlibe",
+        "Siluestat",
+        "Lipoxen",
+        "Sidelg",
+        "Orlax"
       ],
       "category": "Outros"
     },
@@ -13380,7 +14324,8 @@
       "genericName": "Pefloxacino",
       "brands": [
         "PEFLACIN",
-        "PEFLACIN 2"
+        "PEFLACIN 2",
+        "Floxinon"
       ],
       "category": "Antibiótico"
     },
@@ -13394,7 +14339,10 @@
     {
       "genericName": "Ácido pipemídico",
       "brands": [
-        "PIPRAM"
+        "PIPRAM",
+        "Elofuran",
+        "Pipurol",
+        "Balurol"
       ],
       "category": "Antibiótico"
     },
@@ -13403,7 +14351,14 @@
       "brands": [
         "PRANDIN",
         "Ipaglin",
-        "Posprand"
+        "Posprand",
+        "Repaglinida",
+        "Repadiab",
+        "Diaglinida",
+        "Niglin",
+        "Novonorm",
+        "Reglinid",
+        "Gluconida"
       ],
       "category": "Antidiabético"
     },
@@ -13413,7 +14368,21 @@
         "PREMARIN CREME VAGINAL",
         "PREMARIN DRAGEAS",
         "PREMARIN Injetável",
-        "Premarin"
+        "Premarin",
+        "Estrogenios Conjugados",
+        "Prem",
+        "Menoprin",
+        "Estrogenios Conjugados Usp",
+        "Repogen",
+        "Estrinolon",
+        "Estrogex",
+        "Estrogenil",
+        "Estroplus",
+        "Gestrocon",
+        "Estroliol",
+        "Menormon Cíclico 5",
+        "Estron",
+        "Menotrogen"
       ],
       "category": "Hormônio Feminino"
     },
@@ -13456,7 +14425,8 @@
     {
       "genericName": "Pemetrexede",
       "brands": [
-        "Alimta"
+        "Alimta",
+        "Pemdia"
       ],
       "category": "Oncológico"
     },
@@ -13505,14 +14475,28 @@
     {
       "genericName": "Propiltiouracila",
       "brands": [
-        "Propilracil"
+        "Propilracil",
+        "Propil"
       ],
       "category": "Antitireoidiano"
     },
     {
       "genericName": "Propionato de Clobetasol",
       "brands": [
-        "Propionato de Clobetasol"
+        "Propionato de Clobetasol",
+        "Propiosol",
+        "Topirex",
+        "Propionato De Clobetasol 0,5mg/g",
+        "Clob-X",
+        "Psorex",
+        "Cortalen C",
+        "Propinato De Clobetasol",
+        "Psorin",
+        "Therapsor",
+        "Clobesol",
+        "Psorizol",
+        "Dermacare",
+        "Clobirex"
       ],
       "category": "Corticosteroide"
     },
@@ -13540,7 +14524,13 @@
     {
       "genericName": "Riluzol",
       "brands": [
-        "RILUTEK"
+        "RILUTEK",
+        "Riluzol",
+        "Lfm-Riluzol",
+        "Rilotol",
+        "Zolcris",
+        "Extensik",
+        "Tekzor"
       ],
       "category": "Outros"
     },
@@ -13563,7 +14553,19 @@
     {
       "genericName": "Roxitromicina",
       "brands": [
-        "ROXITROM"
+        "ROXITROM",
+        "Roxitricina",
+        "Rulid",
+        "Roxitron",
+        "Roxitromicina",
+        "Roxitram",
+        "Roxtril",
+        "Roxipen",
+        "Prodoxina",
+        "Roxina",
+        "Rotram",
+        "Ritroxim",
+        "Rokisil"
       ],
       "category": "Antibiótico"
     },
@@ -13571,21 +14573,24 @@
       "genericName": "Ramelteona",
       "brands": [
         "Ramelteona",
-        "Rozerem"
+        "Rozerem",
+        "Rahime"
       ],
       "category": "Hipnótico"
     },
     {
       "genericName": "Ranelato de Estrôncio",
       "brands": [
-        "Ranelato de Estrôncio"
+        "Ranelato de Estrôncio",
+        "Protos"
       ],
       "category": "Osteoporose"
     },
     {
       "genericName": "Luspatercepte",
       "brands": [
-        "Reblozyl"
+        "Reblozyl",
+        "Rojuzda"
       ],
       "category": "Hematopoético"
     },
@@ -13627,7 +14632,13 @@
     {
       "genericName": "Ribavirina",
       "brands": [
-        "VIRAZOLE"
+        "VIRAZOLE",
+        "Ribav",
+        "Rebetol",
+        "Ribavirin",
+        "Ribaviron C",
+        "Ribavirina",
+        "Copegus"
       ],
       "category": "Antiviral"
     },
@@ -13641,7 +14652,9 @@
     {
       "genericName": "Rifamicina",
       "brands": [
-        "Rifan Spray"
+        "Rifan Spray",
+        "Rifamicina",
+        "Rifotrat"
       ],
       "category": "Antibiótico"
     },
@@ -13661,7 +14674,81 @@
         "Neosoro H",
         "RinoSoft S",
         "Rinosoro XT",
-        "Solução de Cloreto de Sódio B.Braun"
+        "Solução de Cloreto de Sódio B.Braun",
+        "Cloreto De Sodio",
+        "Cloreto De Sódio 0,9%",
+        "Salsep",
+        "Oraice",
+        "Fluimare",
+        "Nasojet",
+        "Coristina Soro Nasal",
+        "Sonarin",
+        "Cloreto De Sódio 0,9 % Indufal",
+        "Cloreto De Sódio Beker",
+        "Naridrin H",
+        "Solução Fisiológica A 0,9%",
+        "Rinosoro",
+        "Soroliv Hipertônico",
+        "Naclol",
+        "Cloreto De Sódio Solução Fisiológica Para Irrigação - Baxter",
+        "Soriflux Nasal",
+        "Jp Fisiológico",
+        "Texon Solução De Cloreto De Sódio 0,9%",
+        "Cloreto De Sódio Hypofarma",
+        "Snif 3%",
+        "Solução Fisiológica - Gaspar Viana",
+        "Sorine H",
+        "Sinustrat",
+        "Sorinan Infantil",
+        "Isofarma-Solução De Cloreto De Sodio",
+        "Cloreto De Sódio - Baxter",
+        "Cloreto De Sódio Aster",
+        "Diluente - Solução Salina Fenolada",
+        "Cloreto De Sódio 0,9 %",
+        "Conidrin 3%",
+        "Solução Injetável De Cloreto De Sódio 0,9% Darrow",
+        "Snif",
+        "Lafepe Cloreto De Sódio",
+        "Sorofar",
+        "Nasofar Ad",
+        "Pratsorin",
+        "Snif Sc",
+        "Sorine Ssc",
+        "Cloreto De Sódio Jp Fisiológico",
+        "Soroliv",
+        "Conidrin Salina",
+        "Solucao Isotonica De Cloreto De Sodio A 0,9%",
+        "Alive",
+        "Core Amp",
+        "Solução Fisiológica",
+        "Cloreto De Sódio 0,9% Basa",
+        "Sorum",
+        "Fisiosoro Nasal Infantil",
+        "Coristina Soro Estéril",
+        "Soronazen",
+        "Nasalfree",
+        "Naridrin Bebê",
+        "Rinordil",
+        "Novosoro H",
+        "Nasojet 3h",
+        "Pratsorin - H",
+        "Unisoro",
+        "Hipertonic 5%",
+        "Descodrin",
+        "Nice",
+        "Rinosoft S Solução",
+        "Rinosol",
+        "Maresis Ht",
+        "Narix Infantil",
+        "Furp-Solução Fisiologica Nasal",
+        "Snouse",
+        "Muro 128",
+        "Advnasal",
+        "Sinustrat Solução Natural",
+        "Laqfa - Cloreto De Sódio",
+        "Novo Rino -  S",
+        "Furp - Cloreto De Sodio",
+        "Sorocris"
       ],
       "category": "Outros"
     },
@@ -13669,7 +14756,8 @@
       "genericName": "Flunitrazepam",
       "brands": [
         "Rohypnol",
-        "Rohydorm"
+        "Rohydorm",
+        "Flunipan"
       ],
       "category": "Benzodiazepínico"
     },
@@ -13683,7 +14771,9 @@
     {
       "genericName": "Midostaurina",
       "brands": [
-        "Rydapt"
+        "Rydapt",
+        "Flykato",
+        "Midostaurina"
       ],
       "category": "Oncológico"
     },
@@ -13696,21 +14786,49 @@
         "Secnaxidol",
         "Secnidal",
         "Secnihexal",
-        "Secnizol"
+        "Secnizol",
+        "Secnitrol",
+        "Secnal",
+        "Secnidazol",
+        "Sectil",
+        "Secnitec",
+        "Deprozol",
+        "Tecnid",
+        "Neodazol",
+        "Secni-Plus",
+        "Torgyn",
+        "Unigyn",
+        "Secnidalin",
+        "Secfar",
+        "Secdazol",
+        "Secnadin",
+        "Secnics",
+        "Secsim",
+        "Secnimax",
+        "Nquíase",
+        "Decnazol"
       ],
       "category": "Antiparasitário"
     },
     {
       "genericName": "Sevoflurano",
       "brands": [
-        "SEVORANE"
+        "SEVORANE",
+        "Sevoflurano",
+        "Sevocris",
+        "Sev",
+        "Voflur",
+        "Sevoq",
+        "Sevoness",
+        "Anesevo"
       ],
       "category": "Anestésico"
     },
     {
       "genericName": "Oxacilina",
       "brands": [
-        "STAFICILIN-N"
+        "STAFICILIN-N",
+        "Oxaciclina"
       ],
       "category": "Antibiótico"
     },
@@ -13748,7 +14866,20 @@
         "Sayana",
         "Depo-Provera",
         "Depo-Provera Subcutâneo",
-        "Provera"
+        "Provera",
+        "Farlutal",
+        "Demedrox",
+        "Acetoflux",
+        "Acetato De Medroxiprogesterona",
+        "Procept",
+        "Contracep",
+        "Cycrin",
+        "Acetato De Medroxiprogesterona]",
+        "Medrogest",
+        "Progerin",
+        "Medroxon",
+        "Acemedrox",
+        "Medroxi"
       ],
       "category": "Contraceptivo"
     },
@@ -13764,7 +14895,8 @@
     {
       "genericName": "Nicergolina",
       "brands": [
-        "Sermion"
+        "Sermion",
+        "Sergolina"
       ],
       "category": "Antidemência"
     },
@@ -13799,7 +14931,8 @@
     {
       "genericName": "Drospirenona",
       "brands": [
-        "Slinda"
+        "Slinda",
+        "Ammy"
       ],
       "category": "Contraceptivo"
     },
@@ -13820,7 +14953,8 @@
     {
       "genericName": "Felodipino",
       "brands": [
-        "Splendil"
+        "Splendil",
+        "Felodipino"
       ],
       "category": "Anti-hipertensivo"
     },
@@ -13834,7 +14968,9 @@
     {
       "genericName": "Dasatinibe",
       "brands": [
-        "Sprycel"
+        "Sprycel",
+        "Ladizac",
+        "Dasatinibe"
       ],
       "category": "Oncológico"
     },
@@ -13869,21 +15005,54 @@
     {
       "genericName": "Sugamadex Sódico",
       "brands": [
-        "Sugamadex Sódico"
+        "Sugamadex Sódico",
+        "Averz",
+        "Sujma",
+        "Myobloq",
+        "Instaura",
+        "Suversadex",
+        "Bryony",
+        "Wizex",
+        "Bridion",
+        "Sugadioz",
+        "Reverso",
+        "Sug",
+        "Rebrive",
+        "Dixmabio",
+        "Dexperta",
+        "Sunam",
+        "Lessav"
       ],
       "category": "Outros"
     },
     {
       "genericName": "Sulfato de Glicosamina",
       "brands": [
-        "Sulfato de Glicosamina"
+        "Sulfato de Glicosamina",
+        "Sulglic",
+        "Glucoreumin",
+        "Ortosamin",
+        "Faximin",
+        "Osteoglic",
+        "Glicolive"
       ],
       "category": "Suplemento"
     },
     {
       "genericName": "Sulfato de Neomicina",
       "brands": [
-        "Sulfato de Neomicina"
+        "Sulfato de Neomicina",
+        "Lomicina",
+        "Elomicina",
+        "Neomicin",
+        "Pomicina",
+        "Cinaderm",
+        "Neomina",
+        "Nemicina",
+        "Neoderme",
+        "Neodermicina",
+        "Neomed",
+        "Neomicina - Bras"
       ],
       "category": "Antibiótico"
     },
@@ -13897,14 +15066,34 @@
     {
       "genericName": "Sulfato de Polimixina B",
       "brands": [
-        "Sulfato de Polimixina B"
+        "Sulfato de Polimixina B",
+        "Poly B",
+        "Polixil B",
+        "Polycid",
+        "Spox",
+        "Bedfordpoly - B",
+        "Polytek-B",
+        "Polix"
       ],
       "category": "Antibiótico"
     },
     {
       "genericName": "Sulfato de Vincristina",
       "brands": [
-        "Sulfato de Vincristina"
+        "Sulfato de Vincristina",
+        "Oncovin",
+        "Cytovinex",
+        "Vincizina Cs",
+        "Astavinc",
+        "Tecnocris",
+        "Biocrist",
+        "Vincrifil",
+        "Fauldvincri",
+        "Vincristita",
+        "Vycris",
+        "Vincristex",
+        "Vinracine",
+        "Dabaz"
       ],
       "category": "Oncológico"
     },
@@ -13932,7 +15121,18 @@
     {
       "genericName": "Temozolomida",
       "brands": [
-        "TEMODAL"
+        "TEMODAL",
+        "Telma",
+        "Temozolomida",
+        "Zaladuz",
+        "Temolida Cápsulas",
+        "Temozod",
+        "Tedhol Cápsulas",
+        "Tedhol",
+        "Moz",
+        "Zabrux",
+        "Melazte",
+        "Temolida"
       ],
       "category": "Oncológico"
     },
@@ -13959,7 +15159,11 @@
         "Tetraclin",
         "Tetramed",
         "TETRACICLINA Ariston Pomada Oftalmica",
-        "TETREX"
+        "TETREX",
+        "Tetraciclisa",
+        "Tetralup",
+        "Lfm-Tetraciclina",
+        "Tetraciclina"
       ],
       "category": "Antibiótico"
     },
@@ -14010,7 +15214,9 @@
     {
       "genericName": "Toxóide Tetânico",
       "brands": [
-        "TOXOIDE TETANICO ADSORVIDO"
+        "TOXOIDE TETANICO ADSORVIDO",
+        "Vacina Tétano",
+        "Toxóide Tetânico"
       ],
       "category": "Imunobiológico"
     },
@@ -14067,7 +15273,22 @@
       "genericName": "Tiabendazol",
       "brands": [
         "Thiaben",
-        "Thiabena"
+        "Thiabena",
+        "Tiabendazol",
+        "Dazotil",
+        "Tiadol",
+        "Tiabiose",
+        "Foldan",
+        "Thianax",
+        "Tiabenzol",
+        "Tutiverm",
+        "Emanzol",
+        "Tiaplex",
+        "Micosbel",
+        "Tiapan",
+        "Panvermin",
+        "Tiavermin",
+        "Benstatin"
       ],
       "category": "Antiparasitário"
     },
@@ -14081,7 +15302,16 @@
     {
       "genericName": "Tigeciclina",
       "brands": [
-        "Tygacil"
+        "Tygacil",
+        "Tigeciclina",
+        "Hytgê",
+        "Sengecil",
+        "Taumik",
+        "Tagelynix",
+        "Dugar",
+        "Tyzel",
+        "Tyg",
+        "Kalyme"
       ],
       "category": "Antibiótico",
       "rxcui": "384455"
@@ -14089,7 +15319,10 @@
     {
       "genericName": "Tiocolchicosídeo",
       "brands": [
-        "Tiocolchicosídeo"
+        "Tiocolchicosídeo",
+        "Muscoril",
+        "Coltrax",
+        "Coltrax Inj"
       ],
       "category": "Relaxante Muscular"
     },
@@ -14153,7 +15386,14 @@
     {
       "genericName": "Ureia",
       "brands": [
-        "Ureadin"
+        "Ureadin",
+        "Ureia",
+        "Nutraplus",
+        "Hidrapel Plus",
+        "Emoderm",
+        "Ureadin 10",
+        "Nutraplus 20",
+        "Ureativ 20"
       ],
       "category": "Dermatológico"
     },
@@ -14173,7 +15413,14 @@
         "ETOPOSIDO",
         "ETOPOSIDO Injetável",
         "ETOPUL",
-        "Evoposdo"
+        "Evoposdo",
+        "Oncosídeo",
+        "Epósido",
+        "Etoposídeo",
+        "Tevaetopo",
+        "Etosin",
+        "Leposide",
+        "Eunades Cs"
       ],
       "category": "Oncológico"
     },
@@ -14181,7 +15428,8 @@
       "genericName": "Nelfinavir",
       "brands": [
         "VIRACEPT",
-        "VIRACEPT PÓ ORAL"
+        "VIRACEPT PÓ ORAL",
+        "Nelvix"
       ],
       "category": "Antirretroviral"
     },
@@ -14195,7 +15443,8 @@
     {
       "genericName": "Teniposídeo",
       "brands": [
-        "VUMON"
+        "VUMON",
+        "Neoposídeo"
       ],
       "category": "Oncológico"
     },
@@ -14216,7 +15465,10 @@
     {
       "genericName": "Brometo de vecurônio",
       "brands": [
-        "Vecuron"
+        "Vecuron",
+        "Norcuron",
+        "Vencurox",
+        "Verônio"
       ],
       "category": "Relaxante Muscular"
     },
@@ -14251,21 +15503,48 @@
     {
       "genericName": "Tretinoína",
       "brands": [
-        "Vesanoid"
+        "Vesanoid",
+        "Vitanol-A",
+        "Retin - A",
+        "Lumivit",
+        "Retinova",
+        "Tretinoína",
+        "Retacnyl",
+        "Suavicid One"
       ],
       "category": "Oncológico"
     },
     {
       "genericName": "Azacitidina",
       "brands": [
-        "Vidaza"
+        "Vidaza",
+        "Azacitidina",
+        "Azmid",
+        "Winduza",
+        "Azzure",
+        "Xpreza",
+        "Azla",
+        "Kadiz",
+        "Azilys"
       ],
       "category": "Oncológico"
     },
     {
       "genericName": "Didanosina",
       "brands": [
-        "Videx EC"
+        "Videx EC",
+        "Lafepe-Didanosina",
+        "Danosix",
+        "Didosina",
+        "Didanox",
+        "Ivb Didanosina",
+        "Lifal -didanosina",
+        "Didaxin",
+        "Didavax",
+        "Didanosina",
+        "Lfm Didanosina",
+        "Far Manguinhos Didanosina",
+        "Univiral"
       ],
       "category": "Antirretroviral"
     },
@@ -14314,7 +15593,11 @@
     {
       "genericName": "Enzalutamida",
       "brands": [
-        "Xtandi"
+        "Xtandi",
+        "Zayon",
+        "Nindev",
+        "Enzalutamida",
+        "Enlutoza"
       ],
       "category": "Oncológico"
     },
@@ -14356,7 +15639,9 @@
     {
       "genericName": "Paricalcitol",
       "brands": [
-        "Zemplar"
+        "Zemplar",
+        "Syletyv",
+        "Paricalcitol"
       ],
       "category": "Vitamina"
     },
@@ -14393,7 +15678,10 @@
       "brands": [
         "Zymar",
         "TEQUIN",
-        "Zymar XD"
+        "Zymar XD",
+        "Gatcin",
+        "Gatifloxacino",
+        "Orbiflox"
       ],
       "category": "Oftalmológico"
     },
@@ -14407,7 +15695,11 @@
     {
       "genericName": "Ácido Fusídico",
       "brands": [
-        "Ácido Fusídico"
+        "Ácido Fusídico",
+        "Veruf",
+        "Verumil",
+        "Fusitop",
+        "Verutex"
       ],
       "category": "Antibiótico"
     },
@@ -14455,7 +15747,81 @@
       "genericName": "Ácido Ascórbico",
       "brands": [
         "Energil C",
-        "Energrip C"
+        "Energrip C",
+        "Citroplex",
+        "Acerogrip C",
+        "Optimum Nutrition",
+        "Vitergyl C",
+        "Cewin",
+        "Cetivit",
+        "Citrobion C",
+        "Cevita",
+        "Vagi C",
+        "Ceforte",
+        "Refort C",
+        "Vitamina C Sb",
+        "Ceglen",
+        "Bio-C",
+        "Vitamina C  Amazon Ervas",
+        "Cenevit",
+        "Cepluvitin",
+        "Vitaxon C",
+        "Caas - C",
+        "Lafepe Vitamina C",
+        "Coristina Vitamina C",
+        "Fdc Vitamin C Film Coated",
+        "Vitacin",
+        "Citrovit",
+        "Ácido Ascórbico",
+        "Biovita C",
+        "Optimum Nutrition Vitamin C",
+        "Aceviton",
+        "Cetard",
+        "Redoxon",
+        "Lima C",
+        "Aceína",
+        "Ultra Citro C",
+        "Santisavit C",
+        "Vitamina C Top Life",
+        "Ceplus",
+        "Vitamin C-2000 Mg",
+        "Viter C",
+        "Vitamina C",
+        "Vivagil C",
+        "Acerolita",
+        "Vitasantisa C",
+        "Suplevit C Prevent",
+        "Vitariston C",
+        "Sun C",
+        "Hyvit C",
+        "Dr Theiss C Vita",
+        "Laqfa - Vitamina C",
+        "Conthenc",
+        "Vitacetil",
+        "Bucarvit C",
+        "Acerolup C",
+        "Vit C",
+        "Vitaone C",
+        "Vagivit",
+        "Vitamina C Granado",
+        "Fonto-Vit C",
+        "C-Vitam",
+        "Vitesse",
+        "Vitamicê",
+        "Vitaminword",
+        "Efervit C",
+        "Cepon",
+        "Additiva Vitamina C",
+        "Chewable Acerola C",
+        "Vitamina C Injetável",
+        "Cevit",
+        "Vitamina C Natural Wealth",
+        "Ácido Ascórbico Hypofarma",
+        "Vitamina C Mariol",
+        "Lqfex Ácido Ascórbico",
+        "Vitamina C Vit-Gold",
+        "Nature Made Vitamina C 1000 G",
+        "Gnc Vitamin C 500"
       ],
       "category": "Vitamina"
     },
@@ -14529,7 +15895,8 @@
     {
       "genericName": "Vitamina A",
       "brands": [
-        "AROVIT"
+        "AROVIT",
+        "Vitavit"
       ],
       "category": "Vitamina"
     },
@@ -14606,7 +15973,39 @@
     {
       "genericName": "Aminofilina",
       "brands": [
-        "Asmapen"
+        "Asmapen",
+        "Aminofilina",
+        "Pumodilat",
+        "Aminoima",
+        "Asmoquinol(aminofilina)",
+        "Minoton",
+        "Aminoliv",
+        "Aminocris",
+        "Funed - Aminofilina",
+        "Asmofilin",
+        "Furp-Aminofilina",
+        "Aminofil",
+        "Aminogel",
+        "Aminolex",
+        "Anofilin",
+        "Lfm - Aminofilina",
+        "Aminofilon",
+        "Lafepe - Aminofilina",
+        "Aminotil",
+        "Asmodrin",
+        "Lqfex- Aminofilina",
+        "Aminotrat",
+        "Minofil",
+        "Hyfilina",
+        "Unifilin",
+        "Asmafin",
+        "Nuplam - Aminofilina",
+        "Asmafem",
+        "Laqfa - Aminofilina",
+        "Aminofarma",
+        "Aminofinil",
+        "Resminoliv",
+        "Aminosantisa"
       ],
       "category": "Broncodilatador"
     },
@@ -14622,14 +16021,51 @@
       "brands": [
         "BENZAC AC",
         "BENZAC AC WASH 5",
-        "BENZAC WASH"
+        "BENZAC WASH",
+        "Peroxiben",
+        "Acnase Gel",
+        "Careclean"
       ],
       "category": "Dermatológico"
     },
     {
       "genericName": "Benzoato de benzila",
       "brands": [
-        "Benzin"
+        "Benzin",
+        "Parenzila",
+        "Benzoderm",
+        "Pruriderm",
+        "Ped-Benzil",
+        "Miticoçan",
+        "Benzoben",
+        "Benzoato De Benzila",
+        "Benzotisan",
+        "Scabenzil",
+        "Benzoax",
+        "Bencapil",
+        "Escab-Ifal",
+        "Sarnezan",
+        "Sarnilab",
+        "Iquego-Benzoato De Benzila",
+        "Funed - Benzoato De Benzila",
+        "Benzo-Bras",
+        "Sarnodex",
+        "Benzolato",
+        "Parasimed",
+        "Benzocid",
+        "Micozan",
+        "Ntf Benzoato",
+        "Sarnizila",
+        "Sarnerico",
+        "Benzolom",
+        "Pruridol",
+        "Scabios",
+        "Sanasar",
+        "Acarsan",
+        "Benzoeskim",
+        "Benzibel",
+        "Lafepe - Benzoato De Benzila",
+        "Zilaben"
       ],
       "category": "Antiparasitário"
     },
@@ -14664,7 +16100,22 @@
         "Glicose Hypofarma",
         "SOLUÇÃO DE GLICOSE 25%",
         "SOLUÇÃO DE GLICOSE 5%",
-        "SOLUÇÃO DE GLICOSE 50%"
+        "SOLUÇÃO DE GLICOSE 50%",
+        "Glicose",
+        "Glicose Beker",
+        "Solução De Glicose",
+        "Solução De Glicose B. Braun",
+        "Farmace-Glicose 5% Solução Isotonica",
+        "Isofarma - Solução De Glicose",
+        "Jp Glicose",
+        "Glicose Halex Istar",
+        "Furp - Glicose",
+        "Isofarma - Soluções  Glicose 25%",
+        "Lqfex Glicose 25%",
+        "Glicose 10% Darrow",
+        "Glicose 5%",
+        "Solução Glicosada Madrevita",
+        "Solucao De Glicose A 5% Isotonica"
       ],
       "category": "Outros"
     },
@@ -14679,7 +16130,9 @@
       "genericName": "Tiamina",
       "brands": [
         "Benerva",
-        "THIAMINOSE"
+        "THIAMINOSE",
+        "Vitaminer S",
+        "Biostress"
       ],
       "category": "Vitamina"
     },
@@ -14693,7 +16146,8 @@
     {
       "genericName": "Betaistina",
       "brands": [
-        "Betaserc"
+        "Betaserc",
+        "Dicloridrato De Betaistina"
       ],
       "category": "Outros"
     },
@@ -14726,7 +16180,10 @@
     {
       "genericName": "Lisado Bacteriano",
       "brands": [
-        "Broncho-Vaxom"
+        "Broncho-Vaxom",
+        "Extralerg",
+        "Paxoral",
+        "Estimoral"
       ],
       "category": "Imunobiológico"
     },
@@ -14754,14 +16211,31 @@
     {
       "genericName": "Cefalotina Sódica",
       "brands": [
-        "Cefalotina Sódica"
+        "Cefalotina Sódica",
+        "Cefariston",
+        "Cefaxitin",
+        "Zenax",
+        "Cefalotil",
+        "Furp-Cefalotina Sodica",
+        "Cefalosol",
+        "Falotin",
+        "Cefalotina",
+        "Ceflen",
+        "Kefalomax"
       ],
       "category": "Antibiótico"
     },
     {
       "genericName": "Cefoxitina Sódica",
       "brands": [
-        "Cefoxitina Sódica"
+        "Cefoxitina Sódica",
+        "Neo Cefox",
+        "Cefton",
+        "Kefox",
+        "Cefox",
+        "Gamacef",
+        "Mefoxin",
+        "Cefoxin"
       ],
       "category": "Antibiótico"
     },
@@ -14796,7 +16270,33 @@
     {
       "genericName": "Cinarizina",
       "brands": [
-        "Cinarizina"
+        "Cinarizina",
+        "Antigeron",
+        "Fluxon",
+        "Cinafar",
+        "Stugeron",
+        "Cinarite",
+        "Cinarix",
+        "Vessel",
+        "Medgeron",
+        "Cinazon",
+        "Nerizina",
+        "Ductogeron",
+        "Securizina",
+        "Vasocinar",
+        "Vertigeron",
+        "Lupegeron",
+        "Vertirizym",
+        "Laberitin",
+        "Cinarina",
+        "Verzum",
+        "Civertim",
+        "Cinazin",
+        "Cinaran",
+        "Cinarin",
+        "Cronogeron",
+        "Labigeron",
+        "Cinalen Retard"
       ],
       "category": "Anti-histamínico"
     },
@@ -14811,7 +16311,13 @@
     {
       "genericName": "Clonixinato de Lisina",
       "brands": [
-        "Clonixinato de Lisina"
+        "Clonixinato de Lisina",
+        "Dolamin",
+        "Clonix",
+        "Ciclalgin",
+        "Firac",
+        "Meva",
+        "Chemodor"
       ],
       "category": "Anti-inflamatório (AINE)"
     },
@@ -14825,14 +16331,21 @@
     {
       "genericName": "Cloridrato de Benazepril",
       "brands": [
-        "Cloridrato de Benazepril"
+        "Cloridrato de Benazepril",
+        "Bhena",
+        "Lotensin"
       ],
       "category": "Anti-hipertensivo"
     },
     {
       "genericName": "Cloridrato de Bupivacaína",
       "brands": [
-        "Cloridrato de Bupivacaína"
+        "Cloridrato de Bupivacaína",
+        "Bupican",
+        "Bupstesic",
+        "Marcaina",
+        "Longacaina",
+        "Dorcaína"
       ],
       "category": "Anestésico"
     },
@@ -14846,7 +16359,11 @@
     {
       "genericName": "Cloridrato de Cinacalcete",
       "brands": [
-        "Cloridrato de Cinacalcete"
+        "Cloridrato de Cinacalcete",
+        "Missort",
+        "Mimpara",
+        "Calt",
+        "Paraticet"
       ],
       "category": "Outros"
     },
@@ -14860,119 +16377,324 @@
     {
       "genericName": "Cloridrato de Dobutamina",
       "brands": [
-        "Cloridrato de Dobutamina"
+        "Cloridrato de Dobutamina",
+        "Dobutariston",
+        "Dobu",
+        "Dobutrex",
+        "Dobutaflex",
+        "Neobutamina",
+        "Dobutanil",
+        "Dobutabbott",
+        "Dobine Tm",
+        "Dobutamina",
+        "Dobtan",
+        "Dobutal"
       ],
       "category": "Cardiovascular"
     },
     {
       "genericName": "Cloridrato de Dopamina",
       "brands": [
-        "Cloridrato de Dopamina"
+        "Cloridrato de Dopamina",
+        "Dopamol",
+        "Teudom",
+        "Inotropisa",
+        "Dopabane",
+        "Dopamina",
+        "Revivan",
+        "Dopimex",
+        "Doplafex",
+        "Dopacris",
+        "Constriction",
+        "Dopatil"
       ],
       "category": "Cardiovascular"
     },
     {
       "genericName": "Cloridrato de Epirrubicina",
       "brands": [
-        "Cloridrato de Epirrubicina"
+        "Cloridrato de Epirrubicina",
+        "Tecnomax",
+        "Farmorubicina",
+        "Farmorubicina Rd",
+        "Nuovodox",
+        "Rubina",
+        "Brecila"
       ],
       "category": "Oncológico"
     },
     {
       "genericName": "Cloridrato de Fingolimode",
       "brands": [
-        "Cloridrato de Fingolimode"
+        "Cloridrato de Fingolimode",
+        "Gilenya"
       ],
       "category": "Imunossupressor"
     },
     {
       "genericName": "Cloridrato de Gencitabina",
       "brands": [
-        "Cloridrato de Gencitabina"
+        "Cloridrato de Gencitabina",
+        "Evozar",
+        "Gemcired",
+        "Gemcit",
+        "Gencix",
+        "Zybina",
+        "Mylzar",
+        "Gcib",
+        "Hetgem",
+        "Emtaz",
+        "Gemzar",
+        "Gemcilib",
+        "Genabyx",
+        "Genlibbs",
+        "Pamigen"
       ],
       "category": "Oncológico"
     },
     {
       "genericName": "Cloridrato de Irinotecano",
       "brands": [
-        "Cloridrato de Irinotecano"
+        "Cloridrato de Irinotecano",
+        "Evoterin",
+        "Irimac",
+        "Irinolibbs",
+        "Camptosar",
+        "Dosatecan",
+        "Ítec",
+        "Biotecan"
       ],
       "category": "Oncológico"
     },
     {
       "genericName": "Cloridrato de Lercanidipino",
       "brands": [
-        "Cloridrato de Lercanidipino"
+        "Cloridrato de Lercanidipino",
+        "Previpress",
+        "Lercan",
+        "Zanidip"
       ],
       "category": "Anti-hipertensivo"
     },
     {
       "genericName": "Cloridrato de Lidocaína",
       "brands": [
-        "Cloridrato de Lidocaína"
+        "Cloridrato de Lidocaína",
+        "Xylocaina 2% Sem Vaso Constritor",
+        "Xylestesin Sem Vasoconstritor",
+        "Lidial",
+        "Xylid",
+        "Lidogel",
+        "Nopasure",
+        "Sensinil Tm",
+        "Lidopass",
+        "Lidocabbot",
+        "Lidoston",
+        "Lidol",
+        "Lidostesim Sv",
+        "Hypocaína Hyperbárica",
+        "Lqfex Cloridrato De Lidocaina"
       ],
       "category": "Anestésico"
     },
     {
       "genericName": "Cloridrato de Lincomicina",
       "brands": [
-        "Cloridrato de Lincomicina"
+        "Cloridrato de Lincomicina",
+        "Frademicina",
+        "Lincovax",
+        "Linatron",
+        "Lincostar",
+        "Neo Linco",
+        "Lincomin",
+        "Lincocris",
+        "Lincoflan",
+        "Lincomisan",
+        "Farmicina",
+        "Hylinc"
       ],
       "category": "Antibiótico"
     },
     {
       "genericName": "Cloridrato de Mepivacaína",
       "brands": [
-        "Cloridrato de Mepivacaína"
+        "Cloridrato de Mepivacaína",
+        "Mepicain 3%",
+        "Mepivalem 3 % Sv",
+        "Mepisv",
+        "Scandicaine 3%",
+        "Mepivacaina 3%"
       ],
       "category": "Anestésico"
     },
     {
       "genericName": "Cloridrato de Naratriptana",
       "brands": [
-        "Cloridrato de Naratriptana"
+        "Cloridrato de Naratriptana",
+        "Naranety",
+        "Naramig",
+        "Narcef",
+        "Naratano",
+        "Naratrin"
       ],
       "category": "Antimigranoso"
     },
     {
       "genericName": "Cloridrato de Petidina",
       "brands": [
-        "Cloridrato de Petidina"
+        "Cloridrato de Petidina",
+        "Dolantina",
+        "Cloridrato De Petidina (port. 344/98 - Lista A1)",
+        "Dornot",
+        "Dolosal",
+        "Petinan"
       ],
       "category": "Analgésico Opioide"
     },
     {
       "genericName": "Cloridrato de Pioglitazona",
       "brands": [
-        "Cloridrato de Pioglitazona"
+        "Cloridrato de Pioglitazona",
+        "Aglitil",
+        "Gliactis",
+        "Piotaz",
+        "Pioglizon",
+        "Pioglit",
+        "Glicopio",
+        "Diaglits",
+        "Doble",
+        "Piomi",
+        "Actos",
+        "Glitasolin",
+        "Stanglit"
       ],
       "category": "Antidiabético"
     },
     {
       "genericName": "Cloridrato de Ranitidina",
       "brands": [
-        "Cloridrato de Ranitidina"
+        "Cloridrato de Ranitidina",
+        "Antidin",
+        "Ranium",
+        "Ultidin",
+        "Ranitidina",
+        "Ranitimor",
+        "Antagon",
+        "Raniclor",
+        "Ranitil",
+        "Ranitheo",
+        "Label",
+        "Tekadin",
+        "Antak",
+        "Neosac",
+        "Ranitinol",
+        "Ranitak",
+        "Ranitzen",
+        "Ranitidil",
+        "Pep-Rani",
+        "Rhanitak",
+        "Ranitin",
+        "Ulcerocin",
+        "Raniblok",
+        "Ranidolim",
+        "Ranidine",
+        "Antrox",
+        "Radan",
+        "Lfm- Ranitidina",
+        "Ranizol",
+        "Zadine",
+        "Aziliv",
+        "Ranimax",
+        "Ranifabra",
+        "Urak",
+        "Ulcoren",
+        "Ulcerodine",
+        "Nititom",
+        "Ulceridina",
+        "Ranicel",
+        "Ranidin",
+        "Tazepin",
+        "Ranitan",
+        "Ulceran",
+        "Hynulin",
+        "Ranition",
+        "Ranytisan",
+        "Lontac",
+        "Rabiodina",
+        "Gastrat",
+        "Label Gotas",
+        "Raniflex",
+        "Prevulcer",
+        "Far-Manguinhos Ranitidina",
+        "Peptak",
+        "Gastak",
+        "Ranitina"
       ],
       "category": "Gastroprotetor"
     },
     {
       "genericName": "Cloridrato de Ropivacaína",
       "brands": [
-        "Cloridrato de Ropivacaína"
+        "Cloridrato de Ropivacaína",
+        "Opivac",
+        "Naropin",
+        "Pigesic",
+        "Anesyn"
       ],
       "category": "Anestésico"
     },
     {
       "genericName": "Cloridrato de Tetraciclina",
       "brands": [
-        "Cloridrato de Tetraciclina"
+        "Cloridrato de Tetraciclina",
+        "Tetragel",
+        "Cinatrex",
+        "Ofite Plus",
+        "Furp - Tetraciclina",
+        "Tetramicin",
+        "Tetracina",
+        "Tetracilil",
+        "Bucaciclina",
+        "Farmanguinhos-Tetraciclina",
+        "Tetraciclina",
+        "Gino - Ricin",
+        "Tetraplex",
+        "Xilofen",
+        "Tetramax",
+        "Combitrex",
+        "Aurecilina",
+        "Lasatrex",
+        "Multigram",
+        "Parenzyme Tetraciclina",
+        "Tetracaps",
+        "Tetraclin",
+        "Tetraben",
+        "Ltf - Tetraciclina",
+        "Uni Tetra"
       ],
       "category": "Antibiótico"
     },
     {
       "genericName": "Cloridrato de Tiamina",
       "brands": [
-        "Cloridrato de Tiamina"
+        "Cloridrato de Tiamina",
+        "Nervamin",
+        "Vitamina B1 Neo Química",
+        "Nerven",
+        "Benerva",
+        "Salsatrêsquinas",
+        "Bêviter",
+        "Vitaum",
+        "Beum",
+        "Vitamina B1",
+        "Beneum",
+        "Hipovit B",
+        "Tiamina",
+        "Naévia",
+        "Fonti B1",
+        "Neurivit",
+        "Elixir Santa Clara",
+        "Acesyl"
       ],
       "category": "Vitamina"
     },
@@ -14986,7 +16708,9 @@
     {
       "genericName": "Pancreatina",
       "brands": [
-        "Creon"
+        "Creon",
+        "Trienzin",
+        "Suprenz"
       ],
       "category": "Suplemento"
     },
@@ -15035,7 +16759,11 @@
     {
       "genericName": "Deferasirox",
       "brands": [
-        "Exjade"
+        "Exjade",
+        "Desairon",
+        "Ezafer",
+        "Deferasirox",
+        "Syderotelos"
       ],
       "category": "Hematopoético"
     },
@@ -15084,7 +16812,8 @@
     {
       "genericName": "AMIFOSTINA",
       "brands": [
-        "ETHYOL"
+        "ETHYOL",
+        "Citostina"
       ],
       "category": "Oncológico"
     },
@@ -15136,7 +16865,29 @@
       "brands": [
         "FERROTRAT 500",
         "FURP - Sulfato Ferroso",
-        "Farmanguinhos Sulfato Ferroso"
+        "Farmanguinhos Sulfato Ferroso",
+        "Far-Manguinhos Sulfato Ferroso",
+        "Sulfato Ferroso",
+        "Prati-Donaduzzi Sulfato Ferroso",
+        "Ironfer",
+        "Sulfaq F",
+        "Sulfato Ferroso Phytolab",
+        "Lfm - Sulfato Ferroso",
+        "Hematofer",
+        "Perfer",
+        "Cimefer",
+        "Salonfer",
+        "Lomfer",
+        "Nuplam - Sulfato Ferroso",
+        "Biofer",
+        "Sulfergel",
+        "Nesh Ferro",
+        "Ferromil",
+        "Ferrotron",
+        "Tratfer",
+        "Ferromax",
+        "Lifal - Sulfato Ferroso",
+        "Ferronil"
       ],
       "category": "Suplemento"
     },
@@ -15150,14 +16901,21 @@
     {
       "genericName": "Propionato de Fluticasona",
       "brands": [
-        "FLUTINOL"
+        "FLUTINOL",
+        "Fluticaps",
+        "Flixotide",
+        "Flutivate",
+        "Flixonase",
+        "Plurair",
+        "Flutican"
       ],
       "category": "Corticosteroide"
     },
     {
       "genericName": "Estreptomicina",
       "brands": [
-        "FURP-estreptomicina"
+        "FURP-estreptomicina",
+        "Sulfato De Estreptomicina"
       ],
       "category": "Antibiótico"
     },
@@ -15171,14 +16929,16 @@
     {
       "genericName": "Deferiprona",
       "brands": [
-        "Ferriprox"
+        "Ferriprox",
+        "Ferriprox Bd"
       ],
       "category": "Hematopoético"
     },
     {
       "genericName": "Diosmina",
       "brands": [
-        "Flebodia"
+        "Flebodia",
+        "Roydass"
       ],
       "category": "Cardiovascular"
     },
@@ -15250,7 +17010,11 @@
       "genericName": "Fator VIII",
       "brands": [
         "HAEMATE P",
-        "Hemofil"
+        "Hemofil",
+        "Lipsa",
+        "Fator Viii De Coagulação",
+        "Fator Viii",
+        "Fator Viii Recombinante"
       ],
       "category": "Hematopoético"
     },
@@ -15278,7 +17042,10 @@
     {
       "genericName": "Imunoglobulina Antitetânica",
       "brands": [
-        "IMUNOGLOBULINA ANTITETÂNICA"
+        "IMUNOGLOBULINA ANTITETÂNICA",
+        "Gama Anti-Tetano Grifols",
+        "Soro Antitetânico",
+        "Tetanobulin"
       ],
       "category": "Imunobiológico"
     },
@@ -15313,7 +17080,20 @@
     {
       "genericName": "Iodeto de potássio",
       "brands": [
-        "IODETO DE POTÁSSIO"
+        "IODETO DE POTÁSSIO",
+        "Iodum Nutriessence",
+        "Iodemax",
+        "Xarope Santo Antonio",
+        "Broncofisin",
+        "Ioden",
+        "Iodetox",
+        "Efoexi",
+        "Xarope Neo",
+        "Laqfa - Iodeto De Potássio",
+        "Killtosse",
+        "Iodetoss",
+        "Broncofedrin",
+        "Tossetrat"
       ],
       "category": "Suplemento"
     },
@@ -15334,7 +17114,8 @@
     {
       "genericName": "Eplerenona",
       "brands": [
-        "Inspra"
+        "Inspra",
+        "Zimif"
       ],
       "category": "Diurético"
     },
@@ -15369,7 +17150,9 @@
     {
       "genericName": "Citrato de potássio",
       "brands": [
-        "Litocit"
+        "Litocit",
+        "Acalka",
+        "Citrolit"
       ],
       "category": "Urológico"
     },
@@ -15391,21 +17174,27 @@
     {
       "genericName": "Mitomicina",
       "brands": [
-        "MITOCIN"
+        "MITOCIN",
+        "Fauldmito"
       ],
       "category": "Oncológico"
     },
     {
       "genericName": "Bifonazol",
       "brands": [
-        "MYCOSPOR"
+        "MYCOSPOR",
+        "Fonatom"
       ],
       "category": "Antifúngico"
     },
     {
       "genericName": "Cromoglicato dissódico",
       "brands": [
-        "Maxicrom 2% e 4%"
+        "Maxicrom 2% e 4%",
+        "Cromoglicato Dissódico",
+        "Visacrom",
+        "Rilan",
+        "Maxicrom"
       ],
       "category": "Oftalmológico"
     },
@@ -15419,7 +17208,8 @@
     {
       "genericName": "Mesilato de desferroxamina",
       "brands": [
-        "Mesilato de Desferroxamina"
+        "Mesilato de Desferroxamina",
+        "Desferal"
       ],
       "category": "Outros"
     },
@@ -15440,7 +17230,11 @@
     {
       "genericName": "Metilsulfato de neostigmina",
       "brands": [
-        "Metilsulfato de Neostigmina"
+        "Metilsulfato de Neostigmina",
+        "Neosthy",
+        "Neostigmin",
+        "Prostigmine",
+        "Normastig"
       ],
       "category": "Outros"
     },
@@ -15468,7 +17262,22 @@
     {
       "genericName": "Dropropizina",
       "brands": [
-        "Neotoss"
+        "Neotoss",
+        "Ziptuss",
+        "Dopropizina",
+        "Notuss Tss",
+        "Vibral",
+        "Atossion",
+        "Dropropizina",
+        "Flextoss",
+        "Droptoss",
+        "Eritos",
+        "Coftoss",
+        "Tussaveto",
+        "Vibrazin",
+        "Ecos",
+        "Gotas Binelli",
+        "Tosflu"
       ],
       "category": "Antitussígeno"
     },
@@ -15490,7 +17299,15 @@
     {
       "genericName": "Flurbiprofeno",
       "brands": [
-        "Ocufen"
+        "Ocufen",
+        "Strepsils",
+        "Sabivarnex",
+        "Stopain",
+        "Beneflamtabs",
+        "Flurbiprofeno",
+        "Targus",
+        "Genoprofen",
+        "Targus Lat"
       ],
       "category": "Anti-inflamatório (AINE)"
     },
@@ -15505,21 +17322,44 @@
       "genericName": "Carmelose Sódica",
       "brands": [
         "Optive",
-        "Optive UD"
+        "Optive UD",
+        "Lacrifilm",
+        "Optolubri",
+        "Lacrilax",
+        "Neo Fresh",
+        "Fresh Tears",
+        "Plenigell",
+        "Acu Fresh",
+        "Medolhos",
+        "Liris",
+        "Salivan",
+        "Tearfilm",
+        "Lagrimoura",
+        "Dews",
+        "Ecofilm",
+        "Cellufresh"
       ],
       "category": "Oftalmológico"
     },
     {
       "genericName": "Cloridrato de xilometazolina",
       "brands": [
-        "Otrivina"
+        "Otrivina",
+        "Orlaxyl"
       ],
       "category": "Outros"
     },
     {
       "genericName": "Oxacilina Sódica",
       "brands": [
-        "Oxacilina Sódica"
+        "Oxacilina Sódica",
+        "Oxacil",
+        "Oxanon",
+        "Roxacilin",
+        "Oxacilil",
+        "Staficilin-N",
+        "Teutocilin",
+        "Bactocilin"
       ],
       "category": "Antibiótico"
     },
@@ -15533,7 +17373,8 @@
     {
       "genericName": "Penicilina G Benzatina",
       "brands": [
-        "PENICILINA G BENZATINA"
+        "PENICILINA G BENZATINA",
+        "Biozatin"
       ],
       "category": "Antibiótico"
     },
@@ -15554,7 +17395,14 @@
     {
       "genericName": "Pravastatina Sódica",
       "brands": [
-        "PRAVACOL"
+        "PRAVACOL",
+        "Pravatrox",
+        "Pravastatina Sódica",
+        "Lfm -pravastatina",
+        "Hipovastin",
+        "Distin",
+        "Vastalia",
+        "Colevacol"
       ],
       "category": "Hipolipemiante"
     },
@@ -15586,7 +17434,19 @@
         "TRENTAL",
         "TRENTAL 600",
         "TRENTAL Solução Injetável",
-        "TRENTAL VERT"
+        "TRENTAL VERT",
+        "Pentoxifilina",
+        "Trentafilina",
+        "Trentofil",
+        "Pentox",
+        "Arteron",
+        "Pentrat",
+        "Perental",
+        "Vascer",
+        "Pentoxibal",
+        "Pentalox",
+        "Pentoxin",
+        "Peripan 400 Depotabs"
       ],
       "category": "Cardiovascular"
     },
@@ -15600,14 +17460,23 @@
     {
       "genericName": "Milrinona",
       "brands": [
-        "Primacor"
+        "Primacor",
+        "Lactato De Milrinona"
       ],
       "category": "Cardiovascular"
     },
     {
       "genericName": "Promestrieno",
       "brands": [
-        "Promestrieno"
+        "Promestrieno",
+        "Promim",
+        "Promestrin",
+        "Colpotrofine",
+        "Avestria",
+        "Colpofem",
+        "Eutrofic",
+        "Coltrieno",
+        "Antrofi"
       ],
       "category": "Hormônio Feminino"
     },
@@ -15649,7 +17518,12 @@
     {
       "genericName": "Rifamicina SV Sódica",
       "brands": [
-        "Rifamicina SV Sódica"
+        "Rifamicina SV Sódica",
+        "Rifamicina",
+        "Rifan Spray",
+        "Arrif",
+        "Rifasan",
+        "Rifocina Spray"
       ],
       "category": "Antibiótico"
     },
@@ -15677,14 +17551,25 @@
     {
       "genericName": "Estreptoquinase",
       "brands": [
-        "STREPTASE"
+        "STREPTASE",
+        "Streptonase",
+        "Unitinase",
+        "Streptokin",
+        "Streptosilab",
+        "Solustrep",
+        "Strek"
       ],
       "category": "Cardiovascular"
     },
     {
       "genericName": "Sulfato de Quinina",
       "brands": [
-        "SULFATO QUININA FARMOQUIMICA 500 mg."
+        "SULFATO QUININA FARMOQUIMICA 500 mg.",
+        "Quinina - Ems",
+        "Lqfex - Sulfato De Quinina",
+        "Quinina",
+        "Ivb- Sulfato De Quinina",
+        "Plasquinin"
       ],
       "category": "Antiparasitário"
     },
@@ -15735,7 +17620,11 @@
     {
       "genericName": "Succinato de Sumatriptana",
       "brands": [
-        "Succinato de Sumatriptana"
+        "Succinato de Sumatriptana",
+        "Imigran",
+        "Succinato De Sumatriptano",
+        "Sumax",
+        "Sutriptan"
       ],
       "category": "Antimigranoso"
     },
@@ -15749,7 +17638,18 @@
     {
       "genericName": "Sulfadiazina de Prata",
       "brands": [
-        "Sulfadiazina de Prata"
+        "Sulfadiazina de Prata",
+        "Dermazine",
+        "Sulfaderm",
+        "Sulfadiazina Argentica",
+        "Vitadiazin",
+        "Sulph",
+        "Agezag",
+        "Ataderm",
+        "Aziprata",
+        "Silglós",
+        "Pratazine",
+        "Alividerm"
       ],
       "category": "Antibiótico"
     },
@@ -15763,7 +17663,21 @@
     {
       "genericName": "Citrato de Tamoxifeno",
       "brands": [
-        "TAMOFEN"
+        "TAMOFEN",
+        "Citrato De Tamoxifeno",
+        "Tamooex",
+        "Tecnotax",
+        "Tamox",
+        "Taxofen",
+        "Tamoplex",
+        "Nolvadex",
+        "Festone",
+        "Tacfen",
+        "Tamoxin",
+        "Tamoxyta",
+        "Tamoxifeno",
+        "Bilem",
+        "Taxarim"
       ],
       "category": "Oncológico"
     },
@@ -15805,7 +17719,8 @@
     {
       "genericName": "Catuaba",
       "brands": [
-        "CATUABA NATURAL IMA"
+        "CATUABA NATURAL IMA",
+        "Juvaliun"
       ],
       "category": "Fitoterápico"
     },
@@ -15834,7 +17749,14 @@
     {
       "genericName": "Fluoreto de sódio",
       "brands": [
-        "NATIVIT FLÚOR"
+        "NATIVIT FLÚOR",
+        "Radionaf",
+        "Laqfa - Flureto De Sodio",
+        "Hc-Esquelerad",
+        "Flugel",
+        "Fluor Gel Topex",
+        "Furp - Fluoreto De Sódio (18f)",
+        "Fluoreto De Sodio"
       ],
       "category": "Suplemento"
     },
@@ -15848,7 +17770,9 @@
     {
       "genericName": "Pamoato de Pirantel",
       "brands": [
-        "Pyverm"
+        "Pyverm",
+        "Vermiscar",
+        "Ascarical"
       ],
       "category": "Antiparasitário"
     },
@@ -15867,5 +17791,5 @@
       "category": "Antirretroviral"
     }
   ],
-  "updatedAt": "2026-07-06"
+  "updatedAt": "2026-10-12"
 }
